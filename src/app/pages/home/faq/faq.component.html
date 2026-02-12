@@ -1,0 +1,107 @@
+<div class="faq-container">
+  <div class="banner-container">
+    <div class="banner-header">
+      <h3>FOIRE AUX QUESTIONS</h3>
+    </div>
+    <div class="banner-header-secondary">
+      <h3>FOIRE AUX QUESTIONS</h3>
+    </div>
+  </div>
+  <div class="questions-container">
+    <div class="left-questions">
+      <div class="question-container" [class.extended]="selectedQ === 0" (click)="changeSelectedQ(0)">
+        <div class="title-container">
+          <p class="question-title">CRÉER ET ENVOYER UNE FACTURE</p>
+          @if (selectedQ !== 0){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+      <div class="question-container" [class.extended]="selectedQ === 1" (click)="changeSelectedQ(1)">
+        <div class="title-container">
+          <p class="question-title">CALCUL COMMISSION APPORTS D'AFFAIRES</p>
+          @if (selectedQ !== 1){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div >
+      <div class="question-container" [class.extended]="selectedQ === 2" (click)="changeSelectedQ(2)">
+        <div class="title-container">
+          <p class="question-title">CONNEXION ET MISE EN RÉSEAU</p>
+          @if (selectedQ !== 2){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="right-questions">
+      <div class="question-container" [class.extended]="selectedQ === 3" (click)="changeSelectedQ(3)">
+        <div class="title-container">
+          <p class="question-title">LA FACTURATION COLLABORATIVE</p>
+          @if (selectedQ !== 3){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+      <div class="question-container" [class.extended]="selectedQ === 4" (click)="changeSelectedQ(4)">
+        <div class="title-container">
+          <p class="question-title">COOPÉRATIVE ET SAP</p>
+          @if (selectedQ !== 4){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+      <div class="question-container" [class.extended]="selectedQ === 5" (click)="changeSelectedQ(5)">
+        <div class="title-container">
+          <p class="question-title">COMPTABILITÉ</p>
+          @if (selectedQ !== 5){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+      <div class="question-container" [class.extended]="selectedQ === 6" (click)="changeSelectedQ(6)">
+        <div class="title-container">
+          <p class="question-title">PARRAINER DES FUTURS MOZEURS</p>
+          @if (selectedQ !== 6){
+            <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
+          } @else{
+            <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
+          }
+        </div>
+        <div class="answer">
+          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

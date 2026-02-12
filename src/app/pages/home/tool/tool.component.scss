@@ -1,0 +1,185 @@
+.tool-container{
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: 5rem;
+
+  &::before {
+    content: ""; /* Obligatoire pour afficher le pseudo-élément */
+    background-image: url('/assets/images/bg-fact.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    /* Positionnement absolu pour couvrir tout le parent */
+    position: absolute;
+    top: 0;
+    left: -15rem;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+
+    /* C'EST ICI QUE TU GÈRES L'OPACITÉ */
+    opacity: 0.1; /* 30% visible */
+
+    /* IMPORTANT : On le met derrière le texte */
+    z-index: -1;
+  }
+}
+
+.banner-header{
+  background: var(--interaction-color);
+  color: var(--background-color);
+  font-size: clamp(1.75rem, 0.7273rem + 2.7273vw, 4rem);
+  text-align: center;
+  padding: 4px 2.5rem;
+  transform: rotate(-2deg);
+  margin-top: 5rem;
+}
+
+.tiles-container{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.tile{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 20vw;
+  min-width: 384px;
+  flex-shrink: 1;
+  transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
+}
+
+.tile:hover{
+  transform: scale(1.1);
+}
+
+.tile-content{
+  background: var(--primary-color);
+  border-radius: 3rem;
+  padding: 5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  height: 444px;
+}
+
+.banner-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.icons{
+  height: 9rem;
+  position: relative;
+  top: 4.5rem;
+  left: 0.25rem;
+}
+
+.fact-icons{
+  animation: floating-reverse 2.5s linear infinite;
+}
+
+.incomes-icons{
+  animation: floating-reverse 2.5s linear infinite;
+}
+
+.connect-icons{
+  animation: floating 2.5s linear infinite;
+}
+
+.banner-accent{
+  background: var(--accent-color);
+  color: var(--primary-color);
+  padding: 0.25rem 1rem;
+  font-weight: bold;
+  transform: rotate(3deg);
+  font-size: 1.25rem;
+}
+
+.banner-secondary{
+  background: var(--background-color);
+  color: var(--primary-color);
+  padding: 0.25rem 1rem;
+  font-weight: bold;
+  transform: rotate(-2deg);
+  font-size: 1.25rem;
+}
+
+.text{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  font-weight: bold;
+  color: var(--background-color);
+}
+
+.span-background{
+  background: var(--accent-color);
+  color: var(--primary-color);
+  padding: 0.25rem;
+}
+
+.span-color{
+  color: var(--accent-color);
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes floating-reverse {
+  0% {
+    transform: translateY(5px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(5px);
+  }
+}
+
+@media (max-width: 800px){
+  .banner-header{
+    font-size: 1.5rem;
+    padding: 4px 1rem;
+  }
+
+  .tile{
+    padding: 0 1rem;
+    margin-top: -3rem;
+  }
+
+  .tiles-container{
+    gap: 0;
+  }
+}
+

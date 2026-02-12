@@ -1,1 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
+@font-face {
+  font-family: 'SNPRO';
+  src: url('../public/assets/fonts/SNPro-VariableFont_wght.ttf') format('truetype');
+}
+
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'SNPRO', sans-serif;
+}
+
+body{
+  --primary-color: #145775;
+  --interaction-color: #0297d8;
+  --accent-color: #73e491;
+
+  --background-color: #f7fdf2;
+  --filter-icon-background-color: invert(91%) sepia(18%) saturate(169%) hue-rotate(61deg) brightness(109%) contrast(98%);
+  --filter-primary-color: invert(23%) sepia(20%) saturate(3893%) hue-rotate(168deg) brightness(98%) contrast(84%);
+  --filter-accent-color: invert(44%) sepia(59%) saturate(2374%) hue-rotate(169deg) brightness(92%) contrast(98%);
+  background-color: var(--background-color);
+  --font-family: 'Montserrat', sans-serif;
+}

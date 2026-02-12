@@ -1,0 +1,296 @@
+.tarif-container{
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 2rem;
+
+  &::before {
+    content: ""; /* Obligatoire pour afficher le pseudo-élément */
+    background-image: url('/assets/images/tarif-bg.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    /* Positionnement absolu pour couvrir tout le parent */
+    position: absolute;
+    top: 0;
+    left: -15rem;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+
+    /* C'EST ICI QUE TU GÈRES L'OPACITÉ */
+    opacity: 0.1; /* 30% visible */
+
+    /* IMPORTANT : On le met derrière le texte */
+    z-index: -1;
+  }
+}
+
+.banner-header{
+  background: var(--interaction-color);
+  color: var(--background-color);
+  font-size: clamp(1.75rem, 0.7273rem + 2.7273vw, 4rem);
+  padding: 4px 2.5rem;
+  transform: rotate(-2deg);
+}
+
+.tarif-cards-container{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 4rem;
+}
+
+.banner-tile{
+  background: var(--accent-color);
+  color: var(--primary-color);
+  font-size: clamp(1rem, -0.0714rem + 2.1429vw, 2.5rem);
+  position: relative;
+  top: -1rem;
+  left: -3rem;
+  transform: rotate(-12deg);
+  width: 15rem;
+  font-weight: 600;
+  padding: 4px 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coop-banner{
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+.indep-banner{
+  background: var(--accent-color);
+  color: var(--primary-color);
+  inline-size: auto;
+}
+
+.tile{
+  padding: 1.5rem;
+  border-radius: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
+}
+
+.indep{
+  background: linear-gradient(145deg, #155d7d, #124e69);
+  box-shadow:  21px 21px 57px #114c66 inset;
+}
+
+.coop{
+  background: linear-gradient(145deg, #7bf49b, #68cd83);
+  box-shadow:  21px 21px 57px #64c67e inset;
+  //-21px -21px 57px #82ffa4;
+}
+
+.price{
+  font-size: clamp(1rem, -0.0714rem + 2.1429vw, 2.5rem);
+  color: var(--background-color);
+  font-weight: bold;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transform: rotate(-2deg);
+  margin-bottom: 2rem;
+}
+
+.tile:hover{
+  transform: scale(1.05);
+  //box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
+}
+
+.indep:hover{
+  box-shadow:  21px 21px 57px #114c66 inset, 0 1px 15px 0 rgba(0, 0, 0, 0.25);
+}
+
+.coop:hover{
+  box-shadow:  21px 21px 57px #64c67e inset, 0 1px 15px 0 rgba(0, 0, 0, 0.25);
+}
+
+.number{
+  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem);
+}
+
+.text-container{
+  color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
+  font-weight: bold;
+
+  & span{
+    background: var(--accent-color);
+    color: var(--primary-color);
+    padding: 0 12px;
+  }
+
+  & .span-coop{
+    background: var(--background-color);
+  }
+}
+
+.icons{
+  position: relative;
+  height: 11rem;
+  z-index: 10;
+}
+
+.hands{
+  right: 8rem;
+  top: -12rem;
+  animation: floating 2.5s linear infinite;
+}
+
+.rocket{
+  animation: floating-reverse 2.5s linear infinite;
+  right: -5rem;
+  top: 1rem;
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes floating-reverse {
+  0% {
+    transform: translateY(5px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(5px);
+  }
+}
+
+.inscription-container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: -7rem;
+
+  & button {
+    background: var(--primary-color);
+    box-shadow:  21px 21px 57px #114c66 inset;
+    border: none;
+    border-radius: 2rem;
+    color: var(--background-color);
+    font-weight: bold;
+    height: 4rem;
+    padding: 0 3.5rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
+    font-size: 1.2rem;
+  }
+
+  & button:hover{
+    box-shadow:  21px 21px 57px #114c66 inset, 0 1px 15px 0 rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+  }
+}
+
+.coop-container, .indep-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1114px){
+
+  .inscription-container{
+    margin-top: 0;
+  }
+
+  .tarif-cards-container{
+    gap: 6rem;
+  }
+
+  .indep-container{
+    margin-right: 9rem;
+  }
+
+  .coop-container{
+    margin-left: 8rem;
+  }
+
+  .icons{
+    height: 9rem;
+  }
+
+  .hands{
+    top: -8rem;
+  }
+
+  .rocket{
+    right: -2rem;
+  }
+}
+
+@media (max-width: 600px){
+
+  .inscription-container{
+    margin-top: -3rem;
+  }
+
+  .indep-container{
+    margin-right: 8rem;
+  }
+  .coop-container{
+    margin-left: 9rem;
+    margin-top: -3rem;
+  }
+
+  .banner-header{
+    font-size: 1.5rem;
+    padding: 4px 1rem;
+  }
+
+  .tile{
+    width: 20rem;
+  }
+
+  .banner-tile{
+    width: 10rem
+  }
+
+  .text-container{
+    font-size: 0.85rem;
+  }
+
+  .number{font-size: 3rem}
+
+  .rocket{right: -4rem}
+
+  .indep-container{
+    margin-right: 7rem;
+  }
+}

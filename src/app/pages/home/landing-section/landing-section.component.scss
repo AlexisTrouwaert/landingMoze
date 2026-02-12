@@ -1,0 +1,410 @@
+:host {
+  --moze-green: #6BD498; // Le vert du fond
+  --moze-dark-blue: #144968; // Le bleu foncé des textes/boutons
+  --moze-light-blue: #3AAFE3; // Le bleu clair des pilules
+  --moze-white: #ffffff;
+  --font-family: 'Montserrat', sans-serif; // Assure-toi d'importer une font similaire
+}
+
+.landing-container{
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5rem;
+  padding-top: 6rem;
+}
+
+.hero-container {
+  background-color: var(--accent-color);
+  width: 100%;
+  border-radius: 3rem;
+  padding: 0 4rem;
+  color: var(--primary-color);
+  box-sizing: border-box;
+  //overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.green-section-container{
+  width: 100%;
+  padding: 0 8rem;
+}
+
+// --- Main Content ---
+.hero-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  height: 100%;
+}
+
+.left-column {
+  margin-top: 2rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10rem;
+  justify-content: center;
+}
+
+// Titres inclinés (CSS Transform)
+.main-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(1rem, -0.0714rem + 2.1429vw, 2.5rem);
+  transform: rotate(-5deg); // L'inclinaison globale du titre
+  margin-bottom: 3rem;
+  position: relative;
+  left: -5.5rem;
+  top: 2rem;
+
+  span {
+    padding: 1.5rem 5rem;
+    font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+  }
+
+  .highlight-blue {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    transform: rotate(2deg); // Légère déformation trapèze
+  }
+
+  .highlight-white {
+    position: relative;
+    top: -0.5rem;
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    margin-left: 2rem;
+    transform: rotate(2deg);
+  }
+}
+
+// Bloc features avec le chronomètre
+.features-wrapper {
+  position: relative;
+  margin-left: 4rem; // Espace pour le chrono qui dépasse à gauche
+}
+
+.floating-stopwatch {
+  position: absolute;
+  left: -14rem; // Sort du flux à gauche
+  top: -12rem;
+  //width: clamp(15rem, 2.7273rem + 19.3939vw, 26rem); // Ajuster selon la taille réelle de ton image
+  width: 26rem;
+  z-index: 2;
+  // Animation optionnelle : petite flottaison
+  // animation: float 3s ease-in-out infinite;
+  animation: stopwatch 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+}
+
+.pills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+  //padding-bottom: 2rem;
+  padding-left: 4rem;
+  position: relative;
+  top: -3rem;
+
+  .pill {
+    background-color: var(--moze-light-blue);
+    color: var(--background-color);
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.8rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(20, 73, 104, 0.2);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:nth-child(1) {
+      width: 420px;
+      animation: pill-width-1 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    &:nth-child(2) {
+      width: 380px;
+      animation: pill-width-2 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+      animation-delay: 0.08s;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    &:nth-child(3) {
+      width: 500px;
+      animation: pill-width-3 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+      animation-delay: 0.05s;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+}
+
+// Colonne Droite (Image Main)
+.right-column {
+  position: absolute;
+  top: 0;
+  right: -4rem; // Collé au bord droit de l'écran
+  bottom: 0;
+  width: 100%; // On lui donne une largeur suffisante (moitié d'écran)
+
+  .phone-hand-img {
+    position: absolute;
+    right: -30rem; // On la fait dépasser vers la droite (elle sera coupée par le parent)
+    top: 6.5rem;
+    width: clamp(62.5rem, 49.1071rem + 26.7857vw, 81.25rem);
+
+  }
+}
+
+.animated-text-banner{
+  background: var(--primary-color);
+  height: 5rem;
+  color: var(--background-color);
+  padding: 1rem 0;
+  overflow: hidden; // Cache ce qui dépasse de l'écran
+  white-space: nowrap; // Empêche le texte de passer à la ligne
+  position: relative;
+  z-index: 5; // Pour être sûr qu'il passe au-dessus ou en dessous selon ton besoin
+  width: 105vw; // Un peu plus large que l'écran pour compenser la rotation
+  margin-left: -2.5vw; // Centrage après élargissement
+  margin-top: -2rem;
+}
+
+.track {
+  display: flex;
+  width: fit-content;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+}
+
+.item {
+  font-size: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0 0.5rem; // Espacement entre les mots
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; // Espace entre le mot et l'icône
+
+  & img{
+    height: 2rem;
+    filter: var(--filter-icon-background-color);
+  }
+}
+
+.icon {
+  font-style: normal; // Si c'est du texte, enlève l'italique
+  color: var(--accent-color);
+}
+
+// --- L'ANIMATION ---
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 1200px){
+  .green-section-container{
+    padding: 0 4rem;
+  }
+
+  .pills-container{
+    padding-left: 4rem;
+  }
+}
+
+@keyframes pill-width-1 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 420px;
+  }
+}
+
+@keyframes pill-width-2 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 380px;
+  }
+}
+
+@keyframes pill-width-3 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 500px;
+  }
+}
+
+@keyframes stopwatch {
+  from {
+    transform: translateX(-2rem);
+    opacity: 0.25;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 800px) {
+  .green-section-container{
+    padding: 0 1rem;
+  }
+
+  .green-section-container{
+    padding: 0 4rem;
+  }
+
+  .floating-stopwatch{
+    width: 12rem;
+    top: -4rem;
+    left: -10rem;
+  }
+
+  .green-section-container{
+    padding: 0 1rem;
+  }
+
+  .main-title {
+    font-size: 1rem;
+    margin-bottom: 3rem;
+    left: -4.5rem;
+    top: 2rem;
+
+    span {
+      padding: 1.5rem 0.25rem;
+    }
+  }
+
+  .pills-container {
+    gap: 1rem;
+    margin-left: -5rem;
+    position: relative;
+    top: -0.15rem;
+
+    .pill {
+      padding: 0.25rem .5rem;
+      font-size: 1rem;
+      position: relative;
+      z-index: 1;
+
+      &:nth-child(1) {
+        width: 220px;
+        animation: pill-width-1-2 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      &:nth-child(2) {
+        width: 180px;
+        animation: pill-width-2-2 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+        animation-delay: 0.08s;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      &:nth-child(3) {
+        width: 300px;
+        animation: pill-width-3-2 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+        animation-delay: 0.05s;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .main-title{
+    span {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@keyframes pill-width-1-2 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 220px;
+  }
+}
+
+@keyframes pill-width-2-2 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 180px;
+  }
+}
+
+@keyframes pill-width-3-2 {
+  0% {
+    width: 0px;
+  }
+
+  100%{
+    width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .floating-stopwatch{
+    width: 10rem;
+    top: -4rem;
+    left: -10rem;
+  }
+
+  .pills-container {
+    gap: 1rem;
+    margin-left: -7rem;
+    position: relative;
+    top: -1.5rem;
+
+    .pill {
+      padding: 0.25rem .5rem;
+      font-size: 1rem;
+      position: relative;
+      z-index: 1;
+
+      &:nth-child(3) {
+        width:275px;
+        animation: pill-width-3-2 01s cubic-bezier(0.15, 0.85, 0.45, 1.05);
+        animation-delay: 0.05s;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+.all{
+  width: 100%;
+  padding: 5rem 1rem 1rem 1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.mention-container{
+  width: 100%;
+  max-width: 1200px;
+}
+
+h1, h2, h3, span{
+  font-family: 'Nunito-Bold', sans-serif
+}
+
+h1{
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+h2{
+  color: #1c75a8;
+  margin: 2rem 0 0.5rem 0;
+}
+
+a{
+  color: #1c75a8;
+}
+
+h3{
+  color: #C5CD00FF;
+  margin: 1rem 0 0.25rem 0;
+}
+
+li{
+  margin: 0.5rem 0 0.5rem 2rem;
+}
+
+.separator{
+  margin-top: 5rem;
+}
+
+
