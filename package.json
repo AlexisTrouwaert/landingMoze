@@ -6,6 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "build:prod": "ng build --configuration production",
+    "archive:prod": "npm run build:prod && mkdir -p build/prod && (cd dist/landing && tar -czvf ../../build/prod/landing-PROD-$(date +%Y%m%d%H%M%S).tar.gz .)",
     "test": "ng test"
   },
   "private": true,
