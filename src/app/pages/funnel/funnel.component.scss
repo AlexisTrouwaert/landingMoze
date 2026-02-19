@@ -1,0 +1,74 @@
+.funnel-container {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.funnel-header {
+  padding: 0 8rem;
+  height: 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 2.5rem;
+  cursor: pointer;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-weight: bold;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .back-icon {
+    transform: rotate(180deg);
+    height: 1rem;
+    filter: var(--filter-primary-color);
+  }
+
+  &:hover {
+    color: var(--interaction-color);
+  }
+}
+
+.step-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 2rem;
+  width: 100%;
+
+  &::before {
+    content: "";
+    background-image: url(/assets/images/tarif-bg.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: absolute;
+    top: 0;
+    left: -15rem;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    opacity: 0.3;
+    z-index: -1;
+  }
+}
+
+@media (max-width: 800px) {
+  .funnel-header {
+    padding: 1rem;
+  }
+  .logo { height: 1.8rem; }
+}

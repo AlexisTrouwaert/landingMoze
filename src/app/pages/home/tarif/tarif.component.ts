@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-tarif',
@@ -9,9 +10,9 @@ import { Component } from '@angular/core';
 })
 export class TarifComponent {
 
-  inscription: string = "https://app.mozeconnect.fr/connexion"
+  private router = inject(Router);
 
   redirect() {
-    window.open(this.inscription, "_blank");
+    this.router.navigate(['/commencer']);
   }
 }

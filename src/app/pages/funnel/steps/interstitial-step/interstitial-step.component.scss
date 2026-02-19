@@ -1,0 +1,229 @@
+.step-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+// Layout 2 colonnes
+.split-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5rem;
+  width: 100%;
+}
+
+// --- COLONNE GAUCHE (Texte + Form) ---
+.content-column {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-text {
+  text-align: left;
+  margin-bottom: 2rem;
+
+  .sector-badge {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    padding: 0.4rem 1.2rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    color: var(--primary-color);
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--interaction-color); // Ou primary-color selon préférence
+    font-weight: 500;
+    line-height: 1.4;
+  }
+}
+
+// STYLE FORMULAIRE
+.info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.input-row {
+  display: flex;
+  gap: 1rem;
+
+  .input-group { flex: 1; }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  input {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    background: #FFFFFF;
+    border: 2px solid var(--primary-color); // Bordure bleue cohérente avec les boutons précédents
+    border-radius: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: var(--primary-color);
+    transition: all 0.3s;
+
+    &:focus {
+      outline: none;
+      background: rgba(20, 87, 117, 0.05); // Léger fond bleu au focus
+      box-shadow: 0 0 0 4px rgba(20, 87, 117, 0.1);
+    }
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  .error {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-left: 1rem; // Alignement avec le texte de l'input
+  }
+}
+
+.next-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center; // Centré dans le bouton
+  gap: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  width: 100%; // Bouton pleine largeur
+
+  img {
+    height: 1rem;
+    filter: brightness(0) invert(1);
+  }
+
+  &:hover:not([disabled]) {
+    transform: translateY(-3px);
+    background: var(--interaction-color);
+    box-shadow: 0 5px 15px rgba(20, 87, 117, 0.2);
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+
+// --- COLONNE DROITE (Image + Demi-cercle) ---
+.visual-column {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 650px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 8rem;
+    height: 110%;
+    width: 100%;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    z-index: -1;
+  }
+}
+
+.image-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.dynamic-image {
+  position: relative;
+  top: 2.4rem;
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  transition: opacity 0.3s ease-in-out;
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
+}
+
+.adjust-creatif {
+  top: 4rem;
+}
+
+.adjust-autre {
+  top: 3rem;
+}
+
+// --- ANIMATIONS ---
+.animate-in-left { animation: slideInLeft 0.7s ease-out; }
+.animate-in-right { animation: slideInRight 0.7s ease-out; }
+
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+// --- RESPONSIVE ---
+@media (max-width: 1100px) {
+  .split-layout {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .visual-column {
+    display: none; // Cache l'image sur tablette/mobile
+  }
+
+  .content-column {
+    align-items: center;
+    max-width: 600px;
+    text-align: center;
+  }
+
+  .header-text { text-align: center; }
+
+  // Sur mobile, le bouton prend toute la largeur dispo
+  .next-btn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .step-container { padding: 1rem; }
+
+  .header-text h1 { font-size: 1.8rem; }
+
+  // Passage en colonne pour Nom/Prénom sur très petit écran
+  .input-row { flex-direction: column; gap: 1rem; }
+}

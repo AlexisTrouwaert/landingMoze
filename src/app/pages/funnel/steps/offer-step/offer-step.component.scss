@@ -1,0 +1,111 @@
+.step-container {
+  min-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('/assets/images/tunnel/FOND PRIX.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 2rem;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+h1 {
+  color: var(--primary-color);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--primary-color); // Ou interaction-color selon lisibilité sur le fond
+  margin-bottom: 2rem;
+  font-weight: 600;
+  max-width: 600px;
+}
+
+.offer-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.card-img {
+  position: relative;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15)); // Ombre portée pour détacher du fond
+  transition: transform 0.3s ease;
+
+  &.indep {
+    height: 450px;
+    width: 450px;
+    left: -6.5%;
+  }
+
+  &.coop {
+    left: -4%;
+  }
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.cta-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1.2rem 3rem;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(20, 87, 117, 0.3);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  margin-top: -1rem;
+
+  &:hover {
+    background: var(--interaction-color);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(20, 87, 117, 0.4);
+  }
+}
+
+// Animation d'entrée
+.animate-pop {
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+// Responsive Mobile
+@media (max-width: 600px) {
+  .step-container {
+    padding: 1rem;
+    min-height: auto;
+  }
+
+  .card-img {
+    max-width: 320px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

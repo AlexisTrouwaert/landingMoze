@@ -1,0 +1,105 @@
+<div class="step-container">
+
+  <div class="split-layout">
+
+    <div class="content-column animate-in-left">
+      <div class="header-text">
+        <h1>QUEL EST TON SECTEUR D'ACTIVITÉ ?</h1>
+        <p class="subtitle">MOZE s'adapte à ton métier. On commence par en savoir plus.</p>
+      </div>
+
+      <div class="sector-list">
+
+        <button class="sector-item"
+                (click)="select('SANTE')"
+                (mouseenter)="onMouseEnter('SANTE')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Santé & Paramédical</span>
+          <div class="icons-group">
+            <span class="emoji">🩺</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('SAP')"
+                (mouseenter)="onMouseEnter('SAP')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Services à la personne</span>
+          <div class="icons-group">
+            <span class="emoji">🧼</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('BTP')"
+                (mouseenter)="onMouseEnter('BTP')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">BTP & Artisans</span>
+          <div class="icons-group">
+            <span class="emoji">👷</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('CREATIF')"
+                (mouseenter)="onMouseEnter('CREATIF')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Créatifs & Communication</span>
+          <div class="icons-group">
+            <span class="emoji">💻</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('CONSEIL')"
+                (mouseenter)="onMouseEnter('CONSEIL')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Conseil & Formation</span>
+          <div class="icons-group">
+            <span class="emoji">📚</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('IMMO')"
+                (mouseenter)="onMouseEnter('IMMO')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Services immobilier</span>
+          <div class="icons-group">
+            <span class="emoji">🏡</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+        <button class="sector-item"
+                (click)="select('AUTRE')"
+                (mouseenter)="onMouseEnter('AUTRE')"
+                (mouseleave)="onMouseLeave()">
+          <span class="label">Autre activité</span>
+          <div class="icons-group">
+            <span class="emoji">🤷‍♀️</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+          </div>
+        </button>
+
+      </div>
+
+      <div class="footer-link">
+<!--        <p>Tu as déjà un compte MOZE ? <a href="https://app.mozeconnect.fr/connexion">Clique ici</a></p>-->
+        <p>Tu as déjà un compte MOZE ? <a href="https://nico.by-moze.fr/connexion">Clique ici</a></p>
+      </div>
+    </div>
+
+    <div class="visual-column animate-in-right">
+      <div class="image-wrapper">
+        <img [src]="currentImage()" alt="Illustration du secteur" class="dynamic-image">
+      </div>
+    </div>
+
+  </div>
+</div>

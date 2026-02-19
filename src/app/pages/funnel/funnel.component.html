@@ -1,0 +1,27 @@
+<div class="funnel-container">
+  <header class="funnel-header">
+
+    <div class="header-right">
+      <img src="assets/icons/MozeLogo.svg" alt="MOZE" (click)="goHome()" class="logo">
+    </div>
+
+    <div class="header-left">
+      @if (fs.currentStep() > 1) {
+        <button (click)="fs.previousStep()" class="back-btn">
+          <img src="assets/icons/arrow.svg" class="back-icon" alt="<">
+          Retour
+        </button>
+      }
+    </div>
+  </header>
+
+  <main class="step-content">
+    @switch (fs.currentStep()) {
+      @case (1) { <app-sector-step /> }
+      @case (2) { <app-tax-credit-step /> }
+      @case (3) { <app-sap-step /> }
+      @case (4) { <app-interstitial-step /> }
+      @case (5) { <app-offer-step /> }
+    }
+  </main>
+</div>

@@ -1,0 +1,70 @@
+<div class="step-container">
+
+  <div class="split-layout">
+
+    <div class="content-column animate-in-left">
+
+      <div class="header-text">
+        <span class="sector-badge">{{ getSectorLabel() }}</span>
+        <h1>{{ getTitle() }}</h1>
+        <p class="subtitle">{{ getSubtitle() }}</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="info-form">
+
+        <div class="input-row">
+          <div class="input-group">
+            <input type="text" formControlName="nom" placeholder="Nom">
+            @if(form.get('nom')?.invalid && form.get('nom')?.touched) {
+              <small class="error">Requis</small>
+            }
+          </div>
+          <div class="input-group">
+            <input type="text" formControlName="prenom" placeholder="Prénom">
+            @if(form.get('prenom')?.invalid && form.get('prenom')?.touched) {
+              <small class="error">Requis</small>
+            }
+          </div>
+        </div>
+
+        <div class="input-group">
+          <input type="email" formControlName="email" placeholder="Email professionnel">
+          @if(form.get('email')?.invalid && form.get('email')?.touched) {
+            <small class="error">Email invalide</small>
+          }
+        </div>
+
+        <div class="input-group">
+          <input type="tel" formControlName="telephone" placeholder="Téléphone mobile">
+          @if(form.get('telephone')?.invalid && form.get('telephone')?.touched) {
+            <small class="error">Numéro invalide</small>
+          }
+        </div>
+
+        <div class="input-group">
+          <input type="text" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)" maxlength="14">
+          @if(form.get('siret')?.invalid && form.get('siret')?.touched) {
+            <small class="error">SIRET invalide (14 chiffres)</small>
+          }
+        </div>
+
+        <button type="submit" class="next-btn" [disabled]="form.invalid">
+          Je valide mon inscription <img src="assets/icons/arrow.svg" alt="->">
+        </button>
+
+      </form>
+    </div>
+
+    <div class="visual-column animate-in-right">
+      <div class="image-wrapper">
+        <img
+          [src]="currentImage()"
+          alt="Illustration métier"
+          class="dynamic-image"
+          [class.adjust-creatif]="fs.selectedSector() === 'CREATIF'"
+          [class.adjust-autre]="fs.selectedSector() === 'AUTRE'">
+      </div>
+    </div>
+
+  </div>
+</div>

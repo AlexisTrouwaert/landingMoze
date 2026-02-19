@@ -1,0 +1,18 @@
+<div class="step-container">
+  <div class="content-wrapper">
+    <h1>DÉCOUVRE TA NOUVELLE OFFRE</h1>
+    <p class="subtitle">Tu as fait le bon choix ! Avec ça la gestion de ton entreprise deviendra fluide.</p>
+
+    <div class="offer-visual animate-pop">
+      @if (isCoop()) {
+        <img src="assets/images/tunnel/COOP.png" alt="Offre Coopérative" class="card-img coop">
+      } @else {
+        <img src="assets/images/tunnel/INDEP +.png" alt="Offre Indépendant" class="card-img indep">
+      }
+
+      <button class="cta-btn" (click)="register()">
+        JE DEVIENS MOZEUR !
+      </button>
+    </div>
+  </div>
+</div>
