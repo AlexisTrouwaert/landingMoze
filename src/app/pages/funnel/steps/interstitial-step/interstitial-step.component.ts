@@ -49,9 +49,14 @@ export class InterstitialStepComponent {
     if (this.form.valid) {
       const val = this.form.value;
       const secteurChoisi = this.fs.selectedSector();
+      const nomClean = val.nom!.trim().replace(/\s+/g, '');
+      const prenomClean = val.prenom!.trim().replace(/\s+/g, '');
+      const randomSuffix = Math.floor(100 + Math.random() * 900);
+      const pseudoGenere = `${nomClean}${prenomClean}${randomSuffix}`;
       const dto: UtilisateurInscriptionDTO = {
         nom: val.nom!,
         prenom: val.prenom!,
+        pseudo: pseudoGenere,
         email: val.email!,
         telephonePersonnel: val.telephone!,
         professionnel: {

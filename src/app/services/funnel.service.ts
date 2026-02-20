@@ -5,6 +5,7 @@ import {environment} from "../../environements/environment.prod";
 export interface UtilisateurInscriptionDTO {
   nom: string;
   prenom: string;
+  pseudo: string;
   email: string;
   telephonePersonnel: string;
   professionnel: {
