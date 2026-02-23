@@ -9,11 +9,11 @@ import { Component } from '@angular/core';
 })
 export class FaqComponent {
 
-  selectedQ: 0 | 1 | 2| 3 | 4 | 5 | 6 | 7 = 0;
+  selectedQ: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 = 8;
 
-  changeSelectedQ(q: 0 | 1 | 2| 3 | 4 | 5 | 6) {
-    if(q === this.selectedQ) {
-      this.selectedQ = 7
+  changeSelectedQ(q: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7) {
+    if (q === this.selectedQ) {
+      this.selectedQ = 8;
     } else {
       this.selectedQ = q;
     }

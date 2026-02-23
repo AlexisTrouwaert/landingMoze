@@ -45,7 +45,7 @@ h1 {
   position: relative;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15)); // Ombre portée pour détacher du fond
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15)); // Ombre portée pour détacher du fond
   transition: transform 0.3s ease;
 
   &.indep {
@@ -90,8 +90,14 @@ h1 {
 }
 
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // Responsive Mobile
@@ -103,6 +109,159 @@ h1 {
 
   .card-img {
     max-width: 320px;
+
+    &.indep {
+      height: auto;
+      width: 450px;
+      left: -11.5%;
+    }
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .cta-btn {
+    padding: 0.8rem 1rem;
+  }
+}
+
+// --- GESTION DE L'AFFICHAGE DESKTOP / MOBILE ---
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
+}
+
+// --- RESPONSIVE MOBILE (< 600px) ---
+@media (max-width: 800px) {
+  .step-container {
+    padding: 1rem;
+    min-height: auto;
+  }
+
+  // On masque les images, on affiche les cartes HTML
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  // --- STYLE DES CARTES HTML MOBILE ---
+  .moze-card {
+    width: 90%;
+    max-width: 260px;
+    border-radius: 2.5rem;
+    padding: 3rem 1.5rem 2rem;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  // Carte du haut (Indép +)
+  .indep-card {
+    background-color: #124d68;
+    color: white;
+    z-index: 2; // Reste au-dessus
+  }
+
+  // Carte du bas (Coop)
+  .coop-card {
+    background-color: #6cdc8f;
+    color: white;
+    z-index: 1;
+    margin-top: -1.5rem;
+    padding-top: 3.5rem;
+  }
+
+  // Le cercle "+" entre les cartes
+  .plus-circle {
+    width: 65px;
+    height: 65px;
+    background-color: #009ee0;
+    color: white;
+    font-size: 3.5rem;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+    margin-top: -1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  // Badges ("INDÉP +" et "COOP")
+  .card-badge {
+    position: absolute;
+    top: 5px;
+    left: 22%;
+    transform: translateX(-50%) rotate(-15deg);
+    padding: 0.4rem 3rem;
+    font-weight: 800;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .badge-green {
+    background-color: #6cdc8f;
+    color: #124d68;
+  }
+
+  .badge-blue {
+    background-color: #124d68;
+    color: white;
+  }
+
+  // Textes et prix
+  .price {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 0.5;
+
+    span {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
+
+  .features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    li {
+      line-height: 1.2;
+    }
+  }
+
+  // Mots surlignés
+  .hl-green {
+    background-color: #6cdc8f;
+    color: #124d68;
+    padding: 0 0.2rem;
+  }
+
+  .hl-blue {
+    background-color: #124d68;
+    color: white;
+    padding: 0 0.2rem;
   }
 
   h1 {
@@ -111,5 +270,7 @@ h1 {
 
   .cta-btn {
     padding: 0.8rem 1rem;
+    margin-top: 1rem;
+    z-index: 4; // Toujours cliquable
   }
 }
