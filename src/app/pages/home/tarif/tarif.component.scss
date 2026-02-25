@@ -1,12 +1,12 @@
 .tarif-container{
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: -4rem;
   gap: 2rem;
 
   &::before {
@@ -15,19 +15,12 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
-
-    /* Positionnement absolu pour couvrir tout le parent */
     position: absolute;
     top: 0;
-    left: -15rem;
-    right: 0;
+    right: -8rem;
     bottom: 0;
     width: 100vw;
-
-    /* C'EST ICI QUE TU GÈRES L'OPACITÉ */
-    opacity: 0.1; /* 30% visible */
-
-    /* IMPORTANT : On le met derrière le texte */
+    opacity: 0.1;
     z-index: -1;
   }
 }
@@ -125,7 +118,7 @@
 }
 
 .number{
-  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem);
+  font-size: clamp(3.25rem, 1.0909rem + 2.4242vw, 4rem);
 }
 
 .text-container{
@@ -205,16 +198,22 @@
     border-radius: 2rem;
     color: var(--background-color);
     font-weight: bold;
-    height: 4rem;
-    padding: 0 3.5rem;
+    height: 4.5rem;
+    padding: 0 6rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
 
   & button:hover{
     box-shadow:  21px 21px 57px #114c66 inset, 0 1px 15px 0 rgba(0, 0, 0, 0.25);
     transform: scale(1.05);
+  }
+}
+
+.indep-container {
+  & .icon-container:nth-child(1) {
+    margin-left: 3.5rem;
   }
 }
 
@@ -247,7 +246,8 @@
   }
 
   .hands{
-    top: -8rem;
+    top: -9rem;
+    left: -6rem;
   }
 
   .rocket{
@@ -255,14 +255,20 @@
   }
 }
 
-@media (max-width: 600px){
-
-  .inscription-container{
-    margin-top: -3rem;
+@media (max-height: 1800px) {
+  .tarif-container {
+    margin-top: 2rem;
   }
+}
+
+@media (max-width: 600px){
 
   .indep-container{
     margin-right: 8rem;
+
+    & .icon-container:nth-child(1) {
+      margin-left: 1rem;
+    }
   }
   .coop-container{
     margin-left: 9rem;
@@ -286,11 +292,37 @@
     font-size: 0.85rem;
   }
 
-  .number{font-size: 3rem}
-
   .rocket{right: -4rem}
 
   .indep-container{
     margin-right: 7rem;
+  }
+}
+
+@media (min-width: 1115px) and (max-width: 1167px) {
+  .indep-container {
+    & .icon-container:nth-child(1) {
+      margin-left: inherit;
+    }
+  }
+
+  .coop-container{
+    & .icon-container:nth-child(2) {
+      margin-right: -3.5rem;
+    }
+  }
+}
+
+@media (max-width: 1114px) {
+  .indep-container {
+    & .icon-container:nth-child(1) {
+      margin-left: 1rem;
+    }
+  }
+
+  .coop-container{
+    & .icon-container:nth-child(2) {
+      margin-right: -1rem;
+    }
   }
 }

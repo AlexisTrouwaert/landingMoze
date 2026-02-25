@@ -1,12 +1,11 @@
 .faq-container{
-  min-height: 100vh;
   width: 100%;
   background: var(--primary-color);
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  padding: 3rem 5rem;
+  padding: 5rem;
   overflow: hidden;
 }
 
@@ -128,6 +127,8 @@
 @media (max-width: 1300px) {
   .questions-container{
     flex-direction: column;
+    max-width: calc(100% - 8rem);
+    margin-inline: auto;
     gap: 1rem;
     padding: 0 4rem;
   }
@@ -159,6 +160,7 @@
 @media (max-width: 800px) {
   .questions-container{
     padding: 0 1rem;
+    max-width: calc(100% - 2rem);
   }
 
   .banner-header{

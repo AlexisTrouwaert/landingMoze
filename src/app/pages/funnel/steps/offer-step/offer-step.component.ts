@@ -26,7 +26,7 @@ export class OfferStepComponent {
   }
 
   register() {
-    // window.location.href = 'https://app.mozeconnect.fr/connexion';
-    window.location.href = 'https://nico.by-moze.fr/connexion';
+    window.location.href = 'https://app.mozeconnect.fr/connexion';
+    // window.location.href = 'https://nico.by-moze.fr/connexion';
   }
 }
