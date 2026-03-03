@@ -27,10 +27,19 @@
           </div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="position: relative;">
           <input type="email" formControlName="email" placeholder="Email professionnel">
+
+          @if (isCheckingEmail()) {
+            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;">Vérification...</small>
+          }
+
           @if(form.get('email')?.invalid && form.get('email')?.touched) {
-            <small class="error">Email invalide</small>
+            @if(form.get('email')?.hasError('emailExists')) {
+              <small class="error">Cet email est déjà utilisé.</small>
+            } @else {
+              <small class="error">Email invalide.</small>
+            }
           }
         </div>
 
@@ -41,14 +50,23 @@
           }
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="position: relative;">
           <input type="text" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)" maxlength="14">
+
+          @if (isLoadingSiret()) {
+            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;">Recherche...</small>
+          }
+
           @if(form.get('siret')?.invalid && form.get('siret')?.touched) {
-            <small class="error">SIRET invalide (14 chiffres)</small>
+            @if(form.get('siret')?.hasError('siretInvalidAPI')) {
+              <small class="error">Ce SIRET est introuvable ou invalide.</small>
+            } @else {
+              <small class="error">SIRET invalide (14 chiffres attendus).</small>
+            }
           }
         </div>
 
-        <button type="submit" class="next-btn" [disabled]="form.invalid">
+        <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isLoadingSiret()">
           Je valide mon inscription <img src="assets/icons/arrow.svg" alt="->">
         </button>
 

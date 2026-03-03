@@ -1,7 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {FunnelService, UtilisateurInscriptionDTO} from "../../../../services/funnel.service";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap} from 'rxjs/operators';
+import { of } from 'rxjs';
+
+import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
+// Pense à vérifier le chemin d'import selon ton arborescence
+import { ValidationService } from '../../../../services/validation.service';
 
 @Component({
   selector: 'app-interstitial-step',
@@ -14,8 +20,17 @@ export class InterstitialStepComponent {
   fs = inject(FunnelService);
   private fb = inject(FormBuilder);
 
+  // Injection du nouveau service dédié
+  private validationService = inject(ValidationService);
+
+  // --- SIGNAUX D'ÉTAT (Vérifications) ---
+  isCheckingEmail = signal(false);
+  emailExistsInBdd = signal(false);
+
+  isLoadingSiret = signal(false);
+  siretCheckFailed = signal(false);
+
   // --- GESTION DE L'IMAGE DYNAMIQUE ---
-  // Mapping identique à l'étape précédente (SANS ACCENTS)
   imageMap: Record<string, string> = {
     DEFAULT: 'assets/images/tunnel/ACTIVITE.png',
     SANTE: 'assets/images/tunnel/SANTE.png',
@@ -27,9 +42,8 @@ export class InterstitialStepComponent {
     AUTRE: 'assets/images/tunnel/AUTRES ACTIVITES.png',
   };
 
-  // Image calculée selon le secteur sélectionné dans le service
   currentImage = computed(() => {
-    const s = this.fs.selectedSector(); // Récupère le secteur du state
+    const s = this.fs.selectedSector();
     if (s && this.imageMap[s]) {
       return this.imageMap[s];
     }
@@ -45,14 +59,90 @@ export class InterstitialStepComponent {
     siret: ['', [Validators.required, Validators.pattern(/^[0-9]{14}$/)]]
   });
 
+  constructor() {
+    this.setupEmailListener();
+    this.setupSiretListener();
+  }
+
+  // --- LISTENERS DE VÉRIFICATION ---
+
+  private setupEmailListener(): void {
+    this.form.get('email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter((email): email is string => !!email && this.form.get('email')?.valid === true),
+      switchMap(email => {
+        this.isCheckingEmail.set(true);
+        return this.validationService.validateEmail(email).pipe(
+          catchError(() => of(false)),
+          finalize(() => this.isCheckingEmail.set(false))
+        );
+      }),
+      takeUntilDestroyed()
+    ).subscribe(exists => {
+      this.emailExistsInBdd.set(exists);
+      const emailCtrl = this.form.get('email');
+
+      if (exists) {
+        emailCtrl?.setErrors({ emailExists: true });
+      } else {
+        if (emailCtrl?.hasError('emailExists')) {
+          const errors = { ...emailCtrl.errors };
+          delete errors['emailExists'];
+          emailCtrl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+        }
+      }
+    });
+  }
+
+  private setupSiretListener(): void {
+    this.form.get('siret')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter((term): term is string => !!term && term.replace(/\s/g, '').length >= 9),
+      switchMap(siret => {
+        this.isLoadingSiret.set(true);
+        this.siretCheckFailed.set(false);
+
+        return this.validationService.getEtablissementInfo(siret).pipe(
+          tap(res => console.log('✅ RÉPONSE API SIRET :', res)), // Regarde ta console navigateur !
+          catchError((err) => {
+            console.error('❌ ERREUR API SIRET :', err); // S'il y a une erreur HTTP, elle sera ici
+            return of(null);
+          }),
+          finalize(() => this.isLoadingSiret.set(false))
+        );
+      }),
+      takeUntilDestroyed()
+    ).subscribe(response => {
+      const siretCtrl = this.form.get('siret');
+
+      // Si la réponse est OK et qu'elle contient bien un champ "siret"
+      if (response && response.siret) {
+        this.siretCheckFailed.set(false);
+        if (siretCtrl?.hasError('siretInvalidAPI')) {
+          const errors = { ...siretCtrl.errors };
+          delete errors['siretInvalidAPI'];
+          siretCtrl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+        }
+      } else {
+        this.siretCheckFailed.set(true);
+        siretCtrl?.setErrors({ siretInvalidAPI: true });
+      }
+    });
+  }
+
+  // --- SOUMISSION ---
+
   submit() {
-    if (this.form.valid) {
+    if (this.form.valid && !this.emailExistsInBdd() && !this.siretCheckFailed()) {
       const val = this.form.value;
       const secteurChoisi = this.fs.selectedSector();
       const nomClean = val.nom!.trim().replace(/\s+/g, '');
       const prenomClean = val.prenom!.trim().replace(/\s+/g, '');
       const randomSuffix = Math.floor(100 + Math.random() * 900);
       const pseudoGenere = `${nomClean}${prenomClean}${randomSuffix}`;
+
       const dto: UtilisateurInscriptionDTO = {
         nom: val.nom!,
         prenom: val.prenom!,
@@ -66,8 +156,10 @@ export class InterstitialStepComponent {
           secteur: secteurChoisi || 'AUTRE'
         }
       };
+
       console.log('Payload Inscription (JSON):', JSON.stringify(dto, null, 2));
       this.fs.setUserInfo(dto);
+
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
           console.log('Inscription réussie !', response);
