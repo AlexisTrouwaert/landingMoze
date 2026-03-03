@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map} from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
@@ -19,6 +19,7 @@ import { ValidationService } from '../../../../services/validation.service';
 export class InterstitialStepComponent {
   fs = inject(FunnelService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   // Injection du nouveau service dédié
   private validationService = inject(ValidationService);
@@ -67,10 +68,18 @@ export class InterstitialStepComponent {
   // --- LISTENERS DE VÉRIFICATION ---
 
   private setupEmailListener(): void {
-    this.form.get('email')?.valueChanges.pipe(
+    const emailCtrl = this.form.get('email');
+
+    emailCtrl?.valueChanges.pipe(
+      tap(email => {
+        if (email && email !== email.toLowerCase()) {
+          emailCtrl.setValue(email.toLowerCase(), { emitEvent: false });
+        }
+      }),
+      map(email => email?.toLowerCase() || ''),
       debounceTime(500),
       distinctUntilChanged(),
-      filter((email): email is string => !!email && this.form.get('email')?.valid === true),
+      filter((email): email is string => !!email && emailCtrl?.valid === true),
       switchMap(email => {
         this.isCheckingEmail.set(true);
         return this.validationService.validateEmail(email).pipe(
@@ -78,10 +87,9 @@ export class InterstitialStepComponent {
           finalize(() => this.isCheckingEmail.set(false))
         );
       }),
-      takeUntilDestroyed()
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(exists => {
       this.emailExistsInBdd.set(exists);
-      const emailCtrl = this.form.get('email');
 
       if (exists) {
         emailCtrl?.setErrors({ emailExists: true });
@@ -113,7 +121,7 @@ export class InterstitialStepComponent {
           finalize(() => this.isLoadingSiret.set(false))
         );
       }),
-      takeUntilDestroyed()
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(response => {
       const siretCtrl = this.form.get('siret');
 

@@ -261,6 +261,12 @@
   }
 }
 
+@media (max-height: 1000px) {
+  .inscription-container{
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 600px){
 
   .indep-container{
