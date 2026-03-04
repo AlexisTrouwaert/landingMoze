@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {FunnelService} from "../../../../services/funnel.service";
 import {Router} from "@angular/router";
+import {MetaPixelService} from "../../../../services/meta-pixel.service";
 
 @Component({
   selector: 'app-offer-step',
@@ -13,6 +14,11 @@ import {Router} from "@angular/router";
 export class OfferStepComponent {
   fs = inject(FunnelService);
   private router = inject(Router);
+  private metaPixelService = inject(MetaPixelService);
+
+  constructor() {
+    this.metaPixelService.trackPurchase();
+  }
 
   isCoop() {
     return this.fs.finalOfferPrice() > 10;

@@ -4,10 +4,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map} from 'rxjs/operators';
 import { of } from 'rxjs';
-
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
-// Pense à vérifier le chemin d'import selon ton arborescence
 import { ValidationService } from '../../../../services/validation.service';
+import {MetaPixelService} from "../../../../services/meta-pixel.service";
 
 @Component({
   selector: 'app-interstitial-step',
@@ -20,9 +19,8 @@ export class InterstitialStepComponent {
   fs = inject(FunnelService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
-
-  // Injection du nouveau service dédié
   private validationService = inject(ValidationService);
+  private metaPixelService = inject(MetaPixelService);
 
   // --- SIGNAUX D'ÉTAT (Vérifications) ---
   isCheckingEmail = signal(false);
@@ -170,11 +168,12 @@ export class InterstitialStepComponent {
 
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
-          console.log('Inscription réussie !', response);
+          // console.log('Inscription réussie !', response);
+          this.metaPixelService.trackLead();
           this.fs.nextStep();
         },
         error: (err) => {
-          console.error('Erreur lors de l\'inscription :', err);
+          // console.error('Erreur lors de l\'inscription :', err);
           this.fs.nextStep();
         }
       });
