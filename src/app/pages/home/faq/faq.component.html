@@ -9,112 +9,138 @@
   </div>
   <div class="questions-container">
     <div class="left-questions">
-      <div class="question-container" [class.extended]="selectedQ === 0" (click)="changeSelectedQ(0)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 0" (click)="changeSelectedQ(0)">
         <div class="title-container">
           <p class="question-title">CRÉER ET ENVOYER UNE FACTURE</p>
-          @if (selectedQ !== 0){
+          @if (selectedQ() !== 0){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu'à l'encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+          </div>
         </div>
       </div>
-      <div class="question-container" [class.extended]="selectedQ === 1" (click)="changeSelectedQ(1)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 1" (click)="changeSelectedQ(1)">
         <div class="title-container">
           <p class="question-title">CALCUL COMMISSION APPORTS D'AFFAIRES</p>
-          @if (selectedQ !== 1){
+          @if (selectedQ() !== 1){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p><span>Gère automatiquement</span> la commission liée à chaque apport d’affaires. <span>Visualise</span> le montant généré, la <span>répartition et le statut</span> du paiement pour un suivi clair, structuré et sécurisé.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p><span>Gère automatiquement</span> la commission liée à chaque apport d’affaires. <span>Visualise</span> le montant généré, la <span>répartition et le statut</span> du paiement pour un suivi clair, structuré et sécurisé.</p>
+          </div>
         </div>
-      </div >
-      <div class="question-container" [class.extended]="selectedQ === 2" (click)="changeSelectedQ(2)">
+      </div>
+
+      <div class="question-container" [class.extended]="selectedQ() === 2" (click)="changeSelectedQ(2)">
         <div class="title-container">
           <p class="question-title">CONNEXION ET MISE EN RÉSEAU</p>
-          @if (selectedQ !== 2){
+          @if (selectedQ() !== 2){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p><span>Connecte-toi</span> à d’autres professionnels, crée des <span>synergies</span> et <span>développe</span> ton réseau directement depuis la plateforme. <span>Collabore</span> sur des missions, <span>échange des opportunités</span> et fais grandir ton activité au sein d’un <span>écosystème structuré.</span></p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p><span>Connecte-toi</span> à d’autres professionnels, crée des <span>synergies</span> et <span>développe</span> ton réseau directement depuis la plateforme. <span>Collabore</span> sur des missions, <span>échange des opportunités</span> et fais grandir ton activité au sein d’un <span>écosystème structuré.</span></p>
+          </div>
         </div>
       </div>
-      <div class="question-container" [class.extended]="selectedQ === 3" (click)="changeSelectedQ(3)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 3" (click)="changeSelectedQ(3)">
         <div class="title-container">
           <p class="question-title">FACTURATION ELECTRONIQUE</p>
-          @if (selectedQ !== 3){
+          @if (selectedQ() !== 3){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p>Moze Connect intègre le format <span>Factur-X</span>, conforme aux exigences de la facturation électronique en France. Toutes tes factures sont ainsi générées dans un format structuré et reconnu par l’administration. Pour garantir une transmission sécurisée et conforme, Moze est adossé à une <span>Plateforme Agréée (Super PDP) certifiée</span>, immatriculée par l’État. Tu factures simplement, Moze s’occupe de la conformité.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p>Moze Connect intègre le format <span>Factur-X</span>, conforme aux exigences de la facturation électronique en France. Toutes tes factures sont ainsi générées dans un format structuré et reconnu par l’administration. Pour garantir une transmission sécurisée et conforme, Moze est adossé à une <span>Plateforme Agréée (Super PDP) certifiée</span>, immatriculée par l’État. Tu factures simplement, Moze s’occupe de la conformité.</p>
+          </div>
         </div>
-      </div >
+      </div>
     </div>
+
     <div class="right-questions">
-      <div class="question-container" [class.extended]="selectedQ === 4" (click)="changeSelectedQ(4)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 4" (click)="changeSelectedQ(4)">
         <div class="title-container">
           <p class="question-title">LA FACTURATION COLLABORATIVE</p>
-          @if (selectedQ !== 4){
+          @if (selectedQ() !== 4){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p>Crée une facture <span>à plusieurs</span> en quelques clics et répartis <span>automatiquement</span> les montants entre chaque intervenant. <span>Centralise</span> les informations, <span>sécurise</span> la répartition et garde une vision <span>claire</span> de chaque mission collaborative.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p>Crée une facture <span>à plusieurs</span> en quelques clics et répartis <span>automatiquement</span> les montants entre chaque intervenant. <span>Centralise</span> les informations, <span>sécurise</span> la répartition et garde une vision <span>claire</span> de chaque mission collaborative.</p>
+          </div>
         </div>
       </div>
-      <div class="question-container" [class.extended]="selectedQ === 5" (click)="changeSelectedQ(5)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 5" (click)="changeSelectedQ(5)">
         <div class="title-container">
           <p class="question-title">COOPÉRATIVE ET SAP</p>
-          @if (selectedQ !== 5){
+          @if (selectedQ() !== 5){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p>Propose des prestations éligibles au <span>crédit d’impôt</span> grâce à la <span>coopérative</span> et au numéro SAP. <span>Développe</span> ton offre, <span>sécurise</span> ton cadre administratif et ouvre de nouvelles <span>opportunités</span> auprès des clients particuliers.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p>Propose des prestations éligibles au <span>crédit d’impôt</span> grâce à la <span>coopérative</span> et au numéro SAP. <span>Développe</span> ton offre, <span>sécurise</span> ton cadre administratif et ouvre de nouvelles <span>opportunités</span> auprès des clients particuliers.</p>
+          </div>
         </div>
       </div>
-      <div class="question-container" [class.extended]="selectedQ === 6" (click)="changeSelectedQ(6)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 6" (click)="changeSelectedQ(6)">
         <div class="title-container">
           <p class="question-title">COMPTABILITÉ</p>
-          @if (selectedQ !== 6){
+          @if (selectedQ() !== 6){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p><span>Centralise</span> tes données comptables et garde une vision<span> claire</span> de ton activité en temps réel. <span>Exporte facilement</span> tes éléments vers ton expert-comptable et <span>sécurise</span> tes obligations administratives au quotidien.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p><span>Centralise</span> tes données comptables et garde une vision<span> claire</span> de ton activité en temps réel. <span>Exporte facilement</span> tes éléments vers ton expert-comptable et <span>sécurise</span> tes obligations administratives au quotidien.</p>
+          </div>
         </div>
       </div>
-      <div class="question-container" [class.extended]="selectedQ === 7" (click)="changeSelectedQ(7)">
+
+      <div class="question-container" [class.extended]="selectedQ() === 7" (click)="changeSelectedQ(7)">
         <div class="title-container">
           <p class="question-title">PARRAINER DES FUTURS MOZEURS</p>
-          @if (selectedQ !== 7){
+          @if (selectedQ() !== 7){
             <img class="primary-icon" src="assets/icons/plus.svg" alt="Voir plus">
           } @else{
             <img class="interaction-icon" src="assets/icons/less.svg" alt="Voir moins">
           }
         </div>
-        <div class="answer">
-          <p>Invite de nouveaux Mozeurs à rejoindre la plateforme afin de <span>développer</span> ton réseau.</p>
+        <div class="answer-wrapper">
+          <div class="answer">
+            <p>Invite de nouveaux Mozeurs à rejoindre la plateforme afin de <span>développer</span> ton réseau.</p>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>

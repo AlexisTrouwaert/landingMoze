@@ -23,4 +23,13 @@ export class MetaPixelService {
       this.purchaseTracked = true;
     }
   }
+
+  trackViewContent(): void {
+    const win = window as any;
+    if (typeof win !== 'undefined' && win.fbq) {
+      win.fbq('track', 'ViewContent');
+    } else {
+      console.warn('Meta Pixel non chargé ou bloqué par un bloqueur de publicités.');
+    }
+  }
 }

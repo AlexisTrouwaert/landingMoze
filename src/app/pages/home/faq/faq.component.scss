@@ -1,4 +1,4 @@
-.faq-container{
+.faq-container {
   width: 100%;
   background: var(--primary-color);
   display: flex;
@@ -9,7 +9,7 @@
   overflow: hidden;
 }
 
-.banner-container{
+.banner-container {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -17,7 +17,7 @@
   align-items: center;
 }
 
-.banner-header{
+.banner-header {
   z-index: 2;
   background: var(--accent-color);
   color: var(--background-color);
@@ -27,7 +27,7 @@
   text-align: center;
 }
 
-.banner-header-secondary{
+.banner-header-secondary {
   background: var(--background-color);
   color: var(--primary-color);
   font-size: clamp(1rem, -1.1429rem + 4.2857vw, 4rem);
@@ -44,7 +44,7 @@
   text-align: center;
 }
 
-.questions-container{
+.questions-container {
   width: 100%;
   display: flex;
   align-items: flex-start;
@@ -53,44 +53,25 @@
   padding: 0 8rem;
 }
 
-.left-questions{
+.left-questions, .right-questions {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.right-questions{
+/* --- CONTENEUR OPTIMISÉ --- */
+.question-container {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.question-container{
-  width: 100%;
-  flex-shrink: 0;
-  max-height: 5rem;
-  min-height: 5rem;
-  overflow: hidden;
   border-radius: 3rem;
   background: var(--background-color);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
   padding: 1.9rem 2rem;
-  transition: all 0.6s ease-in-out;
-  will-change: max-height;
-  gap: 1.9rem;
   cursor: pointer;
 }
 
-.extended{
-  max-height: 600px;
-}
-
-.title-container{
+.title-container {
   width: 100%;
   display: flex;
   align-items: center;
@@ -98,77 +79,89 @@
   gap: 1rem;
 }
 
+/* --- LA MAGIE CSS GRID --- */
+.answer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.extended .answer-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.answer {
+  overflow: hidden; /* Empêche le texte de déborder quand c'est à 0fr */
+  padding-top: 0;
+  opacity: 0;
+  transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+
+  color: var(--primary-color);
+  font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
+
+  & span {
+    font-weight: bold;
+  }
+}
+
+/* On remet l'espace uniquement quand c'est ouvert */
+.extended .answer {
+  padding-top: 1.9rem;
+  opacity: 1;
+}
+
+/* --- ICONS & TEXTE --- */
 .primary-icon {
   height: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
   width: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
   filter: var(--filter-primary-color);
 }
 
-.interaction-icon{
+.interaction-icon {
   width: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
   filter: var(--filter-accent-color);
 }
 
-.question-title{
+.question-title {
   font-size: clamp(0.8rem, 0.6857rem + 0.4286vw, 1.2rem);
   color: var(--interaction-color);
   font-weight: bold;
 }
 
-.answer{
-  color: var(--primary-color);
-  font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
-
-  & span{
-    font-weight: bold;
-  }
-}
-
+/* --- RESPONSIVE OPTIMISÉ --- */
 @media (max-width: 1300px) {
-  .questions-container{
+  .questions-container {
     flex-direction: column;
     max-width: calc(100% - 8rem);
     margin-inline: auto;
     gap: 1rem;
     padding: 0 4rem;
+
+    /* Sur tablette/mobile en colonne unique, on réserve la hauteur totale sur le conteneur global */
+    min-height: 65rem;
   }
 
-  .faq-container{
-    padding: 3rem 1rem;
-  }
+  .faq-container { padding: 3rem 1rem; }
 
-  .right-questions{
+  .right-questions, .left-questions {
     gap: 1rem;
+    /* On annule la hauteur fixe des colonnes car elles sont maintenant empilées */
+    min-height: auto;
   }
 
-  .left-questions{
-    gap: 1rem;
-  }
-
-  .question-container{
-    min-height: 3.25rem;
-    max-height: 3.25rem;
+  .question-container {
     border-radius: 2rem;
     padding: 1rem;
   }
 
-  .extended{
-    max-height: 600px;
+  /* Ajustement de l'espacement d'ouverture sur mobile */
+  .extended .answer {
+    padding-top: 1rem;
   }
 }
 
 @media (max-width: 800px) {
-  .questions-container{
-    padding: 0 1rem;
-    max-width: calc(100% - 2rem);
-  }
-
-  .banner-header{
-    font-size: 1.5rem;
-    padding: 4px 1rem;
-  }
-
-  .banner-header-secondary{
-    top: -4rem;
-  }
+  .questions-container { padding: 0 1rem; max-width: calc(100% - 2rem); }
+  .banner-header { font-size: 1.5rem; padding: 4px 1rem; }
+  .banner-header-secondary { top: -4rem; }
 }

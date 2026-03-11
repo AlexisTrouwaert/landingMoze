@@ -1,0 +1,47 @@
+.redirection-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #F5FAF6; /* Fond de ton mail */
+  font-family: Arial, sans-serif;
+  color: #1A4B6B; /* Ton bleu */
+}
+
+.redirection-content {
+  text-align: center;
+
+  .logo {
+    width: 120px;
+    margin-bottom: 5px;
+    margin-right: 15px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin: 20px 0 10px;
+  }
+
+  p {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+}
+
+/* Animation du spinner aux couleurs de Moze */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #1A4B6B;
+  border-bottom-color: #70E795; /* Ton vert */
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

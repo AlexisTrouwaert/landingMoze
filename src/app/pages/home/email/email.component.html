@@ -2,18 +2,70 @@
   <div class="banner-container-secondary">
     <h3>ENVIE DE TOUT SAVOIR ?</h3>
   </div>
-  <div class="content-container">
+
+  <div class="content-container" [class.shake]="isShaking()">
     <div class="banner-container">
       <h3>ENVIE DE TOUT SAVOIR ?</h3>
     </div>
+
     <div class="text-container">
       <p>INSCRIS-TOI pour recevoir toutes nos ACTUALITÉS</p>
       <p>et connaître toutes les NOUVEAUTÉS de notre APPLICATION !</p>
     </div>
-    <a class="input-container"
-       href="https://c1020106.sibforms.com/serve/MUIFAPCu8l9auir9gfCkLC5J0P0Mxj8KhfZ67iKAc2LnMz7BXxGM_c_jsIyHtnsNJBq6CJ8ZdY2El0-p6nEhayeC1hFc7uRilk0KUJVj3l_l7WBFdoyNKlJbYaux9c2MEM6-RkODXtF3QKfKEj4uVIZB-7PjNvHorEYZUetyaJGlRyjlX0pxWj82chrO3PbomQVHxEZk6PA2wBY6"
-       target="_blank">
-      <p>M'inscrire à la newsletter</p>
-    </a>
+
+    <div class="status-alert success" *ngIf="status() === 'SUCCESS'">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Votre inscription a été enregistrée avec succès.</span>
+    </div>
+
+    <div class="status-alert error" *ngIf="status() === 'ERROR'">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Trop de tentatives.</span>
+    </div>
+
+    <div class="form-wrapper">
+      <form (submit)="onSubmit($event)">
+
+        <div class="newsletter-bar-container" [class.invalid-bar]="emailError()">
+          <input
+            type="email"
+            [(ngModel)]="emailValue"
+            (ngModelChange)="emailError.set(false)"
+            name="email"
+            placeholder="J'inscris ici mon adresse mail"
+            class="newsletter-input"
+          />
+
+          <input type="text" [(ngModel)]="honeypotValue" name="check_field" style="display:none" tabindex="-1">
+
+          <button type="submit" class="newsletter-submit-btn" [disabled]="status() === 'LOADING'">
+            {{ status() === 'LOADING' ? 'Envoi...' : "C'est parti !" }}
+          </button>
+        </div>
+
+        <div class="brevo-optin-container">
+          <label class="custom-checkbox-label" [class.text-error]="optInError()">
+            <div class="checkbox-wrapper">
+              <input
+                type="checkbox"
+                [(ngModel)]="optInValue"
+                (ngModelChange)="optInError.set(false)"
+                name="optin"
+                [class.error-box]="optInError()"
+                class="brevo-optin-checkbox"
+              />
+              <div class="custom-checkmark"></div>
+            </div>
+            <span class="optin-text">
+              J'accepte de recevoir vos e-mails et confirme avoir pris connaissance de votre politique de confidentialité.
+            </span>
+          </label>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

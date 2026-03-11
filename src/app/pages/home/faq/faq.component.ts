@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, signal} from '@angular/core';
 
 @Component({
   selector: 'app-faq',
@@ -9,13 +9,9 @@ import { Component } from '@angular/core';
 })
 export class FaqComponent {
 
-  selectedQ: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 = 8;
+  selectedQ = signal<number | null>(null);
 
-  changeSelectedQ(q: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7) {
-    if (q === this.selectedQ) {
-      this.selectedQ = 8;
-    } else {
-      this.selectedQ = q;
-    }
+  changeSelectedQ(q: number) {
+    this.selectedQ.update(current => current === q ? null : q);
   }
 }

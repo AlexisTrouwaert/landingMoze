@@ -1,160 +1,152 @@
-.email-container{
-  min-height: 50vh;
-  width: 100%;
-  background: var(--primary-color);
+/* --- CONFIGURATION COULEURS PRO HAUT CONTRASTE --- */
+$pro-error: #991b1b;
+$pro-success: #065f46;
+$alert-radius: 12px;
+
+/* --- ANIMATIONS --- */
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+.shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+
+/* --- STRUCTURE --- */
+.email-container {
+  min-height: 50vh; width: 100vw; background: var(--primary-color);
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 1rem; position: relative; overflow: hidden;
+}
+
+.banner-container-secondary {
+  z-index: 1; background: var(--background-color); color: var(--primary-color);
+  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem); padding: 4px 5rem;
+  transform: rotate(-3deg); width: 120vw; text-align: center; position: relative; opacity: 0.1;
+}
+
+.content-container {
+  background: var(--accent-color); max-width: 1400px; display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center; border-radius: 3rem;
+  padding: 0 1rem 2rem 1rem; z-index: 2; transition: all 0.3s ease;
+}
+
+.banner-container {
+  z-index: 2; background: var(--interaction-color); color: var(--background-color);
+  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem); padding: 4px 5rem;
+  transform: rotate(3deg); text-align: center; position: relative; top: -2rem;
+}
+
+.text-container {
+  font-size: clamp(1.2rem, 0.6286rem + 1.1429vw, 2rem); font-weight: bold;
+  color: var(--primary-color); text-align: center; margin-bottom: 1.5rem;
+}
+
+/* --- BLOCS D'ALERTE PRO --- */
+.status-alert {
+  display: flex; align-items: center; gap: 12px; width: 100%; max-width: fit-content;
+  padding: 12px 20px; border-radius: $alert-radius; margin-bottom: 1.5rem;
+  font-size: 0.95rem; font-weight: 500; border: 1px solid transparent; transition: all 0.4s ease;
+
+  svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  &.success {
+    background-color: rgba(236, 253, 245, 0.95);
+    border-color: #10b981;
+    color: $pro-success;
+  }
+
+  &.error {
+    background-color: rgba(254, 242, 242, 0.95);
+    border-color: $pro-error;
+    color: $pro-error;
+  }
+}
+
+/* --- FORMULAIRE --- */
+.newsletter-bar-container {
+  display: flex; align-items: center; background-color: #ffffff; border-radius: 50px;
+  padding: 0.4rem 0.4rem 0.4rem 1.5rem; width: 100%; max-width: 600px; margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 2px solid transparent; transition: all 0.2s ease;
+
+  &.invalid-bar {
+    border-color: $pro-error !important;
+    box-shadow: 0 0 10px rgba(153, 27, 27, 0.1);
+  }
+}
+
+.newsletter-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: #1A5471;
+  outline: none;
+
+  &::placeholder {
+    color: #8fa6b2;
+  }
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important; /* Force le fond blanc */
+    -webkit-text-fill-color: #1A5471 !important; /* Force la couleur de ton texte */
+    transition: background-color 5000s ease-in-out 0s; /* Empêche le clignotement natif */
+  }
+}
+
+.newsletter-submit-btn {
+  background-color: #175471; color: #ffffff; border: none; border-radius: 50px;
+  padding: 0.8rem 2rem; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+}
+
+/* --- CHECKBOX MODERNE --- */
+.brevo-optin-container {
+  padding: 0.5rem 0;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 1rem;
 }
 
-.content-container{
-  background: var(--accent-color);
-  max-width: 1400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  border-radius: 3rem;
-  padding: 0 1rem 2rem 1rem;
+.checkbox-wrapper { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
+
+.brevo-optin-checkbox { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+
+.custom-checkmark {
+  position: absolute; top: 0; left: 0; height: 22px; width: 22px;
+  background-color: white; border: 2px solid var(--primary-color);
+  border-radius: 6px; transition: all 0.3s ease;
 }
 
-.banner-container-secondary{
-  z-index: 1;
-  background: var(--background-color);
-  color: var(--primary-color);
-  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem);
-  padding: 4px 5rem;
-  transform: rotate(-3deg);
-  width: 120vw;
-  text-align: center;
-  position: relative;
-  //top: -11rem;
-  opacity: 0.1;
-}
-
-.banner-container{
-  z-index: 2;
-  background: var(--interaction-color);
-  color: var(--background-color);
-  font-size: clamp(2rem, 1.0909rem + 2.4242vw, 4rem);
-  padding: 4px 5rem;
-  transform: rotate(3deg);
-  text-align: center;
-  position: relative;
-  top: -2rem;
-}
-
-.text-container{
-  font-size: clamp(1.2rem, 0.6286rem + 1.1429vw, 2rem);
-  font-weight: bold;
-  color: var(--primary-color);
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.input-container{
-  background: var(--primary-color);
-  height: 4rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 2.5rem;
-  padding: 1rem;
-  gap: 1rem;
-  text-decoration: none;
-  text-align: center;
-
-  & p{
-    background: none;
-    border: none;
-    padding: 1rem;
-    border-radius: 2rem;
-    width: 100%;
-    color: var(--background-color);
-  }
-
-  & button{
-    background: var(--primary-color);
-    font-weight: bold;
-    color: var(--background-color);
-    border: none;
-    height: 3rem;
-    padding: 0 1.5rem;
-    border-radius: 2rem;
-    flex-shrink: 0;
-    transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
-    cursor: pointer;
-  }
-
-  & button:hover{
-    transform: scale(1.05);
-    background: var(--accent-color);
-    color: var(--primary-color);
+.brevo-optin-checkbox:checked ~ .custom-checkmark {
+  background-color: var(--primary-color);
+  &::after {
+    content: ""; position: absolute; left: 6px; top: 1px; width: 5px; height: 11px;
+    border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
   }
 }
 
-@media(max-width:800px){
-  .text-container{
-    font-size: clamp(1rem, 0.6286rem + 1.1429vw, 2rem);
+/* Bordure de checkbox en erreur */
+.brevo-optin-checkbox.error-box ~ .custom-checkmark {
+  border-color: $pro-error;
+  background-color: #fff1f2;
+}
+
+.custom-checkbox-label {
+  display: flex; align-items: flex-start; gap: 12px; cursor: pointer; max-width: 600px; margin: 0 auto;
+  transition: color 0.3s ease;
+
+  &.text-error {
+    color: $pro-error !important;
+    font-weight: 600;
   }
-  .email-container{
-    padding: 5rem 1rem;
-    min-height: auto;
-  }
+}
 
-  .banner-container{
-    font-size: 1.5rem;
-    padding: 4px 1rem;
-  }
+.optin-text { font-size: 14px; line-height: 1.4; font-family: 'Helvetica', sans-serif; text-align: left;}
 
-  .banner-container-secondary{
-    top: -1rem;
-    font-size: 1.5rem;
-    padding: 4px 1rem;
-  }
-
-  .content-container{
-    width: calc(100vw - 2rem);
-  }
-
-  .input-container{
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 2.5rem;
-    padding: 0.75rem;
-    gap: 1rem;
-    text-decoration: none;
-
-    & p{
-      background: none;
-      border: none;
-      padding: 1rem;
-      border-radius: 2rem;
-      width: 100%;
-      color: var(--background-color);
-    }
-
-    & button{
-      background: var(--primary-color);
-      font-weight: bold;
-      color: var(--background-color);
-      border: none;
-      height: 2rem;
-      padding: 0 12px;
-      border-radius: 1rem;
-      flex-shrink: 0;
-      transition: all 0.3s cubic-bezier(0.15, 0.85, 0.45, 1.4);
-      cursor: pointer;
-    }
-
-    & button:hover{
-      transform: scale(1.05);
-      background: var(--accent-color);
-      color: var(--primary-color);
-    }
-  }
+/* RESPONSIVE */
+@media(max-width: 800px) {
+  .newsletter-bar-container { flex-direction: column; border-radius: 1.5rem; gap: 0.8rem; }
+  .newsletter-submit-btn { width: 100%; }
 }

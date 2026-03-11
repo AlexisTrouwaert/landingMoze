@@ -3,7 +3,8 @@
 }
 
 .header-container {
-  width: 100%;
+  width: calc(100vw - 1rem);
+  margin-left: 0.5rem;
   padding: 0 8rem;
   display: flex;
   align-items: center;
