@@ -1,0 +1,176 @@
+$color-dark-blue: #1b4b5a;
+$color-light-green: #67df88;
+$color-bg: #f5f9f6;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: $color-bg;
+  font-family: 'Montserrat', sans-serif;
+  color: $color-dark-blue;
+}
+
+.confirmation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 4rem 4rem;
+}
+
+.header {
+  margin-bottom: 3rem;
+  height: 4rem;
+
+  a {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  .logo {
+    height: 2.5rem;
+  }
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3rem; // Augmenté
+
+  .title-banner {
+    padding: 1rem 3rem; // Volumes augmentés
+    font-size: clamp(1.8rem, 4vw + 0.5rem, 2.2rem);
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative; // Nécessaire pour gérer le z-index
+
+    &.dark-blue {
+      background-color: $color-dark-blue;
+      color: $color-light-green; // Modification de la couleur du texte
+      transform: rotate(-3deg);
+      margin-bottom: -10px;
+      z-index: 1;
+    }
+
+    &.light-green {
+      background-color: $color-light-green;
+      color: $color-dark-blue;
+      padding: 1rem 5rem; // Volumes augmentés
+      z-index: 2;
+    }
+  }
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem; // Augmenté
+
+  .highlight {
+    background-color: $color-light-green;
+    padding: 0 0.4rem;
+  }
+}
+
+.description {
+  font-size: 0.95rem;
+  margin-bottom: 4.5rem; // Augmenté
+}
+
+.action-banner {
+  background-color: $color-light-green;
+  color: $color-dark-blue;
+  font-size: clamp(1.2rem, 3vw + 0.5rem, 1.8rem);
+  font-weight: 800;
+  padding: 1.5rem 4rem; // Volumes augmentés
+  margin-bottom: 6rem; // Augmenté pour les plus grandes icônes
+  width: 100%;
+  max-width: 1000px;
+}
+
+.cards-container {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.action-card {
+  flex: 1;
+  min-width: 280px; // Cartes élargies
+  max-width: 350px; // Cartes élargies
+  background-color: white;
+  border: 1px solid $color-dark-blue;
+  border-radius: 12px;
+  padding: 4.5rem 2rem 2.5rem; // Paddings augmentés (surtout en haut pour l'icône)
+  text-decoration: none;
+  color: $color-dark-blue;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .icon-placeholder {
+    position: absolute;
+    top: -50px; // Ajusté pour la nouvelle taille
+    width: 100px; // Icônes plus grandes
+    height: 100px; // Icônes plus grandes
+    border-radius: 50%;
+
+    & img {
+      height: 100%;
+      margin: 0 auto 15px auto;
+    }
+  }
+
+  &:hover {
+    background-color: var(--primary-color, $color-dark-blue);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+
+    h2 {
+      color: white;
+    }
+  }
+}
+
+// Media Query pour le mobile
+@media (max-width: 768px) {
+  .title-section .title-banner {
+    padding: 0.8rem 2rem;
+
+    &.light-green {
+      padding: 0.8rem 3rem;
+    }
+  }
+
+  .action-banner {
+    padding: 1.2rem;
+  }
+
+  .cards-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 5rem;
+  }
+
+  .action-card {
+    width: 100%;
+  }
+}

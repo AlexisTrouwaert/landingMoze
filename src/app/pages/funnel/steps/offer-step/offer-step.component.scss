@@ -135,6 +135,16 @@ h1 {
   display: none;
 }
 
+.small {
+  font-size: clamp(0.8rem, 3vw, 1.2rem);
+  color: var(--primary-color);
+  margin-top: 1.5rem;
+
+  span {
+    font-weight: 800;
+  }
+}
+
 // --- RESPONSIVE MOBILE (< 600px) ---
 @media (max-width: 800px) {
   .step-container {

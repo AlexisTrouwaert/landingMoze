@@ -26,8 +26,6 @@ export class RedirectionComponent implements OnInit {
     const cible = this.route.snapshot.queryParamMap.get('cible') || '';
     const targetConfig = REDIRECTION_MAP[cible];
 
-    this.metaTrackingService.trackEvent('CompleteRegistration');
-
     if (targetConfig) {
       this.metaTrackingService.trackEvent('trackCustom', targetConfig.event);
       setTimeout(() => {

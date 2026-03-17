@@ -51,20 +51,33 @@
         </div>
 
         <div class="input-group" style="position: relative;">
-          <input type="text" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)" maxlength="14">
+          <input type="text" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)">
 
           @if (isLoadingSiret()) {
             <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;">Recherche...</small>
           }
 
           @if(form.get('siret')?.invalid && form.get('siret')?.touched) {
-            @if(form.get('siret')?.hasError('siretInvalidAPI')) {
-              <small class="error">Ce SIRET est introuvable ou invalide.</small>
-            } @else {
+            @if(form.get('siret')?.hasError('required')) {
+              <small class="error">Ce champ est requis.</small>
+            } @else if (form.get('siret')?.hasError('siretFormat') || form.get('siret')?.hasError('pattern')) {
               <small class="error">SIRET invalide (14 chiffres attendus).</small>
+            } @else if (form.get('siret')?.hasError('siretInvalidAPI')) {
+              <small class="error">Ce SIRET est introuvable ou invalide.</small>
             }
           }
         </div>
+
+        @if (form.valid && !emailExistsInBdd() && !siretCheckFailed()) {
+          <div class="password-notice fade-in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p>Un email vous sera envoyé à l'étape suivante pour créer votre mot de passe.</p>
+          </div>
+        }
 
         <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isLoadingSiret()">
           Je valide mon inscription <img src="assets/icons/arrow.svg" alt="->">

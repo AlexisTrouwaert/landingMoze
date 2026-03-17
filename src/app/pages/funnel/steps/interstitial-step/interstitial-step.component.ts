@@ -1,12 +1,20 @@
-import {Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, signal, isDevMode} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map} from 'rxjs/operators';
 import { of } from 'rxjs';
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
 import { ValidationService } from '../../../../services/validation.service';
 import {MetaPixelService} from "../../../../services/meta-pixel.service";
+
+export function siretFormatValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const cleanValue = control.value.replace(/[\s-]/g, '');
+  const isValid = /^[0-9]{14}$/.test(cleanValue);
+
+  return isValid ? null : { siretFormat: true };
+}
 
 @Component({
   selector: 'app-interstitial-step',
@@ -55,7 +63,7 @@ export class InterstitialStepComponent {
     prenom: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     telephone: ['', [Validators.required, Validators.pattern(/^(0|\+33)[6-7]([0-9]{2}){4}$/)]],
-    siret: ['', [Validators.required, Validators.pattern(/^[0-9]{14}$/)]]
+    siret: ['', [Validators.required, siretFormatValidator]]
   });
 
   constructor() {
@@ -102,18 +110,28 @@ export class InterstitialStepComponent {
   }
 
   private setupSiretListener(): void {
-    this.form.get('siret')?.valueChanges.pipe(
+    const siretCtrl = this.form.get('siret');
+
+    siretCtrl?.valueChanges.pipe(
+      map(term => term ? term.replace(/[\s-]/g, '') : ''),
       debounceTime(500),
       distinctUntilChanged(),
-      filter((term): term is string => !!term && term.replace(/\s/g, '').length >= 9),
-      switchMap(siret => {
+      filter((cleanSiret): cleanSiret is string => cleanSiret.length === 14),
+      switchMap(cleanSiret => {
         this.isLoadingSiret.set(true);
         this.siretCheckFailed.set(false);
 
-        return this.validationService.getEtablissementInfo(siret).pipe(
-          tap(res => console.log('✅ RÉPONSE API SIRET :', res)), // Regarde ta console navigateur !
+        // 🛑 BYPASS POUR LE DÉVELOPPEMENT
+        // Si on est en dev et qu'on tape 14 zéros, on simule une réponse API valide.
+        if (isDevMode() && cleanSiret === '00000000000000') {
+          this.isLoadingSiret.set(false);
+          return of({ siret: cleanSiret, bypassActif: true });
+        }
+
+        return this.validationService.getEtablissementInfo(cleanSiret).pipe(
+          tap(res => console.log('✅ RÉPONSE API SIRET :', res)),
           catchError((err) => {
-            console.error('❌ ERREUR API SIRET :', err); // S'il y a une erreur HTTP, elle sera ici
+            console.error('❌ ERREUR API SIRET :', err);
             return of(null);
           }),
           finalize(() => this.isLoadingSiret.set(false))
@@ -121,9 +139,6 @@ export class InterstitialStepComponent {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(response => {
-      const siretCtrl = this.form.get('siret');
-
-      // Si la réponse est OK et qu'elle contient bien un champ "siret"
       if (response && response.siret) {
         this.siretCheckFailed.set(false);
         if (siretCtrl?.hasError('siretInvalidAPI')) {
@@ -156,7 +171,7 @@ export class InterstitialStepComponent {
         email: val.email!,
         telephonePersonnel: val.telephone!,
         professionnel: {
-          siret: val.siret!
+          siret: val.siret!.replace(/[\s-]/g, '')
         },
         communication: {
           secteur: secteurChoisi || 'AUTRE'

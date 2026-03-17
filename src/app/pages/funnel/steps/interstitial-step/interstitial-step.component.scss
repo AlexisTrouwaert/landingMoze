@@ -228,3 +228,46 @@
   .next-btn { padding: 1rem 0; font-size: 1rem }
   .input-group { & input { padding: 0.8rem; } }
 }
+
+// --- MESSAGE D'INFORMATION MOT DE PASSE ---
+.password-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background-color: rgba(20, 87, 117, 0.05); // Fond léger basé sur la couleur primaire
+  border-left: 4px solid var(--primary-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    line-height: 1.4;
+    font-weight: 500;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -17,7 +17,7 @@ export interface SireneResponse {
 })
 export class ValidationService {
   private http = inject(HttpClient);
-  private apiUrl = '/mozeapp';
+  private apiUrl = 'https://moze.fr/mozeapp';
 
   /**
    * Vérifie si un email est déjà enregistré en base de données.
@@ -32,9 +32,8 @@ export class ValidationService {
    * Récupère les informations d'une entreprise via son numéro SIRET.
    */
   getEtablissementInfo(siret: string, context?: HttpContext): Observable<SireneResponse> {
-    const cleanSiret = siret.replace(/\s/g, '');
+    const cleanSiret = siret.replace(/[\s-]/g, '');
     const options = context ? { context } : {};
-
     return this.http.get<SireneResponse>(`${this.apiUrl}/sirene/etablissement/${cleanSiret}`, options);
   }
 }
