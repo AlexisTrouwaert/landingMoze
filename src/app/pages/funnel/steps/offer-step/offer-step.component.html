@@ -15,7 +15,7 @@
 
       <div class="moze-card indep-card">
         <div class="card-badge badge-green">INDÉP +</div>
-        <div class="price">9,90€<br><span>/mois</span></div>
+        <div class="price">9,90€<span class="ht">HT</span><br><span>/mois</span></div>
         <ul class="features">
           <li><span class="hl-green">FACTURATION</span> électronique conforme</li>
           <li>Facturer seul ou à <span class="hl-green">PLUSIEURS</span></li>
@@ -27,7 +27,7 @@
         <div class="plus-circle">+</div>
         <div class="moze-card coop-card">
           <div class="card-badge badge-blue">COOP</div>
-          <div class="price">+20€<br><span>/mois</span></div>
+          <div class="price">+20€<span class="ht">HT</span><br><span>/mois</span></div>
           <ul class="features">
             <li>Accès au n°SAP<br> <span class="hl-blue">SANS EXCLUSIVITÉ</span></li>
             <li>Cadre <span class="hl-blue">SÉCURISÉ</span> et conforme</li>
@@ -40,6 +40,11 @@
     <button class="cta-btn" (click)="register()">
       JE DEVIENS MOZEUR !
     </button>
-    <p class="small">9,90€HT soit <span>11,88€TTC</span></p>
+    @if (!isCoop()) {
+      <p class="small">9,90€HT soit <span>11,88€TTC</span></p>
+    }
+    @if (isCoop()) {
+      <p class="small">29,90€HT soit <span>35,88€TTC</span></p>
+    }
   </div>
 </div>

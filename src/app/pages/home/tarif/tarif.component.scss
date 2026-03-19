@@ -102,6 +102,19 @@
   flex-direction: column;
   transform: rotate(-2deg);
   margin-bottom: 2rem;
+
+  span {
+    font-size: clamp(1.2rem, -0.0714rem + 2.1429vw, 1.5rem);
+    margin-bottom: 1rem;
+  }
+
+  p:not(.number){
+    font-size: 1.2rem;
+  }
+
+  .slash {
+    margin-right: 0.1rem;
+  }
 }
 
 .tile:hover{

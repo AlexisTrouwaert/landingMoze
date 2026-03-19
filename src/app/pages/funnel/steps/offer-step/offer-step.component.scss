@@ -136,13 +136,17 @@ h1 {
 }
 
 .small {
-  font-size: clamp(0.8rem, 3vw, 1.2rem);
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
   color: var(--primary-color);
   margin-top: 1.5rem;
 
   span {
     font-weight: 800;
   }
+}
+
+.ht {
+  font-size: clamp(0.8rem, 3vw, 1.2rem);
 }
 
 // --- RESPONSIVE MOBILE (< 600px) ---
