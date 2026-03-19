@@ -1,12 +1,12 @@
-import {Component, computed, DestroyRef, inject, signal, isDevMode} from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
 import { ValidationService } from '../../../../services/validation.service';
-import {MetaPixelService} from "../../../../services/meta-pixel.service";
+import { MetaPixelService } from "../../../../services/meta-pixel.service";
 
 export function siretFormatValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
@@ -30,12 +30,15 @@ export class InterstitialStepComponent {
   private validationService = inject(ValidationService);
   private metaPixelService = inject(MetaPixelService);
 
-  // --- SIGNAUX D'ÉTAT (Vérifications) ---
+  // --- SIGNAUX D'ÉTAT (Vérifications et Soumission) ---
   isCheckingEmail = signal(false);
   emailExistsInBdd = signal(false);
 
   isLoadingSiret = signal(false);
   siretCheckFailed = signal(false);
+
+  isSubmitting = signal(false);
+  submissionError = signal<string | null>(null);
 
   // --- GESTION DE L'IMAGE DYNAMIQUE ---
   imageMap: Record<string, string> = {
@@ -121,8 +124,6 @@ export class InterstitialStepComponent {
         this.isLoadingSiret.set(true);
         this.siretCheckFailed.set(false);
 
-        // 🛑 BYPASS POUR LE DÉVELOPPEMENT
-        // Si on est en dev et qu'on tape 14 zéros, on simule une réponse API valide.
         if (isDevMode() && cleanSiret === '00000000000000') {
           this.isLoadingSiret.set(false);
           return of({ siret: cleanSiret, bypassActif: true });
@@ -157,6 +158,9 @@ export class InterstitialStepComponent {
 
   submit() {
     if (this.form.valid && !this.emailExistsInBdd() && !this.siretCheckFailed()) {
+      this.submissionError.set(null);
+      this.isSubmitting.set(true);
+
       const val = this.form.value;
       const secteurChoisi = this.fs.selectedSector();
       const nomClean = val.nom!.trim().replace(/\s+/g, '');
@@ -183,13 +187,14 @@ export class InterstitialStepComponent {
 
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
-          // console.log('Inscription réussie !', response);
+          this.isSubmitting.set(false);
           this.metaPixelService.trackLead();
           this.fs.nextStep();
         },
         error: (err) => {
-          // console.error('Erreur lors de l\'inscription :', err);
-          this.fs.nextStep();
+          console.error('Erreur lors de l\'inscription :', err);
+          this.isSubmitting.set(false);
+          this.submissionError.set("Une erreur est survenue, veuillez réessayer ultérieurement.");
         }
       });
     } else {
