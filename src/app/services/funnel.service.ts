@@ -32,7 +32,8 @@ export interface FunnelState {
 export class FunnelService {
 
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/mozeapp/inscription`;
+  // private apiUrl = `https://nico.by-moze.fr`;
+  private apiUrl = `https://app.mozeconnect.fr`;
 
   private state = signal<FunnelState>({
     step: 1,
@@ -45,12 +46,14 @@ export class FunnelService {
   // --- Selectors ---
   readonly currentStep = computed(() => this.state().step);
   readonly selectedSector = computed(() => this.state().sector);
-  readonly finalOfferPrice = computed(() => {
-    if (this.state().wantsTaxCredit === true) {
-      return 29.90;
-    }
-    return 9.90;
-  });
+  readonly finalOfferPrice = computed(() => { if (this.state().wantsTaxCredit === true) { return 29.90; } return 9.90; });
+  readonly userInfo = computed(() => this.state().userInfo);
+  readonly wantsTaxCredit = computed(() => this.state().wantsTaxCredit);
+  readonly hasSapNumber = computed(() => this.state().hasSapNumber);
+
+  // --- Nouvelles Actions (Appels HTTP) ---
+  private inscriptionApiUrl = `https://moze.fr/mozeapp/inscription`;
+  private abonnementsApiUrl = `https://moze.fr/mozeapp/abonnements/public/subscribe`;
 
   // --- Actions ---
   setSector(sector: SectorType) {
@@ -81,6 +84,22 @@ export class FunnelService {
   }
 
   submitInscription(dto: UtilisateurInscriptionDTO) {
-    return this.http.post(this.apiUrl, dto);
+    return this.http.post(this.inscriptionApiUrl, dto, { responseType: 'text' });
+  }
+
+  subscribePremium(email: string, origine: string) {
+    return this.http.post(`${this.abonnementsApiUrl}/premium`, {
+      email,
+      origine
+    }, { responseType: 'text' });
+  }
+
+  subscribeCustom(email: string, withSap: boolean, withCoop: boolean, origine: string) {
+    return this.http.post(`${this.abonnementsApiUrl}/custom`, {
+      email,
+      withSap,
+      withCoop,
+      origine
+    }, { responseType: 'text' });
   }
 }

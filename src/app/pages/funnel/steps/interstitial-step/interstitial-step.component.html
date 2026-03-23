@@ -85,6 +85,20 @@
           </div>
         }
 
+        <input type="text" formControlName="honeypot" style="display:none" tabindex="-1">
+
+        <div class="brevo-optin-container fade-in">
+          <label class="custom-checkbox-label">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" formControlName="optIn" class="brevo-optin-checkbox" />
+              <div class="custom-checkmark"></div>
+            </div>
+            <span class="optin-text">
+              J'accepte de recevoir vos e-mails et confirme avoir pris connaissance de votre politique de confidentialité.
+            </span>
+          </label>
+        </div>
+
         <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isLoadingSiret() || isSubmitting()">
           @if (isSubmitting()) {
             Chargement...

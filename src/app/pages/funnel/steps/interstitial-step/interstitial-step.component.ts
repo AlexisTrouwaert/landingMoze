@@ -66,7 +66,9 @@ export class InterstitialStepComponent {
     prenom: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     telephone: ['', [Validators.required, Validators.pattern(/^(0|\+33)[6-7]([0-9]{2}){4}$/)]],
-    siret: ['', [Validators.required, siretFormatValidator]]
+    siret: ['', [Validators.required, siretFormatValidator]],
+    optIn: [false],
+    honeypot: ['']
   });
 
   constructor() {
@@ -158,6 +160,12 @@ export class InterstitialStepComponent {
 
   submit() {
     if (this.form.valid && !this.emailExistsInBdd() && !this.siretCheckFailed()) {
+
+      if (this.form.value.honeypot) {
+        console.warn('Bot détecté.');
+        return;
+      }
+
       this.submissionError.set(null);
       this.isSubmitting.set(true);
 
@@ -187,8 +195,12 @@ export class InterstitialStepComponent {
 
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
-          this.isSubmitting.set(false);
           this.metaPixelService.trackLead();
+          if (val.optIn) {
+            this.subscribeToBrevo(val.email!);
+          }
+
+          this.isSubmitting.set(false);
           this.fs.nextStep();
         },
         error: (err) => {
@@ -200,6 +212,23 @@ export class InterstitialStepComponent {
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  // --- LOGIQUE BREVO ---
+  private subscribeToBrevo(email: string) {
+    const bodyParams = new URLSearchParams();
+    bodyParams.append('EMAIL', email);
+    bodyParams.append('OPT_IN', '1');
+    bodyParams.append('email_address_check', '');
+    bodyParams.append('locale', 'fr');
+
+    const brevoUrl = 'https://c1020106.sibforms.com/serve/MUIFAPCu8l9auir9gfCkLC5J0P0Mxj8KhfZ67iKAc2LnMz7BXxGM_c_jsIyHtnsNJBq6CJ8ZdY2El0-p6nEhayeC1hFc7uRilk0KUJVj3l_l7WBFdoyNKlJbYaux9c2MEM6-RkODXtF3QKfKEj4uVIZB-7PjNvHorEYZUetyaJGlRyjlX0pxWj82chrO3PbomQVHxEZk6PA2wBY6';
+
+    fetch(brevoUrl, {
+      method: 'POST',
+      body: bodyParams,
+      mode: 'no-cors'
+    }).catch(err => console.error('Erreur silencieuse Brevo:', err));
   }
 
   // --- HELPERS TEXTE ---

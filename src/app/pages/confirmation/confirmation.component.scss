@@ -140,7 +140,7 @@ $color-bg: #f5f9f6;
   }
 
   &:hover {
-    background-color: var(--primary-color, $color-dark-blue);
+    background-color: var(--interaction-color);
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 

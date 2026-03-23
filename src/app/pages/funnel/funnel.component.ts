@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FunnelService } from "../../services/funnel.service";
-import { MetaPixelService } from "../../services/meta-pixel.service"; // <-- Ajout de l'import
+import { MetaPixelService } from "../../services/meta-pixel.service";
 import { SectorStepComponent } from "./steps/sector-step/sector-step.component";
 import { InterstitialStepComponent } from "./steps/interstitial-step/interstitial-step.component";
 import { SapStepComponent } from "./steps/sap-step/sap-step.component";
