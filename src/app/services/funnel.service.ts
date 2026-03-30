@@ -52,8 +52,8 @@ export class FunnelService {
   readonly hasSapNumber = computed(() => this.state().hasSapNumber);
 
   // --- Nouvelles Actions (Appels HTTP) ---
-  private inscriptionApiUrl = `https://moze.fr/mozeapp/inscription`;
-  private abonnementsApiUrl = `https://moze.fr/mozeapp/abonnements/public/subscribe`;
+  private inscriptionApiUrl = `${this.apiUrl}/mozeapp/inscription`;
+  private abonnementsApiUrl = `${this.apiUrl}/mozeapp/abonnements/public/subscribe`;
 
   // --- Actions ---
   setSector(sector: SectorType) {
@@ -87,19 +87,21 @@ export class FunnelService {
     return this.http.post(this.inscriptionApiUrl, dto, { responseType: 'text' });
   }
 
-  subscribePremium(email: string, origine: string) {
-    return this.http.post(`${this.abonnementsApiUrl}/premium`, {
-      email,
-      origine
+  subscribePremium(email: string, withSap: boolean, withCoop: boolean, origine: string) {
+    return this.http.post(`${this.abonnementsApiUrl}/custom`, {
+      email: email,
+      withSap: withSap,
+      withCoop: withCoop,
+      origine: 'moze.fr'
     }, { responseType: 'text' });
   }
 
   subscribeCustom(email: string, withSap: boolean, withCoop: boolean, origine: string) {
     return this.http.post(`${this.abonnementsApiUrl}/custom`, {
-      email,
-      withSap,
-      withCoop,
-      origine
+      email: email,
+      withSap: withSap,
+      withCoop: withCoop,
+      origine: 'moze.fr'
     }, { responseType: 'text' });
   }
 }

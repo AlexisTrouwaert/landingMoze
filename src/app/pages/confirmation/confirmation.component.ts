@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { MetaTrackingService } from '../../services/meta-tracking.service';
 
 @Component({
@@ -11,8 +11,16 @@ import { MetaTrackingService } from '../../services/meta-tracking.service';
 })
 export class ConfirmationComponent implements OnInit {
   private metaTrackingService = inject(MetaTrackingService);
+  private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.metaTrackingService.trackEvent('Purchase');
+    const sessionId = this.route.snapshot.queryParamMap.get('session_id');
+
+    this.metaTrackingService.trackEvent(
+      'Purchase',
+      null,
+      {},
+      sessionId
+    );
   }
 }

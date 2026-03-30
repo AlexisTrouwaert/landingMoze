@@ -47,7 +47,7 @@ export class OfferStepComponent {
 
     const request$ = this.isCoop()
       ? this.fs.subscribeCustom(email, this.fs.hasSapNumber() ?? false, true, origine)
-      : this.fs.subscribePremium(email, origine);
+      : this.fs.subscribePremium(email, false, false, origine);
 
     request$.subscribe({
       next: (response: any) => {

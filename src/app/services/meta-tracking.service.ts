@@ -7,7 +7,7 @@ declare let fbq: any;
 })
 export class MetaTrackingService {
 
-  trackEvent(eventName: string, customEventName?: string, data: any = {}): void {
+  trackEvent(eventName: string, customEventName?: string | null, data: any = {}, eventId?: string | null): void {
     if (typeof fbq === 'undefined') {
       if (isDevMode()) {
         console.warn('Le script Meta Pixel (fbq) est introuvable.');
@@ -15,10 +15,16 @@ export class MetaTrackingService {
       return;
     }
 
+    const options = eventId ? { eventID: eventId } : undefined;
+
     if (eventName === 'trackCustom' && customEventName) {
-      fbq('trackCustom', customEventName, data);
+      options
+        ? fbq('trackCustom', customEventName, data, options)
+        : fbq('trackCustom', customEventName, data);
     } else {
-      fbq('track', eventName, data);
+      options
+        ? fbq('track', eventName, data, options)
+        : fbq('track', eventName, data);
     }
   }
 }
