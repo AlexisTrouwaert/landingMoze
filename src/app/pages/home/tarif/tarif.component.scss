@@ -1,6 +1,6 @@
 .tarif-container{
   position: relative;
-  min-height: 85vh;
+  min-height: 70vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -270,7 +270,8 @@
 
 @media (max-height: 1800px) {
   .tarif-container {
-    margin-top: 2rem;
+    margin-top: 4rem;
+    margin-bottom: 4rem;
   }
 }
 

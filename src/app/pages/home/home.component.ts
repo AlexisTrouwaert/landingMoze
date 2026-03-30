@@ -7,6 +7,8 @@ import {ToolComponent} from "./tool/tool.component";
 import {FaqComponent} from "./faq/faq.component";
 import {EmailComponent} from "./email/email.component";
 import {FooterComponent} from "./footer/footer.component";
+import {PlatformDiscoveryComponent} from "./platform-discovery/platform-discovery.component";
+import {CustomerReviewsComponent} from "./customer-reviews/customer-reviews.component";
 
 @Component({
   selector: 'app-home',
@@ -18,7 +20,9 @@ import {FooterComponent} from "./footer/footer.component";
     ToolComponent,
     FaqComponent,
     EmailComponent,
-    FooterComponent
+    FooterComponent,
+    PlatformDiscoveryComponent,
+    CustomerReviewsComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

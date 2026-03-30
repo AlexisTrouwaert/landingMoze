@@ -1,0 +1,117 @@
+.reviews-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rem;
+  padding: 2rem 2rem 5rem;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-family, 'Montserrat', sans-serif);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.5rem, 1.0714rem + 2.1429vw, 3rem);
+
+  span {
+    padding: 0.5rem 2rem;
+    color: var(--moze-white, #ffffff);
+  }
+
+  .highlight-blue {
+    background-color: var(--moze-light-blue, #3AAFE3);
+    transform: rotate(-2deg);
+  }
+
+  .highlight-green {
+    background-color: var(--moze-green, #6BD498);
+    transform: rotate(2deg);
+  }
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  padding-top: 3rem; /* Espace crucial pour éviter que les avatars du haut soient coupés */
+}
+
+.review-card {
+  background-color: var(--moze-dark-blue, #144968);
+  color: var(--moze-white, #ffffff);
+  border-radius: 1.5rem;
+  padding: 5.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 20px rgba(20, 73, 104, 0.15);
+}
+
+.avatar-wrapper {
+  position: absolute;
+  top: -4rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.stars-wrapper {
+  margin-bottom: 1rem;
+
+  .stars-img {
+    height: 2.5rem;
+    margin-block: -1rem;
+    object-fit: contain;
+  }
+}
+
+.review-text {
+  font-family: var(--font-family, 'Montserrat', sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  flex-grow: 1; /* Permet d'aligner toutes les signatures en bas si les cartes n'ont pas la même hauteur */
+  margin-bottom: 1.5rem;
+}
+
+.review-author {
+  font-family: var(--font-family, 'Montserrat', sans-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 5rem; /* On augmente le gap vertical pour laisser la place aux avatars sur deux lignes */
+  }
+}
+
+@media (max-width: 600px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+    row-gap: 5rem;
+  }
+
+  .title-wrapper span {
+    padding: 0.4rem 1.5rem;
+  }
+}

@@ -136,9 +136,7 @@
     margin-inline: auto;
     gap: 1rem;
     padding: 0 4rem;
-
-    /* Sur tablette/mobile en colonne unique, on réserve la hauteur totale sur le conteneur global */
-    min-height: 65rem;
+    min-height: 35rem;
   }
 
   .faq-container { padding: 3rem 1rem; }

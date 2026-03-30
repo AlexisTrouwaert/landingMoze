@@ -1,0 +1,25 @@
+<section class="reviews-section">
+  <div class="title-wrapper">
+    <span class="highlight-blue">+ 1200 CLIENTS</span>
+    <span class="highlight-green">SATISFAITS</span>
+  </div>
+
+  <div class="cards-container">
+    @for (review of reviews(); track review.author) {
+      <div class="review-card">
+
+        <div class="avatar-wrapper">
+          <img [src]="review.avatar" [alt]="review.author" class="avatar-img">
+        </div>
+
+        <div class="stars-wrapper">
+          <img src="/assets/images/stars.png" alt="5 étoiles" class="stars-img">
+        </div>
+
+        <p class="review-text">{{ review.text }}</p>
+        <p class="review-author">{{ review.author }}</p>
+
+      </div>
+    }
+  </div>
+</section>
