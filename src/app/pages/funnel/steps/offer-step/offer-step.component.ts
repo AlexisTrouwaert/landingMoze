@@ -1,8 +1,9 @@
-import {Component, inject, signal} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FunnelService} from "../../../../services/funnel.service";
-import {Router} from "@angular/router";
-import {MetaPixelService} from "../../../../services/meta-pixel.service";
+import { FunnelService } from "../../../../services/funnel.service";
+import { Router } from "@angular/router";
+import { MetaPixelService } from "../../../../services/meta-pixel.service";
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-offer-step',
@@ -18,10 +19,6 @@ export class OfferStepComponent {
 
   isSubmittingOffer = signal(false);
 
-  constructor() {
-    this.metaPixelService.trackPurchase();
-  }
-
   isCoop() {
     return this.fs.finalOfferPrice() > 10;
   }
@@ -33,7 +30,7 @@ export class OfferStepComponent {
     return "Simple. Clair. Sans engagement.";
   }
 
-  register() {
+  async register() {
     const user = this.fs.userInfo();
 
     if (!user?.email) {
@@ -49,16 +46,13 @@ export class OfferStepComponent {
       ? this.fs.subscribeCustom(email, this.fs.hasSapNumber() ?? false, true, origine)
       : this.fs.subscribePremium(email, false, false, origine);
 
-    request$.subscribe({
-      next: (response: any) => {
-        this.isSubmittingOffer.set(false);
-        window.location.href = response as string;
-      },
-      error: (err) => {
-        this.isSubmittingOffer.set(false);
-        console.error("❌ ERREUR lors de la souscription à l'offre :", err);
-      }
-    });
+    try {
+      const response = await firstValueFrom(request$);
+      this.isSubmittingOffer.set(false);
+      window.location.href = response as string;
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
   private redirectToApp() {
@@ -69,6 +63,6 @@ export class OfferStepComponent {
 
   private handleError(err: any) {
     this.isSubmittingOffer.set(false);
-    console.error("Erreur lors de la souscription à l'offre :", err);
+    console.error("❌ ERREUR lors de la souscription à l'offre :", err);
   }
 }
