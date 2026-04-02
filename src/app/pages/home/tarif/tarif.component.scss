@@ -236,6 +236,24 @@
   justify-content: center;
 }
 
+.promo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.promo-text {
+  background-color: var(--moze-green, #6BD498);
+  color: #124d68;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  text-transform: uppercase;
+  padding: 0.4rem 1.5rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 1114px){
 
   .inscription-container{
@@ -344,5 +362,16 @@
     & .icon-container:nth-child(2) {
       margin-right: -1rem;
     }
+  }
+}
+
+@media (max-width: 800px) {
+  .promo-container {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .promo-text {
+    font-size: 1.2rem;
   }
 }

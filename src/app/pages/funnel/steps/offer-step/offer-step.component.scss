@@ -75,7 +75,6 @@ h1 {
   box-shadow: 0 10px 20px rgba(20, 87, 117, 0.3);
   transition: all 0.3s ease;
   text-transform: uppercase;
-  margin-top: -1rem;
 
   &:hover {
     background: var(--interaction-color);
@@ -147,6 +146,24 @@ h1 {
 
 .ht {
   font-size: clamp(0.8rem, 3vw, 1.2rem);
+}
+
+.promo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.promo-text {
+  background-color: var(--moze-green, #6BD498);
+  color: #124d68;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  text-transform: uppercase;
+  padding: 0.4rem 1.5rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 // --- RESPONSIVE MOBILE (< 600px) ---
@@ -282,9 +299,18 @@ h1 {
     font-size: 1.5rem;
   }
 
+  .promo-container {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .promo-text {
+    font-size: 1.2rem;
+  }
+
   .cta-btn {
     padding: 0.8rem 1rem;
     margin-top: 1rem;
-    z-index: 4; // Toujours cliquable
+    z-index: 4;
   }
 }

@@ -36,11 +36,12 @@
 }
 
 .cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5rem 2rem;
   width: 100%;
-  padding-top: 3rem; /* Espace crucial pour éviter que les avatars du haut soient coupés */
+  padding-top: 4rem;
 }
 
 .review-card {
@@ -54,6 +55,8 @@
   text-align: center;
   position: relative;
   box-shadow: 0 10px 20px rgba(20, 73, 104, 0.15);
+  flex: 1 1 320px;
+  max-width: 400px;
 }
 
 .avatar-wrapper {
@@ -106,9 +109,8 @@
 }
 
 @media (max-width: 600px) {
-  .cards-container {
-    grid-template-columns: 1fr;
-    row-gap: 5rem;
+  .review-card {
+    flex-basis: 100%;
   }
 
   .title-wrapper span {

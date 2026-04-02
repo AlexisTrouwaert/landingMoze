@@ -5,19 +5,19 @@
   </div>
 
   <div class="cards-container">
-    @for (review of reviews(); track review.author) {
+    @for (review of reviews(); track review.name) {
       <div class="review-card">
 
         <div class="avatar-wrapper">
-          <img [src]="review.avatar" [alt]="review.author" class="avatar-img">
+          <img [src]="review.image" [alt]="review.name" class="avatar-img">
         </div>
 
         <div class="stars-wrapper">
           <img src="/assets/images/stars.png" alt="5 étoiles" class="stars-img">
         </div>
 
-        <p class="review-text">{{ review.text }}</p>
-        <p class="review-author">{{ review.author }}</p>
+        <p class="review-text">{{ review.avis }}</p>
+        <p class="review-author">{{ review.name }}</p>
 
       </div>
     }

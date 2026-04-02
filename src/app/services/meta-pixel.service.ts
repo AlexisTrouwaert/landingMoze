@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, isDevMode} from '@angular/core';
 
 // Déclaration de la fonction fbq pour éviter les erreurs TypeScript
 declare let fbq: any;
@@ -9,6 +9,7 @@ declare let fbq: any;
 export class MetaPixelService {
   private leadTracked = false;
   private purchaseTracked = false;
+  private viewContentTracked = false;
 
   trackLead(): void {
     if (!this.leadTracked && typeof fbq !== 'undefined') {
@@ -25,11 +26,23 @@ export class MetaPixelService {
   }
 
   trackViewContent(): void {
-    const win = window as any;
-    if (typeof win !== 'undefined' && win.fbq) {
-      win.fbq('track', 'ViewContent');
+    if (this.viewContentTracked) return;
+
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'ViewContent');
+      this.viewContentTracked = true;
     } else {
-      console.warn('Meta Pixel non chargé ou bloqué par un bloqueur de publicités.');
+      if (isDevMode()) {
+        console.warn('Meta Pixel (fbq) introuvable.');
+      }
     }
+  }
+
+  /**
+   * Optionnel : reset le flag si tu as besoin de re-tracker
+   * lors d'une navigation spécifique sans recharger la page
+   */
+  resetViewContent(): void {
+    this.viewContentTracked = false;
   }
 }

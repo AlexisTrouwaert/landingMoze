@@ -1,14 +1,16 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {HeaderComponent} from "./header/header.component";
-import {LandingSectionComponent} from "./landing-section/landing-section.component";
-import {TarifComponent} from "./tarif/tarif.component";
-import {ScreenSizeService} from "../../services/screen-size.service";
-import {ToolComponent} from "./tool/tool.component";
-import {FaqComponent} from "./faq/faq.component";
-import {EmailComponent} from "./email/email.component";
-import {FooterComponent} from "./footer/footer.component";
-import {PlatformDiscoveryComponent} from "./platform-discovery/platform-discovery.component";
-import {CustomerReviewsComponent} from "./customer-reviews/customer-reviews.component";
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { HeaderComponent } from "./header/header.component";
+import { LandingSectionComponent } from "./landing-section/landing-section.component";
+import { TarifComponent } from "./tarif/tarif.component";
+import { ScreenSizeService } from "../../services/screen-size.service";
+import { ToolComponent } from "./tool/tool.component";
+import { FaqComponent } from "./faq/faq.component";
+import { EmailComponent } from "./email/email.component";
+import { FooterComponent } from "./footer/footer.component";
+import { PlatformDiscoveryComponent } from "./platform-discovery/platform-discovery.component";
+import { CustomerReviewsComponent } from "./customer-reviews/customer-reviews.component";
+import { MetaPixelService } from "../../services/meta-pixel.service";
 
 @Component({
   selector: 'app-home',
@@ -27,16 +29,18 @@ import {CustomerReviewsComponent} from "./customer-reviews/customer-reviews.comp
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
-  private screenSizeService = inject(ScreenSizeService)
+  private readonly screenSizeService = inject(ScreenSizeService);
+  private readonly metaPixelService = inject(MetaPixelService);
 
-  screenSize!: number;
+  public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
-  ngOnInit() {
-    this.screenSizeService.screenSize$.subscribe(size => {
-      this.screenSize = size;
-    });
+  ngOnInit(): void {
+    this.metaPixelService.trackViewContent();
   }
 
+  ngOnDestroy(): void {
+    this.metaPixelService.resetViewContent();
+  }
 }

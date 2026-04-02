@@ -23,14 +23,9 @@ import { TaxCreditStepComponent } from "./steps/tax-credit-step/tax-credit-step.
   templateUrl: './funnel.component.html',
   styleUrl: './funnel.component.scss'
 })
-export class FunnelComponent implements OnInit {
+export class FunnelComponent {
   fs = inject(FunnelService);
   private router = inject(Router);
-  private metaPixelService = inject(MetaPixelService);
-
-  ngOnInit(): void {
-    this.metaPixelService.trackViewContent();
-  }
 
   goHome() {
     this.router.navigate(['/']);
