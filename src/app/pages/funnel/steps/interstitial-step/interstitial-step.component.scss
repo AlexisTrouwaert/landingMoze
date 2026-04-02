@@ -329,6 +329,12 @@
   line-height: 1.4;
   color: var(--primary-color);
   font-weight: 500;
+
+  a {
+    color: var(--interaction-color);
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }
 
 @keyframes fadeIn {
