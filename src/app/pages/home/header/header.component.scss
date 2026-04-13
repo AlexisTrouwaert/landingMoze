@@ -73,3 +73,23 @@
     }
   }
 }
+
+@media (max-width: 400px) {
+  .header-container {
+    padding: 0 1.5rem;
+    border-radius: 0 0 1.5rem 1.5rem;
+  }
+
+  .left-header-logo {
+    & img {
+      height: 1.5rem;
+    }
+  }
+
+  .right-header-button {
+    button {
+      gap: 0.5rem;
+      padding: 0 0.75rem;
+    }
+  }
+}
