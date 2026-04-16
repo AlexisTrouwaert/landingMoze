@@ -11,6 +11,7 @@ import { FooterComponent } from "./footer/footer.component";
 import { PlatformDiscoveryComponent } from "./platform-discovery/platform-discovery.component";
 import { CustomerReviewsComponent } from "./customer-reviews/customer-reviews.component";
 import { MetaPixelService } from "../../services/meta-pixel.service";
+import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
 
 @Component({
   selector: 'app-home',
@@ -24,7 +25,8 @@ import { MetaPixelService } from "../../services/meta-pixel.service";
     EmailComponent,
     FooterComponent,
     PlatformDiscoveryComponent,
-    CustomerReviewsComponent
+    CustomerReviewsComponent,
+    ActivityStepsComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

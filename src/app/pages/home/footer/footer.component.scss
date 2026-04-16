@@ -1,7 +1,5 @@
 .footer-container{
-  width: 100vw;
   background: var(--primary-color);
-
   position: relative;
   bottom: 0;
   left: 0;
@@ -11,7 +9,7 @@
   background: var(--background-color);
   border-radius: 3rem 3rem 0 0;
   width: 100%;
-  padding: 2rem 8rem;
+  padding: 2rem 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -92,7 +90,7 @@
 
 @media (max-width: 1200px) {
   .footer-color{
-    padding: 2rem 4rem;
+    padding: 2rem;
   }
 }
 

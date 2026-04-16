@@ -1,5 +1,5 @@
-import {Component, inject} from '@angular/core';
-import {Router} from "@angular/router";
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -9,10 +9,9 @@ import {Router} from "@angular/router";
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-
   private router = inject(Router);
 
-  redirect() {
+  goToFunnel() {
     this.router.navigate(['/commencer']);
   }
 }

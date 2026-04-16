@@ -1,47 +1,56 @@
-<div class="tarif-container">
-  <div class="banner-header">
-  <h3>UNE OFFRE SIMPLIFIÉE</h3>
-</div>
-  <div class="tarif-cards-container">
-    <div class="indep-container">
-      <div class="icon-container">
-        <img src="/assets/images/6.png" alt="rocket" class="icons rocket">
-      </div>
-      <div class="tile indep">
-        <div class="banner-tile indep-banner">INDÉP +</div>
-        <div class="price">
-          <p class="number">9.90€<span>HT</span></p>
-          <p><span class="slash">/</span>mois</p>
-        </div>
-        <div class="text-container">
-          <p><span>FACTURATION</span> éléctronique conforme</p>
-          <p>Facturer seul ou à <span>PLUSIEURS</span></p>
-          <p><span>DÉVELOPPER</span> son réseau</p>
-        </div>
-      </div>
-    </div>
-    <div class="coop-container">
-      <div class="tile coop">
-        <div class="banner-tile coop-banner">COOP</div>
-        <div class="price">
-          <p class="number">+20€<span>HT</span></p>
-          <p><span class="slash">/</span>mois</p>
-        </div>
-        <div class="text-container">
-          <p>Accès au n°SAP <span class="span-coop">SANS EXCLUSIVITÉ</span></p>
-          <p>Cadre <span class="span-coop">SÉCURISÉ</span> et conforme</p>
-          <p><span class="span-coop">DÉVELOPPER</span> son activité</p>
-        </div>
-      </div>
-      <div class="icon-container">
-        <img src="/assets/images/7.png" alt="hands" class="icons hands">
-      </div>
-    </div>
+<section class="tarif-container">
+
+  <div class="header-section">
+    <p class="surtitle">NOS OFFRES</p>
+    <h2 class="main-title">
+      Une offre <span class="highlight-green">simplifiée</span>
+    </h2>
+    <p class="subtitle">
+      Deux formules claires, sans surprise, adaptées à chaque étape de votre activité indépendante.
+    </p>
   </div>
-  <div class="promo-container animate-pop">
-    <span class="promo-text">1er mois gratuit !</span>
+
+  <div class="pricing-cards">
+    @for (offer of offers(); track offer.name) {
+      <div class="pricing-card" [class.popular]="offer.isPopular">
+
+        @if (offer.isPopular) {
+          <div class="popular-badge">Le plus populaire</div>
+        }
+
+        <div class="card-header">
+          <h3>{{ offer.name }}</h3>
+          <p class="card-subtitle">{{ offer.subtitle }}</p>
+          <div class="price-container">
+            <span class="price">{{ offer.price }}</span>
+            <span class="price-suffix">{{ offer.priceSuffix }}</span>
+          </div>
+        </div>
+
+        <ul class="features-list">
+          @for (feature of offer.features; track feature) {
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{{ feature }}</span>
+            </li>
+          }
+        </ul>
+
+        <button
+          class="btn-select"
+          [class.btn-green]="offer.isPopular"
+          [innerHTML]="offer.buttonText"
+          (click)="goToFunnel()">
+        </button>
+      </div>
+    }
   </div>
-  <div class="inscription-container">
-    <button (click)="redirect()">Je m'inscris !</button>
+
+  <div class="footer-section">
+    <p class="disclaimer">Sans engagement. Résiliez à tout moment.</p>
+    <button class="btn-main-cta" (click)="goToFunnel()">Je profite d'un mois gratuit ! &rarr;</button>
   </div>
-</div>
+
+</section>

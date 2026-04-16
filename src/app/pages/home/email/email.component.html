@@ -1,71 +1,64 @@
-<div class="email-container">
-  <div class="banner-container-secondary">
-    <h3>ENVIE DE TOUT SAVOIR ?</h3>
+<section class="cta-newsletter-container">
+
+  <div class="cta-section">
+    <h2 class="main-title">
+      Prêt à <span class="highlight-green">simplifier</span><br>votre activité ?
+    </h2>
+    <p class="subtitle">
+      Rejoignez notre communauté de Mozeurs qui facturent,<br>
+      collaborent et développent leur réseau avec Moze.
+    </p>
+
+    <button class="btn-primary" (click)="goToFunnel()">
+      Je rejoins l'aventure &rarr;
+    </button>
+    <p class="subtext">Sans engagement - Inscription en 2 minutes</p>
   </div>
 
-  <div class="content-container" [class.shake]="isShaking()">
-    <div class="banner-container">
-      <h3>ENVIE DE TOUT SAVOIR ?</h3>
-    </div>
-
-    <div class="text-container">
-      <p>INSCRIS-TOI pour recevoir toutes nos ACTUALITÉS</p>
-      <p>et connaître toutes les NOUVEAUTÉS de notre APPLICATION !</p>
-    </div>
+  <div class="newsletter-section" [class.shake]="isShaking()">
+    <p class="newsletter-text">Inscrivez-vous pour recevoir nos actualités et nouveautés</p>
 
     <div class="status-alert success" *ngIf="status() === 'SUCCESS'">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-      </svg>
-      <span>Votre inscription a été enregistrée avec succès.</span>
+      <span>✓ Votre inscription a été enregistrée avec succès.</span>
     </div>
-
     <div class="status-alert error" *ngIf="status() === 'ERROR'">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>Trop de tentatives.</span>
+      <span>✕ Trop de tentatives, veuillez réessayer plus tard.</span>
     </div>
 
-    <div class="form-wrapper">
-      <form (submit)="onSubmit($event)">
+    <form (submit)="onSubmit($event)">
+      <div class="form-row">
+        <input
+          type="email"
+          [(ngModel)]="emailValue"
+          (ngModelChange)="emailError.set(false)"
+          name="email"
+          placeholder="Votre adresse email"
+          class="newsletter-input"
+          [class.input-error]="emailError()"
+        />
 
-        <div class="newsletter-bar-container" [class.invalid-bar]="emailError()">
+        <input type="text" [(ngModel)]="honeypotValue" name="check_field" style="display:none" tabindex="-1">
+
+        <button type="submit" class="newsletter-submit-btn" [disabled]="status() === 'LOADING'">
+          {{ status() === 'LOADING' ? 'Envoi...' : "C'est parti !" }}
+        </button>
+      </div>
+
+      <div class="optin-row">
+        <label class="custom-checkbox-label" [class.text-error]="optInError()">
           <input
-            type="email"
-            [(ngModel)]="emailValue"
-            (ngModelChange)="emailError.set(false)"
-            name="email"
-            placeholder="J'inscris ici mon adresse mail"
-            class="newsletter-input"
+            type="checkbox"
+            [(ngModel)]="optInValue"
+            (ngModelChange)="optInError.set(false)"
+            name="optin"
+            class="hidden-checkbox"
           />
-
-          <input type="text" [(ngModel)]="honeypotValue" name="check_field" style="display:none" tabindex="-1">
-
-          <button type="submit" class="newsletter-submit-btn" [disabled]="status() === 'LOADING'">
-            {{ status() === 'LOADING' ? 'Envoi...' : "C'est parti !" }}
-          </button>
-        </div>
-
-        <div class="brevo-optin-container">
-          <label class="custom-checkbox-label" [class.text-error]="optInError()">
-            <div class="checkbox-wrapper">
-              <input
-                type="checkbox"
-                [(ngModel)]="optInValue"
-                (ngModelChange)="optInError.set(false)"
-                name="optin"
-                [class.error-box]="optInError()"
-                class="brevo-optin-checkbox"
-              />
-              <div class="custom-checkmark"></div>
-            </div>
-            <span class="optin-text">
-              J'accepte de recevoir vos e-mails et confirme avoir pris connaissance de votre politique de confidentialité.
-            </span>
-          </label>
-        </div>
-      </form>
-    </div>
+          <div class="custom-checkmark" [class.error-box]="optInError()"></div>
+          <span class="optin-text">
+            J'accepte de recevoir vos e-mails et votre politique de confidentialité.
+          </span>
+        </label>
+      </div>
+    </form>
   </div>
-</div>
+</section>

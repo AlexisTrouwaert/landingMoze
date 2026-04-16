@@ -123,13 +123,15 @@
 }
 
 .question-title {
-  font-size: clamp(0.8rem, 0.6857rem + 0.4286vw, 1.2rem);
+  font-size: clamp(0.75rem, 0.5vw + 0.6rem, 1.05rem);
   color: var(--interaction-color);
   font-weight: bold;
+  letter-spacing: -0.02em; /* Resserre très subtilement les lettres sans nuire à la lecture */
+  line-height: 1.2; /* Assure un rendu propre si ça doit quand même passer à la ligne sur mobile */
 }
 
 /* --- RESPONSIVE OPTIMISÉ --- */
-@media (max-width: 1300px) {
+@media (max-width: 1400px) {
   .questions-container {
     flex-direction: column;
     max-width: calc(100% - 8rem);

@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import {avisData, typeAvis} from "../../../model/avis.model";
 
 @Component({
   selector: 'app-customer-reviews',
@@ -9,5 +8,28 @@ import {avisData, typeAvis} from "../../../model/avis.model";
   styleUrl: './customer-reviews.component.scss'
 })
 export class CustomerReviewsComponent {
-  public reviews = signal<typeAvis[]>(avisData);
+
+  // Tableau pour itérer facilement 5 fois dans le HTML pour les étoiles
+  public starsArray = [1, 2, 3, 4, 5];
+
+  public reviews = signal([
+    {
+      name: 'Anthony',
+      avis: "Mon chiffre d'affaire a augmenté de 50% en 3 mois",
+      rating: 5,
+      image: '/assets/images/anthony.jpg'
+    },
+    {
+      name: 'Fanny',
+      avis: "Je ne me sens plus seule, je peux poser toutes mes questions à la communauté",
+      rating: 4,
+      image: '/assets/images/fanny.jpg'
+    },
+    {
+      name: 'Mohammed',
+      avis: "Plus de problème de gestion de mon entreprise avec Moze Connect",
+      rating: 5,
+      image: '/assets/images/mohammed.jpg'
+    }
+  ]);
 }

@@ -1,0 +1,30 @@
+<section class="steps-container">
+  <div class="header-section">
+    <p class="surtitle">VOTRE ACTIVITÉ EN 4 ÉTAPES</p>
+    <h2 class="main-title">
+      De la facture à l'apport<br>
+      d'affaires, tout est <span class="highlight-green">connecté</span>
+    </h2>
+    <p class="subtitle">
+      Moze est le seul outil qui combine facturation collaborative,<br>
+      réseau professionnel et développement commercial dans une seule application.
+    </p>
+  </div>
+
+  <div class="cards-grid">
+    @for (step of steps(); track step.num) {
+      <div class="step-card" [class]="step.theme">
+        <div class="card-header">
+          <span class="step-number">{{ step.num }}</span>
+          <span class="step-pill">{{ step.pill }}</span>
+        </div>
+        <h3 class="step-title">{{ step.title }}</h3>
+        <p class="step-desc">{{ step.desc }}</p>
+      </div>
+    }
+  </div>
+
+  <div class="cta-wrapper">
+    <button class="btn-primary" (click)="goToFunnel()">Je souhaite facturer simplement &rarr;</button>
+  </div>
+</section>

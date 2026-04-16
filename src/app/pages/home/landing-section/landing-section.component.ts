@@ -1,5 +1,6 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {ScreenSizeService} from "../../../services/screen-size.service";
+import { Component, inject, Signal, computed } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-section',
@@ -8,16 +9,24 @@ import {ScreenSizeService} from "../../../services/screen-size.service";
   templateUrl: './landing-section.component.html',
   styleUrl: './landing-section.component.scss'
 })
-export class LandingSectionComponent implements OnInit {
+export class LandingSectionComponent {
+  private sanitizer = inject(DomSanitizer);
+  private router = inject(Router);
 
-  private screenSizeService = inject(ScreenSizeService)
+  private readonly videoId = 'ykgoxiYz208';
 
-  screenSize!: number;
+  public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
+    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${this.videoId}?rel=0&modestbranding=1`)
+  );
 
-  ngOnInit() {
-    this.screenSizeService.screenSize$.subscribe(size => {
-      this.screenSize = size;
-    });
+  goToFunnel(): void {
+    this.router.navigate(['/commencer']);
   }
 
+  goToOffres(): void {
+    const tarifSection = document.querySelector('app-tarif');
+    if (tarifSection) {
+      tarifSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }

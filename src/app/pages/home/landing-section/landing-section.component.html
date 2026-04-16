@@ -1,64 +1,61 @@
 <div class="landing-container">
-  <div class="green-section-container">
-    <section class="hero-container">
-      <div class="hero-content">
-        <div class="left-column">
-          <h1 class="main-title">
-            <span class="highlight-blue">L'OUTIL TOUT-EN-UN</span>
-            <span class="highlight-white">DES INDÉPENDANTS</span>
-          </h1>
+  <div class="hero-wrapper">
 
-          <div class="features-wrapper">
-            <img src="/assets/images/8.png" alt="Chronomètre" class="floating-stopwatch">
-
-            <div class="pills-container">
-              <div class="pill">CRÉE TES FACTURES</div>
-              <div class="pill">À PLUSIEURS</div>
-              <div class="pill">EN MOINS DE 20 SECONDES</div>
-            </div>
-          </div>
-        </div>
-
-          <div class="right-column">
-            @if(screenSize > 1200 || (screenSize <= 800 && screenSize > 600)){
-              <img src="/assets/images/phone-hand.png" alt="Application Moze sur mobile" class="phone-hand-img">
-            }
-          </div>
-
+    <div class="left-column">
+      <div class="main-title">
+        <span class="title-line-1">L'outil tout-en-un</span><br>
+        <span class="title-line-2">des indépendants</span>
       </div>
-    </section>
+
+      <p class="subtitle">
+        Facturez, <span class="text-green">collaborez</span> et <span class="text-green">développez</span> votre réseau.<br>
+        Moze centralise tout ce dont les freelances et auto-entrepreneurs ont besoin, en moins de <span class="bg-green-text">20 secondes.</span>
+      </p>
+
+      <ul class="feature-list">
+        <li>1. Facturez seul ou à plusieurs sur un même projet</li>
+        <li>2. Facturation électronique conforme (réforme 2026)</li>
+        <li>3. Accès au numéro SAP sans exclusivité (offre Coop)</li>
+        <li>4. Réseau social d'apport d'affaires intégré</li>
+      </ul>
+
+      <div class="cta-group">
+        <button class="btn-primary" (click)="goToFunnel()">Je rejoins l'aventure &rarr;</button>
+        <button class="btn-secondary" (click)="goToOffres()">Les offres &rarr;</button>
+      </div>
+
+      <div class="community-proof">
+        <div class="avatars-group">
+          <div class="avatar bg-blue">LA</div>
+          <div class="avatar bg-green">SB</div>
+          <div class="avatar bg-dark">VR</div>
+          <div class="avatar bg-light">ZA</div>
+        </div>
+        <p>Rejoins notre communauté de Mozeurs qui gèrent leur activité au quotidien !</p>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="video-wrapper">
+        <iframe
+          [src]="videoUrl()"
+          title="Découvre notre plateforme Moze"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
   </div>
 
-  <section class="animated-text-banner">
+  <div class="scrolling-banner">
     <div class="track">
-
-      <div class="content">
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-      </div>
-
-      <div class="content">
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-      </div>
-
-      <div class="content">
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">COLLABORER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">FACTURER <img src="assets/icons/bolt.svg" alt=""></span>
-        <span class="item">CONNECTER <img src="assets/icons/bolt.svg" alt=""></span>
-      </div>
-
+      @for (i of [1,2]; track i) {
+        <span class="banner-item">
+          RÉSEAU D'APPORT D'AFFAIRES ✦ N° SAP SANS EXCLUSIVITÉ ✦ FACTURATION ÉLECTRONIQUE 2026 ✦ COLLABORER EN TOUTE LÉGALITÉ ✦ DÉVELOPPER SON RÉSEAU ✦&nbsp;
+        </span>
+      }
     </div>
-  </section>
+  </div>
 </div>

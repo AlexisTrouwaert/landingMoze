@@ -1,8 +1,14 @@
-<div class="header-container">
-  <div class="left-header-logo">
-    <img src="assets/icons/MozeLogo.svg" alt="">
+<header class="header-container">
+
+  <div class="logo-wrapper">
+    <img src="assets/icons/MozeLogo.svg" alt="Logo Moze" class="logo-img">
   </div>
-  <div class="right-header-button">
-    <button (click)="redirect()">Je rejoins l'aventure <img src="assets/icons/arrow.svg" alt="Aller à"></button>
-  </div>
-</div>
+
+  <button class="btn-join" (click)="goToFunnel()">
+    <span class="btn-text">je rejoins l'aventure</span>
+    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 18l6-6-6-6" />
+    </svg>
+  </button>
+
+</header>

@@ -1,14 +1,13 @@
 :host {
   --moze-green: #6BD498;
   --moze-dark-blue: #144968;
-  --moze-light-blue: #00AEEF; /* Le bleu vif des badges */
   --moze-white: #ffffff;
 
   display: block;
   width: 100%;
 }
 
-.tool-container {
+.steps-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 4rem 2rem;
@@ -17,11 +16,10 @@
   gap: 3rem;
 }
 
-/* === HEADER === */
 .header-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   max-width: 800px;
 
   .surtitle {
@@ -37,7 +35,7 @@
     font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 800;
     line-height: 1.2;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
 
     .highlight-green {
       background-color: var(--moze-green);
@@ -50,17 +48,17 @@
   .subtitle {
     color: var(--moze-dark-blue);
     font-size: clamp(1rem, 1.5vw, 1.2rem);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.5;
     margin: 0;
+    max-width: 700px;
   }
 }
 
-/* === GRILLE DES CARTES === */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -71,84 +69,97 @@
   }
 }
 
-/* === CARTE FONCTIONNALITÉ === */
-.feature-card {
-  background-color: var(--moze-dark-blue);
+.step-card {
   border-radius: 2rem;
-  padding: 2.5rem 2rem;
+  padding: 2.5rem 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
   gap: 1.5rem;
   height: 100%;
   box-sizing: border-box;
 
-  .card-title {
+  .card-header {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
 
-    span {
-      font-weight: 800;
-      font-size: clamp(1.1rem, 1.5vw, 1.3rem);
-      text-transform: uppercase;
-      padding: 0.3rem 0.8rem;
-    }
+  .step-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--moze-white);
+    line-height: 1;
+  }
 
-    .title-green {
-      background-color: var(--moze-green);
+  .step-pill {
+    padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .step-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: pre-line; /* Permet les retours à la ligne avec le \n du TS */
+    line-height: 1.2;
+  }
+
+  .step-desc {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  /* Couleurs alternées */
+  &.green {
+    background-color: var(--moze-green);
+    color: var(--moze-dark-blue);
+
+    .step-pill {
+      background-color: var(--moze-dark-blue);
       color: var(--moze-white);
     }
 
-    .title-white {
-      background-color: var(--moze-white);
+    .step-title, .step-desc {
       color: var(--moze-dark-blue);
     }
   }
 
-  .card-desc {
+  &.dark {
+    background-color: var(--moze-dark-blue);
     color: var(--moze-white);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    font-weight: 500;
-    margin: 0;
-    flex-grow: 1; /* Permet de pousser le badge tout en bas si les textes n'ont pas la même taille */
-  }
 
-  .card-badge {
-    background-color: var(--moze-light-blue);
-    color: var(--moze-white);
-    font-weight: 800;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    padding: 0.5rem 1.2rem;
-    border-radius: 50px;
-    margin-top: auto;
+    .step-pill {
+      background-color: var(--moze-green);
+      color: var(--moze-dark-blue);
+    }
   }
 }
 
-/* === CALL TO ACTION === */
 .cta-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 2rem;
 
   .btn-primary {
-    background-color: var(--moze-green);
-    color: var(--moze-dark-blue);
+    background-color: var(--moze-dark-blue);
+    color: var(--moze-white);
     border: none;
     border-radius: 50px;
-    padding: 1.2rem 3rem;
+    padding: 1.2rem 2.5rem;
     font-size: 1.2rem;
-    font-weight: 800;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 10px 20px rgba(107, 212, 152, 0.2);
+    box-shadow: 0 10px 20px rgba(20, 73, 104, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 15px 25px rgba(107, 212, 152, 0.4);
+      box-shadow: 0 15px 25px rgba(20, 73, 104, 0.3);
     }
   }
 }
