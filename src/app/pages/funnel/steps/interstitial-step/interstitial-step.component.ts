@@ -201,7 +201,9 @@ export class InterstitialStepComponent {
           }
 
           this.isSubmitting.set(false);
-          this.fs.nextStep();
+
+          // Redirection directe vers l'application
+          window.location.href = 'https://app.mozeconnect.fr/';
         },
         error: (err) => {
           console.error('Erreur lors de l\'inscription :', err);

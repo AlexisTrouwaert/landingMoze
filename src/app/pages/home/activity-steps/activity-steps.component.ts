@@ -15,29 +15,29 @@ export class ActivityStepsComponent {
     {
       num: '01',
       pill: 'Facturation',
-      title: 'Facturez\nvos clients',
-      desc: 'Créez et envoyez une facture conforme en moins de 20 secondes. Seul ou à plusieurs sur un même projet.',
+      title: 'Facture\ntes clients',
+      desc: 'Crée et envoie une facture conforme en moins de 20 secondes. Seul ou à plusieurs sur un même projet.',
       theme: 'green'
     },
     {
       num: '02',
       pill: 'Collaboration',
-      title: 'Collaborez\nlégalement',
-      desc: 'Partagez un projet avec d’autres Mazers, co-facturez sans bricoler, en toute conformité légale.',
+      title: 'Collabore\nlégalement',
+      desc: 'Partage un projet avec d’autres Mozeurs, co-facture sans bricoler, en toute conformité légale.',
       theme: 'dark'
     },
     {
       num: '03',
       pill: 'Réseau',
-      title: 'Connectez\nvotre réseau',
-      desc: 'Rejoignez notre réseau social d’indépendants. Échangez, recommandez, et créez des opportunités business.',
+      title: 'Connecte\nton réseau',
+      desc: 'Rejoins notre réseau social d’indépendants. Échange, recommande, et crée des opportunités business.',
       theme: 'green'
     },
     {
       num: '04',
       pill: 'Business',
-      title: 'Augmentez\nvos revenus',
-      desc: 'Utilisez le système d’apport d’affaires directement dans l’outil. Recommandez et encaissez des commissions.',
+      title: 'Augmente\ntes revenus',
+      desc: 'Utilise le système d’apport d’affaires directement dans l’outil. Recommande et encaisse des commissions.',
       theme: 'dark'
     }
   ]);

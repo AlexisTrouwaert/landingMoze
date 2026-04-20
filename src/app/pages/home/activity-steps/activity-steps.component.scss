@@ -10,7 +10,7 @@
 .steps-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -103,7 +103,7 @@
     font-size: 1.4rem;
     font-weight: 800;
     margin: 0;
-    white-space: pre-line; /* Permet les retours à la ligne avec le \n du TS */
+    white-space: pre-line;
     line-height: 1.2;
   }
 
@@ -114,7 +114,6 @@
     font-weight: 600;
   }
 
-  /* Couleurs alternées */
   &.green {
     background-color: var(--moze-green);
     color: var(--moze-dark-blue);
@@ -160,6 +159,42 @@
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 25px rgba(20, 73, 104, 0.3);
+    }
+  }
+}
+
+/* =========================================
+   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   ========================================= */
+@media (max-width: 768px) {
+  .steps-container {
+    padding: 2rem 1.5rem; /* Padding horizontal réduit à 1.5rem comme demandé */
+    gap: 2rem;
+  }
+
+  .header-section {
+    .main-title {
+      font-size: clamp(1.8rem, 8vw, 2.2rem); /* Évite que le titre ne déborde */
+    }
+  }
+
+  .cards-grid {
+    gap: 1rem; /* Réduit un peu l'espace entre les cartes sur mobile */
+  }
+
+  .step-card {
+    padding: 2rem 1.5rem; /* Ajuste légèrement le padding interne des cartes */
+  }
+
+  .cta-wrapper {
+    margin-top: 1rem;
+    width: 100%;
+
+    .btn-primary {
+      width: 100%; /* Pleine largeur sur mobile pour être "thumb-friendly" */
+      padding: 1.25rem 1rem; /* Padding réduit pour ne pas être trop massif */
+      font-size: 1.05rem; /* Police légèrement réduite pour rester lisible mais discrète */
+      box-sizing: border-box;
     }
   }
 }

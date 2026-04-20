@@ -38,7 +38,7 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 650px;
+  max-width: calc(100vw - 3rem);
 }
 
 .main-title {
@@ -227,4 +227,161 @@
 @keyframes marquee-scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+/* =========================================
+   === CACHER SUR DESKTOP (Rétrocompatibilité)
+   ========================================= */
+@media (min-width: 769px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   ========================================= */
+@media (max-width: 768px) {
+  /* FIX GLOBAL : On force le composant à ne jamais dépasser 100% de l'écran */
+  .landing-container {
+    padding-top: 4rem;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .hero-wrapper {
+    gap: 1.5rem;
+    margin: 0 auto;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 1. Ajustement des titres en taille et espacement */
+  .main-title {
+    .title-line-1, .title-line-2 {
+      display: inline-block;
+      font-size: clamp(1.4rem, 6vw, 1.8rem);
+      padding: 0.2rem 0.6rem;
+    }
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  /* 2. Carrousel Mobile (Swipe & Auto-scroll) */
+  .carousel-wrapper {
+    margin: 0.5rem 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .feature-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+
+    li {
+      flex: 0 0 100%; /* La carte prend 100% de la largeur visible */
+      scroll-snap-align: center;
+      padding: 1.2rem 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 1rem;
+      background-color: var(--moze-white);
+      border: 1px solid rgba(20, 73, 104, 0.08);
+      box-shadow: 0 4px 10px rgba(20, 73, 104, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+      color: var(--moze-dark-blue);
+    }
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(20, 73, 104, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.active {
+        background-color: var(--moze-green);
+        width: 20px;
+        border-radius: 10px;
+      }
+    }
+  }
+
+  /* 3. Boutons et preuve sociale compressés */
+  .cta-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.8rem;
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+    }
+  }
+
+  .community-proof {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    background-color: var(--moze-white);
+    padding: 1rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 5px 15px rgba(20, 73, 104, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+
+    p {
+      text-align: left;
+      font-size: 0.85rem;
+    }
+  }
+
+  /* 4. Vidéo ajustée */
+  .right-column {
+    width: 100%;
+  }
+
+  .video-wrapper {
+    border-radius: 8px;
+  }
+
+  /* 5. FIX DU BANDEAU DÉFILANT */
+  .scrolling-banner {
+    width: 100%;
+    margin-left: 0; /* Annule l'astuce PC qui cassait le téléphone */
+    margin-top: 1rem;
+    padding: 0.8rem 0;
+
+    .banner-item {
+      font-size: 0.9rem;
+    }
+  }
 }

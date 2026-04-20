@@ -46,6 +46,7 @@
 
 .questions-container {
   width: 100%;
+  max-width: 1800px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -63,7 +64,7 @@
 /* --- CONTENEUR OPTIMISÉ --- */
 .question-container {
   width: 100%;
-  border-radius: 3rem;
+  border-radius: 1.8rem;
   background: var(--background-color);
   display: flex;
   flex-direction: column;
@@ -130,38 +131,61 @@
   line-height: 1.2; /* Assure un rendu propre si ça doit quand même passer à la ligne sur mobile */
 }
 
-/* --- RESPONSIVE OPTIMISÉ --- */
+/* --- RESPONSIVE OPTIMISÉ (Tablettes) --- */
 @media (max-width: 1400px) {
   .questions-container {
     flex-direction: column;
-    max-width: calc(100% - 8rem);
+    max-width: 100%;
     margin-inline: auto;
     gap: 1rem;
     padding: 0 4rem;
-    min-height: 35rem;
   }
 
-  .faq-container { padding: 3rem 1rem; }
+  .faq-container { padding: 4rem 2rem; }
 
   .right-questions, .left-questions {
     gap: 1rem;
-    /* On annule la hauteur fixe des colonnes car elles sont maintenant empilées */
-    min-height: auto;
   }
 
   .question-container {
-    border-radius: 2rem;
-    padding: 1rem;
+    border-radius: 1.2rem;
+    padding: 1.5rem;
   }
 
-  /* Ajustement de l'espacement d'ouverture sur mobile */
   .extended .answer {
-    padding-top: 1rem;
+    padding-top: 1.2rem;
   }
 }
 
-@media (max-width: 800px) {
-  .questions-container { padding: 0 1rem; max-width: calc(100% - 2rem); }
-  .banner-header { font-size: 1.5rem; padding: 4px 1rem; }
-  .banner-header-secondary { top: -4rem; }
+/* =========================================
+   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   ========================================= */
+@media (max-width: 768px) {
+  .faq-container {
+    padding: 2rem 1.5rem; /* Le standard de padding défini pour le mobile */
+  }
+
+  .questions-container {
+    padding: 0; /* Le padding horizontal est géré par le parent faq-container */
+    max-width: 100%;
+  }
+
+  .banner-header {
+    font-size: 1.5rem;
+    padding: 0.4rem 1.5rem;
+  }
+
+  .banner-header-secondary {
+    top: -0.2rem;
+    font-size: 1.6rem;
+  }
+
+  .question-container {
+    border-radius: 1.2rem; /* Coins un peu moins arrondis sur petit écran */
+    padding: 1.2rem 1.5rem; /* Padding interne aligné sur le standard */
+  }
+
+  .extended .answer {
+    padding-top: 1rem;
+  }
 }

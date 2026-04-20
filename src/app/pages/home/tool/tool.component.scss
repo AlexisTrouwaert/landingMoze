@@ -11,7 +11,7 @@
 .tool-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -119,8 +119,8 @@
   .card-badge {
     background-color: var(--moze-light-blue);
     color: var(--moze-white);
-    font-weight: 800;
-    font-size: 0.75rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     text-transform: uppercase;
     padding: 0.5rem 1.2rem;
     border-radius: 50px;
@@ -149,6 +149,42 @@
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 25px rgba(107, 212, 152, 0.4);
+    }
+  }
+}
+
+/* =========================================
+   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   ========================================= */
+@media (max-width: 768px) {
+  .tool-container {
+    padding: 2rem 1.5rem; /* Padding horizontal à 1.5rem */
+    gap: 2rem;
+  }
+
+  .header-section {
+    .main-title {
+      font-size: clamp(1.8rem, 8vw, 2.2rem); /* Ajustement du titre */
+    }
+  }
+
+  .cards-grid {
+    gap: 1.5rem; /* Un peu moins d'espace entre les cartes pour compacter visuellement */
+  }
+
+  .feature-card {
+    padding: 2rem 1.5rem; /* Réduction du padding interne pour maximiser l'espace texte */
+  }
+
+  .cta-wrapper {
+    margin-top: 1rem;
+    width: 100%;
+
+    .btn-primary {
+      width: 100%; /* Pleine largeur */
+      padding: 1.25rem 1rem;
+      font-size: 1.05rem; /* Équilibré pour rester lisible */
+      box-sizing: border-box;
     }
   }
 }

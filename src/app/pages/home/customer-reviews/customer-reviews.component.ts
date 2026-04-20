@@ -9,7 +9,6 @@ import { Component, signal } from '@angular/core';
 })
 export class CustomerReviewsComponent {
 
-  // Tableau pour itérer facilement 5 fois dans le HTML pour les étoiles
   public starsArray = [1, 2, 3, 4, 5];
 
   public reviews = signal([

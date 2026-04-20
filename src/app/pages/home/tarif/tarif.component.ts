@@ -13,32 +13,32 @@ export class TarifComponent {
 
   public offers = signal([
     {
-      name: 'Indép +',
-      subtitle: 'Idéal pour démarrer et facturer efficacement',
-      price: '9,90€',
-      priceSuffix: 'HT/mois',
+      name: 'Freemium',
+      subtitle: 'L\'essentiel pour démarrer et facturer efficacement',
+      pricePrefix: '',
+      price: 'Gratuit',
+      priceSuffix: 'à vie',
       isPopular: false,
       features: [
         'Facturation électronique conforme',
-        'Factures illimitées, seul ou à plusieurs',
-        'Développement de votre réseau Moze',
-        'Apport d\'affaires intégré',
+        'Factures illimitées, seul',
+        'Développement de ton réseau Moze',
         'Tableau de bord et suivi en temps réel'
       ],
       buttonText: "Je m'inscris"
     },
     {
-      name: 'Coop',
-      subtitle: 'Pour les prestataires SAP et les collaborations avancées',
-      price: '+ 20€',
+      name: 'Indép +',
+      subtitle: 'Pour aller plus loin et développer ton activité',
+      pricePrefix: 'À partir de ',
+      price: '9,90€',
       priceSuffix: 'HT/mois',
       isPopular: true,
       features: [
-        'Tout Indép + inclus',
-        'Accès au numéro SAP sans exclusivité',
-        'Cadre sécurisé et conforme',
-        'Crédit d\'impôt immédiat (SAP)',
-        'Développement d\'activité accéléré'
+        'Freemium',
+        'Apport d\'affaires intégré',
+        'Factures collaborative',
+        'Avance immédiate SAP',
       ],
       buttonText: "Je m'inscris &rarr;"
     }

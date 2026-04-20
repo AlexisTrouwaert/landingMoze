@@ -1,10 +1,10 @@
 :host {
   --moze-green: #6BD498;
   --moze-dark-blue: #144968;
-  --moze-light-blue: #00AEEF; /* Bleu clair du bloc titre */
-  --moze-yellow: #FBBF24; /* Jaune des étoiles */
+  --moze-light-blue: #00AEEF;
+  --moze-yellow: #FBBF24;
   --moze-white: #ffffff;
-  --moze-bg: #f8faf9; /* Couleur de fond globale à ajuster */
+  --moze-bg: #f8faf9;
 
   display: block;
   width: 100%;
@@ -13,58 +13,60 @@
 .reviews-section {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 5rem 2rem;
+  padding: 4rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 7rem; /* Espace important pour laisser déborder les avatars */
+  align-items: center; /* Centre tout le contenu de la section */
+  gap: 4rem; /* Espace pour les avatars */
 }
 
 /* === HEADER (CONFIANCE + TITRE) === */
 .reviews-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  position: relative;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
   width: 100%;
+  margin-bottom: 4rem;
 }
 
+/* Nouveau design "Slick" pour le Trust Indicator (façon badge) */
 .trust-indicator {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  margin-top: -3rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--moze-white);
+  padding: 0.8rem 1.8rem;
+  border-radius: 50px;
+  box-shadow: 0 5px 20px rgba(20, 73, 104, 0.08);
 
-  .trust-title {
-    color: var(--moze-dark-blue);
-    font-weight: 800;
-    font-size: 1.1rem;
+  .stars {
+    display: flex;
+    gap: 0.1rem;
+
+    .star {
+      width: 22px;
+      height: 22px;
+      fill: var(--moze-yellow);
+    }
   }
 
-  .trust-score {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
+  .trust-text {
+    font-weight: 500;
+    color: var(--moze-dark-blue);
+    font-size: 1.1rem;
 
-    .stars {
-      display: flex;
-      gap: 0.1rem;
-    }
-
-    .trust-text {
-      font-weight: 500;
-      color: var(--moze-dark-blue);
-      font-size: 1.1rem;
+    strong {
+      font-weight: 800;
     }
   }
 }
 
 .title-wrapper {
-  transform: translateX(52%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  z-index: 2;
 
   span {
     font-weight: 800;
@@ -87,24 +89,13 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .reviews-header {
-    flex-direction: column;
-    align-items: center;
-    gap: 3rem;
-  }
-  .title-wrapper {
-    position: static;
-    transform: none;
-  }
-}
-
 /* === GRILLE DES CARTES === */
 .cards-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-top: 2rem;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 1200px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -121,13 +112,13 @@
   background-color: var(--moze-dark-blue);
   color: var(--moze-white);
   border-radius: 1.5rem;
-  padding: 4.5rem 2rem 2rem; /* Énorme padding en haut pour l'avatar */
+  padding: 4.5rem 2rem 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
-  box-shadow: 0 10px 20px rgba(20, 73, 104, 0.15);
+  box-shadow: 0 10px 30px rgba(20, 73, 104, 0.1);
   height: 100%;
   box-sizing: border-box;
 }
@@ -141,7 +132,7 @@
   width: 9rem;
   height: 9rem;
   border-radius: 50%;
-  border: 4px solid var(--moze-bg); /* S'adapte au fond de la page pour le détourage */
+  border: 5px solid var(--moze-bg);
   background-color: #e2e8f0;
   overflow: hidden;
 
@@ -156,16 +147,13 @@
 .rating-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.3rem;
   border: 2px solid var(--moze-yellow);
-  border-radius: 2.5rem; /* Coins très arrondis selon la hauteur */
+  border-radius: 2.5rem;
   padding: 0.4rem 1.2rem;
   margin-bottom: 1.5rem;
-  margin-top: 0.5rem;
 }
 
-/* L'Étoile SVG dynamique */
 .star {
   width: 18px;
   height: 18px;
@@ -181,16 +169,67 @@
 
 /* === TEXTE === */
 .review-text {
-  font-size: 1rem;
-  font-style: italic; /* Typique des citations d'avis */
-  line-height: 1.5;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.6;
   margin: 0 0 1.5rem 0;
-  flex-grow: 1; /* Pousse l'auteur en bas si les textes n'ont pas la même taille */
+  flex-grow: 1;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .review-author {
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 1.2rem;
   margin: 0;
+  color: var(--moze-green);
+}
+
+/* =========================================
+   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   ========================================= */
+@media (max-width: 768px) {
+  .reviews-section {
+    padding: 2rem 1.5rem; /* Padding horizontal réduit à 1.5rem */
+  }
+
+  .reviews-header {
+    margin-bottom: 2rem;
+  }
+
+  /* Force le badge de confiance sur une seule ligne */
+  .trust-indicator {
+    padding: 0.8rem 1.2rem; /* Réduit les marges internes */
+    gap: 0.5rem;
+    white-space: nowrap; /* Interdit le passage à la ligne */
+
+    .stars .star {
+      width: 16px; /* Étoiles plus petites */
+      height: 16px;
+    }
+
+    .trust-text {
+      font-size: 0.9rem; /* Texte ajusté */
+    }
+  }
+
+  .title-wrapper span {
+    padding: 0.4rem 1.2rem;
+    font-size: clamp(1.2rem, 6vw, 1.5rem);
+  }
+
+  .cards-container {
+    row-gap: 5.5rem; /* Espace nécessaire pour l'avatar qui dépasse en haut */
+  }
+
+  .review-card {
+    padding: 4rem 1.5rem 2rem; /* Padding horizontal à 1.5rem */
+  }
+
+  .avatar-wrapper {
+    width: 7rem; /* Avatar légèrement plus petit sur mobile pour mieux proportionner la carte */
+    height: 7rem;
+    top: -3.5rem;
+    border-width: 4px;
+  }
 }

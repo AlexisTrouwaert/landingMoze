@@ -23,24 +23,23 @@
           }
         </div>
 
-        <p class="review-text">{{ review.avis }}</p>
+        <p class="review-text">"{{ review.avis }}"</p>
         <p class="review-author">{{ review.name }}</p>
 
       </div>
     }
+
   </div>
 
   <div class="trust-indicator">
-    <span class="trust-title">ILS NOUS FONT CONFIANCE</span>
-    <div class="trust-score">
-      <div class="stars">
-        @for (star of starsArray; track star) {
-          <svg viewBox="0 0 24 24" class="star filled">
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-          </svg>
-        }
-      </div>
-      <span class="trust-text">4.7 · Avis clients</span>
+    <div class="stars">
+      @for (star of starsArray; track star) {
+        <svg viewBox="0 0 24 24" class="star filled">
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        </svg>
+      }
     </div>
+    <span class="trust-text"><strong>4.7/5</strong> · Ils nous font confiance</span>
   </div>
+
 </section>

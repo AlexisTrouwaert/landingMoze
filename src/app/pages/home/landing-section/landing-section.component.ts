@@ -1,4 +1,4 @@
-import { Component, inject, Signal, computed } from '@angular/core';
+import { Component, inject, Signal, computed, ElementRef, ViewChild, afterNextRender, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   templateUrl: './landing-section.component.html',
   styleUrl: './landing-section.component.scss'
 })
-export class LandingSectionComponent {
+export class LandingSectionComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
 
@@ -18,6 +18,80 @@ export class LandingSectionComponent {
   public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${this.videoId}?rel=0&modestbranding=1`)
   );
+
+  // === LOGIQUE DU CARROUSEL MOBILE ===
+  @ViewChild('carousel') carouselRef!: ElementRef<HTMLUListElement>;
+  public activeSlide = signal(0);
+
+  private scrollInterval: any;
+  private resumeTimeout: any; // Timer pour le délai avant reprise
+
+  constructor() {
+    afterNextRender(() => {
+      this.startAutoScroll();
+    });
+  }
+
+  ngOnDestroy() {
+    this.clearAllTimers();
+  }
+
+  startAutoScroll() {
+    this.clearAllTimers();
+    // Lance le défilement toutes les 3.5 secondes
+    this.scrollInterval = setInterval(() => {
+      if (window.innerWidth > 768) return;
+
+      const el = this.carouselRef?.nativeElement;
+      if (el) {
+        const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
+        if (isAtEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: el.clientWidth, behavior: 'smooth' });
+        }
+      }
+    }, 3500);
+  }
+
+  clearAllTimers() {
+    if (this.scrollInterval) clearInterval(this.scrollInterval);
+    if (this.resumeTimeout) clearTimeout(this.resumeTimeout);
+  }
+
+  pauseAutoScroll() {
+    // L'utilisateur touche l'écran : on coupe tout immédiatement
+    this.clearAllTimers();
+  }
+
+  resumeAutoScroll() {
+    this.clearAllTimers();
+    this.resumeTimeout = setTimeout(() => {
+      this.startAutoScroll();
+    }, 3000);
+  }
+
+  onScroll() {
+    if (window.innerWidth > 768) return;
+    const el = this.carouselRef?.nativeElement;
+    if (el) {
+      const index = Math.round(el.scrollLeft / el.clientWidth);
+      if (this.activeSlide() !== index) {
+        this.activeSlide.set(index);
+      }
+    }
+  }
+
+  goToSlide(index: number) {
+    // Quand on clique sur un point, on met aussi en pause l'auto-scroll
+    this.pauseAutoScroll();
+    const el = this.carouselRef?.nativeElement;
+    if (el) {
+      el.scrollTo({ left: index * el.clientWidth, behavior: 'smooth' });
+    }
+    this.resumeAutoScroll();
+  }
+  // ===================================
 
   goToFunnel(): void {
     this.router.navigate(['/commencer']);

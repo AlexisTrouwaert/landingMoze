@@ -8,16 +8,29 @@
       </div>
 
       <p class="subtitle">
-        Facturez, <span class="text-green">collaborez</span> et <span class="text-green">développez</span> votre réseau.<br>
+        Facture, <span class="text-green">collabore</span> et <span class="text-green">développe</span> ton réseau.<br>
         Moze centralise tout ce dont les freelances et auto-entrepreneurs ont besoin, en moins de <span class="bg-green-text">20 secondes.</span>
       </p>
 
-      <ul class="feature-list">
-        <li>1. Facturez seul ou à plusieurs sur un même projet</li>
-        <li>2. Facturation électronique conforme (réforme 2026)</li>
-        <li>3. Accès au numéro SAP sans exclusivité (offre Coop)</li>
-        <li>4. Réseau social d'apport d'affaires intégré</li>
-      </ul>
+      <div class="carousel-wrapper"
+           (touchstart)="pauseAutoScroll()"
+           (touchend)="resumeAutoScroll()"
+           (mouseenter)="pauseAutoScroll()"
+           (mouseleave)="resumeAutoScroll()">
+
+        <ul class="feature-list" #carousel (scroll)="onScroll()">
+          <li>1. Facture seul ou à plusieurs sur un même projet</li>
+          <li>2. Facturation électronique conforme (réforme 2026)</li>
+          <li>3. Accès au numéro SAP sans exclusivité (offre Coop)</li>
+          <li>4. Réseau social d'apport d'affaires intégré</li>
+        </ul>
+
+        <div class="carousel-dots hide-on-desktop">
+          @for (i of [0, 1, 2, 3]; track i) {
+            <span class="dot" [class.active]="activeSlide() === i" (click)="goToSlide(i)"></span>
+          }
+        </div>
+      </div>
 
       <div class="cta-group">
         <button class="btn-primary" (click)="goToFunnel()">Je rejoins l'aventure &rarr;</button>
@@ -53,7 +66,7 @@
     <div class="track">
       @for (i of [1,2]; track i) {
         <span class="banner-item">
-          RÉSEAU D'APPORT D'AFFAIRES ✦ N° SAP SANS EXCLUSIVITÉ ✦ FACTURATION ÉLECTRONIQUE 2026 ✦ COLLABORER EN TOUTE LÉGALITÉ ✦ DÉVELOPPER SON RÉSEAU ✦&nbsp;
+          RÉSEAU D'APPORT D'AFFAIRES ✦ N° SAP SANS EXCLUSIVITÉ ✦ FACTURATION ÉLECTRONIQUE 2026 ✦ COLLABORER EN TOUTE LÉGALITÉ ✦ DÉVELOPPER TON RÉSEAU ✦&nbsp;
         </span>
       }
     </div>
