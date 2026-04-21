@@ -67,7 +67,7 @@
 
   @media (max-width: 800px) {
     grid-template-columns: 1fr;
-    gap: 4.5rem; /* Espace supplémentaire pour le badge qui dépasse */
+    gap: 4.5rem;
   }
 }
 
@@ -96,6 +96,18 @@
     }
   }
 
+  .no-cb {
+    width: 100%;
+    text-align: center;
+    color: var(--interaction-color);
+    margin-top: 1.2rem;
+    margin-bottom: -1.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-style: normal;
+  }
+
   &.popular {
     border-color: var(--moze-green);
 
@@ -112,7 +124,12 @@
         padding: 1.2rem 1rem;
       }
     }
+
+    .no-cb {
+      opacity: 0;
+    }
   }
+
 }
 
 .popular-badge {
@@ -302,6 +319,7 @@
         .price {
           font-size: 2.2rem;
         }
+
         .price-suffix {
           font-size: 1.2rem;
         }

@@ -21,7 +21,7 @@ export class ToolComponent {
     {
       t1: 'FACTURATION',
       t2: 'COLLABORATIVE',
-      desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, sans bricoler et en toute légalité.',
+      desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
       badge: 'EXCLUSIF MOZE'
     },
     {

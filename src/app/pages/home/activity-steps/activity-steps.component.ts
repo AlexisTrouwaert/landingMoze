@@ -23,7 +23,7 @@ export class ActivityStepsComponent {
       num: '02',
       pill: 'Collaboration',
       title: 'Collabore\nlégalement',
-      desc: 'Partage un projet avec d’autres Mozeurs, co-facture sans bricoler, en toute conformité légale.',
+      desc: 'Partage un projet avec d’autres Mozeurs, co-facture simplement, en toute conformité légale.',
       theme: 'dark'
     },
     {

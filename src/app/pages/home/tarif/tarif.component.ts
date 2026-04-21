@@ -16,8 +16,8 @@ export class TarifComponent {
       name: 'Freemium',
       subtitle: 'L\'essentiel pour démarrer et facturer efficacement',
       pricePrefix: '',
-      price: 'Gratuit',
-      priceSuffix: 'à vie',
+      price: '0€',
+      priceSuffix: '/mois',
       isPopular: false,
       features: [
         'Facturation électronique conforme',
@@ -25,7 +25,7 @@ export class TarifComponent {
         'Développement de ton réseau Moze',
         'Tableau de bord et suivi en temps réel'
       ],
-      buttonText: "Je m'inscris"
+      buttonText: "Je m'inscris &rarr;"
     },
     {
       name: 'Indép +',
@@ -37,7 +37,7 @@ export class TarifComponent {
       features: [
         'Freemium',
         'Apport d\'affaires intégré',
-        'Factures collaborative',
+        'Factures collaboratives',
         'Avance immédiate SAP',
       ],
       buttonText: "Je m'inscris &rarr;"

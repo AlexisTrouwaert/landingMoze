@@ -38,7 +38,7 @@
           @for (feature of offer.features; track feature) {
             <li>
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
               </svg>
               <span>{{ feature }}</span>
             </li>
@@ -51,13 +51,14 @@
           [innerHTML]="offer.buttonText"
           (click)="goToFunnel()">
         </button>
+        <div class="no-cb">sans CB, ni frais cachés</div>
       </div>
     }
   </div>
 
   <div class="footer-section">
     <p class="disclaimer">Sans engagement. Résilie à tout moment.</p>
-    <button class="btn-main-cta" (click)="goToFunnel()">Je me lance ! &rarr;</button>
+    <button class="btn-main-cta" (click)="goToFunnel()">Je me lance gratuitement !</button>
   </div>
 
 </section>

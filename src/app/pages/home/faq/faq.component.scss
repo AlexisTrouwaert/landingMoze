@@ -1,3 +1,7 @@
+/* =========================================
+   === MAIN CONTAINERS & LAYOUT ===
+   ========================================= */
+
 .faq-container {
   width: 100%;
   background: var(--primary-color);
@@ -8,6 +12,27 @@
   padding: 5rem;
   overflow: hidden;
 }
+
+.questions-container {
+  width: 100%;
+  max-width: 1800px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5rem;
+  padding: 0 8rem;
+}
+
+.left-questions, .right-questions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* =========================================
+   === BANNER ELEMENTS ===
+   ========================================= */
 
 .banner-container {
   width: 100%;
@@ -44,24 +69,10 @@
   text-align: center;
 }
 
-.questions-container {
-  width: 100%;
-  max-width: 1800px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 5rem;
-  padding: 0 8rem;
-}
+/* =========================================
+   === QUESTION CARD & ICONS ===
+   ========================================= */
 
-.left-questions, .right-questions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* --- CONTENEUR OPTIMISÉ --- */
 .question-container {
   width: 100%;
   border-radius: 1.8rem;
@@ -80,38 +91,14 @@
   gap: 1rem;
 }
 
-/* --- LA MAGIE CSS GRID --- */
-.answer-wrapper {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.question-title {
+  font-size: clamp(0.75rem, 0.5vw + 0.6rem, 1.05rem);
+  color: var(--interaction-color);
+  font-weight: bold;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.extended .answer-wrapper {
-  grid-template-rows: 1fr;
-}
-
-.answer {
-  overflow: hidden; /* Empêche le texte de déborder quand c'est à 0fr */
-  padding-top: 0;
-  opacity: 0;
-  transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-
-  color: var(--primary-color);
-  font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
-
-  & span {
-    font-weight: bold;
-  }
-}
-
-/* On remet l'espace uniquement quand c'est ouvert */
-.extended .answer {
-  padding-top: 1.9rem;
-  opacity: 1;
-}
-
-/* --- ICONS & TEXTE --- */
 .primary-icon {
   height: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
   width: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
@@ -123,16 +110,61 @@
   filter: var(--filter-accent-color);
 }
 
-.question-title {
-  font-size: clamp(0.75rem, 0.5vw + 0.6rem, 1.05rem);
-  color: var(--interaction-color);
-  font-weight: bold;
-  letter-spacing: -0.02em; /* Resserre très subtilement les lettres sans nuire à la lecture */
-  line-height: 1.2; /* Assure un rendu propre si ça doit quand même passer à la ligne sur mobile */
+/* =========================================
+   === ACCORDION ANIMATION & ANSWER ===
+   ========================================= */
+
+.answer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- RESPONSIVE OPTIMISÉ (Tablettes) --- */
+.extended .answer-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.answer {
+  overflow: hidden;
+  padding-top: 0;
+  opacity: 0;
+  transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  color: var(--primary-color);
+  font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
+
+  & span {
+    font-weight: bold;
+  }
+
+  & a {
+    color: var(--interaction-color);
+    font-weight: 700;
+    text-decoration: none;
+    text-decoration-thickness: 2px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--moze-dark-blue);
+      text-decoration-color: transparent;
+    }
+  }
+}
+
+.extended .answer {
+  padding-top: 1.9rem;
+  opacity: 1;
+}
+
+/* =========================================
+   === MEDIA QUERIES (TABLET - 1400px) ===
+   ========================================= */
+
 @media (max-width: 1400px) {
+  .faq-container {
+    padding: 4rem 2rem;
+  }
+
   .questions-container {
     flex-direction: column;
     max-width: 100%;
@@ -141,9 +173,7 @@
     padding: 0 4rem;
   }
 
-  .faq-container { padding: 4rem 2rem; }
-
-  .right-questions, .left-questions {
+  .left-questions, .right-questions {
     gap: 1rem;
   }
 
@@ -158,31 +188,32 @@
 }
 
 /* =========================================
-   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
+   === MEDIA QUERIES (MOBILE - 768px) ===
    ========================================= */
+
 @media (max-width: 768px) {
   .faq-container {
-    padding: 2rem 1.5rem; /* Le standard de padding défini pour le mobile */
+    padding: 2rem 1.5rem;
   }
 
   .questions-container {
-    padding: 0; /* Le padding horizontal est géré par le parent faq-container */
+    padding: 0;
     max-width: 100%;
   }
 
   .banner-header {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     padding: 0.4rem 1.5rem;
   }
 
   .banner-header-secondary {
     top: -0.2rem;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
   }
 
   .question-container {
-    border-radius: 1.2rem; /* Coins un peu moins arrondis sur petit écran */
-    padding: 1.2rem 1.5rem; /* Padding interne aligné sur le standard */
+    border-radius: 1.2rem;
+    padding: 1.2rem 1.5rem;
   }
 
   .extended .answer {

@@ -21,7 +21,7 @@ export class CustomerReviewsComponent {
     {
       name: 'Fanny',
       avis: "Je ne me sens plus seule, je peux poser toutes mes questions à la communauté",
-      rating: 4,
+      rating: 5,
       image: '/assets/images/fanny.jpg'
     },
     {
