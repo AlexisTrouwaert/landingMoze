@@ -12,6 +12,7 @@ import { PlatformDiscoveryComponent } from "./platform-discovery/platform-discov
 import { CustomerReviewsComponent } from "./customer-reviews/customer-reviews.component";
 import { MetaPixelService } from "../../services/meta-pixel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
+import {DownloadAppsComponent} from "./download-apps/download-apps.component";
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,8 @@ import {ActivityStepsComponent} from "./activity-steps/activity-steps.component"
     FooterComponent,
     PlatformDiscoveryComponent,
     CustomerReviewsComponent,
-    ActivityStepsComponent
+    ActivityStepsComponent,
+    DownloadAppsComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

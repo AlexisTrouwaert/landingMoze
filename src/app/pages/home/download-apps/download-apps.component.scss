@@ -1,0 +1,89 @@
+$primary: var(--primary-color);
+
+/* =========================================
+   SECTION PRINCIPALE
+   ========================================= */
+.download-apps-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 1rem;
+  background-color: $primary;
+  color: white;
+  text-align: center;
+}
+
+/* =========================================
+   EN-TETE
+   ========================================= */
+.download-header {
+  margin-bottom: 2.5rem;
+}
+
+.download-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+}
+
+.download-subtitle {
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* =========================================
+   BADGES STORES
+   ========================================= */
+.download-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.store-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  background-color: black;
+  color: white;
+  width: 210px;
+
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .store-logo {
+    height: 40px;
+    width: auto;
+  }
+
+  .store-text {
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    text-align: left;
+
+    .prefix {
+      font-size: 11px;
+      font-weight: 300;
+      line-height: 1.2;
+    }
+
+    .store-name {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+  }
+}
