@@ -13,77 +13,91 @@
         <button class="sector-item"
                 (click)="select('SANTE')"
                 (mouseenter)="onMouseEnter('SANTE')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('SANTE')"
+                (blur)="onMouseLeave()">
           <span class="label">Santé & Paramédical</span>
           <div class="icons-group">
-            <span class="emoji">🩺</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">🩺</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('SAP')"
                 (mouseenter)="onMouseEnter('SAP')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('SAP')"
+                (blur)="onMouseLeave()">
           <span class="label">Services à la personne</span>
           <div class="icons-group">
-            <span class="emoji">🧼</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">🧼</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('BTP')"
                 (mouseenter)="onMouseEnter('BTP')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('BTP')"
+                (blur)="onMouseLeave()">
           <span class="label">BTP & Artisans</span>
           <div class="icons-group">
-            <span class="emoji">👷</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">👷</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('CREATIF')"
                 (mouseenter)="onMouseEnter('CREATIF')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('CREATIF')"
+                (blur)="onMouseLeave()">
           <span class="label">Créatifs & Communication</span>
           <div class="icons-group">
-            <span class="emoji">💻</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">💻</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('CONSEIL')"
                 (mouseenter)="onMouseEnter('CONSEIL')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('CONSEIL')"
+                (blur)="onMouseLeave()">
           <span class="label">Conseil & Formation</span>
           <div class="icons-group">
-            <span class="emoji">📚</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">📚</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('IMMO')"
                 (mouseenter)="onMouseEnter('IMMO')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('IMMO')"
+                (blur)="onMouseLeave()">
           <span class="label">Services immobilier</span>
           <div class="icons-group">
-            <span class="emoji">🏡</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">🏡</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
         <button class="sector-item"
                 (click)="select('AUTRE')"
                 (mouseenter)="onMouseEnter('AUTRE')"
-                (mouseleave)="onMouseLeave()">
+                (mouseleave)="onMouseLeave()"
+                (focus)="onMouseEnter('AUTRE')"
+                (blur)="onMouseLeave()">
           <span class="label">Autre activité</span>
           <div class="icons-group">
-            <span class="emoji">🤷‍♀️</span>
-            <img src="assets/icons/arrow.svg" class="arrow-icon" alt=">">
+            <span class="emoji" aria-hidden="true">🤷‍♀️</span>
+            <img src="assets/icons/arrow.svg" class="arrow-icon" alt="" aria-hidden="true" width="16" height="16">
           </div>
         </button>
 
@@ -97,7 +111,7 @@
 
     <div class="visual-column animate-in-right">
       <div class="image-wrapper">
-        <img [src]="currentImage()" alt="Illustration du secteur" class="dynamic-image">
+        <img [src]="currentImage()" alt="Illustration du secteur" class="dynamic-image" width="600" height="650">
       </div>
     </div>
 

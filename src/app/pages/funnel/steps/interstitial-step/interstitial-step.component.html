@@ -10,67 +10,88 @@
         <p class="subtitle">{{ getSubtitle() }}</p>
       </div>
 
+      <!-- Zone live pour annonces async (screen readers) -->
+      <div role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+        @if (isCheckingEmail()) { Vérification de l'email en cours... }
+        @if (isLoadingSiret()) { Recherche du SIRET en cours... }
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="submit()" class="info-form">
 
         <div class="input-row">
           <div class="input-group">
-            <input type="text" formControlName="nom" placeholder="Nom">
+            <label class="sr-only" for="nom">Nom</label>
+            <input type="text" id="nom" formControlName="nom" placeholder="Nom"
+                   [attr.aria-invalid]="form.get('nom')?.invalid && form.get('nom')?.touched ? 'true' : null"
+                   [attr.aria-describedby]="form.get('nom')?.invalid && form.get('nom')?.touched ? 'nom-error' : null">
             @if(form.get('nom')?.invalid && form.get('nom')?.touched) {
-              <small class="error">Requis</small>
+              <small id="nom-error" class="error">Le nom est requis.</small>
             }
           </div>
           <div class="input-group">
-            <input type="text" formControlName="prenom" placeholder="Prénom">
+            <label class="sr-only" for="prenom">Prénom</label>
+            <input type="text" id="prenom" formControlName="prenom" placeholder="Prénom"
+                   [attr.aria-invalid]="form.get('prenom')?.invalid && form.get('prenom')?.touched ? 'true' : null"
+                   [attr.aria-describedby]="form.get('prenom')?.invalid && form.get('prenom')?.touched ? 'prenom-error' : null">
             @if(form.get('prenom')?.invalid && form.get('prenom')?.touched) {
-              <small class="error">Requis</small>
+              <small id="prenom-error" class="error">Le prénom est requis.</small>
             }
           </div>
         </div>
 
         <div class="input-group" style="position: relative;">
-          <input type="email" formControlName="email" placeholder="Email professionnel">
+          <label class="sr-only" for="email">Email professionnel</label>
+          <input type="email" id="email" formControlName="email" placeholder="Email professionnel"
+                 [attr.aria-invalid]="form.get('email')?.invalid && form.get('email')?.touched ? 'true' : null"
+                 [attr.aria-describedby]="form.get('email')?.invalid && form.get('email')?.touched ? 'email-error' : null">
 
           @if (isCheckingEmail()) {
-            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;">Vérification...</small>
+            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;" aria-hidden="true">Vérification...</small>
           }
 
           @if(form.get('email')?.invalid && form.get('email')?.touched) {
             @if(form.get('email')?.errors?.['emailExists']) {
-              <small class="error">Cet email est déjà utilisé.</small>
+              <small id="email-error" class="error">Cet email est déjà utilisé.</small>
             } @else {
-              <small class="error">Email invalide.</small>
+              <small id="email-error" class="error">Email invalide.</small>
             }
           }
         </div>
 
         <div class="input-group">
-          <input type="tel" formControlName="telephone" placeholder="Téléphone mobile">
+          <label class="sr-only" for="telephone">Téléphone mobile</label>
+          <input type="tel" id="telephone" formControlName="telephone" placeholder="Téléphone mobile"
+                 [attr.aria-invalid]="form.get('telephone')?.invalid && form.get('telephone')?.touched ? 'true' : null"
+                 [attr.aria-describedby]="form.get('telephone')?.invalid && form.get('telephone')?.touched ? 'telephone-error' : null">
           @if(form.get('telephone')?.invalid && form.get('telephone')?.touched) {
-            <small class="error">Numéro invalide</small>
+            <small id="telephone-error" class="error">Numéro invalide (format : 06XXXXXXXX ou 07XXXXXXXX).</small>
           }
         </div>
 
         <div class="input-group" style="position: relative;">
-          <input type="text" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)">
+          <label class="sr-only" for="siret">Numéro SIRET (14 chiffres)</label>
+          <input type="text" id="siret" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)"
+                 [attr.aria-invalid]="form.get('siret')?.invalid && form.get('siret')?.touched ? 'true' : null"
+                 [attr.aria-describedby]="form.get('siret')?.invalid && form.get('siret')?.touched ? 'siret-error' : null">
 
           @if (isLoadingSiret()) {
-            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;">Recherche...</small>
+            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;" aria-hidden="true">Recherche...</small>
           }
 
           @if(form.get('siret')?.invalid && form.get('siret')?.touched) {
             @if(form.get('siret')?.errors?.['required']) {
-              <small class="error">Ce champ est requis.</small>
+              <small id="siret-error" class="error">Ce champ est requis.</small>
             } @else if (form.get('siret')?.errors?.['siretFormat'] || form.get('siret')?.errors?.['pattern']) {
-              <small class="error">SIRET invalide (14 chiffres attendus).</small>
+              <small id="siret-error" class="error">SIRET invalide (14 chiffres attendus).</small>
             } @else if (form.get('siret')?.errors?.['siretInvalidAPI']) {
-              <small class="error">Ce SIRET est introuvable ou invalide.</small>
+              <small id="siret-error" class="error">Ce SIRET est introuvable ou invalide.</small>
             }
           }
         </div>
 
         @if (form.valid && !emailExistsInBdd() && !siretCheckFailed()) {
           <div class="password-notice fade-in">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="16" x2="12" y2="12"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -80,18 +101,18 @@
         }
 
         @if (submissionError()) {
-          <div class="server-error fade-in" style="color: #d32f2f; background-color: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 1rem; text-align: center; font-size: 0.9rem;">
+          <div role="alert" class="server-error fade-in" style="color: #d32f2f; background-color: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 1rem; text-align: center; font-size: 0.9rem;">
             {{ submissionError() }}
           </div>
         }
 
-        <input type="text" formControlName="honeypot" style="display:none" tabindex="-1">
+        <input type="text" formControlName="honeypot" style="display:none" tabindex="-1" aria-hidden="true">
 
         <div class="brevo-optin-container fade-in">
-          <label class="custom-checkbox-label">
+          <label class="custom-checkbox-label" for="optIn">
             <div class="checkbox-wrapper">
-              <input type="checkbox" formControlName="optIn" class="brevo-optin-checkbox" />
-              <div class="custom-checkmark"></div>
+              <input type="checkbox" id="optIn" formControlName="optIn" class="brevo-optin-checkbox" />
+              <div class="custom-checkmark" aria-hidden="true"></div>
             </div>
             <span class="optin-text">
               J'accepte de recevoir les e-mails de Moze et confirme avoir pris connaissance de la <a href="/politique-confidentialite" target="_blank">politique de confidentialité</a>.
@@ -103,7 +124,7 @@
           @if (isSubmitting()) {
             Chargement...
           } @else {
-            Je valide mon inscription <img src="assets/icons/arrow.svg" alt="->">
+            Je valide mon inscription <img src="assets/icons/arrow.svg" alt="" aria-hidden="true" width="16" height="16">
           }
         </button>
 
@@ -116,6 +137,7 @@
           [src]="currentImage()"
           alt="Illustration métier"
           class="dynamic-image"
+          width="600" height="650"
           [class.adjust-creatif]="fs.selectedSector() === 'CREATIF'"
           [class.adjust-autre]="fs.selectedSector() === 'AUTRE'">
       </div>

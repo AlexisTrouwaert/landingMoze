@@ -48,6 +48,11 @@ button {
     background: var(--interaction-color);
     transform: scale(1.02);
   }
+
+  &:focus-visible {
+    outline: 3px solid var(--interaction-color);
+    outline-offset: 3px;
+  }
 }
 
 .btn-outline {
@@ -57,6 +62,11 @@ button {
 
   &:hover {
     background: rgba(20, 87, 117, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
   }
 }
 

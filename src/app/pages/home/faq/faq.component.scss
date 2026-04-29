@@ -80,7 +80,6 @@
   display: flex;
   flex-direction: column;
   padding: 1.9rem 2rem;
-  cursor: pointer;
 }
 
 .title-container {
@@ -89,6 +88,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+
+  &:focus-visible {
+    outline: 2px solid var(--interaction-color);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
 }
 
 .question-title {

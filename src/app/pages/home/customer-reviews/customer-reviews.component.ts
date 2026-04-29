@@ -16,19 +16,19 @@ export class CustomerReviewsComponent {
       name: 'Anthony',
       avis: "Mon chiffre d'affaire a augmenté de 50% en 3 mois",
       rating: 5,
-      image: '/assets/images/anthony.jpg'
+      image: '/assets/images/anthony.webp'
     },
     {
       name: 'Fanny',
       avis: "Je ne me sens plus seule, je peux poser toutes mes questions à la communauté",
       rating: 5,
-      image: '/assets/images/fanny.jpg'
+      image: '/assets/images/fanny.webp'
     },
     {
       name: 'Mohammed',
       avis: "Plus de problème de gestion de mon entreprise avec Moze Connect",
       rating: 5,
-      image: '/assets/images/mohammed.jpg'
+      image: '/assets/images/mohammed.webp'
     }
   ]);
 }

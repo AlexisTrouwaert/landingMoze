@@ -244,6 +244,11 @@
     border-color: var(--moze-dark-blue);
   }
 
+  &:focus-visible {
+    outline: 3px solid var(--moze-dark-blue);
+    outline-offset: 3px;
+  }
+
   &.btn-green {
     background-color: var(--moze-green);
     color: var(--moze-white);
@@ -252,6 +257,10 @@
     &:hover {
       background-color: #58ca86;
       box-shadow: 0 5px 15px rgba(107, 212, 152, 0.4);
+    }
+
+    &:focus-visible {
+      outline-color: var(--moze-white);
     }
   }
 }
@@ -286,6 +295,11 @@
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 25px rgba(107, 212, 152, 0.5);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--moze-dark-blue);
+      outline-offset: 3px;
     }
   }
 }

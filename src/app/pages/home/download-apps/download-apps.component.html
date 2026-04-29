@@ -5,18 +5,20 @@
   </div>
 
   <div class="download-container">
-    <a [href]="appleStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge">
-      <img src="assets/icons/apple.svg" alt="Télécharger sur l'App Store" class="store-logo" />
+    <a [href]="appleStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge"
+       aria-label="Télécharger Moze sur l'App Store (ouvre un nouvel onglet)">
+      <img src="assets/icons/apple.svg" alt="" aria-hidden="true" class="store-logo" width="40" height="40" />
       <div class="store-text">
         <span class="prefix">Disponible sur</span>
         <span class="store-name">App Store</span>
       </div>
     </a>
-    <a [href]="playStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge">
-      <img src="assets/icons/playstore.svg" alt="Disponible sur Google Play" class="store-logo" />
+    <a [href]="playStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge"
+       aria-label="Télécharger Moze sur Google Play (ouvre un nouvel onglet)">
+      <img src="assets/icons/playstore.svg" alt="" aria-hidden="true" class="store-logo" width="40" height="40" />
       <div class="store-text">
         <span class="prefix">Disponible sur</span>
-        <span class="store-name">Google play</span>
+        <span class="store-name">Google Play</span>
       </div>
     </a>
   </div>

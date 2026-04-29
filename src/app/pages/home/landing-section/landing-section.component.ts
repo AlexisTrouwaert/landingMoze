@@ -38,7 +38,7 @@ export class LandingSectionComponent implements OnDestroy {
 
   startAutoScroll() {
     this.clearAllTimers();
-    // Lance le défilement toutes les 3.5 secondes
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     this.scrollInterval = setInterval(() => {
       if (window.innerWidth > 768) return;
 

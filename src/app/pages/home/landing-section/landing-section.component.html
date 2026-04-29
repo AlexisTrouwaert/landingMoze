@@ -2,11 +2,11 @@
   <div class="hero-wrapper">
 
     <div class="left-column">
-      <div class="main-title">
+      <h1 class="main-title">
         <span class="title-line-1">La plateforme</span><br>
         <span class="title-line-2">collaborative</span><br>
         <span class="title-line-3">des indépendants</span>
-      </div>
+      </h1>
 
       <p class="subtitle">
         Facture, <span class="text-green">collabore</span> et <span class="text-green">développe</span> ton réseau.<br>
@@ -26,20 +26,27 @@
           <li>Réseau social d'apport d'affaires intégré</li>
         </ul>
 
-        <div class="carousel-dots hide-on-desktop">
+        <div class="carousel-dots hide-on-desktop" role="tablist" aria-label="Navigation du carrousel">
           @for (i of [0, 1, 2, 3]; track i) {
-            <span class="dot" [class.active]="activeSlide() === i" (click)="goToSlide(i)"></span>
+            <button
+              type="button"
+              class="dot"
+              [class.active]="activeSlide() === i"
+              [attr.aria-label]="'Diapositive ' + (i + 1)"
+              [attr.aria-current]="activeSlide() === i ? 'true' : null"
+              (click)="goToSlide(i)">
+            </button>
           }
         </div>
       </div>
 
       <div class="cta-group">
-        <button class="btn-primary" (click)="goToFunnel()">Je rejoins l'aventure &rarr;</button>
-        <button class="btn-secondary" (click)="goToOffres()">Les offres &rarr;</button>
+        <button class="btn-primary" (click)="goToFunnel()">Je rejoins l'aventure <span aria-hidden="true">&rarr;</span></button>
+        <button class="btn-secondary" (click)="goToOffres()">Les offres <span aria-hidden="true">&rarr;</span></button>
       </div>
 
       <div class="community-proof">
-        <div class="avatars-group">
+        <div class="avatars-group" aria-hidden="true">
           <div class="avatar bg-blue">LA</div>
           <div class="avatar bg-green">SB</div>
           <div class="avatar bg-dark">VR</div>
@@ -63,7 +70,7 @@
 
   </div>
 
-  <div class="scrolling-banner">
+  <div class="scrolling-banner" aria-hidden="true">
     <div class="track">
       @for (i of [1,2]; track i) {
         <span class="banner-item">

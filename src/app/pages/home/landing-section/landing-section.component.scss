@@ -183,11 +183,20 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
+
+    &:focus-visible {
+      outline: 3px solid var(--moze-dark-blue);
+      outline-offset: 3px;
+    }
   }
 
   .btn-primary {
     background-color: var(--moze-dark-blue);
     color: var(--moze-white);
+
+    &:focus-visible {
+      outline-color: var(--moze-green);
+    }
   }
 
   .btn-secondary {
@@ -426,6 +435,8 @@
       height: 8px;
       border-radius: 50%;
       background-color: rgba(20, 73, 104, 0.2);
+      border: none;
+      padding: 0;
       cursor: pointer;
       transition: all 0.3s ease;
 
@@ -433,6 +444,11 @@
         background-color: var(--moze-green);
         width: 20px;
         border-radius: 10px;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--moze-dark-blue);
+        outline-offset: 3px;
       }
     }
   }

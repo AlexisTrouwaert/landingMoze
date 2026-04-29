@@ -71,6 +71,11 @@
     .arrow-icon { filter: brightness(0) invert(1); }
   }
 
+  &:focus-visible {
+    outline: 3px solid var(--interaction-color);
+    outline-offset: 3px;
+  }
+
   .label {
     color: var(--primary-color);
     font-size: 1.1rem;

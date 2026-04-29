@@ -2,13 +2,13 @@
   <header class="funnel-header">
 
     <div class="header-right">
-      <img src="assets/icons/MozeLogo.svg" alt="MOZE" (click)="goHome()" class="logo">
+      <img src="assets/icons/MozeLogo.svg" alt="MOZE" (click)="goHome()" class="logo" width="140" height="35">
     </div>
 
     <div class="header-left">
       @if (fs.currentStep() > 1) {
         <button (click)="fs.previousStep()" class="back-btn">
-          <img src="assets/icons/arrow.svg" class="back-icon" alt="<">
+          <img src="assets/icons/arrow.svg" class="back-icon" alt="" aria-hidden="true" width="16" height="16">
           Retour
         </button>
       }

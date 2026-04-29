@@ -62,7 +62,12 @@
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(20, 73, 104, 0.2);
-    background-color: #1a5c83; /* Léger éclaircissement au survol */
+    background-color: #1a5c83;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--interaction-color, #0297d8);
+    outline-offset: 3px;
   }
 
   .chevron-icon {

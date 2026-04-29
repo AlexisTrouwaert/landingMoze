@@ -81,6 +81,11 @@ h1 {
     transform: translateY(-3px);
     box-shadow: 0 15px 25px rgba(20, 87, 117, 0.4);
   }
+
+  &:focus-visible {
+    outline: 3px solid var(--background-color);
+    outline-offset: 3px;
+  }
 }
 
 // Animation d'entrée
