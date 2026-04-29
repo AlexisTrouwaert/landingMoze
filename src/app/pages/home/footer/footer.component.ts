@@ -1,5 +1,7 @@
-import {Component, inject} from '@angular/core';
-import {Router} from "@angular/router";
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ContactPanelService } from '../../../services/contact-panel.service';
+import { CookieConsentService } from '../../../services/cookie-consent.service';
 
 @Component({
   selector: 'app-footer',
@@ -11,6 +13,8 @@ import {Router} from "@angular/router";
 export class FooterComponent {
 
   private router = inject(Router);
+  contactPanel  = inject(ContactPanelService);
+  cookieConsent = inject(CookieConsentService);
 
   cgv(){
     this.router.navigate(['/cgv-cgu']);

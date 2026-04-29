@@ -1,10 +1,10 @@
 <div class="footer-container">
   <div class="footer-color">
     <div class="contact-container">
-      <button>Nous contacter</button>
+      <button type="button" (click)="contactPanel.open()">Nous contacter</button>
       <div class="text-address">
         <p>Creativa, 84000 Avignon</p>
-        <p>contact&#64;moze.fr</p>
+        <p>support&#64;moze.fr</p>
       </div>
     </div>
     <div class="links-credit-container">
@@ -13,6 +13,7 @@
         <button type="button" (click)="mention()">Mentions légales</button>
         <button type="button" (click)="cgv()">CGV / CGU</button>
         <button type="button" (click)="auto()">L'essentiel du statut auto-entrepreneur</button>
+        <button type="button" (click)="cookieConsent.reset()">Gérer mes cookies</button>
       </div>
       <div class="credits">
         <p>Designé avec ❤️ par Madame C.</p>

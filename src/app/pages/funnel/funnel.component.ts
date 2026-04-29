@@ -1,8 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FunnelService } from "../../services/funnel.service";
-import { MetaPixelService } from "../../services/meta-pixel.service";
 import { SectorStepComponent } from "./steps/sector-step/sector-step.component";
 import { InterstitialStepComponent } from "./steps/interstitial-step/interstitial-step.component";
 import { SapStepComponent } from "./steps/sap-step/sap-step.component";
@@ -13,7 +11,6 @@ import { TaxCreditStepComponent } from "./steps/tax-credit-step/tax-credit-step.
   selector: 'app-funnel',
   standalone: true,
   imports: [
-    CommonModule,
     SectorStepComponent,
     InterstitialStepComponent,
     SapStepComponent,

@@ -15,6 +15,6 @@ export class PlatformDiscoveryComponent {
   private readonly videoId = 'ykgoxiYz208';
 
   public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${this.videoId}?rel=0&modestbranding=1`)
+    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1`)
   );
 }

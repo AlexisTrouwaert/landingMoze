@@ -22,13 +22,5 @@ export const routes: Routes = [
     path: 'politique-confidentialite',
     loadChildren: () => import('./routes/legal.routes').then(m => m.POLITIQUE_ROUTES)
   },
-  {
-    path: 'confirmation',
-    loadChildren: () => import('./routes/confirmation.routes').then(m => m.CONFIRMATION_ROUTES)
-  },
-  {
-    path: 'redirection',
-    loadChildren: () => import('./routes/redirection.routes').then(m => m.REDIRECTION_ROUTES)
-  },
-  { path: '**', redirectTo: '' }
+{ path: '**', redirectTo: '' }
 ];

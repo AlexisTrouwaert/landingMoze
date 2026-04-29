@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FunnelService } from "../../../../services/funnel.service";
 import { Router } from "@angular/router";
@@ -19,16 +19,13 @@ export class OfferStepComponent {
 
   isSubmittingOffer = signal(false);
 
-  isCoop() {
-    return this.fs.finalOfferPrice() > 10;
-  }
+  readonly isCoop = computed(() => this.fs.finalOfferPrice() > 10);
 
-  getOfferDescription(): string {
-    if (this.isCoop()) {
-      return "Tout est centralisé. Moins d'allers-retours. Plus de fluidité. Pas d'exclusivité.";
-    }
-    return "Simple. Clair. Sans engagement.";
-  }
+  readonly offerDescription = computed(() =>
+    this.isCoop()
+      ? "Tout est centralisé. Moins d'allers-retours. Plus de fluidité. Pas d'exclusivité."
+      : "Simple. Clair. Sans engagement."
+  );
 
   async register() {
     const user = this.fs.userInfo();
@@ -41,6 +38,13 @@ export class OfferStepComponent {
     this.isSubmittingOffer.set(true);
     const email = user.email;
     const origine = window.location.hostname;
+
+    if (window.location.hostname === 'localhost') {
+      console.log('[DEV] Souscription ignorée sur localhost.');
+      this.isSubmittingOffer.set(false);
+      window.location.href = 'https://app.mozeconnect.fr/connexion';
+      return;
+    }
 
     const request$ = this.isCoop()
       ? this.fs.subscribeCustom(email, this.fs.hasSapNumber() ?? false, true, origine)

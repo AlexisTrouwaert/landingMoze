@@ -16,12 +16,20 @@
   </header>
 
   <main class="step-content">
-    @switch (fs.currentStep()) {
-      @case (1) { <app-sector-step /> }
-      @case (2) { <app-tax-credit-step /> }
-      @case (3) { <app-sap-step /> }
-      @case (4) { <app-interstitial-step /> }
-<!--      @case (5) { <app-offer-step /> }-->
+    @if (fs.currentStep() === 1) {
+      @defer (on immediate) { <app-sector-step /> }
     }
+    @if (fs.currentStep() === 2) {
+      @defer (on immediate) { <app-tax-credit-step /> }
+    }
+    @if (fs.currentStep() === 3) {
+      @defer (on immediate) { <app-sap-step /> }
+    }
+    @if (fs.currentStep() === 4) {
+      @defer (on immediate) { <app-interstitial-step /> }
+    }
+    <!-- @if (fs.currentStep() === 5) {
+      @defer (on immediate) { <app-offer-step /> }
+    } -->
   </main>
 </div>

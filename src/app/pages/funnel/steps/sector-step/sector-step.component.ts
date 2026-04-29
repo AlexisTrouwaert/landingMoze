@@ -20,16 +20,16 @@ export class SectorStepComponent {
    * Les images doivent être dans le dossier src/assets/tunnel/
    */
   imageMap: Record<string, string> = {
-    DEFAULT: 'assets/images/tunnel/ACTIVITE.png',
+    DEFAULT: 'assets/images/tunnel/ACTIVITE.webp',
 
     // Images spécifiques au survol
-    SANTE: 'assets/images/tunnel/SANTE.png',
-    SAP: 'assets/images/tunnel/SAP.png',
-    BTP: 'assets/images/tunnel/BTP.png',
-    CREATIF: 'assets/images/tunnel/COM.png',
-    CONSEIL: 'assets/images/tunnel/FORMATION.png',
-    IMMO: 'assets/images/tunnel/IMMOBILIER.png',
-    AUTRE: 'assets/images/tunnel/AUTRES ACTIVITES.png',
+    SANTE: 'assets/images/tunnel/SANTE.webp',
+    SAP: 'assets/images/tunnel/SAP.webp',
+    BTP: 'assets/images/tunnel/BTP.webp',
+    CREATIF: 'assets/images/tunnel/COM.webp',
+    CONSEIL: 'assets/images/tunnel/FORMATION.webp',
+    IMMO: 'assets/images/tunnel/IMMOBILIER.webp',
+    AUTRE: 'assets/images/tunnel/AUTRES-ACTIVITES.webp',
   };
 
   // Image courante calculée dynamiquement
