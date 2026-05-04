@@ -1,4 +1,35 @@
 User-agent: *
 Allow: /
 
+# Bots IA — autorisés en lecture, pas en entraînement
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Préférences de contenu (Content Signals)
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 Sitemap: https://www.moze.fr/sitemap.xml

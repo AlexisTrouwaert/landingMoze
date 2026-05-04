@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-tool',
   standalone: true,
-  imports: [],
+  imports: [ScrollRevealDirective],
   templateUrl: './tool.component.html',
   styleUrl: './tool.component.scss'
 })
@@ -13,22 +14,10 @@ export class ToolComponent {
 
   public features = signal([
     {
-      t1: 'FACTURATION ILLIMITÉE',
-      t2: 'ET CONFORME',
-      desc: 'Crée et envoie tes factures et devis professionnels en quelques secondes. Conformité totale avec la réforme facturation électronique 2026.',
-      badge: 'INCLUS DANS TOUTES LES OFFRES'
-    },
-    {
       t1: 'FACTURATION',
       t2: 'COLLABORATIVE',
       desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
       badge: 'EXCLUSIF MOZE'
-    },
-    {
-      t1: 'AVANCE',
-      t2: 'IMMÉDIATE SAP',
-      desc: 'Tu es dans le service à la personne ? Moze Coop te donne accès au numéro SAP sans exclusivité, avec gestion du crédit d\'impôt immédiat intégré.',
-      badge: 'OFFRE COOP'
     },
     {
       t1: 'RÉSEAU SOCIAL',
@@ -39,7 +28,7 @@ export class ToolComponent {
     {
       t1: 'APPORT',
       t2: 'D\'AFFAIRES INTÉGRÉ',
-      desc: 'Augmente ton chiffre d\'affaires grâce à l\'apport d\'affaires directement sur Moze, réponds à des offres ou propose à ton réseau des missions en échange d\'une commission.',
+      desc: 'Augmente ton chiffre d\'affaires grâce à l\'apport d\'affaires directement dans Moze, réponds à des offres ou propose à ton réseau des missions en échange d\'une commission.',
       badge: 'AUGMENTE TES REVENUS'
     },
     {
@@ -49,6 +38,21 @@ export class ToolComponent {
       badge: 'SIMPLE ET INTUITIF'
     }
   ]);
+
+  /** Spotlight border — position relative à la carte courante */
+  onCardMouseMove(event: MouseEvent): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const card = event.currentTarget as HTMLElement;
+    const rect  = card.getBoundingClientRect();
+    card.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+    card.style.setProperty('--my', `${event.clientY - rect.top}px`);
+  }
+
+  onCardMouseLeave(event: MouseEvent): void {
+    const card = event.currentTarget as HTMLElement;
+    card.style.setProperty('--mx', '-9999px');
+    card.style.setProperty('--my', '-9999px');
+  }
 
   goToFunnel() {
     this.router.navigate(['/commencer']);

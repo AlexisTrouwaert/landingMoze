@@ -7,10 +7,6 @@ export const routes: Routes = [
     loadChildren: () => import('./routes/home.routes').then(m => m.HOME_ROUTES)
   },
   {
-    path: 'commencer',
-    loadChildren: () => import('./routes/funnel.routes').then(m => m.FUNNEL_ROUTES)
-  },
-  {
     path: 'cgv-cgu',
     loadChildren: () => import('./routes/legal.routes').then(m => m.CGV_ROUTES)
   },

@@ -13,7 +13,7 @@ export class LandingSectionComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
 
-  private readonly videoId = 'ykgoxiYz208';
+  private readonly videoId = 'GIayqf7tRGk';
 
   public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1`)
@@ -24,7 +24,7 @@ export class LandingSectionComponent implements OnDestroy {
   public activeSlide = signal(0);
 
   private scrollInterval: any;
-  private resumeTimeout: any; // Timer pour le délai avant reprise
+  private resumeTimeout: any;
 
   constructor() {
     afterNextRender(() => {

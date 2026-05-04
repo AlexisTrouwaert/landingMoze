@@ -1,5 +1,5 @@
 <section class="steps-container">
-  <div class="header-section">
+  <div class="header-section" appScrollReveal>
     <p class="surtitle">VOTRE ACTIVITÉ EN 4 ÉTAPES</p>
     <h2 class="main-title">
       De la facture à l'apport<br>
@@ -12,19 +12,24 @@
   </div>
 
   <div class="cards-grid">
-    @for (step of steps(); track step.num) {
-      <div class="step-card" [class]="step.theme">
-        <div class="card-header">
-          <span class="step-number">{{ step.num }}</span>
-          <span class="step-pill">{{ step.pill }}</span>
+    @for (step of steps(); track step.num; let i = $index) {
+      <div class="step-card" [class]="step.theme"
+           [style.--bubble-delay]="(i * -3.5) + 's'"
+           appScrollReveal [delay]="i * 100"
+           (mousemove)="onCardMouseMove($event)"
+           (mouseleave)="onCardMouseLeave($event)">
+
+        <div class="card-content">
+          <div class="card-header">
+            <span class="step-number">{{ step.num }}</span>
+            <span class="step-pill">{{ step.pill }}</span>
+          </div>
+          <h3 class="step-title">{{ step.title }}</h3>
+          <p class="step-desc">{{ step.desc }}</p>
         </div>
-        <h3 class="step-title">{{ step.title }}</h3>
-        <p class="step-desc">{{ step.desc }}</p>
+
       </div>
     }
   </div>
 
-  <div class="cta-wrapper">
-    <button class="btn-primary" (click)="goToFunnel()">Je souhaite facturer simplement &rarr;</button>
-  </div>
 </section>

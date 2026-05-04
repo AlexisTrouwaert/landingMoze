@@ -110,6 +110,7 @@
 
   &.popular {
     border-color: var(--moze-green);
+    /* Pas d'overflow:hidden ici — le badge top: -1rem doit rester visible */
 
     .features-list {
       background-color: rgba(107, 212, 152, 0.08);
@@ -253,6 +254,19 @@
     background-color: var(--moze-green);
     color: var(--moze-white);
     border: none;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: 0;
+      width: 28%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+      transform: translateX(-180%) skewX(-18deg);
+      animation: btnShine 4s ease-in-out infinite 0.8s;
+      pointer-events: none;
+    }
 
     &:hover {
       background-color: #58ca86;
@@ -263,6 +277,41 @@
       outline-color: var(--moze-white);
     }
   }
+}
+
+/* Conteneur isolé du shine — il se clip lui-même, pas la carte */
+.card-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem; /* doit matcher .pricing-card */
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.16) 50%,
+      transparent 75%
+    );
+    transform: translateX(-150%);
+    animation: cardShine 7s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+@keyframes cardShine {
+  0%, 100% { transform: translateX(-100%); opacity: 0; }
+  10%       { opacity: 1; }
+  40%       { transform: translateX(160%); opacity: 1; }
+  50%, 99%  { transform: translateX(160%); opacity: 0; }
 }
 
 /* === FOOTER (CTA PRINCIPAL) === */
@@ -291,6 +340,19 @@
     cursor: pointer;
     box-shadow: 0 10px 20px rgba(107, 212, 152, 0.3);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: 0;
+      width: 28%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
+      transform: translateX(-180%) skewX(-18deg);
+      animation: btnShine 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
 
     &:hover {
       transform: translateY(-3px);
