@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-tarif',
   standalone: true,
-  imports: [],
+  imports: [ScrollRevealDirective],
   templateUrl: './tarif.component.html',
   styleUrl: './tarif.component.scss'
 })

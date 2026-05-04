@@ -1,5 +1,5 @@
 <div class="faq-container">
-  <div class="banner-container">
+  <div class="banner-container" appScrollReveal>
     <div class="banner-header">
       <h3>FOIRE AUX QUESTIONS</h3>
     </div>
@@ -10,161 +10,55 @@
   <div class="questions-container">
     <div class="left-questions">
 
-      <div class="question-container" [class.extended]="selectedQ() === 0">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 0"
-                aria-controls="answer-0"
-                (click)="changeSelectedQ(0)">
-          <p class="question-title">CRÉER ET ENVOYER UNE FACTURE</p>
-          @if (selectedQ() !== 0){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-0" role="region" aria-label="Créer et envoyer une facture">
-          <div class="answer">
-            <p>Edite et <span>envoie une facture en quelques minutes</span> seulement. Vérifie ensuite son statut <span>en temps réel</span> jusqu’à l’encaissement pour une <span>gestion simple</span> et <span>rapide.</span></p>
+      @for (q of [0,1,2,3]; track q; let i = $index) {
+        <div class="question-container" [class.extended]="selectedQ() === q" appScrollReveal [delay]="i * 80">
+          <button class="title-container" type="button"
+                  [attr.aria-expanded]="selectedQ() === q"
+                  [attr.aria-controls]="'answer-' + q"
+                  (click)="changeSelectedQ(q)">
+            <p class="question-title">{{ leftQuestions[i].title }}</p>
+            <svg class="faq-icon" [class.open]="selectedQ() === q"
+                 width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <div class="answer-wrapper" [id]="'answer-' + q" role="region" [attr.aria-label]="leftQuestions[i].title">
+            <div class="answer">
+              <p [innerHTML]="leftQuestions[i].answer"></p>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
-      <div class="question-container" [class.extended]="selectedQ() === 1">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 1"
-                aria-controls="answer-1"
-                (click)="changeSelectedQ(1)">
-          <p class="question-title">CALCUL COMMISSION APPORTS D’AFFAIRES</p>
-          @if (selectedQ() !== 1){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-1" role="region" aria-label="Calcul commission apports d’affaires">
-          <div class="answer">
-            <p><span>Gère automatiquement</span> la commission liée à chaque apport d’affaires. <span>Visualise</span> le montant généré, la <span>répartition et le statut</span> du paiement pour un suivi clair, structuré et sécurisé.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="question-container" [class.extended]="selectedQ() === 2">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 2"
-                aria-controls="answer-2"
-                (click)="changeSelectedQ(2)">
-          <p class="question-title">CONNEXION ET MISE EN RÉSEAU</p>
-          @if (selectedQ() !== 2){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-2" role="region" aria-label="Connexion et mise en réseau">
-          <div class="answer">
-            <p><span>Connecte-toi</span> à d’autres professionnels, crée des <span>synergies</span> et <span>développe</span> ton réseau directement depuis la plateforme. <span>Collabore</span> sur des missions, <span>échange des opportunités</span> et fais grandir ton activité au sein d’un <span>écosystème structuré.</span></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="question-container" [class.extended]="selectedQ() === 3">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 3"
-                aria-controls="answer-3"
-                (click)="changeSelectedQ(3)">
-          <p class="question-title">FACTURATION ELECTRONIQUE</p>
-          @if (selectedQ() !== 3){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-3" role="region" aria-label="Facturation électronique">
-          <div class="answer">
-            <p>Moze Connect intègre le format <span>Factur-X</span>, conforme aux exigences de la facturation électronique en France. Toutes tes factures sont ainsi générées dans un format structuré et reconnu par l’administration. Pour garantir une transmission sécurisée et conforme, Moze est adossé à une <span>Plateforme Agréée (Super PDP) certifiée</span>, immatriculée par l’État. Tu factures simplement, Moze s’occupe de la conformité.</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="right-questions">
 
-      <div class="question-container" [class.extended]="selectedQ() === 4">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 4"
-                aria-controls="answer-4"
-                (click)="changeSelectedQ(4)">
-          <p class="question-title">LA FACTURATION COLLABORATIVE</p>
-          @if (selectedQ() !== 4){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-4" role="region" aria-label="La facturation collaborative">
-          <div class="answer">
-            <p>Crée une facture <span>à plusieurs</span> en quelques clics et répartis <span>automatiquement</span> les montants entre chaque intervenant. <span>Centralise</span> les informations, <span>sécurise</span> la répartition et garde une vision <span>claire</span> de chaque mission collaborative.
-              <br>Chaque co-facturant reste indépendant et pleinement responsable de sa mission, sans engager les autres. <a href="https://www.youtube.com/watch?v=GIayqf7tRGk" target="_blank">Voir la vidéo explicative sur la facturation collaborative</a>.</p>
+      @for (q of [4,5,6,7]; track q; let i = $index) {
+        <div class="question-container" [class.extended]="selectedQ() === q" appScrollReveal [delay]="i * 80">
+          <button class="title-container" type="button"
+                  [attr.aria-expanded]="selectedQ() === q"
+                  [attr.aria-controls]="'answer-' + q"
+                  (click)="changeSelectedQ(q)">
+            <p class="question-title">{{ rightQuestions[i].title }}</p>
+            <svg class="faq-icon" [class.open]="selectedQ() === q"
+                 width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <div class="answer-wrapper" [id]="'answer-' + q" role="region" [attr.aria-label]="rightQuestions[i].title">
+            <div class="answer">
+              <p [innerHTML]="rightQuestions[i].answer"></p>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="question-container" [class.extended]="selectedQ() === 5">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 5"
-                aria-controls="answer-5"
-                (click)="changeSelectedQ(5)">
-          <p class="question-title">COOPÉRATIVE ET SAP</p>
-          @if (selectedQ() !== 5){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-5" role="region" aria-label="Coopérative et SAP">
-          <div class="answer">
-            <p>Propose des prestations éligibles au <span>crédit d’impôt</span> grâce à la <span>coopérative</span> et au numéro SAP. <span>Développe</span> ton offre, <span>sécurise</span> ton cadre administratif et ouvre de nouvelles <span>opportunités</span> auprès des clients particuliers.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="question-container" [class.extended]="selectedQ() === 6">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 6"
-                aria-controls="answer-6"
-                (click)="changeSelectedQ(6)">
-          <p class="question-title">COMPTABILITÉ</p>
-          @if (selectedQ() !== 6){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-6" role="region" aria-label="Comptabilité">
-          <div class="answer">
-            <p><span>Centralise</span> tes données comptables et garde une vision<span> claire</span> de ton activité en temps réel. <span>Exporte facilement</span> tes éléments vers ton expert-comptable et <span>sécurise</span> tes obligations administratives au quotidien.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="question-container" [class.extended]="selectedQ() === 7">
-        <button class="title-container" type="button"
-                [attr.aria-expanded]="selectedQ() === 7"
-                aria-controls="answer-7"
-                (click)="changeSelectedQ(7)">
-          <p class="question-title">PARRAINER DES FUTURS MOZEURS</p>
-          @if (selectedQ() !== 7){
-            <img class="primary-icon" src="assets/icons/plus.svg" alt="" aria-hidden="true" width="24" height="24">
-          } @else{
-            <img class="interaction-icon" src="assets/icons/less.svg" alt="" aria-hidden="true" width="24" height="24">
-          }
-        </button>
-        <div class="answer-wrapper" id="answer-7" role="region" aria-label="Parrainer des futurs Mozeurs">
-          <div class="answer">
-            <p>Invite de nouveaux Mozeurs à rejoindre la plateforme afin de <span>développer</span> ton réseau.</p>
-          </div>
-        </div>
-      </div>
+      }
 
     </div>
   </div>

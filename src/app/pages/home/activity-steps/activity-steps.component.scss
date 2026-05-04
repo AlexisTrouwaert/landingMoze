@@ -60,85 +60,150 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 768px)  { grid-template-columns: 1fr; }
 }
 
+/* ============================================================
+   STEP CARD — tilt 3D + bulle de coin
+   ============================================================ */
 .step-card {
   border-radius: 2rem;
-  padding: 2.5rem 1.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   height: 100%;
   box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(20, 73, 104, 0.10);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
 
-  .card-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.8rem;
+  /* Le box-shadow hover est géré en CSS ; le transform est géré par JS */
+  transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    box-shadow: 0 16px 36px rgba(20, 73, 104, 0.22);
   }
 
-  .step-number {
-    font-size: 3.5rem;
-    font-weight: 800;
-    color: var(--moze-white);
-    line-height: 1;
+  /* ── Bulle décorative coin haut-droit ─────────────────────── */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -18%;
+    right: -12%;
+    width: 58%;
+    height: 58%;
+    pointer-events: none;
+    z-index: 0;
+    animation: bubbleCornerMorph 14s ease-in-out infinite;
+    animation-delay: var(--bubble-delay, 0s);
   }
 
-  .step-pill {
-    padding: 0.4rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    font-size: 0.95rem;
-  }
-
-  .step-title {
-    font-size: 1.4rem;
-    font-weight: 800;
-    margin: 0;
-    white-space: pre-line;
-    line-height: 1.2;
-  }
-
-  .step-desc {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin: 0;
-    font-weight: 600;
-  }
-
+  /* Cartes paires (green) */
   &.green {
     background-color: var(--moze-green);
     color: var(--moze-dark-blue);
 
-    .step-pill {
-      background-color: var(--moze-dark-blue);
-      color: var(--moze-white);
-    }
+    .step-pill  { background-color: var(--moze-dark-blue); color: var(--moze-white); }
+    .step-title, .step-desc { color: var(--moze-dark-blue); }
 
-    .step-title, .step-desc {
-      color: var(--moze-dark-blue);
+    &::before {
+      background: radial-gradient(
+        circle at 38% 38%,
+        rgba(39, 184, 99, 0.4) 0%,
+        rgba(28, 145, 79, 0.14) 45%,
+        transparent 72%
+      );
     }
   }
 
+  /* Cartes impaires (dark) */
   &.dark {
     background-color: var(--moze-dark-blue);
     color: var(--moze-white);
 
-    .step-pill {
-      background-color: var(--moze-green);
-      color: var(--moze-dark-blue);
+    .step-pill { background-color: var(--moze-green); color: var(--moze-dark-blue); }
+
+    &::before {
+      background: radial-gradient(
+        circle at 38% 38%,
+        rgba(0, 12, 35, 0.38) 0%,
+        rgba(0, 12, 35, 0.12) 45%,
+        transparent 72%
+      );
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover { transform: none; }
+    &::before { animation: none; }
   }
 }
 
+/* Morphing organique de la bulle de coin */
+@keyframes bubbleCornerMorph {
+  0%   { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; }
+  25%  { border-radius: 44% 56% 52% 48% / 40% 62% 38% 60%; }
+  50%  { border-radius: 55% 45% 70% 30% / 65% 35% 65% 35%; }
+  75%  { border-radius: 38% 62% 42% 58% / 55% 45% 55% 45%; }
+  100% { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; }
+}
+
+/* ============================================================
+   CONTENU — au-dessus de la bulle
+   ============================================================ */
+.card-content {
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.step-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--moze-white);
+  line-height: 1;
+}
+
+.step-pill {
+  padding: 0.4rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.step-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.2;
+}
+
+.step-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ============================================================
+   CTA
+   ============================================================ */
 .cta-wrapper {
   display: flex;
   justify-content: center;
@@ -155,45 +220,59 @@
     cursor: pointer;
     box-shadow: 0 10px 20px rgba(20, 73, 104, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: 0;
+      width: 28%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-180%) skewX(-18deg);
+      animation: btnShine 4.5s ease-in-out infinite 0.6s;
+      pointer-events: none;
+    }
 
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 25px rgba(20, 73, 104, 0.3);
+
+      .btn-arrow { transform: translateX(3px); }
+    }
+
+    .btn-arrow {
+      display: inline-block;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
 }
 
-/* =========================================
-   === ADAPTATIONS MOBILE (Jusqu'à 768px) ===
-   ========================================= */
+/* ============================================================
+   MOBILE
+   ============================================================ */
 @media (max-width: 768px) {
   .steps-container {
-    padding: 2rem 1.5rem; /* Padding horizontal réduit à 1.5rem comme demandé */
+    padding: 2rem 1.5rem;
     gap: 2rem;
   }
 
-  .header-section {
-    .main-title {
-      font-size: clamp(1.8rem, 8vw, 2.2rem); /* Évite que le titre ne déborde */
-    }
+  .header-section .main-title {
+    font-size: clamp(1.8rem, 8vw, 2.2rem);
   }
 
-  .cards-grid {
-    gap: 1rem; /* Réduit un peu l'espace entre les cartes sur mobile */
-  }
+  .cards-grid { gap: 1rem; }
 
-  .step-card {
-    padding: 2rem 1.5rem; /* Ajuste légèrement le padding interne des cartes */
-  }
+  .card-content { padding: 2rem 1.5rem; }
 
   .cta-wrapper {
     margin-top: 1rem;
     width: 100%;
 
     .btn-primary {
-      width: 100%; /* Pleine largeur sur mobile pour être "thumb-friendly" */
-      padding: 1.25rem 1rem; /* Padding réduit pour ne pas être trop massif */
-      font-size: 1.05rem; /* Police légèrement réduite pour rester lisible mais discrète */
+      width: 100%;
+      padding: 1.25rem 1rem;
+      font-size: 1.05rem;
       box-sizing: border-box;
     }
   }

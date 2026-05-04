@@ -1,5 +1,5 @@
 <section class="tool-container">
-  <div class="header-section">
+  <div class="header-section" appScrollReveal>
     <p class="surtitle">FONCTIONNALITÉS</p>
     <h2 class="main-title">
       Bien plus qu'un outil de <span class="highlight-green">facturation</span>
@@ -10,8 +10,11 @@
   </div>
 
   <div class="cards-grid">
-    @for (feature of features(); track feature.t1) {
-      <div class="feature-card">
+    @for (feature of features(); track feature.t1; let i = $index) {
+      <div class="feature-card" appScrollReveal [delay]="i * 80"
+           (mousemove)="onCardMouseMove($event)"
+           (mouseleave)="onCardMouseLeave($event)">
+        <div class="card-border-glow" aria-hidden="true"></div>
         <div class="card-title">
           <span class="title-green">{{ feature.t1 }}</span>
           <span class="title-white">{{ feature.t2 }}</span>
@@ -22,7 +25,7 @@
     }
   </div>
 
-  <div class="cta-wrapper">
-    <button class="btn-primary" (click)="goToFunnel()">Je découvre mon nouvel outil &rarr;</button>
+  <div class="cta-wrapper" appScrollReveal>
+    <button class="btn-primary" (click)="goToFunnel()">Je découvre mon nouvel outil <span class="btn-arrow" aria-hidden="true">&rarr;</span></button>
   </div>
 </section>

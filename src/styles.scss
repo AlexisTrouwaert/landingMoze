@@ -40,6 +40,72 @@
   }
 }
 
+/* =============================================
+   KEYFRAMES GLOBAUX — réutilisés par plusieurs composants
+   ============================================= */
+
+/* Blob liquide : morphe entre des formes organiques */
+@keyframes liquidMorph {
+  0%   { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; transform: translate(0,    0)     scale(1);    }
+  20%  { border-radius: 38% 62% 55% 45% / 45% 65% 35% 55%; transform: translate(-7px, -9px)  scale(1.07); }
+  40%  { border-radius: 55% 45% 38% 62% / 70% 28% 72% 30%; transform: translate(8px,  -4px)  scale(0.93); }
+  60%  { border-radius: 42% 58% 65% 35% / 35% 72% 28% 65%; transform: translate(-4px,  8px)  scale(1.05); }
+  80%  { border-radius: 68% 32% 42% 58% / 55% 42% 58% 45%; transform: translate(5px,   3px)  scale(0.97); }
+  100% { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; transform: translate(0,    0)     scale(1);    }
+}
+
+/* Morphing border-radius seul (sans translate — pour les inner blobs) */
+@keyframes liquidMorphOnly {
+  0%   { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; }
+  20%  { border-radius: 38% 62% 55% 45% / 45% 65% 35% 55%; }
+  40%  { border-radius: 55% 45% 38% 62% / 70% 28% 72% 30%; }
+  60%  { border-radius: 42% 58% 65% 35% / 35% 72% 28% 65%; }
+  80%  { border-radius: 68% 32% 42% 58% / 55% 42% 58% 45%; }
+  100% { border-radius: 62% 38% 30% 70% / 58% 32% 68% 42%; }
+}
+
+/* Flash diagonal pour boutons primaires */
+@keyframes btnShine {
+  0%, 60%, 100% { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
+  5%            { opacity: 1; }
+  50%           { transform: translateX(220%)  skewX(-18deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* =============================================
+   SCROLL REVEAL — état initial et final
+   ============================================= */
+.sr-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  /* La transition est portée ici pour être toujours active */
+  transition:
+    opacity  0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity  0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-hidden,
+  .sr-visible {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
 body{
   --primary-color: #145775;
   --interaction-color: #0297d8;
@@ -51,4 +117,87 @@ body{
   --filter-accent-color: invert(44%) sepia(59%) saturate(2374%) hue-rotate(169deg) brightness(92%) contrast(98%);
 
   background-color: var(--background-color);
+
+  /* Crée un stacking context pour que les pseudo-éléments ::before/::after
+     en z-index: -1 restent derrière le contenu sans déborder */
+  isolation: isolate;
+  position: relative;
+}
+
+/* =============================================
+   QUADRILLAGE ORGANIQUE — ancré au document
+   2 couches : filet sobre (large) + vert Moze (centre)
+   Patches positionnés en % de la hauteur totale de la page,
+   donc ils défilent avec le contenu (pas avec le viewport).
+   ============================================= */
+
+body::before,
+body::after {
+  content: '';
+  position: absolute;
+  inset: 0;             /* couvre toute la hauteur du body, pas du viewport */
+  pointer-events: none;
+  z-index: -1;
+  background-size: 56px 56px;
+}
+
+/* Couche 1 — filet sobre, légèrement plus foncé que le fond.
+   Patches larges → visibles dans toute la zone organique. */
+body::before {
+  background-image:
+    linear-gradient(rgba(20, 73, 104, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 73, 104, 0.08) 1px, transparent 1px);
+
+  -webkit-mask-image:
+    radial-gradient(circle 30vmin at 6%   5%, #000 0%, transparent 75%),  /* hero gauche */
+    radial-gradient(circle 30vmin at 95%  7%, #000 0%, transparent 75%),  /* vidéo droite */
+    radial-gradient(circle 28vmin at 96% 24%, #000 0%, transparent 75%),  /* activity-steps droite */
+    radial-gradient(circle 28vmin at 4%  38%, #000 0%, transparent 75%),  /* tool gauche */
+    radial-gradient(circle 30vmin at 96% 50%, #000 0%, transparent 75%),  /* tool droite */
+    radial-gradient(circle 28vmin at 96% 65%, #000 0%, transparent 75%),  /* avis droite */
+    radial-gradient(circle 28vmin at 4%  78%, #000 0%, transparent 75%),  /* tarif gauche */
+    radial-gradient(circle 30vmin at 95% 90%, #000 0%, transparent 75%);  /* bas droite */
+  mask-image:
+    radial-gradient(circle 30vmin at 6%   5%, #000 0%, transparent 75%),
+    radial-gradient(circle 30vmin at 95%  7%, #000 0%, transparent 75%),
+    radial-gradient(circle 28vmin at 96% 24%, #000 0%, transparent 75%),
+    radial-gradient(circle 28vmin at 4%  38%, #000 0%, transparent 75%),
+    radial-gradient(circle 30vmin at 96% 50%, #000 0%, transparent 75%),
+    radial-gradient(circle 28vmin at 96% 65%, #000 0%, transparent 75%),
+    radial-gradient(circle 28vmin at 4%  78%, #000 0%, transparent 75%),
+    radial-gradient(circle 30vmin at 95% 90%, #000 0%, transparent 75%);
+}
+
+/* Couche 2 — vert Moze, même teinte que le spotlight border.
+   Patches plus petits, centrés sur les mêmes points que la couche 1
+   → transition "sombre en bord → vert au centre" organique. */
+body::after {
+  background-image:
+    linear-gradient(rgba(107, 212, 152, 0.50) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 212, 152, 0.50) 1px, transparent 1px);
+
+  -webkit-mask-image:
+    radial-gradient(circle 14vmin at 6%   5%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 95%  7%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 96% 24%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 4%  38%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 96% 50%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 96% 65%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 4%  78%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 95% 90%, #000 0%, transparent 80%);
+  mask-image:
+    radial-gradient(circle 14vmin at 6%   5%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 95%  7%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 96% 24%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 4%  38%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 96% 50%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 96% 65%, #000 0%, transparent 80%),
+    radial-gradient(circle 13vmin at 4%  78%, #000 0%, transparent 80%),
+    radial-gradient(circle 14vmin at 95% 90%, #000 0%, transparent 80%);
+}
+
+/* Mobile : patches un peu plus petits pour ne pas envahir l'écran */
+@media (max-width: 768px) {
+  body::before { background-size: 42px 42px; }
+  body::after  { background-size: 42px 42px; }
 }
