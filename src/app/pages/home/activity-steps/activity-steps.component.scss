@@ -79,13 +79,12 @@
   position: relative;
   overflow: hidden;
   will-change: transform;
-
-  /* Le box-shadow hover est géré en CSS ; le transform est géré par JS */
-  transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    box-shadow: 0 16px 36px rgba(20, 73, 104, 0.22);
-  }
+  /* Inclut opacity + transform pour ne pas écraser les transitions du scroll-reveal
+     (l'encapsulation Angular rend ce sélecteur plus spécifique que .sr-hidden global) */
+  transition:
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity    0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform  0.8s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ── Bulle décorative coin haut-droit ─────────────────────── */
   &::before {
@@ -111,10 +110,10 @@
 
     &::before {
       background: radial-gradient(
-        circle at 38% 38%,
-        rgba(39, 184, 99, 0.4) 0%,
-        rgba(28, 145, 79, 0.14) 45%,
-        transparent 72%
+          circle at 38% 38%,
+          rgba(39, 184, 99, 0.4) 0%,
+          rgba(28, 145, 79, 0.14) 45%,
+          transparent 72%
       );
     }
   }
@@ -128,18 +127,24 @@
 
     &::before {
       background: radial-gradient(
-        circle at 38% 38%,
-        rgba(0, 12, 35, 0.38) 0%,
-        rgba(0, 12, 35, 0.12) 45%,
-        transparent 72%
+          circle at 38% 38%,
+          rgba(0, 12, 35, 0.38) 0%,
+          rgba(0, 12, 35, 0.12) 45%,
+          transparent 72%
       );
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    &:hover { transform: none; }
     &::before { animation: none; }
+  }
+}
+
+/* Hover uniquement sur les appareils qui le supportent */
+@media (hover: hover) {
+  .step-card:hover {
+    box-shadow: 0 16px 36px rgba(20, 73, 104, 0.22);
   }
 }
 
@@ -234,17 +239,20 @@
       pointer-events: none;
     }
 
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 25px rgba(20, 73, 104, 0.3);
-
-      .btn-arrow { transform: translateX(3px); }
-    }
-
     .btn-arrow {
       display: inline-block;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
+  }
+}
+
+/* Hover bouton uniquement sur les appareils qui le supportent */
+@media (hover: hover) {
+  .cta-wrapper .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(20, 73, 104, 0.3);
+
+    .btn-arrow { transform: translateX(3px); }
   }
 }
 
