@@ -1,0 +1,58 @@
+// Mixin réutilisable — quadrillage décoratif réactif au curseur.
+// Usage : @use '../../../styles/grid-patch' as gp;  @include gp.patch();
+@mixin patch($width: 135vmin, $height: 85vmin) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: $width;
+  height: $height;
+  pointer-events: none;
+  z-index: 0;
+
+  // Apparition douce quand le composant est injecté (idle / viewport)
+  opacity: 0;
+  animation: gridPatchFadeIn 0.7s ease forwards;
+
+  -webkit-mask-image: radial-gradient(ellipse, #000 0%, transparent 75%);
+  mask-image:         radial-gradient(ellipse, #000 0%, transparent 75%);
+
+  // Couche 1 : grille sombre — toujours visible
+  background-image:
+    linear-gradient(rgba(20, 73, 104, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 73, 104, 0.12) 1px, transparent 1px);
+  background-size: 51px 51px;
+
+  // Couche 2 : grille verte — spotlight localisé au curseur
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(107, 212, 152, 1) 1px, transparent 2px),
+      linear-gradient(90deg, rgba(107, 212, 152, 1) 1px, transparent 2px);
+    background-size: 51px 51px;
+    -webkit-mask-image: radial-gradient(
+      circle 150px at var(--patch-x, -9999px) var(--patch-y, -9999px),
+      #000 0%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      circle 150px at var(--patch-x, -9999px) var(--patch-y, -9999px),
+      #000 0%,
+      transparent 100%
+    );
+  }
+
+  @media (max-width: 768px) { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+    &::before { -webkit-mask-image: none; mask-image: none; opacity: 0; }
+  }
+}
+
+@keyframes gridPatchFadeIn {
+  to { opacity: 1; }
+}

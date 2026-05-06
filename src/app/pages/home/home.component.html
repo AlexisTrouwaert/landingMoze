@@ -1,60 +1,39 @@
 <div class="page-container">
-  <div class="grid-patches" aria-hidden="true">
-    <div class="grid-patch grid-patch--1"></div>
-    <div class="grid-patch grid-patch--2"></div>
-    <div class="grid-patch grid-patch--3"></div>
-  </div>
 
   <app-header></app-header>
   <main>
     <app-landing-section id="main-content"></app-landing-section>
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-activity-steps></app-activity-steps>
-    } @placeholder {
-      <div style="min-height:500px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-tool></app-tool>
-    } @placeholder {
-      <div style="min-height:600px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-customer-reviews></app-customer-reviews>
-    } @placeholder {
-      <div style="min-height:400px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-tarif></app-tarif>
-    } @placeholder {
-      <div style="min-height:450px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-faq></app-faq>
-    } @placeholder {
-      <div style="min-height:600px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-download-apps></app-download-apps>
-    } @placeholder {
-      <div style="min-height:200px"></div>
     }
 
-    @defer (on viewport) {
+    @defer (on idle) {
       <app-email></app-email>
-    } @placeholder {
-      <div style="min-height:300px"></div>
     }
   </main>
 
-  @defer (on viewport) {
+  @defer (on idle) {
     <app-footer></app-footer>
-  } @placeholder {
-    <div style="min-height:250px"></div>
   }
 </div>

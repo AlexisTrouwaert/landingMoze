@@ -1,3 +1,5 @@
+@use '../../../../styles/grid-patch' as gp;
+
 /* =========================================
    === HOST & VARIABLES ===
    ========================================= */
@@ -341,6 +343,20 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* =========================================
+   === GRID PATCH DÉCORATIF ===
+   ========================================= */
+.landing-container {
+  position: relative; // ancre le patch en position absolue
+}
+
+.grid-patch {
+  @include gp.patch(135vmin, 85vmin);
+  top: 40%;      // légèrement vers le haut pour couvrir hero + steps
+  left: 20%;
+  transform: translate(-10%, -50%);
 }
 
 /* =========================================

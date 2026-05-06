@@ -40,7 +40,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
   /* === Tracking curseur → spotlight localisé sur chaque grid-patch === */
-  private patches: HTMLElement[] = [];
+  private patches: HTMLElement[]      = [];
+  private mutationObserver: MutationObserver | null = null;
   private rafId    = 0;
   private cursorX  = -9999;
   private cursorY  = -9999;
@@ -79,7 +80,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    this.patches = Array.from(document.querySelectorAll<HTMLElement>('.grid-patch'));
+    // Requête initiale + re-scan automatique quand les sections @defer(on idle)
+    // injectent leurs patches dans le DOM
+    const refreshPatches = () => {
+      this.patches = Array.from(document.querySelectorAll<HTMLElement>('.grid-patch'));
+    };
+
+    refreshPatches();
+
+    this.mutationObserver = new MutationObserver(refreshPatches);
+    this.mutationObserver.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener('pointermove', this.onPointerMove, { passive: true });
     document.addEventListener('scroll',      this.onScroll,      { passive: true });
@@ -88,6 +98,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.metaPixelService.resetViewContent();
 
+    this.mutationObserver?.disconnect();
     document.removeEventListener('pointermove', this.onPointerMove);
     document.removeEventListener('scroll',      this.onScroll);
     if (this.rafId) cancelAnimationFrame(this.rafId);
