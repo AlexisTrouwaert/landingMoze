@@ -1,4 +1,4 @@
-import { Component, inject, Signal, computed } from '@angular/core';
+import { Component, inject, Signal, computed, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -11,10 +11,15 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class PlatformDiscoveryComponent {
   private sanitizer = inject(DomSanitizer);
 
-  // Remplacer cette valeur par l'ID réel de ta vidéo YouTube (ex: dQw4w9WgXcQ)
   private readonly videoId = 'ykgoxiYz208';
 
+  public readonly videoPlaying = signal(false);
+
   public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1`)
+    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1&autoplay=1`)
   );
+
+  playVideo(): void {
+    this.videoPlaying.set(true);
+  }
 }

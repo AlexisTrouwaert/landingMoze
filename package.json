@@ -9,7 +9,6 @@
     "build:prod": "ng build --configuration production",
     "archive:prod": "npm run build:prod && mkdir -p build/prod && (cd dist/landing && tar -czvf ../../build/prod/landing-PROD-$(date +%Y%m%d%H%M%S).tar.gz .)",
     "archive:prod-win": "npm run build:prod && powershell -Command \"mkdir -p build/prod -ErrorAction SilentlyContinue; cd dist/landing; tar -czvf ../../build/prod/landing-PROD-$(Get-Date -Format 'yyyyMMddHHmmss').tar.gz .\"",
-
     "test": "ng test"
   },
   "private": true,
@@ -37,6 +36,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "sharp": "^0.34.5",
     "typescript": "~5.5.2"
   }
 }

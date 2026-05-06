@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
@@ -7,7 +7,8 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
   standalone: true,
   imports: [ScrollRevealDirective],
   templateUrl: './tool.component.html',
-  styleUrl: './tool.component.scss'
+  styleUrl: './tool.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolComponent {
   private router = inject(Router);

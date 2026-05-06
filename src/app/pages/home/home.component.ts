@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {HeaderComponent} from "./header/header.component";
 import {LandingSectionComponent} from "./landing-section/landing-section.component";
@@ -29,7 +29,8 @@ import {DownloadAppsComponent} from "./download-apps/download-apps.component";
     DownloadAppsComponent
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 

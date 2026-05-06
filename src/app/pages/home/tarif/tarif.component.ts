@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
@@ -7,7 +7,8 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
   standalone: true,
   imports: [ScrollRevealDirective],
   templateUrl: './tarif.component.html',
-  styleUrl: './tarif.component.scss'
+  styleUrl: './tarif.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TarifComponent {
   private router = inject(Router);

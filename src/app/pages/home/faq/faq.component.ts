@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
 interface FaqItem { title: string; answer: string; }
@@ -8,7 +8,8 @@ interface FaqItem { title: string; answer: string; }
   standalone: true,
   imports: [ScrollRevealDirective],
   templateUrl: './faq.component.html',
-  styleUrl: './faq.component.scss'
+  styleUrl: './faq.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FaqComponent {
 

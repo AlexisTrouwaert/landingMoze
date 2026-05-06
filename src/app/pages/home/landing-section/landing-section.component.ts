@@ -1,4 +1,4 @@
-import { Component, inject, Signal, computed, ElementRef, ViewChild, afterNextRender, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Signal, computed, ElementRef, ViewChild, afterNextRender, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [],
   templateUrl: './landing-section.component.html',
-  styleUrl: './landing-section.component.scss'
+  styleUrl: './landing-section.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingSectionComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);
@@ -15,9 +16,15 @@ export class LandingSectionComponent implements OnDestroy {
 
   private readonly videoId = 'ykgoxiYz208';
 
+  public readonly videoPlaying = signal(false);
+
   public readonly videoUrl: Signal<SafeResourceUrl> = computed(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1`)
+    this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube-nocookie.com/embed/${this.videoId}?rel=0&modestbranding=1&autoplay=1`)
   );
+
+  playVideo(): void {
+    this.videoPlaying.set(true);
+  }
 
   // === LOGIQUE DU CARROUSEL MOBILE ===
   @ViewChild('carousel') carouselRef!: ElementRef<HTMLUListElement>;

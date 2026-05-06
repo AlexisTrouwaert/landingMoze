@@ -8,13 +8,53 @@
   <app-header></app-header>
   <main>
     <app-landing-section id="main-content"></app-landing-section>
-    <app-activity-steps></app-activity-steps>
-    <app-tool></app-tool>
-    <app-customer-reviews></app-customer-reviews>
-    <app-tarif></app-tarif>
-    <app-faq></app-faq>
-    <app-download-apps></app-download-apps>
-    <app-email></app-email>
+
+    @defer (on viewport) {
+      <app-activity-steps></app-activity-steps>
+    } @placeholder {
+      <div style="min-height:500px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-tool></app-tool>
+    } @placeholder {
+      <div style="min-height:600px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-customer-reviews></app-customer-reviews>
+    } @placeholder {
+      <div style="min-height:400px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-tarif></app-tarif>
+    } @placeholder {
+      <div style="min-height:450px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-faq></app-faq>
+    } @placeholder {
+      <div style="min-height:600px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-download-apps></app-download-apps>
+    } @placeholder {
+      <div style="min-height:200px"></div>
+    }
+
+    @defer (on viewport) {
+      <app-email></app-email>
+    } @placeholder {
+      <div style="min-height:300px"></div>
+    }
   </main>
-  <app-footer></app-footer>
+
+  @defer (on viewport) {
+    <app-footer></app-footer>
+  } @placeholder {
+    <div style="min-height:250px"></div>
+  }
 </div>
