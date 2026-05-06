@@ -1,91 +1,119 @@
 @if (!consent.consentDecided()) {
 
-  <!-- VERSION RÉDUITE -->
-  @if (isMinimized()) {
-    <div class="cookie-bar" @slideUp (click)="expand()" role="button" tabindex="0"
-         (keydown.enter)="expand()" (keydown.space)="expand()"
-         aria-label="Gérer les cookies — cliquer pour ouvrir">
-      <span class="cookie-bar-text">
-        🍪 Nous utilisons des cookies pour améliorer votre expérience.
-        <span class="cookie-bar-link">En savoir plus</span>
-      </span>
-      <svg class="chevron-up" width="16" height="16" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-           stroke-linejoin="round" aria-hidden="true">
-        <polyline points="18 15 12 9 6 15"/>
-      </svg>
-    </div>
-  }
+  <!-- ═══════════════════════════════════════════════════════
+       PILL — stable pour 'pill' et 'pill-active'
+       (n'est détruit que lors de la transition vers le drawer)
+       ═══════════════════════════════════════════════════════ -->
+  @if (viewState() !== 'drawer') {
+    <!-- Wrapper de position : gère right + CSS translate pour le centrage mobile.
+         Séparé de .cookie-pill pour éviter tout conflit avec @pillAnim (transform Angular). -->
+    <div class="pill-positioner"
+         [class.pill-positioner--centered]="viewState() === 'pill-active'">
+    <div class="cookie-pill" @pillAnim role="region" aria-label="Préférences de cookies">
 
-  <!-- VERSION COMPLÈTE -->
-  @if (!isMinimized()) {
-    <div class="cookie-overlay" @slideUp role="dialog" aria-modal="true"
-         aria-labelledby="cookie-title" aria-describedby="cookie-desc">
-      <div class="cookie-banner">
+      <!-- Zone label — ouvre le drawer -->
+      <button class="pill-main" (click)="showDrawer()"
+              aria-label="Ouvrir les préférences de cookies">
+        <span class="pill-emoji" aria-hidden="true">🍪</span>
+        <span class="pill-label">Cookies</span>
+        <span class="pill-sep" aria-hidden="true">·</span>
+        <span class="pill-cta">Gérer</span>
+        <span class="pill-dot" aria-hidden="true"></span>
+      </button>
 
-        <div class="cookie-top">
-          <div class="cookie-top-header">
-            <p class="cookie-title" id="cookie-title">🍪 Vos préférences de confidentialité</p>
-            <button class="minimize-btn" (click)="minimize()" aria-label="Réduire le bandeau cookies">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"/>
+      <!-- Bouton flèche haut — apparaît après 5s, ouvre le drawer -->
+      @if (viewState() === 'pill-active') {
+        <div class="pill-btns-wrap" @pillBtnsAnim>
+          <div class="pill-divider" aria-hidden="true"></div>
+          <div class="pill-actions">
+            <button class="pill-btn"
+                    (click)="showDrawer()"
+                    aria-label="Ouvrir les préférences de cookies">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="18 15 12 9 6 15"/>
               </svg>
             </button>
           </div>
-          <p class="cookie-desc" id="cookie-desc">
-            Nous utilisons des cookies pour faire fonctionner le site et, avec votre accord, mesurer l'efficacité de nos campagnes.
-            <a routerLink="/politique-confidentialite" class="cookie-link">Politique de confidentialité</a>
-          </p>
         </div>
+      }
 
-        <div class="cookie-categories">
+    </div>
+    </div> <!-- /pill-positioner -->
+  }
 
-          <!-- Fonctionnels — toujours actif, non cliquable -->
-          <div class="category selected disabled" aria-label="Cookies fonctionnels — toujours actifs">
-            <div class="category-header">
-              <div class="category-check">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </div>
-              <span class="category-name">Fonctionnels</span>
-              <span class="badge-required">Toujours actifs</span>
-            </div>
-            <p class="category-desc">Nécessaires au bon fonctionnement du site (navigation, préférences).</p>
+  <!-- ═══════════════════════════════════════════════════════
+       DRAWER — panneau complet
+       ═══════════════════════════════════════════════════════ -->
+  @if (viewState() === 'drawer') {
+    <div class="cookie-drawer" @drawerAnim
+         role="dialog" aria-modal="true"
+         aria-labelledby="cookie-title"
+         aria-describedby="cookie-desc">
+
+      <div class="drawer-header">
+        <div class="drawer-title-row">
+          <span class="drawer-emoji" aria-hidden="true">🍪</span>
+          <h2 class="drawer-title" id="cookie-title">Confidentialité</h2>
+        </div>
+        <button class="drawer-minimize" (click)="showPill()"
+                aria-label="Réduire le panneau cookies">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="drawer-desc" id="cookie-desc">
+        Nous utilisons des cookies pour faire fonctionner Moze et, avec votre accord,
+        mesurer l'efficacité de nos campagnes.
+      </p>
+      <a routerLink="/politique-confidentialite" class="drawer-link">
+        Politique de confidentialité →
+      </a>
+
+      <div class="drawer-categories">
+
+        <div class="drawer-category" aria-label="Cookies fonctionnels — toujours actifs">
+          <div class="cat-text">
+            <span class="cat-name">Fonctionnels</span>
+            <span class="cat-badge">Toujours actifs</span>
+            <span class="cat-desc">Nécessaires au bon fonctionnement du site (navigation, préférences).</span>
           </div>
-
-          <!-- Publicité — optionnel, cliquable -->
-          <button type="button"
-                  class="category"
-                  [class.selected]="advertisingSelected()"
-                  (click)="toggleAdvertising()"
-                  [attr.aria-pressed]="advertisingSelected()"
-                  aria-label="Cookies publicitaires — cliquer pour sélectionner ou désélectionner">
-            <div class="category-header">
-              <div class="category-check">
-                @if (advertisingSelected()) {
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                       stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                }
-              </div>
-              <span class="category-name">Publicité & Réseaux sociaux</span>
-              <span class="badge-optional">Optionnel</span>
-            </div>
-            <p class="category-desc">Meta Pixel (Facebook) — mesure l'efficacité de nos publicités.</p>
-          </button>
-
+          <div class="toggle toggle--on toggle--locked"
+               role="switch" aria-checked="true" aria-label="Toujours actif">
+            <div class="toggle-thumb"></div>
+          </div>
         </div>
 
-        <div class="cookie-actions">
-          <button class="btn-refuse" (click)="consent.refuseAll()">Tout refuser</button>
-          <button class="btn-accept" (click)="accept()">Accepter</button>
-        </div>
+        <div class="drawer-divider" aria-hidden="true"></div>
+
+        <button type="button"
+                class="drawer-category drawer-category--btn"
+                (click)="toggleAdvertising()"
+                role="switch"
+                [attr.aria-checked]="advertisingSelected()"
+                aria-label="Cookies publicitaires — cliquer pour activer ou désactiver">
+          <div class="cat-text">
+            <span class="cat-name">Publicité &amp; Réseaux sociaux</span>
+            <span class="cat-badge cat-badge--optional">Optionnel</span>
+            <span class="cat-desc">Meta Pixel (Facebook) — mesure l'efficacité de nos publicités.</span>
+          </div>
+          <div class="toggle" [class.toggle--on]="advertisingSelected()">
+            <div class="toggle-thumb"></div>
+          </div>
+        </button>
 
       </div>
+
+      <div class="drawer-actions">
+        <button class="btn-refuse" (click)="consent.refuseAll()">Tout refuser</button>
+        <button class="btn-save"   (click)="accept()">Enregistrer</button>
+      </div>
+
     </div>
   }
 

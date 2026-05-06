@@ -45,6 +45,7 @@ export class ActivityStepsComponent {
 
   /** Tilt 3D de la carte selon la position du curseur — bypass Angular CD pour fluidité maximale */
   onCardMouseMove(event: MouseEvent): void {
+    if (window.matchMedia('(hover: none)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const card = event.currentTarget as HTMLElement;
@@ -64,6 +65,7 @@ export class ActivityStepsComponent {
 
   /** Retour doux à la position neutre */
   onCardMouseLeave(event: MouseEvent): void {
+    if (window.matchMedia('(hover: none)').matches) return;
     const card = event.currentTarget as HTMLElement;
     card.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
     card.style.transform  = '';
