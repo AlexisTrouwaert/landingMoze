@@ -1,8 +1,3 @@
-@use '../../../../styles/grid-patch' as gp;
-
-.tool-container { position: relative; }
-.grid-patch { @include gp.patch(115vmin, 100vmin); }
-
 :host {
   --moze-green: #6BD498;
   --moze-dark-blue: #144968;

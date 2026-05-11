@@ -1,7 +1,8 @@
 @use '../../../../styles/grid-patch' as gp;
 
-.tarif-container { position: relative; }
-.grid-patch { @include gp.patch(108vmin, 85vmin); }
+.grid-patch {
+  @include gp.patch();
+}
 
 :host {
   --moze-green: #6BD498;
@@ -11,6 +12,7 @@
 
   display: block;
   width: 100%;
+  position: relative;
 }
 
 .tarif-container {

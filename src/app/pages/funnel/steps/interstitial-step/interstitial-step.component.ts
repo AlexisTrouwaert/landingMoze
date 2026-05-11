@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
-import { ValidationService } from '../../../../services/validation.service';
+import { ValidationService, SireneResponse } from '../../../../services/validation.service';
 import { MetaPixelService } from "../../../../services/meta-pixel.service";
 
 export function siretFormatValidator(control: AbstractControl): ValidationErrors | null {
@@ -138,6 +138,9 @@ export class InterstitialStepComponent {
           tap(res => console.log('✅ RÉPONSE API SIRET :', res)),
           catchError((err) => {
             console.error('❌ ERREUR API SIRET :', err);
+            if (err?.status === 200 || err?.statusText === 'OK') {
+              return of({ siret: cleanSiret } as SireneResponse);
+            }
             return of(null);
           }),
           finalize(() => this.isLoadingSiret.set(false))

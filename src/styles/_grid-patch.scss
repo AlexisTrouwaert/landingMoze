@@ -1,21 +1,28 @@
-// Mixin réutilisable — quadrillage décoratif réactif au curseur.
+// Quadrillage décoratif plein fond — fort au centre, diffus vers les bords.
 // Usage : @use '../../../styles/grid-patch' as gp;  @include gp.patch();
-@mixin patch($width: 135vmin, $height: 85vmin) {
+@mixin patch() {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: $width;
-  height: $height;
+  inset: 0;
   pointer-events: none;
   z-index: 0;
 
-  // Apparition douce quand le composant est injecté (idle / viewport)
+  // Apparition douce à l'injection du composant
   opacity: 0;
   animation: gridPatchFadeIn 0.7s ease forwards;
 
-  -webkit-mask-image: radial-gradient(ellipse, #000 0%, transparent 75%);
-  mask-image:         radial-gradient(ellipse, #000 0%, transparent 75%);
+  // Masque radial : opaque au centre, disparaît progressivement vers les bords
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%,
+    #000              0%,
+    rgba(0,0,0,0.75) 30%,
+    rgba(0,0,0,0.35) 58%,
+    transparent      82%
+  );
+  mask-image: radial-gradient(ellipse at 50% 50%,
+    #000              0%,
+    rgba(0,0,0,0.75) 30%,
+    rgba(0,0,0,0.35) 58%,
+    transparent      82%
+  );
 
   // Couche 1 : grille sombre — toujours visible
   background-image:

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -33,7 +33,8 @@ export class ValidationService {
    */
   getEtablissementInfo(siret: string, context?: HttpContext): Observable<SireneResponse> {
     const cleanSiret = siret.replace(/[\s-]/g, '');
-    const options = context ? { context } : {};
+    const headers = new HttpHeaders({ 'Accept': 'application/json' });
+    const options = context ? { headers, context } : { headers };
     return this.http.get<SireneResponse>(`${this.apiUrl}/sirene/etablissement/${cleanSiret}`, options);
   }
 }

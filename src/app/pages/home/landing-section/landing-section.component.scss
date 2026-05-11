@@ -10,6 +10,7 @@
 
   display: block;
   width: 100%;
+  position: relative;
   background-color: var(--background-color);
   overflow-x: hidden;
 }
@@ -353,10 +354,7 @@
 }
 
 .grid-patch {
-  @include gp.patch(135vmin, 85vmin);
-  top: 40%;      // légèrement vers le haut pour couvrir hero + steps
-  left: 20%;
-  transform: translate(-10%, -50%);
+  @include gp.patch();
 }
 
 /* =========================================

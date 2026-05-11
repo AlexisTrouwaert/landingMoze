@@ -1,5 +1,5 @@
+<div class="grid-patch" aria-hidden="true"></div>
 <div class="landing-container">
-  <div class="grid-patch" aria-hidden="true"></div>
   <div class="hero-wrapper">
 
     <div class="left-column">
@@ -63,7 +63,8 @@
         @if (videoPlaying()) {
           <iframe
             [src]="videoUrl()"
-            title="Découvre notre plateforme Moze"
+            title="Lecteur vidéo : Découvre la plateforme Moze"
+            aria-label="Lecteur vidéo : Découvre la plateforme Moze"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen>
