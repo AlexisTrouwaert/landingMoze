@@ -79,13 +79,13 @@
   }
 
   .highlight-blue {
-    background-color: var(--moze-light-blue);
-    transform: rotate(-3deg);
+    background-color: var(--primary-color);
+    transform: rotate(-1deg);
   }
 
   .highlight-green {
     background-color: var(--moze-green);
-    transform: rotate(2deg);
+    transform: rotate(1deg);
     margin-top: -0.5rem;
   }
 }

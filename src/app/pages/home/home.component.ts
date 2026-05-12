@@ -12,6 +12,7 @@ import {CustomerReviewsComponent} from "./customer-reviews/customer-reviews.comp
 import {MetaPixelService} from "../../services/meta-pixel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
 import {DownloadAppsComponent} from "./download-apps/download-apps.component";
+import {MediaPressComponent} from "./media-press/media-press.component";
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,8 @@ import {DownloadAppsComponent} from "./download-apps/download-apps.component";
     FooterComponent,
     CustomerReviewsComponent,
     ActivityStepsComponent,
-    DownloadAppsComponent
+    DownloadAppsComponent,
+    MediaPressComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
