@@ -1,3 +1,9 @@
+@use '../../../../styles/grid-patch' as gp;
+
+.grid-patch {
+  @include gp.patch();
+}
+
 :host {
   --moze-green: #6BD498;
   --moze-dark-blue: #144968;
@@ -6,6 +12,7 @@
 
   display: block;
   width: 100%;
+  position: relative;
 }
 
 .tarif-container {

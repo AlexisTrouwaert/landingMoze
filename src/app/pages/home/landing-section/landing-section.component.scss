@@ -1,3 +1,5 @@
+@use '../../../../styles/grid-patch' as gp;
+
 /* =========================================
    === HOST & VARIABLES ===
    ========================================= */
@@ -8,6 +10,7 @@
 
   display: block;
   width: 100%;
+  position: relative;
   background-color: var(--background-color);
   overflow-x: hidden;
 }
@@ -344,6 +347,17 @@
 }
 
 /* =========================================
+   === GRID PATCH DÉCORATIF ===
+   ========================================= */
+.landing-container {
+  position: relative; // ancre le patch en position absolue
+}
+
+.grid-patch {
+  @include gp.patch();
+}
+
+/* =========================================
    === MÉDIA (VIDEO) ===
    ========================================= */
 .video-wrapper {
@@ -359,6 +373,45 @@
     width: 100%;
     height: 100%;
     border: none;
+  }
+
+  .video-facade {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+    display: block;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+
+    .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 68px;
+      height: 48px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+      transition: transform 0.2s ease;
+    }
+
+    &:hover img { opacity: 0.85; }
+
+    &:hover .play-icon {
+      transform: translate(-50%, -50%) scale(1.12);
+    }
+
+    &:focus-visible {
+      outline: 3px solid #6BD498;
+      outline-offset: 3px;
+    }
   }
 }
 
@@ -381,6 +434,7 @@
 .track {
   display: inline-block;
   animation: marquee-scroll 35s linear infinite;
+  will-change: transform;
 }
 
 .banner-item {

@@ -39,6 +39,7 @@
   padding: 0.8rem 1.8rem;
   border-radius: 50px;
   box-shadow: 0 5px 20px rgba(20, 73, 104, 0.08);
+  z-index: 1;
 
   .stars {
     display: flex;
@@ -78,13 +79,13 @@
   }
 
   .highlight-blue {
-    background-color: var(--moze-light-blue);
-    transform: rotate(-3deg);
+    background-color: var(--primary-color);
+    transform: rotate(-1deg);
   }
 
   .highlight-green {
     background-color: var(--moze-green);
-    transform: rotate(2deg);
+    transform: rotate(1deg);
     margin-top: -0.5rem;
   }
 }

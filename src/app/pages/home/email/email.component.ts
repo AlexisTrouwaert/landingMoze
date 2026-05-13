@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,7 +8,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './email.component.html',
-  styleUrl: './email.component.scss'
+  styleUrl: './email.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmailComponent {
   private router = inject(Router);

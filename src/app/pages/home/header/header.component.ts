@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,7 +6,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent {
   private router = inject(Router);

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
@@ -7,7 +7,8 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
   standalone: true,
   imports: [ScrollRevealDirective],
   templateUrl: './activity-steps.component.html',
-  styleUrl: './activity-steps.component.scss'
+  styleUrl: './activity-steps.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActivityStepsComponent {
   private router = inject(Router);

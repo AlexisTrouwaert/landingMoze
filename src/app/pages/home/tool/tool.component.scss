@@ -1,7 +1,7 @@
 :host {
   --moze-green: #6BD498;
   --moze-dark-blue: #144968;
-  --moze-light-blue: #00AEEF; /* Le bleu vif des badges */
+  --moze-light-blue: #00AEEF;
   --moze-white: #ffffff;
 
   display: block;
@@ -59,7 +59,7 @@
 /* === GRILLE DES CARTES === */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
 
   @media (max-width: 1024px) {

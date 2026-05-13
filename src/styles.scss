@@ -1,8 +1,19 @@
+/* Variable font (fallback générique pour tout texte non typé explicitement). */
 @font-face {
   font-family: 'SNPRO';
   src: url('../public/assets/fonts/SNPro-VariableFont_wght.ttf') format('truetype');
   font-display: swap;
 }
+
+/* Statics — utilisés via font-family explicite pour éviter le mauvais calcul
+   de graisse de Safari sur les fonts variables (axe wght). */
+@font-face { font-family: 'SNPRO-Light';      src: url('../public/assets/fonts/SNPro-Light.ttf')      format('truetype'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'SNPRO-Regular';    src: url('../public/assets/fonts/SNPro-Regular.ttf')    format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'SNPRO-Medium';     src: url('../public/assets/fonts/SNPro-Medium.ttf')     format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'SNPRO-SemiBold';   src: url('../public/assets/fonts/SNPro-SemiBold.ttf')   format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'SNPRO-Bold';       src: url('../public/assets/fonts/SNPro-Bold.ttf')       format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'SNPRO-ExtraBold';  src: url('../public/assets/fonts/SNPro-ExtraBold.ttf')  format('truetype'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'SNPRO-Black';      src: url('../public/assets/fonts/SNPro-Black.ttf')      format('truetype'); font-weight: 900; font-display: swap; }
 
 *{
   padding: 0;

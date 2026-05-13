@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 
@@ -7,17 +7,30 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
   standalone: true,
   imports: [ScrollRevealDirective],
   templateUrl: './tool.component.html',
-  styleUrl: './tool.component.scss'
+  styleUrl: './tool.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolComponent {
   private router = inject(Router);
 
   public features = signal([
     {
+      t1: 'FACTURATION ILLIMITÉE',
+      t2: 'ET CONFORME',
+      desc: 'Crée et envoie tes factures et devis professionnels en quelques secondes. Conformité totale avec la réforme facturation électronique 2026.',
+      badge: 'INCLUS DANS TOUTES LES OFFRES'
+    },
+    {
       t1: 'FACTURATION',
       t2: 'COLLABORATIVE',
       desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
       badge: 'EXCLUSIF MOZE'
+    },
+    {
+      t1: 'AVANCE',
+      t2: 'IMMÉDIATE SAP',
+      desc: 'Tu es dans le service à la personne ? Moze Coop te donne accès au numéro SAP sans exclusivité, avec gestion du crédit d\'impôt immédiat intégré.',
+      badge: 'OFFRE COOP'
     },
     {
       t1: 'RÉSEAU SOCIAL',

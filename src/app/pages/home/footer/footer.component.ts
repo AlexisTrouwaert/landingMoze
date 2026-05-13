@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContactPanelService } from '../../../services/contact-panel.service';
 import { CookieConsentService } from '../../../services/cookie-consent.service';
@@ -8,7 +8,8 @@ import { CookieConsentService } from '../../../services/cookie-consent.service';
   standalone: true,
   imports: [],
   templateUrl: './footer.component.html',
-  styleUrl: './footer.component.scss'
+  styleUrl: './footer.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FooterComponent {
 

@@ -1,13 +1,18 @@
-import {AfterViewInit, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {HeaderComponent} from "./header/header.component";
 import {LandingSectionComponent} from "./landing-section/landing-section.component";
+import {TarifComponent} from "./tarif/tarif.component";
 import {ScreenSizeService} from "../../services/screen-size.service";
 import {ToolComponent} from "./tool/tool.component";
 import {FaqComponent} from "./faq/faq.component";
+import {EmailComponent} from "./email/email.component";
 import {FooterComponent} from "./footer/footer.component";
+import {CustomerReviewsComponent} from "./customer-reviews/customer-reviews.component";
 import {MetaPixelService} from "../../services/meta-pixel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
+import {DownloadAppsComponent} from "./download-apps/download-apps.component";
+import {MediaPressComponent} from "./media-press/media-press.component";
 
 @Component({
   selector: 'app-home',
@@ -15,13 +20,19 @@ import {ActivityStepsComponent} from "./activity-steps/activity-steps.component"
   imports: [
     HeaderComponent,
     LandingSectionComponent,
+    TarifComponent,
     ToolComponent,
     FaqComponent,
+    EmailComponent,
     FooterComponent,
-    ActivityStepsComponent
+    CustomerReviewsComponent,
+    ActivityStepsComponent,
+    DownloadAppsComponent,
+    MediaPressComponent
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -31,7 +42,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
   /* === Tracking curseur → spotlight localisé sur chaque grid-patch === */
-  private patches: HTMLElement[] = [];
+  private patches: HTMLElement[]      = [];
+  private mutationObserver: MutationObserver | null = null;
   private rafId    = 0;
   private cursorX  = -9999;
   private cursorY  = -9999;
@@ -70,7 +82,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    this.patches = Array.from(document.querySelectorAll<HTMLElement>('.grid-patch'));
+    // Requête initiale + re-scan automatique quand les sections @defer(on idle)
+    // injectent leurs patches dans le DOM
+    const refreshPatches = () => {
+      this.patches = Array.from(document.querySelectorAll<HTMLElement>('.grid-patch'));
+    };
+
+    refreshPatches();
+
+    this.mutationObserver = new MutationObserver(refreshPatches);
+    this.mutationObserver.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener('pointermove', this.onPointerMove, { passive: true });
     document.addEventListener('scroll',      this.onScroll,      { passive: true });
@@ -79,6 +100,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.metaPixelService.resetViewContent();
 
+    this.mutationObserver?.disconnect();
     document.removeEventListener('pointermove', this.onPointerMove);
     document.removeEventListener('scroll',      this.onScroll);
     if (this.rafId) cancelAnimationFrame(this.rafId);

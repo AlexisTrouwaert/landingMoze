@@ -1,15 +1,43 @@
 <div class="page-container">
-  <div class="grid-patches" aria-hidden="true">
-    <div class="grid-patch grid-patch--1"></div>
-    <div class="grid-patch grid-patch--2"></div>
-  </div>
 
   <app-header></app-header>
   <main>
     <app-landing-section id="main-content"></app-landing-section>
-    <app-activity-steps></app-activity-steps>
-    <app-tool></app-tool>
-    <app-faq></app-faq>
+
+    @defer (on idle) {
+      <app-activity-steps></app-activity-steps>
+    }
+
+    @defer (on idle) {
+      <app-tool></app-tool>
+    }
+
+    @defer (on idle) {
+      <app-media-press></app-media-press>
+    }
+
+    @defer (on idle) {
+      <app-customer-reviews></app-customer-reviews>
+    }
+
+    @defer (on idle) {
+      <app-tarif></app-tarif>
+    }
+
+    @defer (on idle) {
+      <app-faq></app-faq>
+    }
+
+    @defer (on idle) {
+      <app-download-apps></app-download-apps>
+    }
+
+    @defer (on idle) {
+      <app-email></app-email>
+    }
   </main>
-  <app-footer></app-footer>
+
+  @defer (on idle) {
+    <app-footer></app-footer>
+  }
 </div>

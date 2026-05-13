@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-download-apps',
   standalone: true,
   templateUrl: './download-apps.component.html',
-  styleUrl: './download-apps.component.scss'
+  styleUrl: './download-apps.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DownloadAppsComponent {
   appleStoreUrl = 'https://apps.apple.com/us/app/mozeconnect/id6758315106';
