@@ -133,7 +133,7 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       name: 'Radio RCF',
       show: 'La chronique du jour',
       date: '16/05/2026',
-      upcoming: true,
+      link: 'https://www.rcf.fr/economie-et-societe/leco-en-commun',
       logo: '/assets/images/medias/rcf.webp',
       location: { x: 645, y: 515, city: 'Lyon' }
     },
