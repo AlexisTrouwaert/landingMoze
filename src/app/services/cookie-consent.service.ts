@@ -34,9 +34,11 @@ export class CookieConsentService {
     this.consentDecided.set(true);
   }
 
-  /** Refuse tout et expulse l'utilisateur — pas de sauvegarde, bannière réapparaît à la prochaine visite */
+  /** Refuse les cookies optionnels — seuls les cookies obligatoires restent actifs */
   refuseAll(): void {
-    window.location.href = 'https://www.google.fr';
+    this.save({ advertising: false });
+    this.advertisingConsent.set(false);
+    this.consentDecided.set(true);
   }
 
   /** Réinitialise les préférences (lien "Gérer mes cookies" dans le footer) */

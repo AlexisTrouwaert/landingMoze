@@ -95,6 +95,16 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       logo: '/assets/images/medias/bsmart-tv.webp',
       location: { x: 485, y: 255, city: 'Paris' }
     },
+    {
+      id: 'bfm-business',
+      category: 'TV',
+      name: 'BFM Business',
+      show: 'Interview matinale',
+      date: '22/05/2026 — 6h15',
+      upcoming: true,
+      logo: '/assets/images/medias/bfm-business.webp',
+      location: { x: 485, y: 255, city: 'Paris' }
+    },
 
     // ─── Radio ───
     {
@@ -105,16 +115,6 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       date: 'Diffusé',
       link: 'https://www.europe1.fr/emissions/initiatives-en-france/moze-la-plateforme-qui-permet-aux-artisans-de-travailler-ensemble-933395',
       logo: '/assets/images/medias/europe-1.svg',
-      location: { x: 485, y: 255, city: 'Paris' }
-    },
-    {
-      id: 'bfm-business',
-      category: 'Radio',
-      name: 'BFM Business',
-      show: 'Interview matinale',
-      date: '22/05/2026 — 6h15',
-      upcoming: true,
-      logo: '/assets/images/medias/bfm-business.webp',
       location: { x: 485, y: 255, city: 'Paris' }
     },
     {
@@ -132,7 +132,7 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       category: 'Radio',
       name: 'Radio RCF',
       show: 'La chronique du jour',
-      date: '23/05/2026',
+      date: '16/05/2026',
       upcoming: true,
       logo: '/assets/images/medias/rcf.webp',
       location: { x: 645, y: 515, city: 'Lyon' }

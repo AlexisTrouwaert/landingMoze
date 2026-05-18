@@ -1,20 +1,12 @@
 import { Component, computed, DestroyRef, inject, signal, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
-import { ValidationService, SireneResponse } from '../../../../services/validation.service';
+import { ValidationService } from '../../../../services/validation.service';
 import { MetaPixelService } from "../../../../services/meta-pixel.service";
-
-export function siretFormatValidator(control: AbstractControl): ValidationErrors | null {
-  if (!control.value) return null;
-  const cleanValue = control.value.replace(/[\s-]/g, '');
-  const isValid = /^[0-9]{14}$/.test(cleanValue);
-
-  return isValid ? null : { siretFormat: true };
-}
 
 @Component({
   selector: 'app-interstitial-step',
@@ -33,9 +25,6 @@ export class InterstitialStepComponent {
   // --- SIGNAUX D'ÉTAT (Vérifications et Soumission) ---
   isCheckingEmail = signal(false);
   emailExistsInBdd = signal(false);
-
-  isLoadingSiret = signal(false);
-  siretCheckFailed = signal(false);
 
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
@@ -66,14 +55,12 @@ export class InterstitialStepComponent {
     prenom: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     telephone: ['', [Validators.required, Validators.pattern(/^(0|\+33)[6-7]([0-9]{2}){4}$/)]],
-    siret: ['', [Validators.required, siretFormatValidator]],
     optIn: [false],
     honeypot: ['']
   });
 
   constructor() {
     this.setupEmailListener();
-    this.setupSiretListener();
   }
 
   // --- LISTENERS DE VÉRIFICATION ---
@@ -117,55 +104,10 @@ export class InterstitialStepComponent {
     });
   }
 
-  private setupSiretListener(): void {
-    const siretCtrl = this.form.get('siret');
-
-    siretCtrl?.valueChanges.pipe(
-      map(term => term ? term.replace(/[\s-]/g, '') : ''),
-      debounceTime(500),
-      distinctUntilChanged(),
-      filter((cleanSiret): cleanSiret is string => cleanSiret.length === 14),
-      switchMap(cleanSiret => {
-        this.isLoadingSiret.set(true);
-        this.siretCheckFailed.set(false);
-
-        if (isDevMode() && cleanSiret === '00000000000000') {
-          this.isLoadingSiret.set(false);
-          return of({ siret: cleanSiret, bypassActif: true });
-        }
-
-        return this.validationService.getEtablissementInfo(cleanSiret).pipe(
-          tap(res => console.log('✅ RÉPONSE API SIRET :', res)),
-          catchError((err) => {
-            console.error('❌ ERREUR API SIRET :', err);
-            if (err?.status === 200 || err?.statusText === 'OK') {
-              return of({ siret: cleanSiret } as SireneResponse);
-            }
-            return of(null);
-          }),
-          finalize(() => this.isLoadingSiret.set(false))
-        );
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(response => {
-      if (response && response.siret) {
-        this.siretCheckFailed.set(false);
-        if (siretCtrl?.hasError('siretInvalidAPI')) {
-          const errors = { ...siretCtrl.errors };
-          delete errors['siretInvalidAPI'];
-          siretCtrl.setErrors(Object.keys(errors).length > 0 ? errors : null);
-        }
-      } else {
-        this.siretCheckFailed.set(true);
-        siretCtrl?.setErrors({ siretInvalidAPI: true });
-      }
-    });
-  }
-
   // --- SOUMISSION ---
 
   submit() {
-    if (this.form.valid && !this.emailExistsInBdd() && !this.siretCheckFailed()) {
+    if (this.form.valid && !this.emailExistsInBdd()) {
 
       if (this.form.value.honeypot) {
         console.warn('Bot détecté.');
@@ -188,9 +130,6 @@ export class InterstitialStepComponent {
         pseudo: pseudoGenere,
         email: val.email!,
         telephonePersonnel: val.telephone!,
-        professionnel: {
-          siret: val.siret!.replace(/[\s-]/g, '')
-        },
         communication: {
           secteur: secteurChoisi || 'AUTRE'
         }

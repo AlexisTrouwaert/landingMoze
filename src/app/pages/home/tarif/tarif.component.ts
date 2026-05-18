@@ -40,7 +40,7 @@ export class TarifComponent {
         'Freemium',
         'Apport d\'affaires intégré',
         'Factures collaboratives',
-        'Avance immédiate SAP',
+        'Accès à l\'avance immédiate SAP',
       ],
       buttonText: "Je m'inscris &rarr;"
     }

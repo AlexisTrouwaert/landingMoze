@@ -8,9 +8,6 @@ export interface UtilisateurInscriptionDTO {
   pseudo: string;
   email: string;
   telephonePersonnel: string;
-  professionnel: {
-    siret: string;
-  };
   communication: {
     secteur: string;
   };

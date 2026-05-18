@@ -13,7 +13,6 @@
       <!-- Zone live pour annonces async (screen readers) -->
       <div role="status" aria-live="polite" aria-atomic="true" class="sr-only">
         @if (isCheckingEmail()) { Vérification de l'email en cours... }
-        @if (isLoadingSiret()) { Recherche du SIRET en cours... }
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="info-form">
@@ -68,28 +67,7 @@
           }
         </div>
 
-        <div class="input-group" style="position: relative;">
-          <label class="sr-only" for="siret">Numéro SIRET (14 chiffres)</label>
-          <input type="text" id="siret" formControlName="siret" placeholder="Numéro SIRET (14 chiffres)"
-                 [attr.aria-invalid]="form.get('siret')?.invalid && form.get('siret')?.touched ? 'true' : null"
-                 [attr.aria-describedby]="form.get('siret')?.invalid && form.get('siret')?.touched ? 'siret-error' : null">
-
-          @if (isLoadingSiret()) {
-            <small style="color: gray; font-size: 0.8rem; position: absolute; right: 10px; top: 12px;" aria-hidden="true">Recherche...</small>
-          }
-
-          @if(form.get('siret')?.invalid && form.get('siret')?.touched) {
-            @if(form.get('siret')?.errors?.['required']) {
-              <small id="siret-error" class="error">Ce champ est requis.</small>
-            } @else if (form.get('siret')?.errors?.['siretFormat'] || form.get('siret')?.errors?.['pattern']) {
-              <small id="siret-error" class="error">SIRET invalide (14 chiffres attendus).</small>
-            } @else if (form.get('siret')?.errors?.['siretInvalidAPI']) {
-              <small id="siret-error" class="error">Ce SIRET est introuvable ou invalide.</small>
-            }
-          }
-        </div>
-
-        @if (form.valid && !emailExistsInBdd() && !siretCheckFailed()) {
+        @if (form.valid && !emailExistsInBdd()) {
           <div class="password-notice fade-in">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"></circle>
@@ -120,7 +98,7 @@
           </label>
         </div>
 
-        <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isLoadingSiret() || isSubmitting()">
+        <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isSubmitting()">
           @if (isSubmitting()) {
             Chargement...
           } @else {
