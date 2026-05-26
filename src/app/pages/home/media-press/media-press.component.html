@@ -119,7 +119,11 @@
           @if (activeMedia()?.link; as link) {
             <span class="sep" aria-hidden="true"></span>
             <a class="quote-link" [href]="link" target="_blank" rel="noopener noreferrer">
-              {{ activeMedia()?.category === 'Presse' ? 'Lire' : 'Écouter' }}
+              @switch (activeMedia()?.category) {
+                @case ('Presse') { Lire }
+                @case ('TV') { Voir }
+                @default { Écouter }
+              }
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M7 17L17 7"/>
                 <path d="M8 7h9v9"/>
