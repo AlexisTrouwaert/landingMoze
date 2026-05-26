@@ -1,11 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { FunnelService } from "../../services/funnel.service";
-import { SectorStepComponent } from "./steps/sector-step/sector-step.component";
-import { InterstitialStepComponent } from "./steps/interstitial-step/interstitial-step.component";
-import { SapStepComponent } from "./steps/sap-step/sap-step.component";
-import { OfferStepComponent } from "./steps/offer-step/offer-step.component";
-import { TaxCreditStepComponent } from "./steps/tax-credit-step/tax-credit-step.component";
+import {Component, inject} from '@angular/core';
+import {Router} from '@angular/router';
+import {FunnelService} from "../../services/funnel.service";
+import {SectorStepComponent} from "./steps/sector-step/sector-step.component";
+import {InterstitialStepComponent} from "./steps/interstitial-step/interstitial-step.component";
+import {SapStepComponent} from "./steps/sap-step/sap-step.component";
 
 @Component({
   selector: 'app-funnel',
@@ -13,9 +11,7 @@ import { TaxCreditStepComponent } from "./steps/tax-credit-step/tax-credit-step.
   imports: [
     SectorStepComponent,
     InterstitialStepComponent,
-    SapStepComponent,
-    OfferStepComponent,
-    TaxCreditStepComponent
+    SapStepComponent
   ],
   templateUrl: './funnel.component.html',
   styleUrl: './funnel.component.scss'
