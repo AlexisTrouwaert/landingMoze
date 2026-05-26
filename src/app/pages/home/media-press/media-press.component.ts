@@ -99,9 +99,9 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       id: 'bfm-business',
       category: 'TV',
       name: 'BFM Business',
-      show: 'Interview matinale',
-      date: '22/05/2026 — 6h15',
-      upcoming: true,
+      show: 'Le Pitch : Moze, une plateforme dédiée aux indépendants',
+      date: '22/05/2026',
+      link: 'https://www.bfmtv.com/economie/replay-emissions/le-pitch/video-le-pitch-moze-une-plateforme-dediee-aux-independants-22-05_VN-202605220109.html',
       logo: '/assets/images/medias/bfm-business.webp',
       location: { x: 485, y: 255, city: 'Paris' }
     },
