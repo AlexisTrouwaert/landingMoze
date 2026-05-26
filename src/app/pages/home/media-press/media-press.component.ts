@@ -123,7 +123,7 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       name: 'Radio Classique',
       show: 'Matinale éco',
       date: '20/05/2026 — 6h15',
-      upcoming: true,
+      link: 'https://smartlinks.audiomeans.fr/l/comment-j-ai-reussi--d9b5010caef0/ludovic-feher-cofondateur-de-moze-85062437730e',
       logo: '/assets/images/medias/radio-classique.webp',
       location: { x: 485, y: 255, city: 'Paris' }
     },
@@ -144,7 +144,8 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       category: 'Presse',
       name: 'Vaucluse Matin',
       show: 'Article presse',
-      upcoming: true,
+      date: 'Mai 2026',
+      link: '/assets/medias/vaucluse-matin.pdf',
       logo: '/assets/images/medias/vaucluse-matin.webp',
       location: { x: 660, y: 735, city: 'Avignon' }
     },
