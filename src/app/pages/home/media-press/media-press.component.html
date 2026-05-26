@@ -92,7 +92,7 @@
            en stagger 80ms. DOM stable (plus de recréation), warning NG0956 disparaît. -->
       <div class="quote-content" [@quoteSwap]="activeMediaId()">
 
-          <div class="quote-meta">
+        <div class="quote-meta">
             <span class="pill">
               <span class="dotg" aria-hidden="true"></span>
               {{ activeMedia()?.category }}
@@ -100,35 +100,35 @@
                 · {{ activeMedia()?.date }}
               }
             </span>
-            @if (activeMedia(); as m) {
-              @if (isUpcoming(m)) {
-                <span class="pill pill-upcoming">{{ upcomingLabel(m) }}</span>
-              }
+          @if (activeMedia(); as m) {
+            @if (isUpcoming(m)) {
+              <span class="pill pill-upcoming">{{ upcomingLabel(m) }}</span>
             }
-          </div>
-
-          <p class="quote-text">{{ activeMedia()?.show }}</p>
-
-          <div class="quote-foot">
-            <div class="quote-author">
-              <span class="name">{{ activeMedia()?.name }}</span>
-              @if (activeMedia()?.date) {
-                <span class="show">{{ activeMedia()?.date }}</span>
-              }
-            </div>
-            @if (activeMedia()?.link; as link) {
-              <span class="sep" aria-hidden="true"></span>
-              <a class="quote-link" [href]="link" target="_blank" rel="noopener noreferrer">
-                Écouter
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M7 17L17 7"/>
-                  <path d="M8 7h9v9"/>
-                </svg>
-              </a>
-            }
-          </div>
-
+          }
         </div>
+
+        <p class="quote-text">{{ activeMedia()?.show }}</p>
+
+        <div class="quote-foot">
+          <div class="quote-author">
+            <span class="name">{{ activeMedia()?.name }}</span>
+            @if (activeMedia()?.date) {
+              <span class="show">{{ activeMedia()?.date }}</span>
+            }
+          </div>
+          @if (activeMedia()?.link; as link) {
+            <span class="sep" aria-hidden="true"></span>
+            <a class="quote-link" [href]="link" target="_blank" rel="noopener noreferrer">
+              {{ activeMedia()?.category === 'Presse' ? 'Lire' : 'Écouter' }}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7"/>
+                <path d="M8 7h9v9"/>
+              </svg>
+            </a>
+          }
+        </div>
+
+      </div>
     </div>
 
     <!-- COL 3 — Liste des médias, regroupés par catégorie -->
