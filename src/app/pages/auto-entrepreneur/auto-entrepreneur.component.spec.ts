@@ -8,9 +8,8 @@ describe('AutoEntrepreneurComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AutoEntrepreneurComponent]
-    })
-    .compileComponents();
+      imports: [AutoEntrepreneurComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AutoEntrepreneurComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,9 @@ describe('AutoEntrepreneurComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render its template', () => {
+    expect(fixture.nativeElement).toBeTruthy();
   });
 });

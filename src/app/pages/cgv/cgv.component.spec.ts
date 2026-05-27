@@ -8,9 +8,8 @@ describe('CgvComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CgvComponent]
-    })
-    .compileComponents();
+      imports: [CgvComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CgvComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,10 @@ describe('CgvComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render CGV content (non-empty template)', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent?.trim().length).toBeGreaterThan(0);
   });
 });

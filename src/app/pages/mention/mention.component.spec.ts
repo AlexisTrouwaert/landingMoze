@@ -8,9 +8,8 @@ describe('MentionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MentionComponent]
-    })
-    .compileComponents();
+      imports: [MentionComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MentionComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,10 @@ describe('MentionComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render mentions légales template', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent?.trim().length).toBeGreaterThan(0);
   });
 });

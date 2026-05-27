@@ -8,9 +8,8 @@ describe('PolitiqueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PolitiqueComponent]
-    })
-    .compileComponents();
+      imports: [PolitiqueComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PolitiqueComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,10 @@ describe('PolitiqueComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render politique de confidentialité content', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent?.trim().length).toBeGreaterThan(0);
   });
 });

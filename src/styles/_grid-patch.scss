@@ -11,12 +11,6 @@
   animation: gridPatchFadeIn 0.7s ease forwards;
 
   // Masque radial : opaque au centre, disparaît progressivement vers les bords
-  -webkit-mask-image: radial-gradient(ellipse at 50% 50%,
-    #000              0%,
-    rgba(0,0,0,0.75) 30%,
-    rgba(0,0,0,0.35) 58%,
-    transparent      82%
-  );
   mask-image: radial-gradient(ellipse at 50% 50%,
     #000              0%,
     rgba(0,0,0,0.75) 30%,
@@ -36,8 +30,8 @@
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(107, 212, 152, 1) 1px, transparent 2px),
-      linear-gradient(90deg, rgba(107, 212, 152, 1) 1px, transparent 2px);
+      linear-gradient(rgba(107, 212, 152, 0.65) 1px, transparent 2px),
+      linear-gradient(90deg, rgba(107, 212, 152, 0.65) 1px, transparent 2px);
     background-size: 51px 51px;
     -webkit-mask-image: radial-gradient(
       circle 150px at var(--patch-x, -9999px) var(--patch-y, -9999px),
