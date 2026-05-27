@@ -66,7 +66,7 @@ const DRAWER_ANIM = trigger('drawerAnim', [
   selector: 'app-cookie-banner',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: '../../../../../landingMozeAddLess/src/app/components/cookie-banner/cookie-banner.component.html',
+  templateUrl: './cookie-banner.component.html',
   styleUrl: './cookie-banner.component.scss',
   animations: [PILL_ANIM, PILL_BTNS_ANIM, DRAWER_ANIM]
 })
@@ -74,7 +74,6 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
   consent = inject(CookieConsentService);
 
   viewState = signal<CookieView>('pill');
-  advertisingSelected = signal(false);
 
   private timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -114,17 +113,6 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
     this.clearTimer();
     this.viewState.set('pill');
     this.scheduleShowButtons();
-  }
-
-  toggleAdvertising(): void {
-    this.advertisingSelected.update(v => !v);
-  }
-
-  /* ── Navigation ── */
-
-  accept(): void {
-    this.clearTimer();
-    this.consent.acceptSelected(this.advertisingSelected());
   }
 
   private scheduleShowButtons(): void {

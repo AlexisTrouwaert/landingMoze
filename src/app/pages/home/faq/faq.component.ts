@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 interface FaqItem { title: string; answer: string; }
 
@@ -13,10 +14,26 @@ interface FaqItem { title: string; answer: string; }
 })
 export class FaqComponent {
 
+  private readonly metaPixel = inject(MetaPixelService);
+
   selectedQ = signal<number | null>(null);
 
   changeSelectedQ(q: number) {
     this.selectedQ.update(current => current === q ? null : q);
+  }
+
+  /** Délégation : capte les clics sur les liens injectés via [innerHTML] dans les réponses */
+  onAnswerLinkClick(event: MouseEvent): void {
+    const link = (event.target as HTMLElement).closest('a');
+    if (!link) return;
+    const href = link.getAttribute('href') ?? '';
+
+    if (href.includes('GIayqf7tRGk')) {
+      this.metaPixel.trackCustomEvent('VideoPlay', {
+        content_name: 'facturation_collaborative_explainer',
+        content_id: 'GIayqf7tRGk',
+      });
+    }
   }
 
   readonly leftQuestions: FaqItem[] = [

@@ -149,7 +149,11 @@ export class InterstitialStepComponent {
 
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
-          this.metaPixelService.trackLead();
+          this.metaPixelService.trackCompleteRegistration({
+            sector: secteurChoisi || 'AUTRE',
+            wants_tax_credit: this.fs.hasSapNumber() ?? false,
+            opt_in_newsletter: val.optIn ?? false,
+          });
           if (val.optIn) {
             this.subscribeToBrevo(val.email!);
           }

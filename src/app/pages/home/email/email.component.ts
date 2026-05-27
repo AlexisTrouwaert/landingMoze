@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-email',
@@ -13,6 +14,7 @@ import { Router } from '@angular/router';
 })
 export class EmailComponent {
   private router = inject(Router);
+  private readonly metaPixel = inject(MetaPixelService);
   private readonly MAX_ATTEMPTS = 5;
 
   emailValue = signal<string>('');
@@ -25,6 +27,7 @@ export class EmailComponent {
   optInError = signal<boolean>(false);
 
   goToFunnel(): void {
+    this.metaPixel.trackLeadCTA('inscription_generic');
     this.router.navigate(['/commencer']);
   }
 
@@ -86,6 +89,7 @@ export class EmailComponent {
       body: bodyParams,
       mode: 'no-cors'
     }).then(() => {
+      this.metaPixel.trackSubscribe();
       this.triggerSuccess();
     }).catch((error) => {
       console.error("Erreur réseau :", error);

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-tarif',
@@ -12,6 +13,7 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 })
 export class TarifComponent {
   private router = inject(Router);
+  private readonly metaPixel = inject(MetaPixelService);
 
   public offers = signal([
     {
@@ -27,7 +29,8 @@ export class TarifComponent {
         'Développement de ton réseau Moze',
         'Tableau de bord et suivi en temps réel'
       ],
-      buttonText: "Je m'inscris &rarr;"
+      buttonText: "Je m'inscris &rarr;",
+      trackingLabel: 'inscription_freemium'
     },
     {
       name: 'Indép +',
@@ -42,11 +45,13 @@ export class TarifComponent {
         'Factures collaboratives',
         'Accès à l\'avance immédiate SAP',
       ],
-      buttonText: "Je m'inscris &rarr;"
+      buttonText: "Je m'inscris &rarr;",
+      trackingLabel: 'inscription_indep_plus'
     }
   ]);
 
-  goToFunnel() {
+  goToFunnel(buttonLabel: string = 'inscription_generic') {
+    this.metaPixel.trackLeadCTA(buttonLabel);
     this.router.navigate(['/commencer']);
   }
 }

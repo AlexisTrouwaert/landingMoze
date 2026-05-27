@@ -240,23 +240,6 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.9rem 0.65rem;
-
-  &--btn {
-    background: none;
-    border: none;
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    width: 100%;
-    color: inherit;
-    border-radius: 0.85rem;
-    transition: background-color 0.15s ease;
-
-    @media (hover: hover) {
-      &:hover { background-color: rgba(20, 73, 104, 0.04); }
-    }
-    &:focus-visible { outline: 2px solid #73e491; outline-offset: 2px; border-radius: 0.85rem; }
-  }
 }
 
 .cat-text {
@@ -315,7 +298,7 @@
   .toggle--on & { transform: translateX(18px); }
 }
 
-/* Boutons drawer */
+/* Boutons drawer — Refuser (secondaire) | Accepter (primaire), poids visuel égal (CNIL) */
 .drawer-actions {
   display: flex;
   gap: 0.6rem;
@@ -330,7 +313,7 @@
     font-family: inherit;
     cursor: pointer;
     border: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 
     @media (hover: hover) {
       &:hover { transform: translateY(-1px); }
@@ -349,7 +332,7 @@
   }
 }
 
-.btn-save {
+.btn-accept {
   background-color: #73e491;
   color: #145775;
 

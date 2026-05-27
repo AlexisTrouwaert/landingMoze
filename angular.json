@@ -38,6 +38,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environements/environment.ts",
+                  "with": "src/environements/environment.prod.ts"
+                }
+              ],
               "optimization": {
                 "scripts": true,
                 "styles": {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-tool',
@@ -12,6 +13,7 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 })
 export class ToolComponent {
   private router = inject(Router);
+  private readonly metaPixel = inject(MetaPixelService);
 
   public features = signal([
     {
@@ -68,6 +70,7 @@ export class ToolComponent {
   }
 
   goToFunnel() {
+    this.metaPixel.trackLeadCTA('inscription_generic');
     this.router.navigate(['/commencer']);
   }
 }

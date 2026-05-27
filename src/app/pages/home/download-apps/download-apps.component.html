@@ -6,6 +6,7 @@
 
   <div class="download-container">
     <a [href]="appleStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge"
+       (click)="onAppStoreClick()"
        aria-label="Télécharger Moze sur l'App Store (ouvre un nouvel onglet)">
       <img src="assets/icons/apple.svg" alt="" aria-hidden="true" class="store-logo" width="40" height="40" />
       <div class="store-text">
@@ -14,6 +15,7 @@
       </div>
     </a>
     <a [href]="playStoreUrl" target="_blank" rel="noopener noreferrer" class="store-badge"
+       (click)="onPlayStoreClick()"
        aria-label="Télécharger Moze sur Google Play (ouvre un nouvel onglet)">
       <img src="assets/icons/playstore.svg" alt="" aria-hidden="true" class="store-logo" width="40" height="40" />
       <div class="store-text">

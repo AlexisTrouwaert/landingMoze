@@ -7,7 +7,7 @@
       <h3>FOIRE AUX QUESTIONS</h3>
     </div>
   </div>
-  <div class="questions-container">
+  <div class="questions-container" (click)="onAnswerLinkClick($event)">
     <div class="left-questions">
 
       @for (q of [0,1,2,3]; track q; let i = $index) {

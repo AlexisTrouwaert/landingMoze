@@ -9,37 +9,37 @@
          Séparé de .cookie-pill pour éviter tout conflit avec @pillAnim (transform Angular). -->
     <div class="pill-positioner"
          [class.pill-positioner--centered]="viewState() === 'pill-active'">
-    <div class="cookie-pill" @pillAnim role="region" aria-label="Préférences de cookies">
+      <div class="cookie-pill" @pillAnim role="region" aria-label="Préférences de cookies">
 
-      <!-- Zone label — ouvre le drawer -->
-      <button class="pill-main" (click)="showDrawer()"
-              aria-label="Ouvrir les préférences de cookies">
-        <span class="pill-emoji" aria-hidden="true">🍪</span>
-        <span class="pill-label">Cookies</span>
-        <span class="pill-sep" aria-hidden="true">·</span>
-        <span class="pill-cta">Gérer</span>
-        <span class="pill-dot" aria-hidden="true"></span>
-      </button>
+        <!-- Zone label — ouvre le drawer -->
+        <button class="pill-main" (click)="showDrawer()"
+                aria-label="Ouvrir les préférences de cookies">
+          <span class="pill-emoji" aria-hidden="true">🍪</span>
+          <span class="pill-label">Cookies</span>
+          <span class="pill-sep" aria-hidden="true">·</span>
+          <span class="pill-cta">Gérer</span>
+          <span class="pill-dot" aria-hidden="true"></span>
+        </button>
 
-      <!-- Bouton flèche haut — apparaît après 5s, ouvre le drawer -->
-      @if (viewState() === 'pill-active') {
-        <div class="pill-btns-wrap" @pillBtnsAnim>
-          <div class="pill-divider" aria-hidden="true"></div>
-          <div class="pill-actions">
-            <button class="pill-btn"
-                    (click)="showDrawer()"
-                    aria-label="Ouvrir les préférences de cookies">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="18 15 12 9 6 15"/>
-              </svg>
-            </button>
+        <!-- Bouton flèche haut — apparaît après 5s, ouvre le drawer -->
+        @if (viewState() === 'pill-active') {
+          <div class="pill-btns-wrap" @pillBtnsAnim>
+            <div class="pill-divider" aria-hidden="true"></div>
+            <div class="pill-actions">
+              <button class="pill-btn"
+                      (click)="showDrawer()"
+                      aria-label="Ouvrir les préférences de cookies">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="18 15 12 9 6 15"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      }
+        }
 
-    </div>
+      </div>
     </div> <!-- /pill-positioner -->
   }
 
@@ -91,27 +91,19 @@
 
         <div class="drawer-divider" aria-hidden="true"></div>
 
-        <button type="button"
-                class="drawer-category drawer-category--btn"
-                (click)="toggleAdvertising()"
-                role="switch"
-                [attr.aria-checked]="advertisingSelected()"
-                aria-label="Cookies publicitaires — cliquer pour activer ou désactiver">
+        <div class="drawer-category" aria-label="Cookies publicitaires — optionnels">
           <div class="cat-text">
             <span class="cat-name">Publicité &amp; Réseaux sociaux</span>
             <span class="cat-badge cat-badge--optional">Optionnel</span>
             <span class="cat-desc">Meta Pixel (Facebook) — mesure l'efficacité de nos publicités.</span>
           </div>
-          <div class="toggle" [class.toggle--on]="advertisingSelected()">
-            <div class="toggle-thumb"></div>
-          </div>
-        </button>
+        </div>
 
       </div>
 
       <div class="drawer-actions">
         <button class="btn-refuse" (click)="consent.refuseAll()">Refuser</button>
-        <button class="btn-save"   (click)="accept()">Enregistrer</button>
+        <button class="btn-accept" (click)="consent.acceptAll()">Accepter</button>
       </div>
 
     </div>

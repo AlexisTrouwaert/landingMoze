@@ -1,6 +1,7 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../environements/environment.prod";
+import { MetaPixelService } from './meta-pixel.service';
 
 export interface UtilisateurInscriptionDTO {
   nom: string;
@@ -29,6 +30,7 @@ export interface FunnelState {
 export class FunnelService {
 
   private http = inject(HttpClient);
+  private readonly metaPixel = inject(MetaPixelService);
   // private apiUrl = `https://nico.by-moze.fr`;
   private apiUrl = `https://app.mozeconnect.fr`;
 
@@ -55,6 +57,7 @@ export class FunnelService {
   // --- Actions ---
   setSector(sector: SectorType) {
     this.state.update(s => ({ ...s, sector }));
+    this.metaPixel.trackFunnelStep1Completed(sector);
     this.nextStep();
   }
 
@@ -64,6 +67,8 @@ export class FunnelService {
 
   setHasSapNumber(hasSap: boolean) {
     this.state.update(s => ({ ...s, hasSapNumber: hasSap }));
+    // Sémantiquement le step 2 demande "veux-tu le crédit d'impôt immédiat ?" — on tracke avec ce nom business.
+    this.metaPixel.trackFunnelStep2Completed(hasSap);
     this.nextStep();
   }
 
@@ -77,6 +82,8 @@ export class FunnelService {
   }
 
   previousStep() {
+    const currentStep = this.state().step;
+    this.metaPixel.trackFunnelAbandoned(currentStep, 'back_button');
     this.state.update(s => ({ ...s, step: Math.max(1, s.step - 1) }));
   }
 

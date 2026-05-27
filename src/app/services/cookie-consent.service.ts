@@ -27,14 +27,14 @@ export class CookieConsentService {
     } catch { return false; }
   }
 
-  /** Accepte les catégories sélectionnées par l'utilisateur */
-  acceptSelected(advertising: boolean): void {
-    this.save({ advertising });
-    this.advertisingConsent.set(advertising);
+  /** Accepte toutes les catégories optionnelles */
+  acceptAll(): void {
+    this.save({ advertising: true });
+    this.advertisingConsent.set(true);
     this.consentDecided.set(true);
   }
 
-  /** Refuse les cookies optionnels — seuls les cookies obligatoires restent actifs */
+  /** Refuse les cookies optionnels — seuls les cookies fonctionnels restent actifs */
   refuseAll(): void {
     this.save({ advertising: false });
     this.advertisingConsent.set(false);

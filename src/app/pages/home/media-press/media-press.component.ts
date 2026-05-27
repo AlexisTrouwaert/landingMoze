@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { animate, group, query, stagger, style, transition, trigger } from '@angular/animations';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 export type MediaCategory = 'TV' | 'Radio' | 'Presse' | 'Podcast';
 
@@ -217,6 +218,7 @@ export class MediaPressComponent implements OnInit, OnDestroy {
   );
 
   private readonly hostEl: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly metaPixel = inject(MetaPixelService);
 
   /**
    * Synchronise le scroll de la liste avec le média actif : à chaque changement
@@ -275,6 +277,9 @@ export class MediaPressComponent implements OnInit, OnDestroy {
     this.activeMediaId.set(id);
     this.stopCarousel();
     this.clearResumeTimeout();
+
+    const media = this.medias().find(m => m.id === id);
+    if (media) this.trackInteraction(media, 'select');
 
     if (this.isPaused) return; // hover-paused : on ne reprogramme rien
 
@@ -345,6 +350,27 @@ export class MediaPressComponent implements OnInit, OnDestroy {
     if (diff > 0) return `J - ${diff}`;
     if (diff === 0) return 'JOUR J';
     return 'À VENIR';
+  }
+
+  /** Clic sur le lien externe d'un média de la liste (col 3, flèche ↗). */
+  public onMediaLinkOpen(media: MediaItem): void {
+    this.trackInteraction(media, 'open_link');
+  }
+
+  /** Clic sur "Lire / Voir / Écouter" dans le bloc de citation (col 2). */
+  public onActiveMediaLinkOpen(): void {
+    const m = this.activeMedia();
+    if (m) this.trackInteraction(m, 'open_link');
+  }
+
+  /** Helper unique — 1 event Meta avec params, breakdown possible côté Events Manager. */
+  private trackInteraction(media: MediaItem, action: 'select' | 'open_link'): void {
+    this.metaPixel.trackCustomEvent('MediaInteraction', {
+      category: media.category,
+      media_id: media.id,
+      media_name: media.name,
+      action,
+    });
   }
 
   private next(): void {

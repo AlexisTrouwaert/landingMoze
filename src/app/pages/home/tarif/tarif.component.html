@@ -52,7 +52,7 @@
           class="btn-select"
           [class.btn-green]="offer.isPopular"
           [innerHTML]="offer.buttonText"
-          (click)="goToFunnel()">
+          (click)="goToFunnel(offer.trackingLabel)">
         </button>
         <div class="no-cb">sans CB, ni frais cachés</div>
       </div>

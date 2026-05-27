@@ -118,7 +118,8 @@
             </div>
             @if (activeMedia()?.link; as link) {
               <span class="sep" aria-hidden="true"></span>
-              <a class="quote-link" [href]="link" target="_blank" rel="noopener noreferrer">
+              <a class="quote-link" [href]="link" target="_blank" rel="noopener noreferrer"
+                 (click)="onActiveMediaLinkOpen()">
                 @switch (activeMedia()?.category) {
                   @case ('Presse') { Lire }
                   @case ('TV') { Voir }
@@ -206,9 +207,9 @@
                           target="_blank"
                           rel="noopener noreferrer"
                           [attr.aria-label]="'Ouvrir : ' + media.name"
-                          (click)="$event.stopPropagation()"
-                          (keydown.enter)="$event.stopPropagation()"
-                          (keydown.space)="$event.stopPropagation()">
+                          (click)="onMediaLinkOpen(media); $event.stopPropagation()"
+                          (keydown.enter)="onMediaLinkOpen(media); $event.stopPropagation()"
+                          (keydown.space)="onMediaLinkOpen(media); $event.stopPropagation()">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M7 17L17 7"/>
                             <path d="M8 7h9v9"/>

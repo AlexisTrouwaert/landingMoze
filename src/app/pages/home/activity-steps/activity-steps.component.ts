@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-activity-steps',
@@ -12,6 +13,7 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 })
 export class ActivityStepsComponent {
   private router = inject(Router);
+  private readonly metaPixel = inject(MetaPixelService);
 
   public steps = signal([
     {
@@ -73,6 +75,7 @@ export class ActivityStepsComponent {
   }
 
   goToFunnel(): void {
+    this.metaPixel.trackLeadCTA('inscription_generic');
     this.router.navigate(['/commencer']);
   }
 }
