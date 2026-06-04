@@ -26,7 +26,7 @@ export class TarifComponent {
       features: [
         'Facturation électronique conforme',
         'Factures illimitées, seul',
-        'Développement de ton réseau Moze',
+        'Réseau sociale des indépendants',
         'Tableau de bord et suivi en temps réel'
       ],
       buttonText: "Je m'inscris &rarr;",

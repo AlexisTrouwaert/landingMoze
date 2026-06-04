@@ -89,7 +89,7 @@ export class EmailComponent {
       body: bodyParams,
       mode: 'no-cors'
     }).then(() => {
-      this.metaPixel.trackSubscribe();
+      this.metaPixel.trackSubscribe({ source: 'newsletter_home' });
       this.triggerSuccess();
     }).catch((error) => {
       console.error("Erreur réseau :", error);

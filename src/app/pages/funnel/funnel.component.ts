@@ -5,6 +5,7 @@ import {MetaPixelService} from "../../services/meta-pixel.service";
 import {SectorStepComponent} from "./steps/sector-step/sector-step.component";
 import {InterstitialStepComponent} from "./steps/interstitial-step/interstitial-step.component";
 import {SapStepComponent} from "./steps/sap-step/sap-step.component";
+import {RedirectStepComponent} from "./steps/redirect-step/redirect-step.component";
 
 @Component({
   selector: 'app-funnel',
@@ -12,7 +13,8 @@ import {SapStepComponent} from "./steps/sap-step/sap-step.component";
   imports: [
     SectorStepComponent,
     InterstitialStepComponent,
-    SapStepComponent
+    SapStepComponent,
+    RedirectStepComponent
   ],
   templateUrl: './funnel.component.html',
   styleUrl: './funnel.component.scss'

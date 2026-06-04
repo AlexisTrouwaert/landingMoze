@@ -25,5 +25,8 @@
     @if (fs.currentStep() === 3) {
       @defer (on immediate) { <app-interstitial-step /> }
     }
+    @if (fs.currentStep() === 4) {
+      @defer (on immediate) { <app-redirect-step /> }
+    }
   </main>
 </div>

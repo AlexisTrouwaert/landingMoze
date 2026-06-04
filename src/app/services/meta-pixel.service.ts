@@ -126,6 +126,23 @@ export class MetaPixelService {
     fbq('trackCustom', 'FunnelAbandoned', { from_step: fromStep, reason });
   }
 
+  /**
+   * Choix de destination après inscription — app de facturation ou réseau social.
+   * `onSent` est appelé une fois l'event transmis à Meta (via eventCallback), ou
+   * immédiatement si le pixel est absent. Permet de retarder une navigation
+   * sortante jusqu'à l'envoi effectif sans risquer de perdre l'event.
+   */
+  trackFunnelDestination(
+    destination: 'mozeconnect' | 'mozeplace',
+    onSent?: () => void
+  ): void {
+    if (typeof fbq === 'undefined') {
+      onSent?.();
+      return;
+    }
+    fbq('trackCustom', 'FunnelDestination', { destination }, { eventCallback: onSent });
+  }
+
   /** Event générique — pour les cas non couverts par les helpers dédiés. */
   trackEvent(eventName: string, data: Record<string, any> = {}, eventId?: string): void {
     if (typeof fbq === 'undefined') {

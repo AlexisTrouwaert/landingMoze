@@ -22,10 +22,9 @@ export class InterstitialStepComponent {
   private validationService = inject(ValidationService);
   private metaPixelService = inject(MetaPixelService);
 
-  // --- SIGNAUX D'ÉTAT (Vérifications et Soumission) ---
+  // --- SIGNAUX D'ÉTAT ---
   isCheckingEmail = signal(false);
   emailExistsInBdd = signal(false);
-
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
 
@@ -64,7 +63,6 @@ export class InterstitialStepComponent {
   }
 
   // --- LISTENERS DE VÉRIFICATION ---
-
   private setupEmailListener(): void {
     const emailCtrl = this.form.get('email');
 
@@ -105,7 +103,6 @@ export class InterstitialStepComponent {
   }
 
   // --- SOUMISSION ---
-
   submit() {
     if (this.form.valid && !this.emailExistsInBdd()) {
 
@@ -143,7 +140,7 @@ export class InterstitialStepComponent {
       if (window.location.hostname === 'localhost') {
         console.log('[DEV] Soumission ignorée sur localhost.');
         this.isSubmitting.set(false);
-        window.location.href = 'https://nico.by-moze.fr/dashboard';
+        this.fs.nextStep(); // Passage à l'étape 4
         return;
       }
 
@@ -154,14 +151,13 @@ export class InterstitialStepComponent {
             wants_tax_credit: this.fs.hasSapNumber() ?? false,
             opt_in_newsletter: val.optIn ?? false,
           });
+
           if (val.optIn) {
             this.subscribeToBrevo(val.email!);
           }
 
           this.isSubmitting.set(false);
-
-          // Redirection directe vers l'application
-          window.location.href = 'https://app.mozeconnect.fr/';
+          this.fs.nextStep(); // Passage à l'étape 4
         },
         error: (err) => {
           if (isDevMode()) {
