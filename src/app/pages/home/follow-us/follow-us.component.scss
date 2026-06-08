@@ -1,0 +1,248 @@
+/* =========================================
+   FOLLOW US — section "Suis-nous !"
+   ========================================= */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.follow-us-section {
+  position: relative;
+  overflow: hidden;
+  background: var(--primary-color);
+  color: var(--background-color);
+  padding: 5rem 2rem 6rem;
+  isolation: isolate; // crée un contexte de stacking pour les blobs
+}
+
+/* =========================================
+   DÉCORS — blobs liquides (DA Moze)
+   ========================================= */
+.blob {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.35;
+  animation: liquidMorph 18s ease-in-out infinite;
+}
+
+.blob-1 {
+  display: none;
+}
+
+.blob-2 {
+  bottom: -150px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  background: var(--interaction-color);
+  animation-duration: 22s;
+  animation-direction: reverse;
+  opacity: 0.28;
+}
+
+/* =========================================
+   CONTENU
+   ========================================= */
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* --- HEADER --- */
+.follow-us-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  max-width: 600px;
+}
+
+.overline {
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  padding: 0.4rem 1.1rem;
+  border: 1.5px solid var(--accent-color);
+  border-radius: 999px;
+}
+
+.title {
+  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-size: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.title-dash {
+  color: var(--accent-color);
+  display: inline-block;
+  margin: 0 0.05em;
+}
+
+.title-accent {
+  color: var(--accent-color);
+  display: inline-block;
+  position: relative;
+  animation: titleGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0%, 100% {
+    text-shadow: 0 0 0 transparent;
+    opacity: 0.92;
+  }
+  50% {
+    text-shadow: 0 0 24px rgba(115, 228, 145, 0.55);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-accent { animation: none; }
+}
+
+.subtitle {
+  font-family: 'SNPRO-Regular', sans-serif;
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.85;
+  max-width: 520px;
+}
+
+/* =========================================
+   SOCIALS — cartes flottantes
+   ========================================= */
+.socials {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.social-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 9rem;
+  height: 9rem;
+  background: var(--background-color);
+  color: var(--primary-color);
+  border-radius: 1.5rem;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 4px;
+  }
+}
+
+.social-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: rgba(20, 87, 117, 0.08);
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  & svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    fill: currentColor;
+  }
+}
+
+.social-link:hover .social-icon-wrapper {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+.social-name {
+  position: relative;
+  z-index: 1;
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+  .follow-us-section {
+    padding: 4rem 1.25rem 5rem;
+  }
+
+  .content-wrapper {
+    gap: 2.25rem;
+  }
+
+  .social-link {
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 1.25rem;
+  }
+
+  .social-icon-wrapper {
+    width: 3rem;
+    height: 3rem;
+
+    & svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  .blob-2 { width: 300px; height: 300px; }
+}
+
+@media (max-width: 480px) {
+  .socials {
+    gap: 0.85rem;
+  }
+
+  .social-link {
+    width: calc((100vw - 4.2rem) / 3);
+    max-width: 7rem;
+    height: auto;
+    aspect-ratio: 1;
+    padding: 1rem 0.5rem;
+  }
+
+  .social-name {
+    font-size: 0.8rem;
+  }
+}

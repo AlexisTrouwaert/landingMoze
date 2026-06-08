@@ -18,9 +18,9 @@ export class ActivityStepsComponent {
   public steps = signal([
     {
       num: '01',
-      pill: 'Facturation',
-      title: 'Facture\ntes clients',
-      desc: "Crée et envoie une facture conforme en moins de 20 secondes. Seul ou à plusieurs sur un même projet.",
+      pill: 'Réseau',
+      title: 'Connecte\nton réseau',
+      desc: "Rejoins notre réseau social d'indépendants. Échange, recommande, et crée des opportunités business.",
       theme: 'green'
     },
     {
@@ -32,9 +32,9 @@ export class ActivityStepsComponent {
     },
     {
       num: '03',
-      pill: 'Réseau',
-      title: 'Connecte\nton réseau',
-      desc: "Rejoins notre réseau social d'indépendants. Échange, recommande, et crée des opportunités business.",
+      pill: 'Facturation',
+      title: 'Facture\ntes clients',
+      desc: "Crée et envoie une facture conforme en moins de 20 secondes. Seul ou à plusieurs sur un même projet.",
       theme: 'green'
     },
     {

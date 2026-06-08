@@ -1,0 +1,41 @@
+<section class="follow-us-section" aria-labelledby="follow-us-heading">
+
+  <!-- Blobs décoratifs animés (cohérents avec la DA Moze) -->
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+
+  <div class="content-wrapper">
+
+    <header class="follow-us-header">
+      <span class="overline">Rejoins l'aventure</span>
+      <h2 id="follow-us-heading" class="title">
+        Suis<span class="title-dash">-</span>nous <span class="title-accent">!</span>
+      </h2>
+      <p class="subtitle">
+        Astuces, coulisses et nouveautés Moze — tous les jours sur tes réseaux préférés.
+      </p>
+    </header>
+
+    <ul class="socials" aria-label="Réseaux sociaux Moze">
+      @for (social of socials; track social.name) {
+        <li>
+          <a
+            [href]="social.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="social.label"
+            class="social-link">
+            <span class="social-icon-wrapper">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path [attr.d]="social.path"/>
+              </svg>
+            </span>
+            <span class="social-name">{{ social.name }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+  </div>
+
+</section>

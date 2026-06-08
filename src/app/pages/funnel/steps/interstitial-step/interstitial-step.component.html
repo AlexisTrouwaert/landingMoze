@@ -21,6 +21,7 @@
           <div class="input-group">
             <label class="sr-only" for="nom">Nom</label>
             <input type="text" id="nom" formControlName="nom" placeholder="Nom"
+                   autocorrect="off" autocapitalize="words" spellcheck="false"
                    [attr.aria-invalid]="form.get('nom')?.invalid && form.get('nom')?.touched ? 'true' : null"
                    [attr.aria-describedby]="form.get('nom')?.invalid && form.get('nom')?.touched ? 'nom-error' : null">
             @if(form.get('nom')?.invalid && form.get('nom')?.touched) {
@@ -30,6 +31,7 @@
           <div class="input-group">
             <label class="sr-only" for="prenom">Prénom</label>
             <input type="text" id="prenom" formControlName="prenom" placeholder="Prénom"
+                   autocorrect="off" autocapitalize="words" spellcheck="false"
                    [attr.aria-invalid]="form.get('prenom')?.invalid && form.get('prenom')?.touched ? 'true' : null"
                    [attr.aria-describedby]="form.get('prenom')?.invalid && form.get('prenom')?.touched ? 'prenom-error' : null">
             @if(form.get('prenom')?.invalid && form.get('prenom')?.touched) {
@@ -41,6 +43,7 @@
         <div class="input-group" style="position: relative;">
           <label class="sr-only" for="email">Email professionnel</label>
           <input type="email" id="email" formControlName="email" placeholder="Email professionnel"
+                 autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="email"
                  [attr.aria-invalid]="form.get('email')?.invalid && form.get('email')?.touched ? 'true' : null"
                  [attr.aria-describedby]="form.get('email')?.invalid && form.get('email')?.touched ? 'email-error' : null">
 
@@ -60,6 +63,7 @@
         <div class="input-group">
           <label class="sr-only" for="telephone">Téléphone mobile</label>
           <input type="tel" id="telephone" formControlName="telephone" placeholder="Téléphone mobile"
+                 autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="tel"
                  [attr.aria-invalid]="form.get('telephone')?.invalid && form.get('telephone')?.touched ? 'true' : null"
                  [attr.aria-describedby]="form.get('telephone')?.invalid && form.get('telephone')?.touched ? 'telephone-error' : null">
           @if(form.get('telephone')?.invalid && form.get('telephone')?.touched) {
@@ -84,7 +88,14 @@
           </div>
         }
 
-        <input type="text" formControlName="honeypot" style="display:none" tabindex="-1" aria-hidden="true">
+        <input
+          type="text"
+          formControlName="honeypot"
+          name="website_url"
+          autocomplete="off"
+          tabindex="-1"
+          aria-hidden="true"
+          style="position:absolute; left:-10000px; top:-10000px; width:1px; height:1px; opacity:0; pointer-events:none;">
 
         <div class="brevo-optin-container fade-in">
           <label class="custom-checkbox-label" for="optIn">

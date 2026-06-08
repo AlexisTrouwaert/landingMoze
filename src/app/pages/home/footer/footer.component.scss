@@ -59,6 +59,97 @@
   gap: 0.5rem;
 }
 
+.follow-us{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--primary-color);
+}
+
+.follow-us-title{
+  background: var(--accent-color);
+  height: 3rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  color: var(--primary-color);
+  border-radius: 2rem;
+  padding: 0 3rem;
+}
+
+.socials{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+
+  & a{
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.85rem;
+    height: 2.85rem;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--primary-color);
+    border: 1.5px solid var(--primary-color);
+    transition: transform 0.25s cubic-bezier(0.15, 0.85, 0.45, 1.4),
+                background-color 0.25s ease,
+                color 0.25s ease;
+
+    & svg{
+      position: relative;
+      z-index: 1;
+      width: 1.35rem;
+      height: 1.35rem;
+      fill: currentColor;
+    }
+
+    &::after{
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: 0;
+      width: 45%;
+      height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transform: translateX(-180%) skewX(-18deg);
+      animation: btnShine 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    &:hover{
+      transform: scale(1.05);
+      background: var(--primary-color);
+      color: var(--background-color);
+    }
+
+    &:active{
+      transform: scale(0.95);
+    }
+
+    &:focus-visible{
+      outline: 2px solid var(--interaction-color);
+      outline-offset: 3px;
+    }
+  }
+
+  & li:nth-child(1) a::after{ animation-delay: 0s; }
+  & li:nth-child(2) a::after{ animation-delay: 1.3s; }
+  & li:nth-child(3) a::after{ animation-delay: 2.6s; }
+}
+
 .links-credit-container{
   display: flex;
   align-items: flex-end;
@@ -126,5 +217,9 @@
   .contact-container{
     width: calc(100vw - 2rem);
     margin-inline: auto;
+  }
+
+  .follow-us{
+    align-self: center;
   }
 }

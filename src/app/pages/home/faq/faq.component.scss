@@ -79,7 +79,7 @@
   background: var(--background-color);
   display: flex;
   flex-direction: column;
-  padding: 1.9rem 2rem;
+  overflow: hidden; // pour que le focus ring du bouton ne déborde pas du card
 }
 
 .title-container {
@@ -93,11 +93,16 @@
   font-family: inherit;
   cursor: pointer;
   text-align: left;
-  padding: 0;
+  padding: 1.9rem 2rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(2, 151, 216, 0.04);
+  }
 
   &:focus-visible {
     outline: 2px solid var(--interaction-color);
-    outline-offset: 4px;
+    outline-offset: -2px;
     border-radius: 4px;
   }
 }
@@ -145,9 +150,11 @@
 
 .answer {
   overflow: hidden;
-  padding-top: 0;
+  padding: 0 2rem;
   opacity: 0;
-  transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease,
+              background-color 0.2s ease;
   color: var(--primary-color);
   font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
 
@@ -171,8 +178,15 @@
 }
 
 .extended .answer {
-  padding-top: 1.9rem;
+  padding-bottom: 1.9rem;
   opacity: 1;
+}
+
+/* Hover du bouton titre → la réponse (si dépliée) s'éclaire en parallèle.
+   :has() permet au parent de réagir à l'état :hover de l'enfant bouton,
+   sans inclure les hover internes à la réponse (clic sur un lien, etc.). */
+.question-container.extended:has(.title-container:hover) .answer {
+  background-color: rgba(2, 151, 216, 0.04);
 }
 
 /* =========================================
@@ -198,11 +212,18 @@
 
   .question-container {
     border-radius: 1.2rem;
+  }
+
+  .title-container {
     padding: 1.5rem;
   }
 
+  .answer {
+    padding: 0 1.5rem;
+  }
+
   .extended .answer {
-    padding-top: 1.2rem;
+    padding-bottom: 1.5rem;
   }
 }
 
@@ -232,10 +253,17 @@
 
   .question-container {
     border-radius: 1.2rem;
+  }
+
+  .title-container {
     padding: 1.2rem 1.5rem;
   }
 
+  .answer {
+    padding: 0 1.5rem;
+  }
+
   .extended .answer {
-    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 }

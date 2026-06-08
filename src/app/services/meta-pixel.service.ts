@@ -120,8 +120,8 @@ export class MetaPixelService {
     fbq('track', 'CompleteRegistration', data);
   }
 
-  /** Abandon du funnel — clic logo (retour home) ou bouton "Retour". */
-  trackFunnelAbandoned(fromStep: number, reason: 'logo' | 'back_button'): void {
+  /** Abandon du funnel — clic logo (retour home), bouton "Retour", ou blocage honeypot. */
+  trackFunnelAbandoned(fromStep: number, reason: 'logo' | 'back_button' | 'honeypot_triggered'): void {
     if (typeof fbq === 'undefined') return;
     fbq('trackCustom', 'FunnelAbandoned', { from_step: fromStep, reason });
   }

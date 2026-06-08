@@ -13,6 +13,7 @@ import {MetaPixelService} from "../../services/meta-pixel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
 import {DownloadAppsComponent} from "./download-apps/download-apps.component";
 import {MediaPressComponent} from "./media-press/media-press.component";
+import {FollowUsComponent} from "./follow-us/follow-us.component";
 
 @Component({
   selector: 'app-home',
@@ -28,7 +29,8 @@ import {MediaPressComponent} from "./media-press/media-press.component";
     CustomerReviewsComponent,
     ActivityStepsComponent,
     DownloadAppsComponent,
-    MediaPressComponent
+    MediaPressComponent,
+    FollowUsComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

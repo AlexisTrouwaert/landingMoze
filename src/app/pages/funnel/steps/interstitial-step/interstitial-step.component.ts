@@ -28,6 +28,12 @@ export class InterstitialStepComponent {
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
 
+  // Horodatage d'affichage du formulaire — utilisé conjointement au honeypot pour
+  // distinguer un vrai bot (remplissage quasi instantané) d'un autofill légitime
+  // (utilisateur humain dont le password manager a rempli le honeypot après plusieurs secondes).
+  private readonly formRenderedAt = Date.now();
+  private readonly minHumanFillMs = 2000;
+
   // --- GESTION DE L'IMAGE DYNAMIQUE ---
   imageMap: Record<string, string> = {
     DEFAULT: 'assets/images/tunnel/ACTIVITE.webp',
@@ -106,9 +112,20 @@ export class InterstitialStepComponent {
   submit() {
     if (this.form.valid && !this.emailExistsInBdd()) {
 
-      if (this.form.value.honeypot) {
-        console.warn('Bot détecté.');
+      const honeypotFilled = !!this.form.value.honeypot;
+      const elapsedMs = Date.now() - this.formRenderedAt;
+      const tooFast = elapsedMs < this.minHumanFillMs;
+
+      if (honeypotFilled && tooFast) {
+        // Honeypot rempli + soumission quasi instantanée → vrai bot, on bloque.
+        console.warn('Bot détecté (honeypot + soumission rapide).');
+        this.metaPixelService.trackFunnelAbandoned(3, 'honeypot_triggered');
         return;
+      }
+
+      if (honeypotFilled && !tooFast) {
+        // Honeypot rempli mais durée plausible → autofill légitime, on laisse passer.
+        console.warn('Honeypot rempli après délai humain — autofill probable, soumission autorisée.');
       }
 
       this.submissionError.set(null);
@@ -116,17 +133,36 @@ export class InterstitialStepComponent {
 
       const val = this.form.value;
       const secteurChoisi = this.fs.selectedSector();
-      const nomClean = val.nom!.trim().replace(/\s+/g, '');
-      const prenomClean = val.prenom!.trim().replace(/\s+/g, '');
+
+      // Normalisation Unicode : sur macOS/Safari, l'autocorrect peut remplacer ' par ' (U+2019),
+      // " par " (U+201C/U+201D), - par – (U+2013), etc. Certains WAF (ModSecurity OWASP CRS)
+      // ne reconnaissent pas ces variantes comme équivalentes et peuvent flagger le payload.
+      // On normalise en NFKC + on remplace les ponctuations "smart" par leur équivalent ASCII.
+      const sanitize = (s: string): string => s
+        .normalize('NFKC')
+        .replace(/[‘’‚‛′]/g, "'") // apostrophes typographiques → '
+        .replace(/[“”„‟″]/g, '"') // guillemets typographiques → "
+        .replace(/[–—−]/g, '-')             // tirets longs → -
+        .replace(/…/g, '...')                          // ellipsis → ...
+        .replace(/[   ]/g, ' ')              // espaces insécables → espace
+        .trim();
+
+      const nomSan = sanitize(val.nom!);
+      const prenomSan = sanitize(val.prenom!);
+      const emailSan = sanitize(val.email!).toLowerCase();
+      const telSan = sanitize(val.telephone!).replace(/\s+/g, '');
+
+      const nomClean = nomSan.replace(/\s+/g, '');
+      const prenomClean = prenomSan.replace(/\s+/g, '');
       const randomSuffix = Math.floor(100 + Math.random() * 900);
       const pseudoGenere = `${nomClean}${prenomClean}${randomSuffix}`;
 
       const dto: UtilisateurInscriptionDTO = {
-        nom: val.nom!,
-        prenom: val.prenom!,
+        nom: nomSan,
+        prenom: prenomSan,
         pseudo: pseudoGenere,
-        email: val.email!,
-        telephonePersonnel: val.telephone!,
+        email: emailSan,
+        telephonePersonnel: telSan,
         communication: {
           secteur: secteurChoisi || 'AUTRE'
         }

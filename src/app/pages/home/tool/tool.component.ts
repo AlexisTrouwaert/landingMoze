@@ -17,24 +17,6 @@ export class ToolComponent {
 
   public features = signal([
     {
-      t1: 'FACTURATION ILLIMITÉE',
-      t2: 'ET CONFORME',
-      desc: 'Crée et envoie tes factures et devis professionnels en quelques secondes. Conformité totale avec la réforme facturation électronique 2026.',
-      badge: 'INCLUS DANS TOUTES LES OFFRES'
-    },
-    {
-      t1: 'FACTURATION',
-      t2: 'COLLABORATIVE',
-      desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
-      badge: 'EXCLUSIF MOZE'
-    },
-    {
-      t1: 'AVANCE',
-      t2: 'IMMÉDIATE SAP',
-      desc: 'Tu es dans le service à la personne ? Moze Coop te donne accès au numéro SAP sans exclusivité, avec gestion du crédit d\'impôt immédiat intégré.',
-      badge: 'OFFRE COOP'
-    },
-    {
       t1: 'RÉSEAU SOCIAL',
       t2: 'D\'INDÉPENDANTS',
       desc: 'Échange avec les autres Mozeurs, développe ton réseau professionnel en ligne et génère des opportunités business directement sur Moze.',
@@ -47,10 +29,28 @@ export class ToolComponent {
       badge: 'AUGMENTE TES REVENUS'
     },
     {
+      t1: 'FACTURATION',
+      t2: 'COLLABORATIVE',
+      desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
+      badge: 'EXCLUSIF MOZE'
+    },
+    {
       t1: 'SUIVI EN',
       t2: 'TEMPS RÉEL',
       desc: 'Consulte le statut de tes factures en temps réel jusqu\'à l\'encaissement. Tableau de bord clair, synthèse de tes revenus, aucune saisie manuelle.',
       badge: 'SIMPLE ET INTUITIF'
+    },
+    {
+      t1: 'FACTURATION ILLIMITÉE',
+      t2: 'ET CONFORME',
+      desc: 'Crée et envoie tes factures et devis professionnels en quelques secondes. Conformité totale avec la réforme facturation électronique 2026.',
+      badge: 'INCLUS DANS TOUTES LES OFFRES'
+    },
+    {
+      t1: 'AVANCE',
+      t2: 'IMMÉDIATE SAP',
+      desc: 'Tu es dans le service à la personne ? Moze Coop te donne accès au numéro SAP sans exclusivité, avec gestion du crédit d\'impôt immédiat intégré.',
+      badge: 'OFFRE COOP'
     }
   ]);
 
