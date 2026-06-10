@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { MetaPixelService } from '../../../services/meta-pixel.service';
+import { LandingNavService } from '../../../services/landing-nav.service';
 
 @Component({
   selector: 'app-header',
@@ -11,11 +10,5 @@ import { MetaPixelService } from '../../../services/meta-pixel.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent {
-  private router = inject(Router);
-  private readonly metaPixel = inject(MetaPixelService);
-
-  goToFunnel() {
-    this.metaPixel.trackLeadCTA('inscription_generic');
-    this.router.navigate(['/commencer']);
-  }
+  readonly nav = inject(LandingNavService);
 }

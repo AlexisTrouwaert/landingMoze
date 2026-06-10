@@ -5,7 +5,11 @@
     <div class="content-column animate-in-left">
       <div class="header-text">
         <h1>QUEL EST TON SECTEUR D'ACTIVITÉ ?</h1>
-        <p class="subtitle">MOZE s'adapte à ton métier. On commence par en savoir plus.</p>
+        @if (fs.funnelType() === 'reseau') {
+          <p class="subtitle">On va te connecter aux bons indépendants. Commençons par ton métier.</p>
+        } @else {
+          <p class="subtitle">MOZE s'adapte à ton métier. On commence par en savoir plus.</p>
+        }
       </div>
 
       <div class="sector-list">

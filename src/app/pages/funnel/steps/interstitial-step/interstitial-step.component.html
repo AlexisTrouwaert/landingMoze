@@ -113,7 +113,12 @@
           @if (isSubmitting()) {
             Chargement...
           } @else {
-            Je valide mon inscription <img src="assets/icons/arrow.svg" alt="" aria-hidden="true" width="16" height="16">
+            @if (fs.funnelType() === 'reseau') {
+              Je rejoins le réseau
+            } @else {
+              Je valide mon inscription
+            }
+            <img src="assets/icons/arrow.svg" alt="" aria-hidden="true" width="16" height="16">
           }
         </button>
 

@@ -58,12 +58,7 @@ describe('ToolComponent', () => {
     });
   });
 
-  it('goToFunnel() should fire pixel and navigate', () => {
-    spyOn(router, 'navigate');
-    component.goToFunnel();
-    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
-    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
-  });
+  // CTA "Je découvre mon nouvel outil" → ancre via LandingNavService (cf. landing-nav.service.spec).
 
   it('onCardMouseMove should set --mx/--my CSS variables', () => {
     const card = document.createElement('div');

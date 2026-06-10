@@ -6,27 +6,44 @@
     </div>
 
     <div class="header-left">
-      @if (fs.currentStep() > 1) {
-        <button (click)="fs.previousStep()" class="back-btn">
-          <img src="assets/icons/arrow.svg" class="back-icon" alt="" aria-hidden="true" width="16" height="16">
-          Retour
-        </button>
-      }
+      <button (click)="back()" class="back-btn">
+        <img src="assets/icons/arrow.svg" class="back-icon" alt="" aria-hidden="true" width="16" height="16">
+        Retour
+      </button>
     </div>
   </header>
 
+  <app-funnel-stepper />
+
   <main class="step-content">
-    @if (fs.currentStep() === 1) {
-      @defer (on immediate) { <app-sector-step /> }
-    }
-    @if (fs.currentStep() === 2) {
-      @defer (on immediate) { <app-sap-step /> }
-    }
-    @if (fs.currentStep() === 3) {
-      @defer (on immediate) { <app-interstitial-step /> }
-    }
-    @if (fs.currentStep() === 4) {
-      @defer (on immediate) { <app-redirect-step /> }
+    @if (fs.funnelType() === 'reseau') {
+      <!-- Funnel Réseau social : Secteur → Sphères → Formulaire → Redirection MozePlace -->
+      @if (fs.currentStep() === 1) {
+        @defer (on immediate) { <app-sector-step /> }
+      }
+      @if (fs.currentStep() === 2) {
+        @defer (on immediate) { <app-sphere-step /> }
+      }
+      @if (fs.currentStep() === 3) {
+        @defer (on immediate) { <app-interstitial-step /> }
+      }
+      @if (fs.currentStep() === 4) {
+        @defer (on immediate) { <app-redirect-step /> }
+      }
+    } @else {
+      <!-- Funnel Facturation : Secteur → Crédit d'impôt → Formulaire → Redirection -->
+      @if (fs.currentStep() === 1) {
+        @defer (on immediate) { <app-sector-step /> }
+      }
+      @if (fs.currentStep() === 2) {
+        @defer (on immediate) { <app-sap-step /> }
+      }
+      @if (fs.currentStep() === 3) {
+        @defer (on immediate) { <app-interstitial-step /> }
+      }
+      @if (fs.currentStep() === 4) {
+        @defer (on immediate) { <app-redirect-step /> }
+      }
     }
   </main>
 </div>

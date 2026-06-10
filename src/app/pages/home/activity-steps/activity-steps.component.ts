@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
-import { MetaPixelService } from '../../../services/meta-pixel.service';
+import { LandingNavService } from '../../../services/landing-nav.service';
 
 @Component({
   selector: 'app-activity-steps',
@@ -12,8 +11,7 @@ import { MetaPixelService } from '../../../services/meta-pixel.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActivityStepsComponent {
-  private router = inject(Router);
-  private readonly metaPixel = inject(MetaPixelService);
+  readonly nav = inject(LandingNavService);
 
   public steps = signal([
     {
@@ -72,10 +70,5 @@ export class ActivityStepsComponent {
     const card = event.currentTarget as HTMLElement;
     card.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
     card.style.transform  = '';
-  }
-
-  goToFunnel(): void {
-    this.metaPixel.trackLeadCTA('inscription_generic');
-    this.router.navigate(['/commencer']);
   }
 }

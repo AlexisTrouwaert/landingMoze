@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -47,14 +47,42 @@ describe('FunnelComponent', () => {
     expect(pixel.trackFunnelStarted).toHaveBeenCalledTimes(1);
   });
 
-  it('goHome() should fire FunnelAbandoned with logo + current step, then navigate to /', () => {
+  it('goHome() should fire FunnelAbandoned (logo) then navigate to / after a short delay', fakeAsync(() => {
     fixture.detectChanges();
     const fs = TestBed.inject(FunnelService);
     spyOn(router, 'navigate');
 
     component.goHome();
 
-    expect(pixel.trackFunnelAbandoned).toHaveBeenCalledWith(fs.currentStep(), 'logo');
+    expect(pixel.trackFunnelAbandoned).toHaveBeenCalledWith(fs.currentStep(), 'logo', 'facturation');
+    expect(router.navigate).not.toHaveBeenCalled(); // délai pas encore écoulé
+    tick(300);
     expect(router.navigate).toHaveBeenCalledWith(['/']);
+  }));
+
+  it('back() from step 1 should fire abandon (back_button) then navigate to / after a short delay', fakeAsync(() => {
+    fixture.detectChanges(); // ngOnInit → startFunnel → step 1
+    spyOn(router, 'navigate');
+
+    component.back();
+
+    expect(pixel.trackFunnelAbandoned).toHaveBeenCalledWith(1, 'back_button', 'facturation');
+    expect(router.navigate).not.toHaveBeenCalled();
+    tick(300);
+    expect(router.navigate).toHaveBeenCalledWith(['/']);
+  }));
+
+  it('back() from a later step should step back, without abandon nor navigation', () => {
+    fixture.detectChanges();
+    const fs = TestBed.inject(FunnelService);
+    fs.nextStep(); // step 2
+    pixel.trackFunnelAbandoned.calls.reset();
+    spyOn(router, 'navigate');
+
+    component.back();
+
+    expect(fs.currentStep()).toBe(1);
+    expect(pixel.trackFunnelAbandoned).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

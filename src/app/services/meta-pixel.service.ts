@@ -6,6 +6,9 @@ import { environment } from '../../environements/environment';
 
 declare let fbq: any;
 
+/** Type de tunnel — sert à distinguer les events Meta des 2 funnels. */
+export type FunnelKind = 'facturation' | 'reseau';
+
 @Injectable({ providedIn: 'root' })
 export class MetaPixelService {
   private readonly router  = inject(Router);
@@ -80,10 +83,29 @@ export class MetaPixelService {
     this.viewContentTracked = false;
   }
 
-  /** Clic CTA d'inscription — fire 'Lead' avec un libellé différenciant. Pas de dedup (chaque clic compte). */
-  trackLeadCTA(buttonLabel: string): void {
-    if (typeof fbq === 'undefined') return;
-    fbq('track', 'Lead', { button_label: buttonLabel });
+  /**
+   * Clic CTA d'inscription — fire 'Lead' avec un libellé différenciant. Pas de dedup (chaque clic compte).
+   * `onSent` est appelé une fois l'event transmis à Meta (eventCallback), ou au plus tard après
+   * un court délai de secours — garantit que la navigation se fait même si Meta ne rappelle jamais
+   * (adblocker, réseau lent, consentement révoqué côté fbq).
+   */
+  trackLeadCTA(buttonLabel: string, funnel: FunnelKind, onSent?: () => void): void {
+    if (typeof fbq === 'undefined') {
+      onSent?.();
+      return;
+    }
+    const payload = { button_label: buttonLabel, funnel };
+    if (!onSent) {
+      fbq('track', 'Lead', payload);
+      return;
+    }
+    // Garde anti-double-appel : callback Meta OU timeout, le premier qui arrive gagne.
+    let done = false;
+    const fire = () => { if (!done) { done = true; onSent(); } };
+    const timer = setTimeout(fire, 400);
+    fbq('track', 'Lead', payload, {
+      eventCallback: () => { clearTimeout(timer); fire(); }
+    });
   }
 
   /** Inscription newsletter — event standard Meta 'Subscribe'. */
@@ -96,16 +118,16 @@ export class MetaPixelService {
      FUNNEL EVENTS — progression entonnoir + abandons
      ============================================================ */
 
-  /** Entrée du funnel — fire dès que la page /commencer s'affiche. */
-  trackFunnelStarted(): void {
+  /** Entrée du funnel — fire dès que la page du tunnel s'affiche. */
+  trackFunnelStarted(funnel: FunnelKind = 'facturation'): void {
     if (typeof fbq === 'undefined') return;
-    fbq('trackCustom', 'FunnelStarted');
+    fbq('trackCustom', this.funnelEventName('FunnelStarted', funnel));
   }
 
   /** Step 1 validée : un secteur a été choisi. */
-  trackFunnelStep1Completed(sector: string): void {
+  trackFunnelStep1Completed(sector: string, funnel: FunnelKind = 'facturation'): void {
     if (typeof fbq === 'undefined') return;
-    fbq('trackCustom', 'FunnelStep1Completed', { sector });
+    fbq('trackCustom', this.funnelEventName('FunnelStep1Completed', funnel), { sector });
   }
 
   /** Step 2 validée : réponse oui/non sur le crédit d'impôt immédiat. */
@@ -114,16 +136,24 @@ export class MetaPixelService {
     fbq('trackCustom', 'FunnelStep2Completed', { wants_tax_credit: wantsTaxCredit });
   }
 
-  /** Soumission réussie du formulaire d'inscription — event standard Meta. */
-  trackCompleteRegistration(data: Record<string, any> = {}): void {
+  /**
+   * Soumission réussie du formulaire d'inscription.
+   * - Funnel facturation : event standard Meta 'CompleteRegistration' (optimisation pub).
+   * - Funnel réseau : event custom distinct 'CompleteRegistrationReseau'.
+   */
+  trackCompleteRegistration(data: Record<string, any> = {}, funnel: FunnelKind = 'facturation'): void {
     if (typeof fbq === 'undefined') return;
-    fbq('track', 'CompleteRegistration', data);
+    if (funnel === 'reseau') {
+      fbq('trackCustom', 'CompleteRegistrationReseau', data);
+    } else {
+      fbq('track', 'CompleteRegistration', data);
+    }
   }
 
   /** Abandon du funnel — clic logo (retour home), bouton "Retour", ou blocage honeypot. */
-  trackFunnelAbandoned(fromStep: number, reason: 'logo' | 'back_button' | 'honeypot_triggered'): void {
+  trackFunnelAbandoned(fromStep: number, reason: 'logo' | 'back_button' | 'honeypot_triggered', funnel: FunnelKind = 'facturation'): void {
     if (typeof fbq === 'undefined') return;
-    fbq('trackCustom', 'FunnelAbandoned', { from_step: fromStep, reason });
+    fbq('trackCustom', this.funnelEventName('FunnelAbandoned', funnel), { from_step: fromStep, reason });
   }
 
   /**
@@ -134,13 +164,14 @@ export class MetaPixelService {
    */
   trackFunnelDestination(
     destination: 'mozeconnect' | 'mozeplace',
+    funnel: FunnelKind = 'facturation',
     onSent?: () => void
   ): void {
     if (typeof fbq === 'undefined') {
       onSent?.();
       return;
     }
-    fbq('trackCustom', 'FunnelDestination', { destination }, { eventCallback: onSent });
+    fbq('trackCustom', this.funnelEventName('FunnelDestination', funnel), { destination }, { eventCallback: onSent });
   }
 
   /** Event générique — pour les cas non couverts par les helpers dédiés. */
@@ -157,6 +188,15 @@ export class MetaPixelService {
     if (typeof fbq === 'undefined') return;
     const opts = eventId ? { eventID: eventId } : undefined;
     opts ? fbq('trackCustom', eventName, data, opts) : fbq('trackCustom', eventName, data);
+  }
+
+  /**
+   * Nom d'event custom du funnel. Le funnel réseau utilise des noms distincts
+   * (suffixe "Reseau") pour être segmentable dans Meta sans toucher au tracking
+   * historique de la facturation.
+   */
+  private funnelEventName(base: string, funnel: FunnelKind): string {
+    return funnel === 'reseau' ? `${base}Reseau` : base;
   }
 
   private grantConsent(): void {

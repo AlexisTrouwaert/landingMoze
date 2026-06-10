@@ -31,10 +31,7 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('goToFunnel() should fire pixel and navigate to /commencer', () => {
-    spyOn(router, 'navigate');
-    component.goToFunnel();
-    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
-    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
-  });
+  // Le CTA "je commence gratuitement" est désormais une ancre : il appelle
+  // LandingNavService.scrollToOffers('header') depuis le template (testé dans
+  // landing-nav.service.spec). Plus de méthode goToFunnel sur le composant.
 });

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MetaPixelService } from '../../../../services/meta-pixel.service';
+import { FunnelService } from '../../../../services/funnel.service';
 
 @Component({
   selector: 'app-redirect-step',
@@ -12,6 +13,7 @@ import { MetaPixelService } from '../../../../services/meta-pixel.service';
 })
 export class RedirectStepComponent {
   private readonly metaPixel = inject(MetaPixelService);
+  readonly fs = inject(FunnelService);
 
   isConfirmed = signal(false);
 
@@ -27,7 +29,13 @@ export class RedirectStepComponent {
 
   goToPlace(): void {
     if (!this.isConfirmed()) return;
-    this.redirectWithTracking('mozeplace', 'https://place.mozeconnect.fr/authentification');
+    // Funnel réseau : si une sphère a été choisie, son lien d'invitation est la destination.
+    // Tant que le lien est un placeholder ('#') ou absent, on retombe sur MozePlace générique.
+    const invite = this.fs.selectedSphere()?.inviteLink;
+    const url = invite && invite !== '#'
+      ? invite
+      : 'https://place.mozeconnect.fr/authentification';
+    this.redirectWithTracking('mozeplace', url);
   }
 
   /**
@@ -47,6 +55,6 @@ export class RedirectStepComponent {
     };
 
     setTimeout(go, 1000);
-    this.metaPixel.trackFunnelDestination(destination, go);
+    this.metaPixel.trackFunnelDestination(destination, this.fs.funnelType(), go);
   }
 }

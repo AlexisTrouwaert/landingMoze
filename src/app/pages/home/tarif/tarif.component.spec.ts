@@ -31,10 +31,16 @@ describe('TarifComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should expose two offers including a popular one', () => {
+  it('should expose three offers including a popular and a social one', () => {
     const offers = component.offers();
-    expect(offers.length).toBe(2);
+    expect(offers.length).toBe(3);
     expect(offers.find((o) => o.isPopular)).toBeTruthy();
+    expect(offers.find((o) => o.isSocial)).toBeTruthy();
+  });
+
+  it('the social offer should route to the réseau funnel', () => {
+    const social = component.offers().find((o) => o.isSocial);
+    expect(social?.route).toBe('/rejoindre');
   });
 
   it('Freemium offer should be free', () => {
@@ -42,16 +48,23 @@ describe('TarifComponent', () => {
     expect(f?.price).toBe('0€');
   });
 
-  it('goToFunnel() should default tracking label to inscription_generic', () => {
+  it('goToFunnel() should default to inscription_generic on the facturation funnel', () => {
     spyOn(router, 'navigate');
+    pixel.trackLeadCTA.and.callFake((_label: string, _funnel: string, cb?: () => void) => cb?.());
     component.goToFunnel();
-    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic', 'facturation', jasmine.any(Function));
     expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
   });
 
-  it('goToFunnel(label) should forward custom label', () => {
+  it('goToFunnel(label, route) should forward label and derive the funnel from the route', () => {
     spyOn(router, 'navigate');
-    component.goToFunnel('inscription_freemium');
-    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_freemium');
+    pixel.trackLeadCTA.and.callFake((_label: string, _funnel: string, cb?: () => void) => cb?.());
+
+    component.goToFunnel('inscription_freemium', '/commencer');
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_freemium', 'facturation', jasmine.any(Function));
+
+    component.goToFunnel('inscription_reseau_social', '/rejoindre');
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_reseau_social', 'reseau', jasmine.any(Function));
+    expect(router.navigate).toHaveBeenCalledWith(['/rejoindre']);
   });
 });

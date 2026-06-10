@@ -119,7 +119,7 @@ export class InterstitialStepComponent {
       if (honeypotFilled && tooFast) {
         // Honeypot rempli + soumission quasi instantanée → vrai bot, on bloque.
         console.warn('Bot détecté (honeypot + soumission rapide).');
-        this.metaPixelService.trackFunnelAbandoned(3, 'honeypot_triggered');
+        this.metaPixelService.trackFunnelAbandoned(this.fs.currentStep(), 'honeypot_triggered', this.fs.funnelType());
         return;
       }
 
@@ -186,7 +186,7 @@ export class InterstitialStepComponent {
             sector: secteurChoisi || 'AUTRE',
             wants_tax_credit: this.fs.hasSapNumber() ?? false,
             opt_in_newsletter: val.optIn ?? false,
-          });
+          }, this.fs.funnelType());
 
           if (val.optIn) {
             this.subscribeToBrevo(val.email!);

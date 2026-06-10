@@ -16,7 +16,7 @@
 }
 
 .tarif-container {
-  max-width: 1200px;
+  max-width: 1340px;
   margin: 0 auto;
   padding: 4rem 2rem 2rem;
   display: flex;
@@ -67,13 +67,14 @@
 /* === GRILLE CARTES === */
 .pricing-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
   width: 100%;
-  max-width: 900px;
+  max-width: 1340px;
 
-  @media (max-width: 800px) {
+  @media (max-width: 1100px) {
     grid-template-columns: 1fr;
+    max-width: 480px;
     gap: 4.5rem;
   }
 }
@@ -131,6 +132,37 @@
         margin-right: -0.5rem;
         padding: 1.2rem 1rem;
       }
+    }
+
+    .no-cb {
+      opacity: 0;
+    }
+  }
+
+  /* Variante "Réseau social" — même traitement que .popular mais en couleur d'interaction */
+  &.social {
+    border-color: var(--interaction-color);
+
+    .features-list {
+      background-color: rgba(2, 151, 216, 0.06);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      margin-left: -1.5rem;
+      margin-right: -1.5rem;
+
+      @media (max-width: 768px) {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        padding: 1.2rem 1rem;
+      }
+    }
+
+    .popular-badge {
+      background-color: var(--interaction-color);
+    }
+
+    .check-icon {
+      color: var(--interaction-color);
     }
 
     .no-cb {
@@ -278,6 +310,34 @@
     &:hover {
       background-color: #58ca86;
       box-shadow: 0 5px 15px rgba(107, 212, 152, 0.4);
+    }
+
+    &:focus-visible {
+      outline-color: var(--moze-white);
+    }
+  }
+
+  &.btn-blue {
+    background-color: var(--interaction-color);
+    color: var(--moze-white);
+    border: none;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: 0;
+      width: 28%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+      transform: translateX(-180%) skewX(-18deg);
+      animation: btnShine 4s ease-in-out infinite 0.8s;
+      pointer-events: none;
+    }
+
+    &:hover {
+      background-color: #0286c0;
+      box-shadow: 0 5px 15px rgba(2, 151, 216, 0.4);
     }
 
     &:focus-visible {

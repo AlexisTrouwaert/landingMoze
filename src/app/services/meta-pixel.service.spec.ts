@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { signal, WritableSignal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -97,12 +97,52 @@ describe('MetaPixelService', () => {
     expect(calls.length).toBe(2);
   });
 
-  it('trackLeadCTA should pass button_label', () => {
+  it('trackLeadCTA should pass button_label and funnel', () => {
     const svc = TestBed.inject(MetaPixelService);
-    svc.trackLeadCTA('cta_top');
+    svc.trackLeadCTA('cta_top', 'facturation');
     expect(fbqSpy).toHaveBeenCalledWith('track', 'Lead', {
       button_label: 'cta_top',
+      funnel: 'facturation',
     });
+  });
+
+  it('trackLeadCTA should tag the réseau funnel', () => {
+    const svc = TestBed.inject(MetaPixelService);
+    svc.trackLeadCTA('cta_reseau', 'reseau');
+    expect(fbqSpy).toHaveBeenCalledWith('track', 'Lead', {
+      button_label: 'cta_reseau',
+      funnel: 'reseau',
+    });
+  });
+
+  it('trackLeadCTA should fire onSent via eventCallback (once)', () => {
+    // fbq invoque immédiatement le eventCallback fourni
+    fbqSpy.and.callFake((...args: any[]) => {
+      const opts = args[3];
+      if (opts?.eventCallback) opts.eventCallback();
+    });
+    const svc = TestBed.inject(MetaPixelService);
+    const onSent = jasmine.createSpy('onSent');
+    svc.trackLeadCTA('cta_top', 'facturation', onSent);
+    expect(onSent).toHaveBeenCalledTimes(1);
+  });
+
+  it('trackLeadCTA should fire onSent via timeout fallback if Meta never calls back', fakeAsync(() => {
+    // fbqSpy par défaut n'appelle jamais le eventCallback → c'est le timeout qui doit déclencher
+    const svc = TestBed.inject(MetaPixelService);
+    const onSent = jasmine.createSpy('onSent');
+    svc.trackLeadCTA('cta_top', 'facturation', onSent);
+    expect(onSent).not.toHaveBeenCalled();
+    tick(400);
+    expect(onSent).toHaveBeenCalledTimes(1);
+  }));
+
+  it('trackLeadCTA should fire onSent immediately when fbq is undefined', () => {
+    (globalThis as any).fbq = undefined;
+    const svc = TestBed.inject(MetaPixelService);
+    const onSent = jasmine.createSpy('onSent');
+    svc.trackLeadCTA('cta_top', 'facturation', onSent);
+    expect(onSent).toHaveBeenCalledTimes(1);
   });
 
   it('trackSubscribe should default to empty data', () => {
@@ -156,6 +196,44 @@ describe('MetaPixelService', () => {
       from_step: 3,
       reason: 'logo',
     });
+  });
+
+  it('réseau funnel custom events should use distinct (suffixed) names', () => {
+    const svc = TestBed.inject(MetaPixelService);
+
+    svc.trackFunnelStarted('reseau');
+    expect(fbqSpy).toHaveBeenCalledWith('trackCustom', 'FunnelStartedReseau');
+
+    svc.trackFunnelStep1Completed('CREATIF', 'reseau');
+    expect(fbqSpy).toHaveBeenCalledWith('trackCustom', 'FunnelStep1CompletedReseau', {
+      sector: 'CREATIF',
+    });
+
+    svc.trackFunnelAbandoned(2, 'back_button', 'reseau');
+    expect(fbqSpy).toHaveBeenCalledWith('trackCustom', 'FunnelAbandonedReseau', {
+      from_step: 2,
+      reason: 'back_button',
+    });
+  });
+
+  it('trackCompleteRegistration should be standard for facturation, custom for réseau', () => {
+    const svc = TestBed.inject(MetaPixelService);
+
+    svc.trackCompleteRegistration({ sector: 'BTP' }, 'reseau');
+    expect(fbqSpy).toHaveBeenCalledWith('trackCustom', 'CompleteRegistrationReseau', {
+      sector: 'BTP',
+    });
+  });
+
+  it('trackFunnelDestination should suffix the réseau event name', () => {
+    const svc = TestBed.inject(MetaPixelService);
+    svc.trackFunnelDestination('mozeplace', 'reseau');
+    expect(fbqSpy).toHaveBeenCalledWith(
+      'trackCustom',
+      'FunnelDestinationReseau',
+      { destination: 'mozeplace' },
+      jasmine.any(Object)
+    );
   });
 
   it('trackEvent should pass eventID option when provided', () => {
