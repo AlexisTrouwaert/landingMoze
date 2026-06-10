@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Signal, computed, ElementRef, ViewChild, afterNextRender, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
-import { LandingNavService } from '../../../services/landing-nav.service';
 
 @Component({
   selector: 'app-landing-section',
@@ -13,8 +13,8 @@ import { LandingNavService } from '../../../services/landing-nav.service';
 })
 export class LandingSectionComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);
+  private router = inject(Router);
   private readonly metaPixel = inject(MetaPixelService);
-  readonly nav = inject(LandingNavService);
 
   private readonly videoId = 'ykgoxiYz208';
 
@@ -106,4 +106,16 @@ export class LandingSectionComponent implements OnDestroy {
   }
   // ===================================
 
+  goToFunnel(): void {
+    this.metaPixel.trackLeadCTA('inscription_generic');
+    this.router.navigate(['/commencer']);
+  }
+
+  goToOffres(): void {
+    this.metaPixel.trackCustomEvent('ViewOffers', { source: 'hero_cta' });
+    const tarifSection = document.querySelector('app-tarif');
+    if (tarifSection) {
+      tarifSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }

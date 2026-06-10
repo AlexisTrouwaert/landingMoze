@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
-import { LandingNavService } from '../../../services/landing-nav.service';
 
 @Component({
   selector: 'app-email',
@@ -13,8 +13,8 @@ import { LandingNavService } from '../../../services/landing-nav.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmailComponent {
+  private router = inject(Router);
   private readonly metaPixel = inject(MetaPixelService);
-  readonly nav = inject(LandingNavService);
   private readonly MAX_ATTEMPTS = 5;
 
   emailValue = signal<string>('');
@@ -25,6 +25,11 @@ export class EmailComponent {
   isShaking = signal<boolean>(false);
   emailError = signal<boolean>(false);
   optInError = signal<boolean>(false);
+
+  goToFunnel(): void {
+    this.metaPixel.trackLeadCTA('inscription_generic');
+    this.router.navigate(['/commencer']);
+  }
 
   onSubmit(event: Event): void {
     event.preventDefault();

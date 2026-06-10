@@ -7,16 +7,16 @@
       Une offre <span class="highlight-green">simplifiée</span>
     </h2>
     <p class="subtitle">
-      Trois formules claires, sans surprise, adaptées à chaque étape de ton activité indépendante.
+      Deux formules claires, sans surprise, adaptées à chaque étape de ton activité indépendante.
     </p>
   </div>
 
   <div class="pricing-cards">
     @for (offer of offers(); track offer.name; let i = $index) {
-      <div class="pricing-card" [class.popular]="offer.isPopular" [class.social]="offer.isSocial" appScrollReveal [delay]="i * 120">
+      <div class="pricing-card" [class.popular]="offer.isPopular" appScrollReveal [delay]="i * 120">
 
-        @if (offer.badge) {
-          <div class="popular-badge">{{ offer.badge }}</div>
+        @if (offer.isPopular) {
+          <div class="popular-badge">Le plus populaire</div>
           <!-- Shine isolé dans son propre conteneur pour ne pas clipper le badge -->
           <div class="card-shine" aria-hidden="true"></div>
         }
@@ -51,9 +51,8 @@
         <button
           class="btn-select"
           [class.btn-green]="offer.isPopular"
-          [class.btn-blue]="offer.isSocial"
           [innerHTML]="offer.buttonText"
-          (click)="goToFunnel(offer.trackingLabel, offer.route)">
+          (click)="goToFunnel(offer.trackingLabel)">
         </button>
         <div class="no-cb">sans CB, ni frais cachés</div>
       </div>
@@ -62,7 +61,7 @@
 
   <div class="footer-section" appScrollReveal>
     <p class="disclaimer">Sans engagement. Résilie à tout moment.</p>
-    <button class="btn-main-cta" (click)="nav.scrollToOffers('tarif_footer')">Je me lance gratuitement !</button>
+    <button class="btn-main-cta" (click)="goToFunnel()">Je me lance gratuitement !</button>
   </div>
 
 </section>
