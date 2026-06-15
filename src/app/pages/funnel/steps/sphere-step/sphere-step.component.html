@@ -26,28 +26,41 @@
             role="option"
             tabindex="0"
             [class.is-featured]="slotOf(k) === 0"
+            [class.is-spread]="slotOf(k) === 0 || leavingIndex() === k"
             [style]="slotStyle(slotOf(k))"
+            [style.--orb-accent]="accentOf(sphere)"
+            [style.--orb-accent-2]="accentStrongOf(sphere)"
             [attr.aria-selected]="slotOf(k) === 0"
             [attr.aria-label]="sphere.name"
             (click)="select(sphere)"
             (keydown.enter)="select(sphere)">
 
           <div class="orb-head">
-            <span class="orb-emoji" aria-hidden="true">{{ sphere.emoji }}</span>
+            <span class="orb-emoji"
+                  [style.background]="gradientOf(sphere)"
+                  aria-hidden="true">{{ sphere.emoji || initials(sphere.name) }}</span>
             <div class="orb-headtext">
               <span class="orb-name">{{ sphere.name }}</span>
-              <span class="orb-loc">
-                <svg class="pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z" />
-                  <circle cx="12" cy="11" r="2" stroke-width="2" />
-                </svg>
-                {{ sphere.location }}
+              <span class="orb-meta">
+                <span class="orb-loc">
+                  <svg class="pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z" />
+                    <circle cx="12" cy="11" r="2" stroke-width="2" />
+                  </svg>
+                  {{ sphere.location }}
+                </span>
+                @if (sphere.memberCount) {
+                  <span class="orb-meta-sep" aria-hidden="true">·</span>
+                  <span class="orb-members"><span class="orb-mnum">{{ sphere.memberCount }}</span> membres</span>
+                }
               </span>
             </div>
-            @if (sphere.memberCount) {
-              <span class="orb-members">{{ sphere.memberCount }} membres</span>
-            }
+            <span class="orb-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 6l6 6-6 6" />
+              </svg>
+            </span>
           </div>
 
           <!-- Détail : révélé uniquement quand la carte est en vedette -->

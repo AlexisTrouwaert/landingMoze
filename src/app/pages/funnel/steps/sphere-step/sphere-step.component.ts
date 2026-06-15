@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, signal } from '@angular/core';
 import { FunnelService, Sphere } from '../../../../services/funnel.service';
 
 /**
@@ -51,6 +51,7 @@ function cubicBezier(x1: number, y1: number, x2: number, y2: number): (x: number
 })
 export class SphereStepComponent implements OnDestroy {
   private readonly fs = inject(FunnelService);
+  private readonly host = inject(ElementRef);
 
   // ⚠️ DONNÉES PROVISOIRES — à remplacer à la main par les vraies sphères
   // et leurs liens d'invitation MozePlace (inviteLink). Tant que inviteLink
@@ -59,7 +60,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'tech',
       name: 'Tech & Dev',
-      emoji: '💻',
       description: "L'entraide des indépendants du numérique.",
       longDescription:
         "Développeurs, designers, product et data : une communauté pour échanger sur tes projets, " +
@@ -72,7 +72,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'btp',
       name: 'Artisans du BTP',
-      emoji: '👷',
       description: 'Le réseau des artisans du bâtiment.',
       longDescription:
         "Maçons, électriciens, plombiers, menuisiers… Partage tes chantiers, trouve de la " +
@@ -85,7 +84,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'sante',
       name: 'Santé & Bien-être',
-      emoji: '🩺',
       description: 'Praticiens et indépendants du soin.',
       longDescription:
         "Kinés, ostéos, sophrologues, thérapeutes : échange sur ta pratique, fais-toi " +
@@ -98,7 +96,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'creatif',
       name: 'Créatifs & Com',
-      emoji: '🎨',
       description: 'Graphistes, rédacteurs et créateurs.',
       longDescription:
         "Graphistes, rédacteurs, vidéastes, community managers : collabore sur des projets " +
@@ -111,7 +108,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'finance',
       name: 'Finance & Compta',
-      emoji: '💰',
       description: 'Experts du chiffre et de la gestion.',
       longDescription:
         "Comptables, gestionnaires de paie et conseillers : partage tes outils, tes bonnes " +
@@ -124,7 +120,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'immo',
       name: 'Immobilier',
-      emoji: '🏡',
       description: 'Agents, mandataires et courtiers.',
       longDescription:
         "Mandataires, agents et courtiers : échange tes mandats, tes contacts et développe " +
@@ -137,7 +132,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'conseil',
       name: 'Conseil & Stratégie',
-      emoji: '📊',
       description: 'Consultants et coachs business.',
       longDescription:
         "Consultants, coachs et formateurs : monte des offres communes, partage des leads " +
@@ -150,7 +144,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'food',
       name: 'Food & Restauration',
-      emoji: '🍳',
       description: 'Traiteurs, chefs et métiers de bouche.',
       longDescription:
         "Chefs à domicile, traiteurs et artisans de bouche : trouve des extras, partage " +
@@ -163,7 +156,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'coach',
       name: 'Coachs & Bien-être',
-      emoji: '🧘',
       description: 'Sport, yoga et accompagnement.',
       longDescription:
         "Coachs sportifs, profs de yoga et praticiens bien-être : mutualise des créneaux, " +
@@ -176,7 +168,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'photo',
       name: 'Photo & Vidéo',
-      emoji: '📸',
       description: 'Photographes et vidéastes.',
       longDescription:
         "Photographes, vidéastes et monteurs : partage du matériel, sous-traite des tournages " +
@@ -189,7 +180,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'mode',
       name: 'Mode & Artisanat d\'art',
-      emoji: '👗',
       description: 'Créateurs et artisans d\'art.',
       longDescription:
         "Créateurs, couturiers et artisans d'art : échange tes ateliers, tes matières " +
@@ -202,7 +192,6 @@ export class SphereStepComponent implements OnDestroy {
     {
       id: 'event',
       name: 'Événementiel',
-      emoji: '🎉',
       description: 'Wedding planners, DJ et prestataires.',
       longDescription:
         "Wedding planners, DJ, décorateurs et prestataires : monte des offres clé en main " +
@@ -220,6 +209,11 @@ export class SphereStepComponent implements OnDestroy {
   /** Survol/focus de la liste → on déplie le deck (cartes écartées, à plat). */
   readonly hovered = signal(false);
 
+  /** Index DOM de la carte qui vient de quitter la vedette : garde sa mise en page "spread"
+      le temps de l'animation de sortie (le contenu se fond) avant de revenir au compact. */
+  readonly leavingIndex = signal<number | null>(null);
+  private leaveTimer: any = null;
+
   private get count(): number { return this.spheres().length; }
 
   readonly activeSphere = computed<Sphere | undefined>(() => {
@@ -235,7 +229,11 @@ export class SphereStepComponent implements OnDestroy {
   }
 
   // --- Réglages visuels (faciles à ajuster pour le polish) ---
-  private readonly FEATURED_ZONE = 340; // hauteur réservée à la vedette (px) — plus serré = liste plus proche
+  /** Hauteur réelle de la vedette, mesurée en JS (varie selon le texte) : cale le deck
+      juste en dessous ET sert de cible pour animer la hauteur (entrée/sortie). */
+  readonly featuredHeight = signal(0);   // 0 = pas encore mesurée → la vedette prend height:auto
+  private readonly STACK_GAP = 6;        // empilé : deck quasi collé juste sous la vedette (au repos)
+  private readonly FAN_GAP = 56;         // survol : le deck redescend pour s'étaler à plat
   private readonly PEEK = 62;            // chevauchement en mode empilé (px)
   private readonly ROW_FANNED = 96;      // hauteur de ligne quand la liste est dépliée à plat (px)
   private readonly STACK_RATIO = 0.8;    // décroissance → pile bornée (mode empilé)
@@ -243,13 +241,14 @@ export class SphereStepComponent implements OnDestroy {
 
   /** Hauteur du tapis quand la liste est dépliée à plat : doit contenir TOUTES les sphères. */
   readonly fanHeight = computed(() =>
-    `${this.FEATURED_ZONE + Math.max(0, this.spheres().length - 1) * this.ROW_FANNED + 24}px`
+    `${(this.featuredHeight() || 220) + this.FAN_GAP + Math.max(0, this.spheres().length - 1) * this.ROW_FANNED + 24}px`
   );
 
   /** Style d'une carte selon son slot et l'état (empilé / déplié à plat). */
   slotStyle(slot: number): Record<string, string> {
     if (slot === 0) {
       return {
+        height: this.featuredHeight() > 0 ? `${this.featuredHeight()}px` : 'auto',
         transform: 'translateY(0) scale(1)',
         opacity: '1',
         filter: 'blur(0)',
@@ -259,7 +258,7 @@ export class SphereStepComponent implements OnDestroy {
 
     // Déplié au survol : liste À PLAT — toutes les cartes pleine taille, espacées, visibles.
     if (this.hovered()) {
-      const y = this.FEATURED_ZONE + (slot - 1) * this.ROW_FANNED;
+      const y = (this.featuredHeight() || 220) + this.FAN_GAP + (slot - 1) * this.ROW_FANNED;
       return {
         transform: `translateY(${y}px) scale(1)`,
         opacity: '1',
@@ -269,7 +268,8 @@ export class SphereStepComponent implements OnDestroy {
     }
 
     // Empilé (borné) : profondeur qui fuit, somme géométrique des décalages.
-    const y = this.FEATURED_ZONE + this.PEEK * (1 - Math.pow(this.STACK_RATIO, slot)) / (1 - this.STACK_RATIO);
+    // slot - 1 : la 1ʳᵉ carte du deck est pile sous la vedette (offset 0), les suivantes s'empilent dessous
+    const y = (this.featuredHeight() || 220) + this.STACK_GAP + this.PEEK * (1 - Math.pow(this.STACK_RATIO, slot - 1)) / (1 - this.STACK_RATIO);
     const scale = Math.max(0.7, 1 - slot * 0.05);
     const blur = Math.min(8, (slot - 1) * 1.1);
     const opacity = Math.max(0.18, 1 - slot * 0.13);
@@ -279,6 +279,81 @@ export class SphereStepComponent implements OnDestroy {
       filter: `blur(${blur}px)`,
       'z-index': `${90 - slot}`
     };
+  }
+
+  // ===== Pastille d'identité (monogramme + dégradé de marque) =====
+  // Les sphères n'ont pas d'icône/emoji fournie : on génère une pastille
+  // déterministe à partir du nom (initiales) et de l'id (dégradé). Si une sphère
+  // définit `emoji`, il prend le pas (surcharge ponctuelle).
+  private static readonly STOP = new Set(
+    ['de', 'du', 'des', 'la', 'le', 'les', 'et', 'en', 'aux', 'au', 'd', 'l', '&']
+  );
+
+  /** Dégradés de marque (clair → foncé) ; texte blanc lisible sur chacun. */
+  private static readonly SWATCHES: ReadonlyArray<{ from: string; to: string }> = [
+    { from: '#2f6fd6', to: '#1f4fb0' }, // bleu
+    { from: '#0e8fb8', to: '#0c6f86' }, // bleu cyan (marque)
+    { from: '#0f8f7a', to: '#0b6f5f' }, // teal / vert
+    { from: '#6b5bd6', to: '#4a3fb0' }, // indigo
+    { from: '#c0468f', to: '#97306e' }, // magenta
+    { from: '#f0654f', to: '#c5392b' }  // corail
+  ];
+
+  /** Initiales : première lettre des 2 premiers mots significatifs, sinon 2 premières lettres. */
+  initials(name: string): string {
+    const words = (name ?? '')
+      .split(/[\s'’\-]+/)
+      .filter(w => w && !SphereStepComponent.STOP.has(w.toLowerCase()));
+    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+    return (words[0] ?? name ?? '').slice(0, 2).toUpperCase();
+  }
+
+  /** Dégradé déterministe d'une sphère (hash de l'id → palette). */
+  private swatchOf(sphere: Sphere): { from: string; to: string } {
+    const key = sphere.id || sphere.name || '';
+    let h = 0;
+    for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
+    const palette = SphereStepComponent.SWATCHES;
+    return palette[Math.abs(h) % palette.length];
+  }
+
+  /** Fond dégradé de la pastille (lié en inline sur .orb-emoji). */
+  gradientOf(sphere: Sphere): string {
+    const { from, to } = this.swatchOf(sphere);
+    return `linear-gradient(135deg, ${from}, ${to})`;
+  }
+
+  /** Couleur d'accent (départ du dégradé) → bordure / halo / fond de la vedette. */
+  accentOf(sphere: Sphere): string {
+    return this.swatchOf(sphere).from;
+  }
+
+  /** Couleur d'accent foncée (fin du dégradé) → bouton CTA de la vedette (contraste blanc). */
+  accentStrongOf(sphere: Sphere): string {
+    return this.swatchOf(sphere).to;
+  }
+
+  // --- MESURE DE LA HAUTEUR DE LA VEDETTE (cale le deck + anime la hauteur) ---
+  private measureRaf: number | null = null;
+  private readonly onResize = () => this.scheduleMeasure();
+
+  /** Planifie une mesure après le prochain rendu (DOM à jour). */
+  private scheduleMeasure(): void {
+    if (typeof requestAnimationFrame === 'undefined') return;
+    if (this.measureRaf !== null) cancelAnimationFrame(this.measureRaf);
+    this.measureRaf = requestAnimationFrame(() => {
+      this.measureRaf = null;
+      this.measureFeatured();
+    });
+  }
+
+  /** Lit la hauteur réelle (contenu) de la carte vedette et la stocke. */
+  private measureFeatured(): void {
+    const root = this.host.nativeElement as HTMLElement;
+    const el = root.querySelector('.orb.is-featured') as HTMLElement | null;
+    if (!el) return;
+    const h = el.scrollHeight;
+    if (h > 0 && Math.abs(h - this.featuredHeight()) > 1) this.featuredHeight.set(h);
   }
 
   // --- AUTO-DÉFILEMENT / SCROLL INFINI ---
@@ -297,13 +372,30 @@ export class SphereStepComponent implements OnDestroy {
   private scrollRaf: number | null = null;
 
   constructor() {
-    afterNextRender(() => this.startAuto());
+    // Re-mesure la hauteur de la vedette à chaque changement (rotation/données),
+    // après mise à jour du DOM (rAF) → le deck se recale et la hauteur s'anime.
+    effect(() => {
+      this.rotation();
+      this.spheres();
+      this.scheduleMeasure();
+    });
+    afterNextRender(() => {
+      this.startAuto();
+      this.measureFeatured();
+      // Re-mesure une fois les polices chargées (le texte peut changer de hauteur après coup)
+      const fonts = typeof document !== 'undefined' ? (document as any).fonts : null;
+      if (fonts?.ready?.then) fonts.ready.then(() => this.measureFeatured());
+      if (typeof window !== 'undefined') window.addEventListener('resize', this.onResize);
+    });
   }
 
   ngOnDestroy(): void {
     this.destroyed = true;
     this.clearTimers();
     if (this.scrollRaf !== null) cancelAnimationFrame(this.scrollRaf);
+    if (this.measureRaf !== null) cancelAnimationFrame(this.measureRaf);
+    if (this.leaveTimer) clearTimeout(this.leaveTimer);
+    if (typeof window !== 'undefined') window.removeEventListener('resize', this.onResize);
   }
 
   private startAuto(): void {
@@ -333,7 +425,17 @@ export class SphereStepComponent implements OnDestroy {
 
   /** Fait tourner la file (dir=1 : la vedette part au fond, tout monte d'un cran). */
   private advance(dir: number): void {
+    this.markLeaving(this.rotation());
     this.rotation.update(r => r + dir);
+  }
+
+  /** Marque la carte actuellement vedette comme "sortante" (conserve son spread pendant l'anim). */
+  private markLeaving(prevRotation: number): void {
+    const n = this.count;
+    if (n === 0) return;
+    this.leavingIndex.set(((prevRotation % n) + n) % n);
+    if (this.leaveTimer) clearTimeout(this.leaveTimer);
+    this.leaveTimer = setTimeout(() => this.leavingIndex.set(null), 900);
   }
 
   // --- Interactions ---
@@ -355,6 +457,7 @@ export class SphereStepComponent implements OnDestroy {
     const idx = this.spheres().findIndex(s => s.id === sphere.id);
     if (idx < 0) return;
     const alreadyFeatured = sphere.id === this.activeSphere()?.id;
+    if (!alreadyFeatured) this.markLeaving(this.rotation());
     this.rotation.set(idx);
     this.pauseAndResumeLater();
     // Carte non vedette → on remonte en haut, en synchro avec la montée de la carte en vedette.

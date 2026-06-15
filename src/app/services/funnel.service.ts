@@ -32,7 +32,7 @@ export type FunnelType = 'facturation' | 'reseau';
 export interface Sphere {
   id: string;
   name: string;
-  emoji: string;
+  emoji?: string;            // emoji/icône optionnel ; à défaut, une pastille (initiales + dégradé) est générée
   description: string;        // accroche courte (rail)
   longDescription?: string;   // description détaillée affichée quand la sphère est sélectionnée (vedette)
   location: string;       // localisation (texte libre pour l'instant — version limitée à venir)

@@ -39,14 +39,21 @@ describe('SphereStepComponent', () => {
     expect(component.spheres().length).toBeGreaterThan(0);
   });
 
-  it('every sphere should have id, name, emoji, location, tags and inviteLink', () => {
+  it('every sphere should have id, name, location, tags and inviteLink', () => {
     component.spheres().forEach((s) => {
       expect(s.id).toBeTruthy();
       expect(s.name).toBeTruthy();
-      expect(s.emoji).toBeTruthy();
       expect(s.location).toBeTruthy();
       expect(Array.isArray(s.tags)).toBe(true);
       expect(typeof s.inviteLink).toBe('string');
+    });
+  });
+
+  it('should derive a non-empty monogram and a brand gradient for every sphere', () => {
+    component.spheres().forEach((s) => {
+      expect(component.initials(s.name).length).toBeGreaterThan(0);
+      expect(component.gradientOf(s)).toContain('linear-gradient');
+      expect(component.accentOf(s)).toMatch(/^#[0-9a-fA-F]{6}$/);
     });
   });
 

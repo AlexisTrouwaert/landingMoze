@@ -70,26 +70,34 @@ $dur-morph: 0.9s;
   top: 0;
   box-sizing: border-box;
   background: #ffffff;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 1.25rem;
   padding: 1.2rem 1.4rem;
   box-shadow: 0 4px 14px rgba(20, 73, 104, 0.06);
+  /* Hauteur animable : compacte dans le deck ; la vedette reçoit sa hauteur réelle (mesurée
+     en JS) en inline via slotStyle. overflow:hidden → la hauteur révèle/replie au lieu de popper. */
+  height: 5.5rem;
+  overflow: hidden;
   cursor: pointer;
   transform-origin: top center;
   will-change: transform, opacity, filter;
   scale: 1; /* léger zoom de hover, indépendant du transform d'empilement */
+  /* On n'anime QUE des propriétés composités (transform/scale/opacity/filter) + paint léger
+     (border, ombre, rayon). Surtout PAS padding/width : ça reflow chaque frame → saccades
+     et effet de "panneau coloré qui s'élargit". Le layout du spread se fige donc instantanément. */
   transition: transform $dur-morph $ease-soft,
               filter $dur-morph $ease-soft,
               opacity $dur-morph $ease-soft,
-              padding $dur-morph $ease-soft,
+              height $dur-morph $ease-soft,
+              border-radius $dur-morph $ease-soft,
               scale 0.22s ease,
-              background-color $dur-morph $ease-soft,
+              border-color 0.3s ease,
               box-shadow 0.35s ease;
 
-  /* Survol d'une carte du deck : léger halo bleu */
-  &:not(.is-featured):hover {
-    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--interaction-color) 24%, transparent),
-                0 8px 20px rgba(2, 151, 216, 0.10);
+  /* Survol d'une carte du deck : fine bordure marque + ombre douce */
+  &:not(.is-spread):hover {
+    border-color: color-mix(in srgb, var(--interaction-color) 40%, transparent);
+    box-shadow: 0 8px 20px rgba(2, 151, 216, 0.10);
   }
 
   &:focus-visible {
@@ -97,12 +105,17 @@ $dur-morph: 0.9s;
     outline-offset: 3px;
   }
 
-  /* === VEDETTE (slot 0) : fond légèrement teinté + halo bleu doux === */
-  &.is-featured {
-    background: #f4fbff;
-    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--interaction-color) 35%, transparent),
-                0 24px 52px rgba(2, 151, 216, 0.16);
-    padding: 1.9rem 1.9rem;
+  /* === SPREAD : deux colonnes (identité teintée | contenu blanc). Appliqué à la vedette ET à
+     la carte qui sort, pour que sa mise en page tienne le temps de l'animation de sortie. === */
+  &.is-spread {
+    display: flex;
+    align-items: stretch;
+    border-radius: 2.25rem;
+    background: #ffffff;
+    border-color: color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 40%, #ffffff);
+    box-shadow: 0 18px 44px color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 15%, transparent);
+    padding: 0;
+    overflow: hidden; /* rogne le panneau teinté sur les coins arrondis */
     cursor: default;
   }
 }
@@ -111,6 +124,7 @@ $dur-morph: 0.9s;
   display: flex;
   align-items: center;
   gap: 0.9rem;
+  transition: background-color $dur-morph $ease-soft; /* le fond teinté du panneau se fond */
 }
 
 .orb-emoji {
@@ -120,17 +134,21 @@ $dur-morph: 0.9s;
   border-radius: 0.9rem;
   display: grid;
   place-items: center;
-  font-size: 1.55rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   line-height: 1;
-  background: rgba(2, 151, 216, 0.12);
-  transition: width $dur-morph $ease-soft, height $dur-morph $ease-soft,
-              font-size $dur-morph $ease-soft, box-shadow $dur-morph $ease-soft;
+  color: #ffffff;
+  /* Pastille d'identité : le dégradé propre à la sphère est lié en inline
+     ([style.background]) ; --orb-accent (couleur de départ) alimente le halo vedette.
+     Taille NON animée (reflow) → seule l'ombre/halo se fond. */
+  transition: box-shadow $dur-morph $ease-soft;
 
-  .is-featured & {
-    width: 3.9rem;
-    height: 3.9rem;
-    font-size: 2.05rem;
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--interaction-color) 12%, transparent);
+  .is-spread & {
+    width: 3.4rem;
+    height: 3.4rem;
+    font-size: 1.4rem;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 16%, transparent);
   }
 }
 
@@ -149,9 +167,13 @@ $dur-morph: 0.9s;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: font-size $dur-morph $ease-soft;
 
-  .is-featured & { font-size: 1.7rem; }
+  /* Spread (panneau identité) : titre lisible, sur plusieurs lignes si besoin */
+  .is-spread & {
+    font-size: 1.4rem;
+    white-space: normal;
+    overflow: visible;
+  }
 }
 
 .orb-loc {
@@ -170,16 +192,96 @@ $dur-morph: 0.9s;
   }
 }
 
-.orb-members {
-  flex-shrink: 0;
-  align-self: flex-start;
-  font-size: 0.78rem;
+/* Méta sur une ligne : localisation · membres */
+.orb-meta {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.orb-meta-sep {
+  color: #9bb3c0;
   font-weight: 700;
-  color: var(--interaction-color);
-  background: rgba(2, 151, 216, 0.1);
-  padding: 0.28rem 0.66rem;
-  border-radius: 50px;
+}
+
+.orb-members {
+  color: #4a6c80;
+  font-size: 0.85rem;
+  font-weight: 600;
   white-space: nowrap;
+}
+
+/* Spread : méta un peu plus lisible sous le grand nom */
+.is-spread .orb-loc,
+.is-spread .orb-members { font-size: 0.95rem; }
+
+/* ============== SPREAD : disposition deux colonnes (vedette + carte sortante) ============== */
+/* Panneau identité (gauche) : pastille, nom, localisation, compteur membres. */
+.orb.is-spread .orb-head {
+  flex: 0 0 42%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 1.6rem 1.4rem;
+  background: color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 9%, #ffffff);
+  border-right: 1px solid color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 16%, #ffffff);
+}
+
+.orb.is-spread .orb-headtext { gap: 0.45rem; }
+
+.orb.is-spread .orb-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.2rem;
+}
+
+.orb.is-spread .orb-meta-sep { display: none; }
+
+/* Compteur membres : nombre en gros, à la teinte foncée de la sphère */
+.orb.is-spread .orb-members {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.orb.is-spread .orb-mnum {
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--orb-accent-2, var(--interaction-color));
+}
+
+.orb.is-spread .orb-chevron { display: none; }
+
+/* Panneau contenu (droite) : description, tags, bouton. */
+.orb.is-spread .orb-detail {
+  flex: 1;
+  min-width: 0;
+  max-height: none;
+  padding: 1.6rem 1.6rem 1.4rem;
+}
+
+.orb.is-spread .orb-desc { margin-top: 0; }
+
+/* Chevron d'affordance (cartes du deck) — masqué sur la vedette */
+.orb-chevron {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #c2d2db;
+  transition: color 0.25s ease, transform 0.25s ease, opacity 0.3s ease;
+
+  svg { width: 1.15rem; height: 1.15rem; }
+
+  .orb:not(.is-spread):hover & {
+    color: var(--interaction-color);
+    transform: translateX(3px);
+  }
+
+  .is-spread & { opacity: 0; }
 }
 
 /* === Détail révélé uniquement en vedette === */
@@ -189,10 +291,14 @@ $dur-morph: 0.9s;
   overflow: hidden;
   transition: max-height $dur-morph $ease-soft, opacity 0.55s $ease-soft;
 
-  .is-featured & {
+  /* Mise en page conservée aussi pour la carte sortante (is-spread) → fondu, pas de claquement */
+  .is-spread & {
     max-height: 360px;
+    overflow: visible; /* on laisse l'ombre du bouton "Rejoindre" déborder */
+  }
+  /* Opacité pleine uniquement quand active : la carte sortante (is-spread sans is-featured) se fond */
+  .is-featured & {
     opacity: 1;
-    overflow: visible; /* la carte est dépliée : on laisse l'ombre du bouton "Rejoindre" déborder (sinon clippée) */
   }
 }
 
@@ -213,8 +319,8 @@ $dur-morph: 0.9s;
 .sphere-tag {
   font-size: 0.76rem;
   font-weight: 600;
-  color: var(--primary-color);
-  background: rgba(20, 87, 117, 0.07);
+  color: #236b3a;
+  background: color-mix(in srgb, var(--accent-color) 28%, transparent);
   padding: 0.28rem 0.66rem;
   border-radius: 50px;
 }
@@ -231,9 +337,9 @@ $dur-morph: 0.9s;
   font: inherit;
   font-size: 1.02rem;
   font-weight: 800;
-  color: #ffffff;
-  background: var(--interaction-color);
-  box-shadow: 0 8px 20px rgba(2, 151, 216, 0.22);
+  color: var(--orb-accent-2, var(--interaction-color));
+  background: color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 15%, #ffffff);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 12%, transparent);
   /* Entrée : le bouton reste invisible pendant la révélation du détail, puis
      apparaît en dernier (fondu + montée), après un délai. L'opacité/translate sont
      indépendants du transform utilisé au hover → pas de conflit. */
@@ -249,8 +355,8 @@ $dur-morph: 0.9s;
 
   &:hover {
     transform: translateY(-2px);
-    background: #0286c0;
-    box-shadow: 0 12px 24px rgba(2, 151, 216, 0.3);
+    background: color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 24%, #ffffff);
+    box-shadow: 0 10px 20px color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 18%, transparent);
     .orb-cta-arrow { transform: translateX(4px); }
   }
 
@@ -316,6 +422,14 @@ $dur-morph: 0.9s;
   }
 
   .orb:not(.is-featured) { display: none; }
+
+  /* Spread : les deux colonnes s'empilent (identité au-dessus, contenu en dessous) */
+  .orb.is-spread { flex-direction: column; }
+  .orb.is-spread .orb-head {
+    flex-basis: auto;
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--orb-accent, var(--interaction-color)) 16%, #ffffff);
+  }
 
   .orb-cta { width: 100%; justify-content: center; }
 
