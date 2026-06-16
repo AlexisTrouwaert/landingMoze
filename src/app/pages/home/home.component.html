@@ -1,23 +1,26 @@
 <div class="page-container">
 
-  <app-header></app-header>
+  <app-floating-dock
+    [groups]="navGroups"
+    [ctaLabel]="'je commence gratuitement'"
+    (ctaClick)="goToFunnel()"></app-floating-dock>
   <main>
     <app-landing-section id="main-content"></app-landing-section>
 
     @defer (on idle) {
-      <app-activity-steps></app-activity-steps>
+      <app-activity-steps id="etapes" class="scroll-anchor"></app-activity-steps>
     }
 
     @defer (on idle) {
-      <app-tool></app-tool>
+      <app-tool id="outils" class="scroll-anchor"></app-tool>
     }
 
     @defer (on idle) {
-      <app-media-press></app-media-press>
+      <app-media-press id="presse" class="scroll-anchor"></app-media-press>
     }
 
     @defer (on idle) {
-      <app-customer-reviews></app-customer-reviews>
+      <app-customer-reviews id="avis" class="scroll-anchor"></app-customer-reviews>
     }
 
     @defer (on idle) {
@@ -25,15 +28,15 @@
     }
 
     @defer (on idle) {
-      <app-faq></app-faq>
+      <app-faq id="faq" class="scroll-anchor"></app-faq>
     }
 
     @defer (on idle) {
-      <app-download-apps></app-download-apps>
+      <app-download-apps id="app" class="scroll-anchor"></app-download-apps>
     }
 
     @defer (on idle) {
-      <app-email></app-email>
+      <app-email id="newsletter" class="scroll-anchor"></app-email>
     }
   </main>
 
@@ -44,4 +47,6 @@
   @defer (on idle) {
     <app-footer></app-footer>
   }
+
+  <app-scroll-top></app-scroll-top>
 </div>

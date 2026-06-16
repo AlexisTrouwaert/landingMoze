@@ -1,6 +1,8 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {HeaderComponent} from "./header/header.component";
+import {Router} from "@angular/router";
+import {DockGroup, FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
+import {ScrollTopComponent} from "../../components/scroll-top/scroll-top.component";
 import {LandingSectionComponent} from "./landing-section/landing-section.component";
 import {TarifComponent} from "./tarif/tarif.component";
 import {ScreenSizeService} from "../../services/screen-size.service";
@@ -19,7 +21,8 @@ import {FollowUsComponent} from "./follow-us/follow-us.component";
   selector: 'app-home',
   standalone: true,
   imports: [
-    HeaderComponent,
+    FloatingDockComponent,
+    ScrollTopComponent,
     LandingSectionComponent,
     TarifComponent,
     ToolComponent,
@@ -40,8 +43,29 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly screenSizeService = inject(ScreenSizeService);
   private readonly metaPixelService  = inject(MetaPixelService);
+  private readonly router            = inject(Router);
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
+
+  /** Navigation du dock (hors pricing). Les `id` correspondent aux ancres des sections. */
+  readonly navGroups: DockGroup[] = [
+    { title: 'Découvrir', links: [
+      { id: 'etapes', label: 'Étapes', icon: 'steps', desc: 'Comment ça marche' },
+      { id: 'outils', label: 'Outils', icon: 'tools', desc: 'Tout ce que Moze offre' },
+      { id: 'presse', label: 'Presse', icon: 'news',  desc: 'On parle de nous' },
+      { id: 'avis',   label: 'Avis',   icon: 'star',  desc: 'La parole aux membres' }
+    ]},
+    { links: [
+      { id: 'faq', label: 'FAQ' },
+      { id: 'app', label: "L'app" }
+    ]}
+  ];
+
+  /** CTA du dock — conserve le comportement de l'ancien header (inscription → tunnel). */
+  goToFunnel(): void {
+    this.metaPixelService.trackLeadCTA('inscription_generic');
+    this.router.navigate(['/commencer']);
+  }
 
   /* === Tracking curseur → spotlight localisé sur chaque grid-patch === */
   private patches: HTMLElement[]      = [];
