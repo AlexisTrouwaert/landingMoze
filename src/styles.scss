@@ -129,3 +129,15 @@ body{
 
   background-color: var(--background-color);
 }
+
+/* =============================================
+   ANCRES / SCROLL — navigation par sections (sidebar)
+   ============================================= */
+html { scroll-behavior: smooth; }
+
+/* Décale les sections ciblées sous le header fixe lors d'un scroll vers l'ancre. */
+.scroll-anchor { scroll-margin-top: 96px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

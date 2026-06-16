@@ -1,17 +1,8 @@
 <div class="funnel-container">
-  <header class="funnel-header">
-
-    <div class="header-right">
-      <img src="assets/icons/MozeLogo.svg" alt="MOZE" (click)="goHome()" class="logo" width="140" height="35">
-    </div>
-
-    <div class="header-left">
-      <button (click)="back()" class="back-btn">
-        <img src="assets/icons/arrow.svg" class="back-icon" alt="" aria-hidden="true" width="16" height="16">
-        Retour
-      </button>
-    </div>
-  </header>
+  <app-floating-dock
+    [buttonLabel]="'Retour'"
+    (buttonClick)="back()"
+    (logoClick)="goHome()"></app-floating-dock>
 
   <app-funnel-stepper />
 

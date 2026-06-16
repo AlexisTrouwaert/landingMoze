@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 import { FunnelKind, MetaPixelService } from '../../../services/meta-pixel.service';
-import { LandingNavService } from '../../../services/landing-nav.service';
 
 @Component({
   selector: 'app-tarif',
@@ -15,7 +14,6 @@ import { LandingNavService } from '../../../services/landing-nav.service';
 export class TarifComponent {
   private router = inject(Router);
   private readonly metaPixel = inject(MetaPixelService);
-  readonly nav = inject(LandingNavService);
 
   public offers = signal([
     {

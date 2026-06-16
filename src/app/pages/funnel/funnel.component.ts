@@ -8,6 +8,7 @@ import {SapStepComponent} from "./steps/sap-step/sap-step.component";
 import {RedirectStepComponent} from "./steps/redirect-step/redirect-step.component";
 import {SphereStepComponent} from "./steps/sphere-step/sphere-step.component";
 import {FunnelStepperComponent} from "./funnel-stepper/funnel-stepper.component";
+import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
 
 @Component({
   selector: 'app-funnel',
@@ -18,7 +19,8 @@ import {FunnelStepperComponent} from "./funnel-stepper/funnel-stepper.component"
     SapStepComponent,
     RedirectStepComponent,
     SphereStepComponent,
-    FunnelStepperComponent
+    FunnelStepperComponent,
+    FloatingDockComponent
   ],
   templateUrl: './funnel.component.html',
   styleUrl: './funnel.component.scss'

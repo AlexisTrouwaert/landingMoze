@@ -1,0 +1,90 @@
+@if (groups.length) {
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0">
+    <defs>
+      <symbol id="di-steps" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+      <symbol id="di-tools" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+      <symbol id="di-star" viewBox="0 0 24 24"><path d="M12 4l2.39 4.84 5.34.78-3.86 3.77.91 5.32L12 16.99 6.22 18.7l.91-5.32L3.27 9.62l5.34-.78z"/></symbol>
+      <symbol id="di-news" viewBox="0 0 24 24"><path d="M4 5h13v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2"/><line x1="7.5" y1="9" x2="13.5" y2="9"/><line x1="7.5" y1="13" x2="13.5" y2="13"/><line x1="7.5" y1="16.5" x2="11" y2="16.5"/></symbol>
+    </defs>
+  </svg>
+}
+
+<div class="dock">
+
+  <!-- Logo (intact) -->
+  <a class="dock-logo" href="/" (click)="onLogoClick($event)" aria-label="Accueil Moze">
+    <img src="assets/icons/MozeLogo.svg" alt="Moze" width="120" height="30">
+  </a>
+
+  <!-- Navigation : déroulants + liens directs -->
+  @if (groups.length) {
+    <nav class="dock-nav" aria-label="Sections">
+      @for (group of groups; track $index; let gi = $index) {
+        @if (group.title) {
+          <div class="dock-dd">
+            <button type="button"
+                    class="dock-item dd-trigger"
+                    [class.is-open]="openGroup() === gi"
+                    [class.is-active]="groupActive(group)"
+                    (click)="toggleGroup(gi)"
+                    [attr.aria-expanded]="openGroup() === gi">
+              {{ group.title }}
+              <svg class="dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div class="dd-panel" [class.is-open]="openGroup() === gi">
+              @for (link of group.links; track link.id) {
+                <a class="dd-link"
+                   [class.is-active]="activeId() === link.id"
+                   [attr.href]="'#' + link.id"
+                   (click)="navigate($event, link.id)">
+                  @if (link.icon) {
+                    <span class="dd-ic" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>
+                    </span>
+                  }
+                  <span class="dd-txt">
+                    <span class="dd-t">{{ link.label }}</span>
+                    @if (link.desc) { <span class="dd-d">{{ link.desc }}</span> }
+                  </span>
+                </a>
+              }
+            </div>
+          </div>
+        } @else {
+          @for (link of group.links; track link.id) {
+            <a class="dock-item"
+               [class.is-active]="activeId() === link.id"
+               [attr.href]="'#' + link.id"
+               (click)="navigate($event, link.id)">
+              {{ link.label }}
+            </a>
+          }
+        }
+      }
+    </nav>
+  }
+
+  <span class="dock-spacer"></span>
+
+  @if (ctaLabel) {
+    <button type="button" class="dock-cta" (click)="ctaClick.emit()">
+      <span class="cta-text">{{ ctaLabel }}</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+  }
+
+  <!-- Bouton custom (ex. "Retour" du tunnel) — placé à la fin, tout à droite -->
+  @if (buttonLabel) {
+    <button type="button" class="dock-back" (click)="buttonClick.emit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M15 18l-6-6 6-6" />
+      </svg>
+      {{ buttonLabel }}
+    </button>
+  }
+
+</div>

@@ -1,0 +1,68 @@
+.scroll-top {
+  position: fixed;
+  bottom: 1.6rem;
+  right: 1.6rem;
+  z-index: 900;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(20, 73, 104, 0.28);
+
+  /* Caché par défaut : invisible, non cliquable, légèrement glissé vers le bas */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.9);
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.25s ease,
+    bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease;
+
+  svg { width: 22px; height: 22px; }
+
+  /* Tant que les cookies ne sont pas choisis, le bandeau occupe le bas-droite :
+     on remonte le bouton pour éviter le chevauchement (il redescend une fois le choix fait). */
+  &.cookies-pending { bottom: 6rem; }
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  &:hover {
+    background: #1a5c83;
+    transform: translateY(-3px) scale(1);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--interaction-color);
+    outline-offset: 3px;
+  }
+}
+
+@media (max-width: 560px) {
+  .scroll-top {
+    width: 44px;
+    height: 44px;
+    bottom: 1.2rem;
+    right: 1.2rem;
+  }
+  .scroll-top.cookies-pending { bottom: 5.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top {
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    transform: none;
+  }
+  .scroll-top.is-visible,
+  .scroll-top:hover { transform: none; }
+}

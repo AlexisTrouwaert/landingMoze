@@ -16,7 +16,7 @@
 }
 
 .tarif-container {
-  max-width: 1340px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 4rem 2rem 2rem;
   display: flex;
@@ -246,7 +246,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  flex-grow: 1;
+  /* Plus de flex-grow : le bloc épouse son contenu (le texte va jusqu'en bas du bloc).
+     L'espace libre de la carte est repris par margin-top:auto sur le bouton. */
 
   li {
     display: flex;
@@ -270,6 +271,7 @@
 /* === BOUTONS INTERNES === */
 .btn-select {
   width: 100%;
+  margin-top: auto; /* pousse le bouton (+ no-cb) en bas → compense la hauteur, sans vide dans la features-list */
   padding: 1.2rem;
   border-radius: 0.8rem;
   font-size: 1.2rem;
@@ -381,55 +383,20 @@
   50%, 99%  { transform: translateX(160%); opacity: 0; }
 }
 
-/* === FOOTER (CTA PRINCIPAL) === */
+/* === FOOTER === */
 .footer-section {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
+  margin-bottom: 4rem;
 
   .disclaimer {
     color: var(--moze-dark-blue);
     font-weight: 700;
     font-size: 1.2rem;
     margin: 0;
-  }
-
-  .btn-main-cta {
-    background-color: var(--moze-green);
-    color: var(--moze-dark-blue);
-    border: none;
-    border-radius: 50px;
-    padding: 1.2rem 3rem;
-    font-size: 1.4rem;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(107, 212, 152, 0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -10%; left: 0;
-      width: 28%; height: 120%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
-      transform: translateX(-180%) skewX(-18deg);
-      animation: btnShine 3.5s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 25px rgba(107, 212, 152, 0.5);
-    }
-
-    &:focus-visible {
-      outline: 3px solid var(--moze-dark-blue);
-      outline-offset: 3px;
-    }
   }
 }
 
@@ -479,15 +446,9 @@
     font-size: 1.1rem;
   }
 
-  /* Footer & Bouton principal CTA */
+  /* Footer : pleine largeur et plus d'air en bas sur mobile */
   .footer-section {
     width: 100%;
-
-    .btn-main-cta {
-      width: 100%; /* Pleine largeur (thumb-friendly) */
-      padding: 1rem; /* Marges réduites */
-      font-size: 1.1rem; /* Taille de police ajustée pour tenir sur une ligne */
-      box-sizing: border-box;
-    }
+    margin-bottom: 2.5rem;
   }
 }
