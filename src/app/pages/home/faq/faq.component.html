@@ -11,7 +11,7 @@
     <div class="left-questions">
 
       @for (q of [0,1,2,3]; track q; let i = $index) {
-        <div class="question-container" [class.extended]="selectedQ() === q" appScrollReveal [delay]="i * 80">
+        <div class="question-container" [class.extended]="selectedQ() === q">
           <button class="title-container" type="button"
                   [attr.aria-expanded]="selectedQ() === q"
                   [attr.aria-controls]="'answer-' + q"
@@ -38,7 +38,7 @@
     <div class="right-questions">
 
       @for (q of [4,5,6,7]; track q; let i = $index) {
-        <div class="question-container" [class.extended]="selectedQ() === q" appScrollReveal [delay]="i * 80">
+        <div class="question-container" [class.extended]="selectedQ() === q">
           <button class="title-container" type="button"
                   [attr.aria-expanded]="selectedQ() === q"
                   [attr.aria-controls]="'answer-' + q"

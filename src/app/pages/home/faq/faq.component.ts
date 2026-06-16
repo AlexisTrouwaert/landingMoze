@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, signal } from '@angular/core';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
@@ -12,11 +12,63 @@ interface FaqItem { title: string; answer: string; }
   styleUrl: './faq.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FaqComponent {
+export class FaqComponent implements OnDestroy {
 
   private readonly metaPixel = inject(MetaPixelService);
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
 
   selectedQ = signal<number | null>(null);
+
+  /** Décalage entre deux « lignes » lors de la révélation au scroll. */
+  private static readonly STAGGER_MS = 85;
+  private revealObserver: IntersectionObserver | null = null;
+
+  constructor() {
+    // Révélation au scroll pilotée ici (et non via un [delay] statique par
+    // colonne) : on trie les cartes qui entrent par leur position visuelle réelle
+    // (boundingClientRect.top). L'ordre d'apparition est donc toujours correct —
+    // en 2 colonnes (desktop), les 2 cartes d'une même ligne ont le même top et
+    // se révèlent ensemble ; en 1 colonne (mobile/tablette), elles se suivent.
+    afterNextRender(() => this.setupReveal());
+  }
+
+  ngOnDestroy(): void {
+    this.revealObserver?.disconnect();
+  }
+
+  private setupReveal(): void {
+    const cards = Array.from(
+      this.host.nativeElement.querySelectorAll<HTMLElement>('.question-container')
+    );
+    if (!cards.length) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') {
+      cards.forEach(c => c.classList.add('is-revealed'));
+      return;
+    }
+
+    this.revealObserver = new IntersectionObserver((entries) => {
+      const entering = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+      let rank = -1;
+      let prevTop = Number.NEGATIVE_INFINITY;
+      for (const entry of entering) {
+        const el = entry.target as HTMLElement;
+        // Saut de plus de 8px = nouvelle ligne → on incrémente le rang du stagger.
+        // Même ligne (desktop) → même rang → révélation simultanée.
+        if (entry.boundingClientRect.top - prevTop > 8) rank++;
+        prevTop = entry.boundingClientRect.top;
+        el.style.transitionDelay = `${rank * FaqComponent.STAGGER_MS}ms`;
+        el.classList.add('is-revealed');
+        this.revealObserver!.unobserve(el);
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+
+    cards.forEach(c => this.revealObserver!.observe(c));
+  }
 
   changeSelectedQ(q: number) {
     this.selectedQ.update(current => current === q ? null : q);
