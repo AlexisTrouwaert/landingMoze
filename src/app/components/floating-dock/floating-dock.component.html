@@ -87,4 +87,61 @@
     </button>
   }
 
+  <!-- Burger (mobile uniquement) -->
+  @if (groups.length) {
+    <button type="button" class="dock-burger"
+            [class.is-open]="mobileOpen()"
+            (click)="toggleMobile()"
+            [attr.aria-expanded]="mobileOpen()"
+            aria-controls="dock-mobile-panel"
+            aria-label="Ouvrir le menu">
+      <span class="burger-box" aria-hidden="true">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </span>
+    </button>
+  }
+
 </div>
+
+<!-- Menu mobile (drawer) — déroulé sous le dock quand le burger est ouvert -->
+@if (groups.length) {
+  <div class="dock-mobile" id="dock-mobile-panel" [class.is-open]="mobileOpen()">
+    <nav class="dock-m-nav" aria-label="Sections">
+      @for (group of groups; track $index) {
+        <div class="dock-m-group">
+          @if (group.title) { <p class="dock-m-title">{{ group.title }}</p> }
+          @for (link of group.links; track link.id) {
+            <a class="dock-m-link"
+               [class.is-active]="activeId() === link.id"
+               [attr.href]="'#' + link.id"
+               (click)="navigate($event, link.id)">
+              @if (link.icon) {
+                <span class="dock-m-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>
+                </span>
+              }
+              <span class="dock-m-txt">
+                <span class="dock-m-t">{{ link.label }}</span>
+                @if (link.desc) { <span class="dock-m-d">{{ link.desc }}</span> }
+              </span>
+              <svg class="dock-m-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M9 18l6-6-6-6" />
+              </svg>
+            </a>
+          }
+        </div>
+      }
+    </nav>
+
+    @if (ctaLabel) {
+      <button type="button" class="dock-m-cta" (click)="onMobileCta()">
+        {{ ctaLabel }}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+    }
+  </div>
+}
