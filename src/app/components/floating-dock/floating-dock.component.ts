@@ -41,6 +41,8 @@ export class FloatingDockComponent implements OnDestroy {
   readonly openGroup = signal<number | null>(null);
   /** Section visible (scroll-spy). */
   readonly activeId = signal<string>('');
+  /** Menu mobile (burger) ouvert ? */
+  readonly mobileOpen = signal<boolean>(false);
 
   private io: IntersectionObserver | null = null;
   private mo: MutationObserver | null = null;
@@ -64,17 +66,32 @@ export class FloatingDockComponent implements OnDestroy {
   }
 
   private readonly onKeydown = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') this.openGroup.set(null);
+    if (e.key === 'Escape') { this.openGroup.set(null); this.mobileOpen.set(false); }
   };
 
-  /** Ferme le déroulant si l'on clique en dehors du dock. */
+  /** Ferme le déroulant / le menu mobile si l'on clique en dehors du dock. */
   private readonly onDocClick = (e: Event): void => {
-    if (this.openGroup() === null) return;
-    if (!(e.target as HTMLElement)?.closest('app-floating-dock')) this.openGroup.set(null);
+    if (this.openGroup() === null && !this.mobileOpen()) return;
+    if (!(e.target as HTMLElement)?.closest('app-floating-dock')) {
+      this.openGroup.set(null);
+      this.mobileOpen.set(false);
+    }
   };
 
   toggleGroup(i: number): void {
     this.openGroup.update(cur => (cur === i ? null : i));
+  }
+
+  /** Ouvre / ferme le menu mobile (burger). */
+  toggleMobile(): void {
+    this.mobileOpen.update(v => !v);
+    this.openGroup.set(null);
+  }
+
+  /** CTA du menu mobile : ferme le menu puis émet l'action. */
+  onMobileCta(): void {
+    this.mobileOpen.set(false);
+    this.ctaClick.emit();
   }
 
   /** Un lien du groupe correspond-il à la section visible ? (surligne le déroulant) */
@@ -90,6 +107,7 @@ export class FloatingDockComponent implements OnDestroy {
   navigate(event: Event, id: string): void {
     event.preventDefault();
     this.openGroup.set(null);
+    this.mobileOpen.set(false);
     if (typeof history !== 'undefined') history.replaceState(null, '', '#' + id);
     this.scrollToId(id);
   }
