@@ -1,33 +1,77 @@
-<div class="all">
-  <div class="mention-container">
+<app-floating-dock [buttonLabel]="'Retour'" (buttonClick)="goHome()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="legal-page">
+
+  <header class="legal-hero">
+    <p class="eyebrow">Confidentialité</p>
     <h1>Politique de confidentialité</h1>
+    <div class="hero-meta">
+      <span class="meta-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>
+        Mise à jour le 17/06/2026
+      </span>
+      <button type="button" class="btn-cookies" (click)="manageCookies()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        Gérer mes cookies
+      </button>
+    </div>
+  </header>
 
-    <h2>1. Informations recueillies</h2>
-    <p>Nous recevons, collectons et stockons toute information que vous saisissez sur notre site web ou que vous nous fournissez de toute autre manière. En outre, nous recueillons l'adresse de protocole Internet (IP) utilisée pour connecter votre ordinateur à l'Internet ; le login ; l'adresse e-mail ; le mot de passe ; les informations sur l'ordinateur et la connexion et l'historique des achats. Nous pouvons utiliser des outils logiciels pour mesurer et collecter des informations de session, y compris les temps de réponse des pages, la durée des visites sur certaines pages, les informations sur l'interaction entre les pages et les méthodes utilisées pour naviguer hors de la page. Nous recueillons également des informations d'identification personnelle (y compris le nom, l'adresse électronique, le mot de passe, les communications) ; les détails de paiement (y compris les informations de carte de crédit), les commentaires, les réactions, les évaluations de produits, les recommandations et le profil personnel.</p>
+  <div class="legal-body">
 
-    <h2>2. Modalités de recueil des informations</h2>
-    <p>Lorsque vous effectuez une transaction sur notre site web, dans le cadre du processus, nous recueillons les informations personnelles que vous nous donnez, telles que votre nom, votre adresse et votre adresse e-mail. Vos informations personnelles ne seront utilisées que pour les raisons spécifiques mentionnées ci-dessus.</p>
+    <aside class="toc">
+      <button type="button" class="toc-toggle" (click)="toggleToc()" [attr.aria-expanded]="tocOpen()" aria-controls="conf-toc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Sommaire</span>
+        <svg class="toc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <nav id="conf-toc" class="toc-nav" [class.is-open]="tocOpen()" aria-label="Sommaire">
+        @for (item of toc(); track item.id) {
+          <a class="toc-link"
+             [class.is-active]="activeId() === item.id"
+             [attr.data-toc]="item.id"
+             [attr.href]="'#' + item.id"
+             (click)="navigate($event, item.id)">
+            <span class="toc-num">{{ item.num }}</span>
+            <span class="toc-label">{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    </aside>
 
-    <h2>3. Utilisations des informations recueillies</h2>
-    <p>Nous recueillons ces informations non personnelles et personnelles aux fins suivantes :</p>
-    <ul>
-      <li>Fournir et exploiter les services.</li>
-      <li>Fournir à nos utilisateurs une Assistance et un support technique permanents.</li>
-      <li>Pouvoir contacter nos visiteurs et utilisateurs avec des avis généraux ou personnalisés relatifs au service et des messages promotionnels.</li>
-      <li>Pour créer des données statistiques agrégées et d'autres informations non personnelles agrégées et/ou déduites, que nous ou nos partenaires commerciaux pouvons utiliser pour fournir et améliorer nos services respectifs.</li>
-      <li>Se conformer aux lois et règlements applicables.</li>
-    </ul>
+    <article class="legal-content">
+      <div class="legal-doc">
 
-    <h2>4. Stockage, utilisation, partage et divulgation des informations recueillies</h2>
-    <p>Notre entreprise est hébergée sur la plateforme Wix.com. Wix.com nous fournit la plateforme en ligne qui nous permet de vous vendre nos produits et services. Vos données peuvent être stockées par le biais du stockage de données, des bases de données et des applications générales de Wix.com. Elles stockent vos données sur des serveurs sécurisés derrière un pare-feu. Toutes les passerelles de paiement direct proposées par Wix.com et utilisées par notre entreprise respectent les normes établies par PCI-DSS, telles que gérées par le PCI Security Standards Council, qui est un effort conjoint de marques comme Visa, MasterCard, American Express et Discover. Les exigences PCI-DSS contribuent à garantir le traitement sécurisé des informations relatives aux cartes de crédit par notre magasin et ses fournisseurs de services.</p>
+        <h2>1. Informations recueillies</h2>
+        <p>Nous recevons, collectons et stockons toute information que vous saisissez sur notre site web ou que vous nous fournissez de toute autre manière. En outre, nous recueillons l'adresse de protocole Internet (IP) utilisée pour connecter votre ordinateur à l'Internet ; le login ; l'adresse e-mail ; le mot de passe ; les informations sur l'ordinateur et la connexion et l'historique des achats. Nous pouvons utiliser des outils logiciels pour mesurer et collecter des informations de session, y compris les temps de réponse des pages, la durée des visites sur certaines pages, les informations sur l'interaction entre les pages et les méthodes utilisées pour naviguer hors de la page. Nous recueillons également des informations d'identification personnelle (y compris le nom, l'adresse électronique, le mot de passe, les communications) ; les détails de paiement (y compris les informations de carte de crédit), les commentaires, les réactions, les évaluations de produits, les recommandations et le profil personnel.</p>
 
-    <h2>5. Modalités de communication avec les utilisateurs du site</h2>
-    <p>Nous pouvons vous contacter pour vous informer sur votre compte, pour résoudre des problèmes avec votre compte, pour résoudre un litige, pour collecter des frais ou des sommes dues, pour sonder votre opinion par le biais d'enquêtes ou de questionnaires, pour envoyer des mises à jour sur notre société, ou si nécessaire pour vous contacter afin de faire respecter notre contrat d'utilisation, les lois nationales applicables, et tout accord que nous pourrions avoir avec vous. À ces fins, nous pouvons vous contacter par courrier électronique, téléphone, messages textuels et courrier postal.</p>
+        <h2>2. Modalités de recueil des informations</h2>
+        <p>Lorsque vous effectuez une transaction sur notre site web, dans le cadre du processus, nous recueillons les informations personnelles que vous nous donnez, telles que votre nom, votre adresse et votre adresse e-mail. Vos informations personnelles ne seront utilisées que pour les raisons spécifiques mentionnées ci-dessus.</p>
 
-    <h2>6. Comment retirer son consentement ?</h2>
-    <p>Si vous ne souhaitez plus que nous traitions vos données, veuillez nous contacter à contact&#64;by-moze.com ou nous envoyer un courrier à immeuble Antarès, 365 Rue Pierre Seghers, 84000 Avignon.</p>
+        <h2>3. Utilisations des informations recueillies</h2>
+        <p>Nous recueillons ces informations non personnelles et personnelles aux fins suivantes :</p>
+        <ul>
+          <li>Fournir et exploiter les services.</li>
+          <li>Fournir à nos utilisateurs une Assistance et un support technique permanents.</li>
+          <li>Pouvoir contacter nos visiteurs et utilisateurs avec des avis généraux ou personnalisés relatifs au service et des messages promotionnels.</li>
+          <li>Pour créer des données statistiques agrégées et d'autres informations non personnelles agrégées et/ou déduites, que nous ou nos partenaires commerciaux pouvons utiliser pour fournir et améliorer nos services respectifs.</li>
+          <li>Se conformer aux lois et règlements applicables.</li>
+        </ul>
 
-    <h2>7. Mise à jour de la politique de confidentialité</h2>
-    <p>Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment, aussi nous vous invitons à la consulter fréquemment. Les modifications et les clarifications prendront effet dès leur publication sur le site web. Si nous apportons des modifications importantes à la présente politique, nous vous informerons ici de sa mise à jour, afin que vous sachiez quelles informations nous recueillons, comment nous les utilisons et dans quelles circonstances, le cas échéant, nous les utilisons et/ou les divulguons.</p>
+        <h2>4. Stockage, utilisation, partage et divulgation des informations recueillies</h2>
+        <p>Notre entreprise est hébergée sur la plateforme Wix.com. Wix.com nous fournit la plateforme en ligne qui nous permet de vous vendre nos produits et services. Vos données peuvent être stockées par le biais du stockage de données, des bases de données et des applications générales de Wix.com. Elles stockent vos données sur des serveurs sécurisés derrière un pare-feu. Toutes les passerelles de paiement direct proposées par Wix.com et utilisées par notre entreprise respectent les normes établies par PCI-DSS, telles que gérées par le PCI Security Standards Council, qui est un effort conjoint de marques comme Visa, MasterCard, American Express et Discover. Les exigences PCI-DSS contribuent à garantir le traitement sécurisé des informations relatives aux cartes de crédit par notre magasin et ses fournisseurs de services.</p>
+
+        <h2>5. Modalités de communication avec les utilisateurs du site</h2>
+        <p>Nous pouvons vous contacter pour vous informer sur votre compte, pour résoudre des problèmes avec votre compte, pour résoudre un litige, pour collecter des frais ou des sommes dues, pour sonder votre opinion par le biais d'enquêtes ou de questionnaires, pour envoyer des mises à jour sur notre société, ou si nécessaire pour vous contacter afin de faire respecter notre contrat d'utilisation, les lois nationales applicables, et tout accord que nous pourrions avoir avec vous. À ces fins, nous pouvons vous contacter par courrier électronique, téléphone, messages textuels et courrier postal.</p>
+
+        <h2>6. Comment retirer son consentement ?</h2>
+        <p>Si vous ne souhaitez plus que nous traitions vos données, veuillez nous contacter à contact&#64;by-moze.com ou nous envoyer un courrier à immeuble Antarès, 365 Rue Pierre Seghers, 84000 Avignon.</p>
+
+        <h2>7. Mise à jour de la politique de confidentialité</h2>
+        <p>Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment, aussi nous vous invitons à la consulter fréquemment. Les modifications et les clarifications prendront effet dès leur publication sur le site web. Si nous apportons des modifications importantes à la présente politique, nous vous informerons ici de sa mise à jour, afin que vous sachiez quelles informations nous recueillons, comment nous les utilisons et dans quelles circonstances, le cas échéant, nous les utilisons et/ou les divulguons.</p>
+
+      </div>
+    </article>
+
   </div>
 </div>
