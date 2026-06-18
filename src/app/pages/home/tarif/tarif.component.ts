@@ -18,16 +18,16 @@ export class TarifComponent {
   public offers = signal([
     {
       name: 'Freemium',
-      subtitle: 'L\'essentiel pour démarrer et facturer efficacement',
+      subtitle: 'Rejoins la communauté et développe ton activité par le réseau',
       pricePrefix: '',
       price: '0€',
       priceSuffix: '/mois',
       isPopular: false,
       features: [
-        'Facturation électronique conforme',
-        'Factures illimitées, seul',
-        'Réseau sociale des indépendants',
-        'Tableau de bord et suivi en temps réel'
+        'Réseau social des indépendants',
+        'Apport d\'affaires entre membres',
+        'Groupes & communautés par métier',
+        'Messagerie et mise en relation'
       ],
       buttonText: "Je m'inscris &rarr;",
       trackingLabel: 'inscription_freemium'
