@@ -23,11 +23,12 @@ export class TarifComponent {
       price: '0€',
       priceSuffix: '/mois',
       isPopular: false,
+      isSocial: true,
       features: [
         'Réseau social des indépendants',
-        'Apport d\'affaires entre membres',
         'Groupes & communautés par métier',
-        'Messagerie et mise en relation'
+        'Messagerie et mise en relation',
+        'Actualités des entrepreneurs'
       ],
       buttonText: "Je m'inscris &rarr;",
       trackingLabel: 'inscription_freemium'
@@ -39,6 +40,7 @@ export class TarifComponent {
       price: '9,90€',
       priceSuffix: 'HT/mois',
       isPopular: true,
+      isSocial: false,
       features: [
         'Freemium',
         'Apport d\'affaires intégré',

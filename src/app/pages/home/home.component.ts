@@ -47,11 +47,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
-  /** Navigation du dock (hors pricing). Les `id` correspondent aux ancres des sections. */
+  /** Navigation du dock. Les `id` correspondent aux ancres des sections. */
   readonly navGroups: DockGroup[] = [
     { title: 'Découvrir', links: [
       { id: 'etapes', label: 'Étapes', icon: 'steps', desc: 'Comment ça marche' },
       { id: 'outils', label: 'Outils', icon: 'tools', desc: 'Tout ce que Moze offre' },
+      { id: 'offres', label: 'Offres', icon: 'offres', desc: 'Nos formules' },
       { id: 'presse', label: 'Presse', icon: 'news',  desc: 'On parle de nous' },
       { id: 'avis',   label: 'Avis',   icon: 'star',  desc: 'La parole aux membres' }
     ]},

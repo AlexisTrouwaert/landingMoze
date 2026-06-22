@@ -41,3 +41,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Docs de cadrage internes (non versionnées)
+/BLOG_SYNTHESE.md
+/BLOG_DETAILLE.md
