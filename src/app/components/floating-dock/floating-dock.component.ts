@@ -6,10 +6,10 @@ export interface DockGroup { title?: string; links: DockLink[]; }
 /**
  * Barre de navigation horizontale **flottante** (dock), réutilisable.
  *
- * - Landing : logo + navigation à déroulants (`groups`) + CTA. Liens = ancres
- *   partageables (`/#section`) avec scroll fluide et scroll-spy.
- * - Tunnel : on passe `buttonLabel` (ex. "Retour") → un bouton custom apparaît,
- *   `(buttonClick)` est émis au clic (aucune navigation par sections nécessaire).
+ * - Landing : logo + navigation à déroulants (`groups`) + CTA optionnel. Liens =
+ *   ancres partageables (`/#section`) avec scroll fluide et scroll-spy.
+ * - Réutilisable ailleurs : on peut passer `buttonLabel` (ex. "Retour") → un
+ *   bouton custom apparaît, `(buttonClick)` est émis au clic.
  *
  * Les sections de la landing étant en `@defer (on idle)`, le scroll réessaie tant
  * que la cible n'est pas rendue (gère aussi l'arrivée via un lien partagé).
@@ -26,9 +26,9 @@ export class FloatingDockComponent implements OnDestroy {
 
   /** Navigation : groupe avec `title` = déroulant ; groupe sans `title` = liens directs. */
   @Input() groups: DockGroup[] = [];
-  /** Bouton custom (ex. "Retour" dans le tunnel). null = pas de bouton. */
+  /** Bouton custom (ex. "Retour"). null = pas de bouton. */
   @Input() buttonLabel: string | null = null;
-  /** Libellé du CTA (bouton primaire à droite). null = pas de CTA (paramètre non obligatoire). */
+  /** Libellé du CTA (bouton primaire à droite). null = pas de CTA. */
   @Input() ctaLabel: string | null = null;
   /** Émis au clic sur le bouton custom de gauche (ex. "Retour"). */
   @Output() buttonClick = new EventEmitter<void>();

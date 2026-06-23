@@ -12,11 +12,7 @@
     </p>
 
     <p class="hero-bravo">
-      @if (fs.funnelType() === 'reseau') {
-        Bravo, tu rejoins la communauté des indépendants connectés&nbsp;!
-      } @else {
-        Bravo, tu as désormais rejoint le club des indépendants structurés&nbsp;!
-      }
+      Bravo, tu as désormais rejoint le club des indépendants structurés&nbsp;!
     </p>
   </div>
 
@@ -43,28 +39,20 @@
 
   <!-- Question incitative — gros bloc highlight vert, grisé tant que pas confirmé -->
   <h2 class="cards-question" [class.cards-question--unlocked]="isConfirmed()">
-    <span class="cards-question-block">
-      @if (fs.funnelType() === 'reseau') { Une dernière étape&nbsp;! }
-      @else { Par quoi souhaites-tu commencer&nbsp;? }
-    </span>
+    <span class="cards-question-block">Par quoi souhaites-tu commencer&nbsp;?</span>
   </h2>
 
-  <!-- Cards de redirection — intention pure, une seule phrase par card.
-       Mode 'reseau' : une seule destination (MozePlace). -->
-  <div class="cards"
-       [class.cards--unlocked]="isConfirmed()"
-       [class.cards--single]="fs.funnelType() === 'reseau'">
+  <!-- 2 cards de redirection — intention pure, une seule phrase par card -->
+  <div class="cards" [class.cards--unlocked]="isConfirmed()">
 
-    @if (fs.funnelType() !== 'reseau') {
-      <button type="button"
-              class="card card--app"
-              [disabled]="!isConfirmed()"
-              (click)="goToConnexion()">
-        <div class="card-shine" aria-hidden="true"></div>
-        <span class="card-badge">Espace Facturation</span>
-        <span class="card-text">Je veux faire<br>ma première facture</span>
-      </button>
-    }
+    <button type="button"
+            class="card card--app"
+            [disabled]="!isConfirmed()"
+            (click)="goToConnexion()">
+      <div class="card-shine" aria-hidden="true"></div>
+      <span class="card-badge">Espace Facturation</span>
+      <span class="card-text">Je veux faire<br>ma première facture</span>
+    </button>
 
     <button type="button"
             class="card card--place"
@@ -72,11 +60,7 @@
             (click)="goToPlace()">
       <div class="card-shine" aria-hidden="true"></div>
       <span class="card-badge card-badge--accent">Réseau &amp; Affaires</span>
-      @if (fs.funnelType() === 'reseau') {
-        <span class="card-text">J'accède<br>au réseau social</span>
-      } @else {
-        <span class="card-text">Je veux explorer<br>le réseau social</span>
-      }
+      <span class="card-text">Je veux explorer<br>le réseau social</span>
     </button>
 
   </div>

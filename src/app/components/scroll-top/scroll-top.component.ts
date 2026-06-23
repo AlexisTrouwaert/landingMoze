@@ -7,7 +7,8 @@ import { CookieConsentService } from '../../services/cookie-consent.service';
  * Réutilisable et autonome : il n'apparaît qu'une fois la page suffisamment
  * défilée, puis ramène en haut avec un scroll fluide (respecte
  * `prefers-reduced-motion`). Positionné en bas à droite, sous les éléments
- * prioritaires (cookie-banner, panneau contact).
+ * prioritaires (cookie-banner, panneau contact). Tant que les cookies ne sont
+ * pas choisis, il se décale vers le haut pour ne pas chevaucher le bandeau.
  */
 @Component({
   selector: 'app-scroll-top',

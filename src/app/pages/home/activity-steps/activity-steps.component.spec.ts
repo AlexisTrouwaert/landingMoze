@@ -67,7 +67,12 @@ describe('ActivityStepsComponent', () => {
     });
   });
 
-  // CTA "Je souhaite facturer simplement" → ancre via LandingNavService (cf. landing-nav.service.spec).
+  it('goToFunnel() should track + navigate', () => {
+    spyOn(router, 'navigate');
+    component.goToFunnel();
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
+    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
+  });
 
   it('onCardMouseMove should apply a perspective transform', () => {
     const card = document.createElement('div');

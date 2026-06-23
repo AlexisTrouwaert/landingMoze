@@ -2,8 +2,8 @@
 
   <app-floating-dock
     [groups]="navGroups"
-    [ctaLabel]="'je commence'"
-    (ctaClick)="nav.scrollToOffers('dock')"></app-floating-dock>
+    [ctaLabel]="'je commence gratuitement'"
+    (ctaClick)="goToFunnel()"></app-floating-dock>
   <main>
     <app-landing-section id="main-content"></app-landing-section>
 
@@ -24,7 +24,7 @@
     }
 
     @defer (on idle) {
-      <app-tarif></app-tarif>
+      <app-tarif id="offres" class="scroll-anchor"></app-tarif>
     }
 
     @defer (on idle) {

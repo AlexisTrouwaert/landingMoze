@@ -289,12 +289,6 @@
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }
-
-  /* Mode réseau social : destination unique → carte centrée */
-  &--single {
-    grid-template-columns: 1fr;
-    max-width: 420px;
-  }
 }
 
 .card {

@@ -22,6 +22,18 @@
   font-family: 'SNPRO', sans-serif;
 }
 
+/* =============================================
+   SCROLL — défilement fluide + offset des ancres sous le dock flottant
+   ============================================= */
+html { scroll-behavior: smooth; }
+
+/* Décale la cible d'ancre pour qu'elle ne passe pas sous le dock fixe. */
+.scroll-anchor { scroll-margin-top: 96px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

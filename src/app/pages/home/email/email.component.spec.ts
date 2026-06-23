@@ -42,7 +42,12 @@ describe('EmailComponent', () => {
     expect(component.optInValue()).toBe(false);
   });
 
-  // CTA "Je rejoins l'aventure" → ancre via LandingNavService (cf. landing-nav.service.spec).
+  it('goToFunnel() should track + navigate', () => {
+    spyOn(router, 'navigate');
+    component.goToFunnel();
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
+    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
+  });
 
   it('onSubmit() with invalid email should flag emailError and shake', fakeAsync(() => {
     component.emailValue.set('not-an-email');

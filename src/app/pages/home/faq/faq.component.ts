@@ -125,4 +125,20 @@ export class FaqComponent implements OnDestroy {
       answer: `Invite de nouveaux Mozeurs à rejoindre la plateforme afin de <span>développer</span> ton réseau.`
     }
   ];
+
+  /** Bloc « Questions fréquentes » — distinct des sujets/fonctionnalités ci-dessus. */
+  readonly commonQuestions: FaqItem[] = [
+    {
+      title: 'Quel nom apparaît sur la facture ?',
+      answer: `La facture est émise au nom de l'entreprise (ou du micro-entrepreneur) qui <span>réalise la prestation</span>&nbsp;: votre <span>nom commercial</span> et vos <span>informations légales</span> y figurent.<br>Sur une <span>facture collaborative</span>, si vous êtes le <span>mandataire administratif</span> (celui qui édite le bordereau récapitulatif), ce sont les vôtres qui apparaissent sur le bordereau&nbsp;; vos <span>co-traitants</span>, eux, figurent dans le corps du document.`
+    },
+    {
+      title: 'Les autres co-traitants doivent-ils eux aussi souscrire à Moze ?',
+      answer: `<span>Oui.</span> Pour toute collaboration via la plateforme (partage de mission, apport d'affaires, collaboration commerciale…), <span>chaque intervenant doit avoir un compte Moze</span>&nbsp;: c'est ce qui sécurise et automatise les échanges, contrats, factures et paiements.`
+    },
+    {
+      title: 'Quel est le prix du service ?',
+      answer: `Le <span>freemium</span> est gratuit&nbsp;:<ul><li>réseau social des indépendants&nbsp;;</li><li>échanges avec la communauté&nbsp;;</li><li>veille légale et réglementaire.</li></ul>Les fonctionnalités complètes sont à <span>9,90&nbsp;€ HT / mois</span> — <a href="#offres">voir le détail des offres</a>.<br>Seuls les paiements qui transitent par <span>Stripe</span> (compte séquestre) ajoutent <span>3,9&nbsp;% HT</span> de frais de transaction.`
+    }
+  ];
 }

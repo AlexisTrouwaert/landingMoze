@@ -41,6 +41,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
-/BLOG_DETAILLE.md
+
+# Docs de cadrage internes (non versionnées)
 /BLOG_SYNTHESE.md
+/BLOG_DETAILLE.md
 /THEORIE_DES_CONTRAINTES.md

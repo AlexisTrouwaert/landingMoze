@@ -91,8 +91,9 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       category: 'TV',
       name: 'BSMART TV',
       show: 'Émission Smart Impact',
-      date: '12/06/2026',
+      date: '16/06/2026',
       upcoming: true,
+      link: 'https://www.bsmart.fr/video/34063-smart-impact-16-juin-2026',
       logo: '/assets/images/medias/bsmart-tv.webp',
       location: { x: 485, y: 255, city: 'Paris' }
     },

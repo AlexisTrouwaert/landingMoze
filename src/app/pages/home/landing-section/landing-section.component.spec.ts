@@ -64,9 +64,32 @@ describe('LandingSectionComponent', () => {
     });
   });
 
-  // Les CTA "Je rejoins l'aventure" et "Les offres" (supprimé) ont été remplacés
-  // par une ancre unique → LandingNavService.scrollToOffers('hero'). Le scroll +
-  // l'event ViewOffers sont désormais testés dans landing-nav.service.spec.
+  it('goToFunnel should track + navigate', () => {
+    spyOn(router, 'navigate');
+    component.goToFunnel();
+    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
+    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
+  });
+
+  it('goToOffres should fire ViewOffers and scroll into view if app-tarif exists', () => {
+    const fakeTarif = document.createElement('app-tarif');
+    const scrollSpy = jasmine.createSpy('scrollIntoView');
+    (fakeTarif as any).scrollIntoView = scrollSpy;
+    document.body.appendChild(fakeTarif);
+
+    component.goToOffres();
+
+    expect(pixel.trackCustomEvent).toHaveBeenCalledWith('ViewOffers', {
+      source: 'hero_cta',
+    });
+    expect(scrollSpy).toHaveBeenCalledWith({ behavior: 'smooth' });
+    fakeTarif.remove();
+  });
+
+  it('goToOffres should be safe when no app-tarif is in the DOM', () => {
+    document.querySelectorAll('app-tarif').forEach((n) => n.remove());
+    expect(() => component.goToOffres()).not.toThrow();
+  });
 
   it('activeSlide() should default to 0', () => {
     expect(component.activeSlide()).toBe(0);

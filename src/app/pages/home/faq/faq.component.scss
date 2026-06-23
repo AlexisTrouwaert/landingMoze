@@ -31,6 +31,32 @@
 }
 
 /* =========================================
+   === BLOC « QUESTIONS FRÉQUENTES » (séparé) ===
+   ========================================= */
+.common-faq {
+  width: 100%;
+  max-width: 900px;
+  margin: 3.5rem auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.common-faq-title {
+  margin: 0;
+  text-align: center;
+  color: var(--background-color);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.4rem);
+  font-weight: 800;
+}
+
+.common-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* =========================================
    === BANNER ELEMENTS ===
    ========================================= */
 
@@ -172,21 +198,47 @@
   color: var(--primary-color);
   font-size: clamp(0.9rem, 0.6857rem + 0.4286vw, 1.2rem);
 
-  & span {
+  /* Les réponses sont injectées via [innerHTML] : l'encapsulation Angular
+     n'atteint pas ces éléments → on perce avec ::ng-deep. */
+  ::ng-deep span {
     font-weight: bold;
   }
 
-  & a {
+  ::ng-deep a {
     color: var(--interaction-color);
     font-weight: 700;
     text-decoration: none;
     text-decoration-thickness: 2px;
-    transition: all 0.3s ease;
-    white-space: nowrap;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
 
     &:hover {
       color: var(--moze-dark-blue);
       text-decoration-color: transparent;
+    }
+  }
+
+  ::ng-deep ul {
+    margin: 0.7rem 0 0.2rem;
+    padding: 0 0 0 1.5rem;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  ::ng-deep li {
+    position: relative;
+    padding-left: 1.4rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.3rem;
+      top: 0.6em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-color);
     }
   }
 }

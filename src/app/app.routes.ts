@@ -8,12 +8,6 @@ export const routes: Routes = [
   },
   {
     path: 'commencer',
-    data: { funnelType: 'facturation' },
-    loadChildren: () => import('./routes/funnel.routes').then(m => m.FUNNEL_ROUTES)
-  },
-  {
-    path: 'rejoindre',
-    data: { funnelType: 'reseau' },
     loadChildren: () => import('./routes/funnel.routes').then(m => m.FUNNEL_ROUTES)
   },
   {

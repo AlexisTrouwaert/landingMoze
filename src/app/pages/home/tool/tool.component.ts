@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
-import { LandingNavService } from '../../../services/landing-nav.service';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-tool',
@@ -11,7 +12,8 @@ import { LandingNavService } from '../../../services/landing-nav.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolComponent {
-  readonly nav = inject(LandingNavService);
+  private router = inject(Router);
+  private readonly metaPixel = inject(MetaPixelService);
 
   public features = signal([
     {
@@ -65,5 +67,10 @@ export class ToolComponent {
     const card = event.currentTarget as HTMLElement;
     card.style.setProperty('--mx', '-9999px');
     card.style.setProperty('--my', '-9999px');
+  }
+
+  goToFunnel() {
+    this.metaPixel.trackLeadCTA('inscription_generic');
+    this.router.navigate(['/commencer']);
   }
 }

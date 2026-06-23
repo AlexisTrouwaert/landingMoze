@@ -10,14 +10,14 @@
   <div class="questions-container" (click)="onAnswerLinkClick($event)">
     <div class="left-questions">
 
-      @for (q of [0,1,2,3]; track q; let i = $index) {
-        <div class="question-container" [class.extended]="selectedQ() === q">
+      @for (item of leftQuestions; track item.title; let i = $index) {
+        <div class="question-container" [class.extended]="selectedQ() === i" appScrollReveal [delay]="i * 80">
           <button class="title-container" type="button"
-                  [attr.aria-expanded]="selectedQ() === q"
-                  [attr.aria-controls]="'answer-' + q"
-                  (click)="changeSelectedQ(q)">
-            <p class="question-title">{{ leftQuestions[i].title }}</p>
-            <svg class="faq-icon" [class.open]="selectedQ() === q"
+                  [attr.aria-expanded]="selectedQ() === i"
+                  [attr.aria-controls]="'answer-' + i"
+                  (click)="changeSelectedQ(i)">
+            <p class="question-title">{{ item.title }}</p>
+            <svg class="faq-icon" [class.open]="selectedQ() === i"
                  width="20" height="20" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2.5"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -25,9 +25,9 @@
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
-          <div class="answer-wrapper" [id]="'answer-' + q" role="region" [attr.aria-label]="leftQuestions[i].title">
+          <div class="answer-wrapper" [id]="'answer-' + i" role="region" [attr.aria-label]="item.title">
             <div class="answer">
-              <p [innerHTML]="leftQuestions[i].answer"></p>
+              <div [innerHTML]="item.answer"></div>
             </div>
           </div>
         </div>
@@ -37,14 +37,14 @@
 
     <div class="right-questions">
 
-      @for (q of [4,5,6,7]; track q; let i = $index) {
-        <div class="question-container" [class.extended]="selectedQ() === q">
+      @for (item of rightQuestions; track item.title; let i = $index) {
+        <div class="question-container" [class.extended]="selectedQ() === leftQuestions.length + i" appScrollReveal [delay]="i * 80">
           <button class="title-container" type="button"
-                  [attr.aria-expanded]="selectedQ() === q"
-                  [attr.aria-controls]="'answer-' + q"
-                  (click)="changeSelectedQ(q)">
-            <p class="question-title">{{ rightQuestions[i].title }}</p>
-            <svg class="faq-icon" [class.open]="selectedQ() === q"
+                  [attr.aria-expanded]="selectedQ() === leftQuestions.length + i"
+                  [attr.aria-controls]="'answer-' + (leftQuestions.length + i)"
+                  (click)="changeSelectedQ(leftQuestions.length + i)">
+            <p class="question-title">{{ item.title }}</p>
+            <svg class="faq-icon" [class.open]="selectedQ() === leftQuestions.length + i"
                  width="20" height="20" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2.5"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -52,14 +52,42 @@
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
-          <div class="answer-wrapper" [id]="'answer-' + q" role="region" [attr.aria-label]="rightQuestions[i].title">
+          <div class="answer-wrapper" [id]="'answer-' + (leftQuestions.length + i)" role="region" [attr.aria-label]="item.title">
             <div class="answer">
-              <p [innerHTML]="rightQuestions[i].answer"></p>
+              <div [innerHTML]="item.answer"></div>
             </div>
           </div>
         </div>
       }
 
+    </div>
+  </div>
+
+  <div class="common-faq" appScrollReveal>
+    <h3 class="common-faq-title">Questions fréquentes</h3>
+    <div class="common-questions" (click)="onAnswerLinkClick($event)">
+      @for (item of commonQuestions; track item.title; let i = $index) {
+        <div class="question-container" [class.extended]="selectedQ() === leftQuestions.length + rightQuestions.length + i" appScrollReveal [delay]="i * 80">
+          <button class="title-container" type="button"
+                  [attr.aria-expanded]="selectedQ() === leftQuestions.length + rightQuestions.length + i"
+                  [attr.aria-controls]="'answer-' + (leftQuestions.length + rightQuestions.length + i)"
+                  (click)="changeSelectedQ(leftQuestions.length + rightQuestions.length + i)">
+            <p class="question-title">{{ item.title }}</p>
+            <svg class="faq-icon" [class.open]="selectedQ() === leftQuestions.length + rightQuestions.length + i"
+                 width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+          <div class="answer-wrapper" [id]="'answer-' + (leftQuestions.length + rightQuestions.length + i)" role="region" [attr.aria-label]="item.title">
+            <div class="answer">
+              <div [innerHTML]="item.answer"></div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
-import { FunnelKind, MetaPixelService } from '../../../services/meta-pixel.service';
+import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
   selector: 'app-tarif',
@@ -18,22 +18,20 @@ export class TarifComponent {
   public offers = signal([
     {
       name: 'Freemium',
-      subtitle: 'L\'essentiel pour démarrer et facturer efficacement',
+      subtitle: 'Rejoins la communauté et développe ton activité par le réseau',
       pricePrefix: '',
       price: '0€',
       priceSuffix: '/mois',
       isPopular: false,
-      isSocial: false,
-      badge: null as string | null,
+      isSocial: true,
       features: [
-        'Facturation électronique conforme',
-        'Factures illimitées, seul',
-        'Réseau sociale des indépendants',
-        'Tableau de bord et suivi en temps réel'
+        'Réseau social des indépendants',
+        'Groupes & communautés par métier',
+        'Messagerie et mise en relation',
+        'Actualités des entrepreneurs'
       ],
       buttonText: "Je m'inscris &rarr;",
-      trackingLabel: 'inscription_freemium',
-      route: '/commencer'
+      trackingLabel: 'inscription_freemium'
     },
     {
       name: 'Indép +',
@@ -43,7 +41,6 @@ export class TarifComponent {
       priceSuffix: 'HT/mois',
       isPopular: true,
       isSocial: false,
-      badge: 'Le plus populaire' as string | null,
       features: [
         'Freemium',
         'Apport d\'affaires intégré',
@@ -51,33 +48,12 @@ export class TarifComponent {
         'Accès à l\'avance immédiate SAP',
       ],
       buttonText: "Je m'inscris &rarr;",
-      trackingLabel: 'inscription_indep_plus',
-      route: '/commencer'
-    },
-    {
-      name: 'Réseau social',
-      subtitle: 'Rejoins la communauté et développe ton activité par le réseau',
-      pricePrefix: '',
-      price: '0€',
-      priceSuffix: '/mois',
-      isPopular: false,
-      isSocial: true,
-      badge: 'Le + connecté' as string | null,
-      features: [
-        'Réseau social des indépendants',
-        'Apport d\'affaires entre membres',
-        'Groupes & communautés par métier',
-        'Messagerie et mise en relation'
-      ],
-      buttonText: "Je m'inscris &rarr;",
-      trackingLabel: 'inscription_reseau_social',
-      route: '/rejoindre'
+      trackingLabel: 'inscription_indep_plus'
     }
   ]);
 
-  goToFunnel(buttonLabel: string = 'inscription_generic', route: string = '/commencer') {
-    // La route encode le funnel ciblé : /rejoindre = réseau, sinon facturation.
-    const funnel: FunnelKind = route === '/rejoindre' ? 'reseau' : 'facturation';
-    this.metaPixel.trackLeadCTA(buttonLabel, funnel, () => this.router.navigate([route]));
+  goToFunnel(buttonLabel: string = 'inscription_generic') {
+    this.metaPixel.trackLeadCTA(buttonLabel);
+    this.router.navigate(['/commencer']);
   }
 }
