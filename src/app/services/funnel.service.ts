@@ -31,10 +31,8 @@ export class FunnelService {
 
   private http = inject(HttpClient);
   private readonly metaPixel = inject(MetaPixelService);
-  /** Bases d'API — bascule prod / test (test activé via /commencer?test). */
-  private readonly PROD_API = 'https://app.mozeconnect.fr';
-  private readonly TEST_API = 'https://nico.by-moze.fr';
-  private apiUrl = this.PROD_API;
+  // private apiUrl = `https://nico.by-moze.fr`;
+  private apiUrl = `https://app.mozeconnect.fr`;
 
   private state = signal<FunnelState>({
     step: 1,
@@ -53,15 +51,8 @@ export class FunnelService {
   readonly hasSapNumber = computed(() => this.state().hasSapNumber);
 
   // --- Nouvelles Actions (Appels HTTP) ---
-  // Getters : recalculés à chaque appel pour suivre la bascule prod/test de `apiUrl`.
-  private get inscriptionApiUrl() { return `${this.apiUrl}/mozeapp/inscription`; }
-  private get abonnementsApiUrl() { return `${this.apiUrl}/mozeapp/abonnements/public/subscribe`; }
-  private get motDePasseOublieUrl() { return `${this.apiUrl}/mozeapp/mot-de-passe-oublie`; }
-
-  /** Bascule les appels du funnel vers les serveurs de test (nico.by-moze.fr). */
-  useTestServer(enabled: boolean): void {
-    this.apiUrl = enabled ? this.TEST_API : this.PROD_API;
-  }
+  private inscriptionApiUrl = `${this.apiUrl}/mozeapp/inscription`;
+  private abonnementsApiUrl = `${this.apiUrl}/mozeapp/abonnements/public/subscribe`;
 
   // --- Actions ---
   setSector(sector: SectorType) {
@@ -98,14 +89,6 @@ export class FunnelService {
 
   submitInscription(dto: UtilisateurInscriptionDTO) {
     return this.http.post(this.inscriptionApiUrl, dto, { responseType: 'text' });
-  }
-
-  /**
-   * Demande l'envoi d'un lien de réinitialisation de mot de passe.
-   * Réponse volontairement neutre côté back (anti-énumération de comptes).
-   */
-  requestPasswordReset(email: string) {
-    return this.http.post(this.motDePasseOublieUrl, { email }, { responseType: 'text' });
   }
 
   subscribePremium(email: string, withSap: boolean, withCoop: boolean, origine: string) {

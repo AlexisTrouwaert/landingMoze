@@ -1,6 +1,5 @@
 <div class="step-container">
 
-  @if (view() === 'form') {
   <div class="split-layout">
 
     <div class="content-column animate-in-left">
@@ -53,7 +52,11 @@
           }
 
           @if(form.get('email')?.invalid && form.get('email')?.touched) {
-            <small id="email-error" class="error">Email invalide.</small>
+            @if(form.get('email')?.errors?.['emailExists']) {
+              <small id="email-error" class="error">Cet email est déjà utilisé.</small>
+            } @else {
+              <small id="email-error" class="error">Email invalide.</small>
+            }
           }
         </div>
 
@@ -130,76 +133,4 @@
     </div>
 
   </div>
-  }
-
-  <!-- ÉTAT SUCCÈS — inscription réussie (compte créé) -->
-  @if (view() === 'success') {
-  <div class="result-wrapper">
-    <div class="result-card fade-in" role="status" aria-live="polite">
-      <div class="result-icon is-success" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-          <path d="m22 7-10 5L2 7"></path>
-        </svg>
-      </div>
-
-      <h1 class="result-title">Inscription réussie&nbsp;!</h1>
-
-      <p class="result-text">
-        Un email vient d'être envoyé à <strong>{{ form.get('email')?.value }}</strong> pour que vous puissiez définir votre mot de passe.
-      </p>
-
-      <div class="result-info">
-        <p><strong>Vous ne le trouvez pas&nbsp;?</strong> Pensez à vérifier votre dossier <strong>courrier indésirable (spam)</strong>.</p>
-        <p>Si vous n'avez toujours rien reçu, demandez un nouveau lien via «&nbsp;Mot de passe oublié&nbsp;».</p>
-      </div>
-
-      <div class="result-actions">
-        <button type="button" class="result-btn result-btn--primary" (click)="continueToStep4()">Suivant</button>
-        <button type="button" class="result-btn result-btn--secondary" [disabled]="resetSending()" (click)="requestPasswordReset()">Je n'ai pas reçu l'email</button>
-      </div>
-
-      @if (resetMessage()) {
-        <p class="result-feedback" role="status">{{ resetMessage() }}</p>
-      }
-    </div>
-  </div>
-  }
-
-  <!-- ÉTAT COMPTE EXISTANT — email déjà utilisé -->
-  @if (view() === 'exists') {
-  <div class="result-wrapper">
-    <div class="result-card fade-in" role="alert">
-      <div class="result-icon is-warning" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-      </div>
-
-      <h1 class="result-title">Cet email est déjà utilisé</h1>
-
-      <p class="result-text">
-        Un compte existe déjà avec l'adresse <strong>{{ form.get('email')?.value }}</strong>.
-      </p>
-
-      <div class="result-info">
-        <p><strong>Vous avez déjà un compte&nbsp;?</strong> Connectez-vous avec votre mot de passe habituel.</p>
-        <p>Mot de passe oublié, ou compte jamais activé&nbsp;? Réinitialisez-le pour en définir un nouveau.</p>
-      </div>
-
-      <div class="result-actions">
-        <button type="button" class="result-btn result-btn--primary" (click)="goToConnexion()">Se connecter</button>
-        <button type="button" class="result-btn result-btn--secondary" [disabled]="resetSending()" (click)="requestPasswordReset()">Mot de passe oublié</button>
-        <button type="button" class="result-link" (click)="useAnotherEmail()">Utiliser une autre adresse email</button>
-      </div>
-
-      @if (resetMessage()) {
-        <p class="result-feedback" role="status">{{ resetMessage() }}</p>
-      }
-    </div>
-  </div>
-  }
-
 </div>

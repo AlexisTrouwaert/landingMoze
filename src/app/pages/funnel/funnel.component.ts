@@ -25,20 +25,6 @@ export class FunnelComponent implements OnInit {
   private readonly metaPixel = inject(MetaPixelService);
 
   ngOnInit(): void {
-    // Param de test → API de test (nico.by-moze.fr). Le flag est capturé au bootstrap
-    // (main.ts) car Angular nettoie un param à clé vide (?=test) de l'URL avant ce point ;
-    // filet sur l'URL au cas où le param a survécu (?test=1, ?env=test…).
-    let isTest = false;
-    try { isTest = sessionStorage.getItem('funnel-test-server') === '1'; } catch { /* noop */ }
-    if (!isTest && typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search);
-      isTest = p.has('test') || p.get('') === 'test'
-        || p.get('env') === 'test' || p.get('server') === 'test';
-    }
-    if (isTest) {
-      this.fs.useTestServer(true);
-      console.info('[Funnel] Serveur de test actif → nico.by-moze.fr');
-    }
     // Entrée du funnel — fire au premier rendu de /commencer.
     this.metaPixel.trackFunnelStarted();
   }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MetaPixelService } from '../../../../services/meta-pixel.service';
 
@@ -13,12 +13,21 @@ import { MetaPixelService } from '../../../../services/meta-pixel.service';
 export class RedirectStepComponent {
   private readonly metaPixel = inject(MetaPixelService);
 
+  isConfirmed = signal(false);
+
+  toggleConfirmation(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.isConfirmed.set(input.checked);
+  }
+
   goToConnexion(): void {
+    if (!this.isConfirmed()) return;
     this.redirectWithTracking('mozeconnect', 'https://app.mozeconnect.fr/connexion');
   }
 
   goToPlace(): void {
-    this.redirectWithTracking('mozeplace', 'https://place.mozeconnect.fr/feed');
+    if (!this.isConfirmed()) return;
+    this.redirectWithTracking('mozeplace', 'https://place.mozeconnect.fr/authentification');
   }
 
   /**
