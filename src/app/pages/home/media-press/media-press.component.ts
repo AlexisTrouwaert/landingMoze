@@ -151,6 +151,16 @@ export class MediaPressComponent implements OnInit, OnDestroy {
       logo: '/assets/images/medias/vaucluse-matin.webp',
       location: { x: 660, y: 735, city: 'Avignon' }
     },
+    {
+      id: 'vaucluse-entreprises',
+      category: 'Presse',
+      name: 'Vaucluse Entreprises',
+      show: "Moze et l'UAE s'allient pour accompagner les auto-entrepreneurs",
+      date: 'Juin 2026',
+      link: 'https://www.vaucluse-entreprises.com/moze-et-luae-sallient-pour-accompagner-les-auto-entrepreneurs/',
+      logo: '/assets/images/medias/vaucluse-entreprises.webp',
+      location: { x: 660, y: 735, city: 'Avignon' }
+    },
 
     // ─── Podcasts ───
     {

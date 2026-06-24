@@ -28,7 +28,7 @@ describe('ValidationService', () => {
   it('should hit the expected URL with the email query param', () => {
     service.validateEmail('foo@bar.fr').subscribe();
     const req = httpMock.expectOne(
-      'https://moze.fr/mozeapp/inscription/validate-email?email=foo@bar.fr'
+      'https://app.mozeconnect.fr/mozeapp/inscription/validate-email?email=foo@bar.fr'
     );
     expect(req.request.method).toBe('GET');
     req.flush({ emailExists: false });
