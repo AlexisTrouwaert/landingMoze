@@ -28,6 +28,13 @@ export class InterstitialStepComponent {
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
 
+  // Vue affichée : formulaire, succès (compte créé) ou compte déjà existant.
+  view = signal<'form' | 'success' | 'exists'>('form');
+
+  // Demande de lien de réinitialisation (boutons « mot de passe oublié » / « je n'ai pas reçu l'email »).
+  resetSending = signal(false);
+  resetMessage = signal<string | null>(null);
+
   // Horodatage d'affichage du formulaire — utilisé conjointement au honeypot pour
   // distinguer un vrai bot (remplissage quasi instantané) d'un autofill légitime
   // (utilisateur humain dont le password manager a rempli le honeypot après plusieurs secondes).
@@ -84,7 +91,9 @@ export class InterstitialStepComponent {
       filter((email): email is string => !!email && emailCtrl?.valid === true),
       switchMap(email => {
         if (window.location.hostname === 'localhost') {
-          return of(false);
+          // DEV : pas d'appel API. Pour prévisualiser l'écran « compte existant »,
+          // saisis un email contenant « exist » (ex. exist@test.com).
+          return of(email.includes('exist'));
         }
         this.isCheckingEmail.set(true);
         return this.validationService.validateEmail(email).pipe(
@@ -94,17 +103,10 @@ export class InterstitialStepComponent {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(exists => {
+      // On mémorise seulement l'existence du compte : le formulaire reste affiché
+      // pendant la saisie. La bascule vers l'écran « compte existant » se fait à la
+      // validation (submit), une fois les champs remplis et validés.
       this.emailExistsInBdd.set(exists);
-
-      if (exists) {
-        emailCtrl?.setErrors({ emailExists: true });
-      } else {
-        if (emailCtrl?.hasError('emailExists')) {
-          const errors = { ...emailCtrl.errors };
-          delete errors['emailExists'];
-          emailCtrl.setErrors(Object.keys(errors).length > 0 ? errors : null);
-        }
-      }
     });
   }
 
@@ -176,7 +178,7 @@ export class InterstitialStepComponent {
       if (window.location.hostname === 'localhost') {
         console.log('[DEV] Soumission ignorée sur localhost.');
         this.isSubmitting.set(false);
-        this.fs.nextStep(); // Passage à l'étape 4
+        this.view.set('success'); // affiche l'écran « Inscription réussie »
         return;
       }
 
@@ -193,7 +195,7 @@ export class InterstitialStepComponent {
           }
 
           this.isSubmitting.set(false);
-          this.fs.nextStep(); // Passage à l'étape 4
+          this.view.set('success'); // affiche l'écran « Inscription réussie »
         },
         error: (err) => {
           if (isDevMode()) {
@@ -203,9 +205,57 @@ export class InterstitialStepComponent {
           this.submissionError.set("Une erreur est survenue, veuillez réessayer ultérieurement.");
         }
       });
+    } else if (this.form.valid && this.emailExistsInBdd()) {
+      // Champs remplis et validés, mais le compte existe déjà → écran « compte existant ».
+      this.view.set('exists');
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  // --- ACTIONS DES ÉCRANS RÉSULTAT ---
+  /** Image 1 (succès) → bouton principal : on continue vers l'étape 4 (redirect-step). */
+  continueToStep4(): void {
+    this.fs.nextStep();
+  }
+
+  /**
+   * Boutons « Mot de passe oublié » (image 2) et « Je n'ai pas reçu l'email » (image 1) :
+   * déclenche l'envoi d'un lien de réinitialisation. Réponse neutre (anti-énumération de comptes).
+   */
+  requestPasswordReset(): void {
+    const email = this.form.get('email')?.value;
+    if (!email || this.resetSending()) return;
+
+    this.resetMessage.set(null);
+
+    if (window.location.hostname === 'localhost') {
+      // DEV : pas d'appel API (CORS). On simule la réponse neutre.
+      this.resetMessage.set('Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.');
+      return;
+    }
+
+    this.resetSending.set(true);
+    this.fs.requestPasswordReset(email).pipe(
+      finalize(() => this.resetSending.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: () => this.resetMessage.set('Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'),
+      error: () => this.resetMessage.set('Une erreur est survenue, réessaie dans un instant.'),
+    });
+  }
+
+  /** Image 2 (compte existant) → aller se connecter. */
+  goToConnexion(): void {
+    window.location.href = 'https://app.mozeconnect.fr/connexion';
+  }
+
+  /** Image 2 (compte existant) → revenir au formulaire pour saisir une autre adresse. */
+  useAnotherEmail(): void {
+    this.emailExistsInBdd.set(false);
+    this.resetMessage.set(null);
+    this.form.get('email')?.reset('');
+    this.view.set('form');
   }
 
   // --- LOGIQUE BREVO ---

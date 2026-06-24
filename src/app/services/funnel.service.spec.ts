@@ -160,4 +160,26 @@ describe('FunnelService', () => {
     });
     req.flush('OK');
   });
+
+  it('requestPasswordReset should POST to /mozeapp/mot-de-passe-oublie with the email', () => {
+    service.requestPasswordReset('user@x.fr').subscribe();
+    const req = httpMock.expectOne(
+      'https://app.mozeconnect.fr/mozeapp/mot-de-passe-oublie'
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'user@x.fr' });
+    expect(req.request.responseType).toBe('text');
+    req.flush('OK');
+  });
+
+  it('useTestServer(true) should route the inscription POST to the test server', () => {
+    service.useTestServer(true);
+    service.submitInscription({
+      nom: 'A', prenom: 'B', pseudo: 'AB1', email: 'a@b.fr',
+      telephonePersonnel: '0600000000', communication: { secteur: 'AUTRE' },
+    }).subscribe();
+    const req = httpMock.expectOne('https://nico.by-moze.fr/mozeapp/inscription');
+    expect(req.request.method).toBe('POST');
+    req.flush('OK');
+  });
 });
