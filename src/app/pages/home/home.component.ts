@@ -57,11 +57,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       { id: 'presse', label: 'Presse', icon: 'news',  desc: 'On parle de nous' },
       { id: 'avis',   label: 'Avis',   icon: 'star',  desc: 'La parole aux membres' },
       { id: 'offres', label: 'Offres', icon: 'offres', desc: 'Nos formules' },
+      { id: 'app', label: "L'app", icon: 'app', desc: 'iOS & Android' },
       { id: 'support', label: 'Support', icon: 'support', desc: "Une question ? On t'aide", action: 'support' }
     ]},
     { links: [
-      { id: 'faq', label: 'FAQ' },
-      { id: 'app', label: "L'app" }
+      { id: 'faq', label: 'FAQ' }
     ]}
   ];
 
