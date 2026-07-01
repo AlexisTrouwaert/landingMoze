@@ -1,0 +1,34 @@
+<app-floating-dock [buttonLabel]="'Retour'" (buttonClick)="goBlog()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="article-page">
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else if (notFound()) {
+    <div class="state state--404">
+      <h1>Article introuvable</h1>
+      <p>Cet article n'existe pas ou n'est plus publié.</p>
+      <a class="btn" [routerLink]="['/blog']">← Retour au blog</a>
+    </div>
+  } @else {
+    @if (article(); as a) {
+      <article class="article">
+        <header class="article__head">
+          <a class="article__back" [routerLink]="['/blog']">← Tous les articles</a>
+          <h1 class="article__title">{{ a.title }}</h1>
+          <div class="article__meta">
+            @if (a.author) { <span>{{ a.author }}</span> }
+            @if (a.publishedAt) { <time>{{ a.publishedAt | date: 'dd/MM/yyyy' }}</time> }
+          </div>
+        </header>
+
+        @if (a.coverImageUrl) {
+          <img class="article__cover" [src]="a.coverImageUrl" [alt]="a.title" />
+        }
+
+        <!-- Contenu HTML rendu via [innerHTML] : sanitizé côté back (whitelist)
+             ET par Angular au rendu (double protection anti-XSS, cf. §13). -->
+        <div class="article__content" [innerHTML]="a.content"></div>
+      </article>
+    }
+  }
+</div>

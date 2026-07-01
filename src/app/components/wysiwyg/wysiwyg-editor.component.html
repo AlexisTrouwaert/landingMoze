@@ -1,0 +1,30 @@
+<div class="wys">
+  <!-- mousedown.preventDefault : garde la sélection dans la zone éditable
+       quand on clique un bouton de la barre d'outils. -->
+  <div class="wys-toolbar" (mousedown)="$event.preventDefault()">
+    <button type="button" title="Gras" (click)="exec('bold')"><b>B</b></button>
+    <button type="button" title="Italique" (click)="exec('italic')"><i>I</i></button>
+    <span class="wys-sep"></span>
+    <button type="button" title="Titre 2" (click)="formatBlock('<h2>')">H2</button>
+    <button type="button" title="Titre 3" (click)="formatBlock('<h3>')">H3</button>
+    <button type="button" title="Paragraphe" (click)="formatBlock('<p>')">¶</button>
+    <span class="wys-sep"></span>
+    <button type="button" title="Liste à puces" (click)="exec('insertUnorderedList')">•&nbsp;Liste</button>
+    <button type="button" title="Liste numérotée" (click)="exec('insertOrderedList')">1.&nbsp;Liste</button>
+    <span class="wys-sep"></span>
+    <button type="button" title="Citation" (click)="formatBlock('<blockquote>')">❝</button>
+    <button type="button" title="Séparateur" (click)="exec('insertHorizontalRule')">―</button>
+    <span class="wys-sep"></span>
+    <button type="button" title="Lien" (click)="addLink()">🔗</button>
+  </div>
+
+  <div
+    #editor
+    class="wys-editable"
+    [attr.contenteditable]="disabled() ? 'false' : 'true'"
+    data-placeholder="Rédigez votre article…"
+    (input)="onInput()"
+    (blur)="onBlur()"
+    (paste)="onPaste($event)"
+  ></div>
+</div>

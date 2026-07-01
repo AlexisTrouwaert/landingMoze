@@ -17,6 +17,10 @@ export class FooterComponent {
   contactPanel  = inject(ContactPanelService);
   cookieConsent = inject(CookieConsentService);
 
+  blog(){
+    this.router.navigate(['/blog']);
+  }
+
   cgv(){
     this.router.navigate(['/cgv-cgu']);
   }
