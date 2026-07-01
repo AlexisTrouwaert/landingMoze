@@ -1,0 +1,22 @@
+# Moze
+
+> Moze est la plateforme des indépendants pour facturer, collaborer et développer leur activité : facturation (dont facturation collaborative et facturation électronique au format Factur-X), apport d'affaires, mise en réseau et gestion administrative simplifiée.
+
+Moze (https://www.moze.fr) est un service édité par Moze Factory, destiné aux indépendants, micro-entrepreneurs et TPE. Il réunit un espace de facturation (app.mozeconnect.fr) et un réseau social professionnel de mise en relation (place.mozeconnect.fr). Deux offres : un **Freemium gratuit** (réseau social des indépendants, communauté, veille légale) et un **abonnement complet à 9,90 € HT / mois** qui débloque toutes les fonctionnalités. Des prestations éligibles au crédit d'impôt sont proposées via la coopérative (numéro SAP).
+
+## Pages principales
+
+- [Accueil](https://www.moze.fr/): présentation de la plateforme — fonctionnalités (facturation, facturation collaborative, apport d'affaires, réseau, Factur-X), offres, passages médias et avis.
+- [Commencer](https://www.moze.fr/commencer): tunnel d'inscription gratuit pour créer un compte Moze.
+
+## Informations légales
+
+- [CGV / CGU](https://www.moze.fr/cgv-cgu): conditions générales de vente et d'utilisation du service.
+- [Mentions légales](https://www.moze.fr/mentions-legales): informations sur l'éditeur du site.
+- [Politique de confidentialité](https://www.moze.fr/politique-confidentialite): traitement et protection des données personnelles.
+
+## Optional
+
+- [Plan du site (sitemap)](https://www.moze.fr/sitemap.xml): liste des URL indexables.
+- [Espace facturation — MozeConnect](https://app.mozeconnect.fr/connexion): connexion à l'application de facturation.
+- [Réseau & affaires — MozePlace](https://place.mozeconnect.fr): réseau social et mise en relation des indépendants.
