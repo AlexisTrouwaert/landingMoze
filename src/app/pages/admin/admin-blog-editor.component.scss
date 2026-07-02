@@ -108,6 +108,53 @@
   }
 }
 
+.cover-position {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+
+  &__label {
+    color: #8a979d;
+    font-size: 0.8rem;
+  }
+
+  &__options {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  &__btn {
+    border: 1px solid #cdd9d4;
+    background: #fff;
+    color: #4a5b63;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      border-color: var(--interaction-color);
+      color: var(--primary-color);
+    }
+
+    &--active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
+
+      &:hover {
+        background: var(--interaction-color);
+        border-color: var(--interaction-color);
+        color: #fff;
+      }
+    }
+  }
+}
+
 .seo {
   border: 1px solid #e3ebe7;
   border-radius: 12px;

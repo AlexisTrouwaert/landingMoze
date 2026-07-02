@@ -16,9 +16,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { PromptDialogComponent } from '../../components/prompt-dialog/prompt-dialog.component';
 import { TagInputComponent } from '../../components/tag-input/tag-input.component';
 import { WysiwygEditorComponent } from '../../components/wysiwyg/wysiwyg-editor.component';
-import { ArticleInput, Tag } from '../../model/article.model';
+import { ArticleInput, CoverPosition, Tag } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
-import {JsonPipe} from "@angular/common";
 
 @Component({
   selector: 'app-admin-blog-editor',
@@ -29,7 +28,6 @@ import {JsonPipe} from "@angular/common";
     TagInputComponent,
     ConfirmDialogComponent,
     PromptDialogComponent,
-    JsonPipe,
   ],
   templateUrl: './admin-blog-editor.component.html',
   styleUrl: './admin-blog-editor.component.scss',
@@ -64,6 +62,7 @@ export class AdminBlogEditorComponent {
     author: [''],
     excerpt: [''],
     coverImageUrl: [''],
+    coverPosition: new FormControl<CoverPosition>('top', { nonNullable: true }),
     content: [''],
     metaTitle: [''],
     metaDescription: [''],
@@ -85,6 +84,7 @@ export class AdminBlogEditorComponent {
             author: a.author,
             excerpt: a.excerpt,
             coverImageUrl: a.coverImageUrl ?? '',
+            coverPosition: a.coverPosition ?? 'top',
             content: a.content,
             metaTitle: a.metaTitle ?? '',
             metaDescription: a.metaDescription ?? '',
@@ -134,6 +134,18 @@ export class AdminBlogEditorComponent {
   /** Retire la couverture (vidée → enregistrée à `null` côté back au save). */
   removeCover(): void {
     this.form.patchValue({ coverImageUrl: '' });
+  }
+
+  /** Options de position de l'image de couverture (le texte se place à l'opposé). */
+  readonly coverPositions: { value: CoverPosition; label: string }[] = [
+    { value: 'top', label: 'Haut' },
+    { value: 'bottom', label: 'Bas' },
+    { value: 'left', label: 'Gauche' },
+    { value: 'right', label: 'Droite' },
+  ];
+
+  setCoverPosition(position: CoverPosition): void {
+    this.form.controls.coverPosition.setValue(position);
   }
 
   // --- Suppression d'un tag global (modale de confirmation) ---
@@ -207,6 +219,7 @@ export class AdminBlogEditorComponent {
       excerpt: v.excerpt,
       content: v.content,
       coverImageUrl: v.coverImageUrl || null,
+      coverPosition: v.coverPosition,
       metaTitle: v.metaTitle || null,
       metaDescription: v.metaDescription || null,
       tags: v.tags,

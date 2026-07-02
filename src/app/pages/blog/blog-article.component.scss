@@ -54,7 +54,72 @@
   &__cover {
     width: 100%;
     border-radius: 18px;
-    margin-bottom: 2rem;
+    object-fit: cover;
+  }
+
+  // Disposition couverture / texte selon `coverPosition` (texte à l'opposé).
+  &__body {
+    margin-top: 0.5rem;
+
+    // Haut / bas : image pleine largeur (bannière 16/9), empilée avec le texte.
+    &--top,
+    &--bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    &--bottom {
+      flex-direction: column-reverse;
+    }
+
+    &--top .article__cover,
+    &--bottom .article__cover {
+      aspect-ratio: 16 / 9;
+    }
+
+    // Gauche / droite : image latérale (4/3) + texte à côté.
+    &--left,
+    &--right {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+
+      .article__cover {
+        width: clamp(200px, 40%, 320px);
+        aspect-ratio: 4 / 3;
+        flex-shrink: 0;
+        position: sticky;
+        top: 100px;
+      }
+
+      .article__content {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    &--left {
+      flex-direction: row;
+    }
+
+    &--right {
+      flex-direction: row-reverse;
+    }
+
+    // Mobile : on repasse en colonne (image en haut, texte dessous).
+    @media (max-width: 720px) {
+      &--left,
+      &--right {
+        flex-direction: column;
+
+        .article__cover {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          position: static;
+        }
+      }
+    }
   }
 
   &__content {

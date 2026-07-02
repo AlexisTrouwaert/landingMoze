@@ -1,5 +1,8 @@
 export type ArticleStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
+/** Position de l'image de couverture par rapport au texte (le texte va à l'opposé). */
+export type CoverPosition = 'top' | 'bottom' | 'left' | 'right';
+
 export interface Tag {
   id: string;
   name: string;
@@ -16,6 +19,7 @@ export interface Article {
   excerpt: string;
   content: string;
   coverImageUrl: string | null;
+  coverPosition: CoverPosition;
   author: string;
   status: ArticleStatus;
   metaTitle: string | null;
@@ -54,6 +58,7 @@ export interface ArticleInput {
   excerpt?: string;
   content?: string;
   coverImageUrl?: string | null;
+  coverPosition?: CoverPosition;
   author?: string;
   metaTitle?: string | null;
   metaDescription?: string | null;

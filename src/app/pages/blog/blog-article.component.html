@@ -21,13 +21,17 @@
           </div>
         </header>
 
-        @if (a.coverImageUrl) {
-          <img class="article__cover" [src]="a.coverImageUrl" [alt]="a.title" />
-        }
-
         <!-- Contenu HTML rendu via [innerHTML] : sanitizé côté back (whitelist)
-             ET par Angular au rendu (double protection anti-XSS, cf. §13). -->
-        <div class="article__content" [innerHTML]="a.content"></div>
+             ET par Angular au rendu (double protection anti-XSS, cf. §13).
+             La couverture se place selon `coverPosition`, le texte à l'opposé. -->
+        @if (a.coverImageUrl) {
+          <div [class]="'article__body article__body--' + a.coverPosition">
+            <img class="article__cover" [src]="a.coverImageUrl" [alt]="a.title" />
+            <div class="article__content" [innerHTML]="a.content"></div>
+          </div>
+        } @else {
+          <div class="article__content" [innerHTML]="a.content"></div>
+        }
       </article>
     }
   }

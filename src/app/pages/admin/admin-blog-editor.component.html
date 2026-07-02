@@ -62,6 +62,24 @@
               <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onCoverSelected($event)" />
             </label>
           </div>
+
+          @if (form.controls.coverImageUrl.value) {
+            <div class="cover-position">
+              <span class="cover-position__label">Position de l'image (le texte se place à l'opposé)</span>
+              <div class="cover-position__options" role="group" aria-label="Position de l'image">
+                @for (opt of coverPositions; track opt.value) {
+                  <button
+                    type="button"
+                    class="cover-position__btn"
+                    [class.cover-position__btn--active]="form.controls.coverPosition.value === opt.value"
+                    (click)="setCoverPosition(opt.value)"
+                  >
+                    {{ opt.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
         </div>
       </div>
 
