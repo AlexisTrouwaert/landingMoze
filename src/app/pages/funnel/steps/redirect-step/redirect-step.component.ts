@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MetaPixelService } from '../../../../services/meta-pixel.service';
+import { BrevoService } from '../../../../services/brevo.service';
 
 @Component({
   selector: 'app-redirect-step',
@@ -12,6 +13,7 @@ import { MetaPixelService } from '../../../../services/meta-pixel.service';
 })
 export class RedirectStepComponent {
   private readonly metaPixel = inject(MetaPixelService);
+  private readonly brevo = inject(BrevoService);
 
   goToConnexion(): void {
     this.redirectWithTracking('mozeconnect', 'https://app.mozeconnect.fr/connexion');
@@ -30,6 +32,10 @@ export class RedirectStepComponent {
     destination: 'mozeconnect' | 'mozeplace',
     url: string
   ): void {
+    // Brevo n'a pas d'eventCallback : on l'envoie au plus tôt (fire-and-forget),
+    // la temporisation de navigation reste pilotée par Meta + le filet de 1s.
+    this.brevo.trackFunnelDestination(destination);
+
     let navigated = false;
     const go = (): void => {
       if (navigated) return;

@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/funnel.service";
 import { ValidationService } from '../../../../services/validation.service';
 import { MetaPixelService } from "../../../../services/meta-pixel.service";
+import { BrevoService } from "../../../../services/brevo.service";
 
 @Component({
   selector: 'app-interstitial-step',
@@ -21,6 +22,7 @@ export class InterstitialStepComponent {
   private destroyRef = inject(DestroyRef);
   private validationService = inject(ValidationService);
   private metaPixelService = inject(MetaPixelService);
+  private brevoService = inject(BrevoService);
 
   // --- SIGNAUX D'ÉTAT ---
   isCheckingEmail = signal(false);
@@ -122,6 +124,7 @@ export class InterstitialStepComponent {
         // Honeypot rempli + soumission quasi instantanée → vrai bot, on bloque.
         console.warn('Bot détecté (honeypot + soumission rapide).');
         this.metaPixelService.trackFunnelAbandoned(3, 'honeypot_triggered');
+        this.brevoService.trackFunnelAbandoned(3, 'honeypot_triggered');
         return;
       }
 
@@ -185,6 +188,19 @@ export class InterstitialStepComponent {
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
           this.metaPixelService.trackCompleteRegistration({
+            sector: secteurChoisi || 'AUTRE',
+            wants_tax_credit: this.fs.hasSapNumber() ?? false,
+            opt_in_newsletter: val.optIn ?? false,
+          });
+
+          // Brevo tracker : on rattache tout le parcours (anonyme jusqu'ici) au contact
+          // via son email (= la conversion), puis on marque l'event d'inscription.
+          this.brevoService.identify(emailSan, {
+            PRENOM: prenomSan,
+            NOM: nomSan,
+            SECTEUR: secteurChoisi || 'AUTRE',
+          });
+          this.brevoService.trackCompleteRegistration({
             sector: secteurChoisi || 'AUTRE',
             wants_tax_credit: this.fs.hasSapNumber() ?? false,
             opt_in_newsletter: val.optIn ?? false,

@@ -7,5 +7,7 @@ export const environment = {
   production: false,
   apiUrl: 'https://app.mozeconnect.fr',
   /** Pixel Meta dédié aux tests locaux — compte perso, ne pollue pas la prod. */
-  metaPixelId: '949083607920305'
+  metaPixelId: '949083607920305',
+  /** Clé Marketing Automation Brevo (tracker on-site). Vide = tracker désactivé. À renseigner. */
+  brevoKey: ''
 };
