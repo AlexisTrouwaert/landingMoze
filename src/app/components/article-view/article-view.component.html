@@ -1,0 +1,24 @@
+<article class="article">
+  <header class="article__head">
+    @if (back()) {
+      <a class="article__back" [routerLink]="['/blog']">← Tous les articles</a>
+    }
+    <h1 class="article__title">{{ article().title }}</h1>
+    <div class="article__meta">
+      @if (article().author) { <span>{{ article().author }}</span> }
+      @if (article().publishedAt) { <time>{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time> }
+    </div>
+  </header>
+
+  <!-- Contenu HTML rendu via [innerHTML] : sanitizé côté back (whitelist) ET par
+       Angular au rendu (double protection anti-XSS, cf. §13).
+       La couverture se place selon `coverPosition`, le texte à l'opposé. -->
+  @if (article().coverImageUrl) {
+    <div [class]="'article__body article__body--' + article().coverPosition">
+      <img class="article__cover" [src]="article().coverImageUrl" [alt]="article().title" />
+      <div class="article__content" [innerHTML]="article().content"></div>
+    </div>
+  } @else {
+    <div class="article__content" [innerHTML]="article().content"></div>
+  }
+</article>

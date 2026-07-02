@@ -102,20 +102,8 @@
   } @else {
     <section class="cards">
       @for (a of items(); track a.id) {
-        <a class="card" [routerLink]="['/blog', a.slug]">
-          @if (a.coverImageUrl) {
-            <img class="card__cover" [src]="a.coverImageUrl" [alt]="a.title" loading="lazy" />
-          } @else {
-            <div class="card__cover card__cover--placeholder" aria-hidden="true"></div>
-          }
-          <div class="card__body">
-            @if (a.publishedAt) {
-              <time class="card__date">{{ a.publishedAt | date: 'dd/MM/yyyy' }}</time>
-            }
-            <h2 class="card__title">{{ a.title }}</h2>
-            <p class="card__excerpt">{{ a.excerpt }}</p>
-            <span class="card__more">Lire l'article →</span>
-          </div>
+        <a class="card-link" [routerLink]="['/blog', a.slug]">
+          <app-article-card [article]="a" />
         </a>
       }
     </section>

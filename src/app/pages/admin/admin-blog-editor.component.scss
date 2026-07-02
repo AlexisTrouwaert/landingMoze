@@ -235,6 +235,55 @@
   }
 }
 
+.preview {
+  margin-top: 2rem;
+  border: 1px solid #e3ebe7;
+  border-radius: 14px;
+  overflow: hidden;
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    background: #f4f8f6;
+    border-bottom: 1px solid #e3ebe7;
+  }
+
+  &__title {
+    color: var(--primary-color);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 1rem;
+  }
+
+  &__surface {
+    background: var(--background-color);
+    padding: 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  &__block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  &__label {
+    color: #8a979d;
+    font-size: 0.78rem;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__card {
+    width: 340px;
+    max-width: 100%;
+  }
+}
+
 .state {
   text-align: center;
   color: #4a5b63;

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,6 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { ArticleCardComponent } from '../../components/article-card/article-card.component';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 import { ArticleListItem, Tag } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
@@ -17,7 +17,7 @@ import { BlogService } from '../../services/blog.service';
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, FloatingDockComponent],
+  imports: [RouterLink, ReactiveFormsModule, FloatingDockComponent, ArticleCardComponent],
   templateUrl: './blog-list.component.html',
   styleUrl: './blog-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

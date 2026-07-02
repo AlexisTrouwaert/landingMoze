@@ -113,6 +113,29 @@
         </button>
       </div>
     </form>
+
+    <section class="preview">
+      <div class="preview__bar">
+        <h2 class="preview__title">Aperçu du rendu</h2>
+        <button type="button" class="btn btn--small" (click)="togglePreview()">
+          {{ showPreview() ? 'Masquer' : 'Afficher' }}
+        </button>
+      </div>
+      @if (showPreview()) {
+        <div class="preview__surface">
+          <div class="preview__block">
+            <span class="preview__label">Carte dans la liste</span>
+            <div class="preview__card">
+              <app-article-card [article]="previewArticle()" />
+            </div>
+          </div>
+          <div class="preview__block">
+            <span class="preview__label">Article complet</span>
+            <app-article-view [article]="previewArticle()" [back]="false" />
+          </div>
+        </div>
+      }
+    </section>
   }
 
   <app-confirm-dialog

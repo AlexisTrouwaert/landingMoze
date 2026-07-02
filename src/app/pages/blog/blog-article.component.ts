@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,6 +7,7 @@ import {
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
+import { ArticleViewComponent } from '../../components/article-view/article-view.component';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 import { Article } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
@@ -15,7 +15,7 @@ import { BlogService } from '../../services/blog.service';
 @Component({
   selector: 'app-blog-article',
   standalone: true,
-  imports: [DatePipe, RouterLink, FloatingDockComponent],
+  imports: [RouterLink, FloatingDockComponent, ArticleViewComponent],
   templateUrl: './blog-article.component.html',
   styleUrl: './blog-article.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

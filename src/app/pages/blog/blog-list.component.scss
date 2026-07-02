@@ -235,63 +235,12 @@
   gap: 1.75rem;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 18px;
-  overflow: hidden;
+// Lien englobant la carte : `display: contents` → la carte (l'hôte de
+// <app-article-card>) devient l'élément de grille, layout inchangé.
+.card-link {
+  display: contents;
+  color: inherit;
   text-decoration: none;
-  box-shadow: 0 8px 30px rgba(20, 87, 117, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 40px rgba(20, 87, 117, 0.16);
-  }
-
-  &__cover {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-
-    &--placeholder {
-      background: linear-gradient(135deg, var(--primary-color), var(--interaction-color));
-    }
-  }
-
-  &__body {
-    padding: 1.25rem 1.4rem 1.6rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  &__date {
-    color: #8a979d;
-    font-size: 0.8rem;
-  }
-
-  &__title {
-    color: var(--primary-color);
-    font-family: 'SNPRO-SemiBold', sans-serif;
-    font-size: 1.25rem;
-    line-height: 1.3;
-  }
-
-  &__excerpt {
-    color: #4a5b63;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    flex: 1;
-  }
-
-  &__more {
-    color: var(--interaction-color);
-    font-family: 'SNPRO-SemiBold', sans-serif;
-    font-size: 0.9rem;
-    margin-top: 0.4rem;
-  }
 }
 
 .state {

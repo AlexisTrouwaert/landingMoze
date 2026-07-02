@@ -11,12 +11,16 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { map } from 'rxjs';
+import { ArticleCardComponent } from '../../components/article-card/article-card.component';
+import { ArticleViewComponent } from '../../components/article-view/article-view.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { PromptDialogComponent } from '../../components/prompt-dialog/prompt-dialog.component';
 import { TagInputComponent } from '../../components/tag-input/tag-input.component';
 import { WysiwygEditorComponent } from '../../components/wysiwyg/wysiwyg-editor.component';
-import { ArticleInput, CoverPosition, Tag } from '../../model/article.model';
+import { Article, ArticleInput, CoverPosition, Tag } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 @Component({
@@ -28,6 +32,8 @@ import { BlogService } from '../../services/blog.service';
     TagInputComponent,
     ConfirmDialogComponent,
     PromptDialogComponent,
+    ArticleCardComponent,
+    ArticleViewComponent,
   ],
   templateUrl: './admin-blog-editor.component.html',
   styleUrl: './admin-blog-editor.component.scss',
@@ -69,6 +75,41 @@ export class AdminBlogEditorComponent {
     tags: new FormControl<string[]>([], { nonNullable: true }),
   });
 
+  readonly showPreview = signal(true);
+
+  /** Valeur live du formulaire → aperçu réactif. */
+  private readonly formValue = toSignal(
+    this.form.valueChanges.pipe(map(() => this.form.getRawValue())),
+    { initialValue: this.form.getRawValue() },
+  );
+
+  /** Date affichée dans l'aperçu (celle de l'article si publié, sinon aujourd'hui). */
+  private readonly previewPublishedAt = signal(new Date().toISOString());
+
+  /** Article reconstruit depuis le formulaire, pour la carte et l'aperçu complet. */
+  readonly previewArticle = computed<Article>(() => {
+    const v = this.formValue();
+    const date = this.previewPublishedAt();
+    return {
+      id: 'preview',
+      slug: v.slug || 'apercu',
+      title: v.title || 'Titre de l’article',
+      excerpt: v.excerpt || '',
+      content:
+        v.content || '<p><em>Le contenu de l’article apparaîtra ici…</em></p>',
+      coverImageUrl: v.coverImageUrl || null,
+      coverPosition: v.coverPosition,
+      author: v.author || 'Équipe Moze',
+      status: 'DRAFT',
+      metaTitle: v.metaTitle || null,
+      metaDescription: v.metaDescription || null,
+      createdAt: date,
+      updatedAt: date,
+      publishedAt: date,
+      tags: (v.tags ?? []).map((name) => ({ id: name, name, slug: name })),
+    };
+  });
+
   constructor() {
     this.blog.adminTags().subscribe((tags) => this.allTags.set(tags));
 
@@ -90,6 +131,7 @@ export class AdminBlogEditorComponent {
             metaDescription: a.metaDescription ?? '',
             tags: a.tags.map((t) => t.name),
           });
+          if (a.publishedAt) this.previewPublishedAt.set(a.publishedAt);
           this.loading.set(false);
         },
         error: () => {
@@ -146,6 +188,10 @@ export class AdminBlogEditorComponent {
 
   setCoverPosition(position: CoverPosition): void {
     this.form.controls.coverPosition.setValue(position);
+  }
+
+  togglePreview(): void {
+    this.showPreview.update((v) => !v);
   }
 
   // --- Suppression d'un tag global (modale de confirmation) ---
