@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {environment} from "../../environements/environment.prod";
 import { MetaPixelService } from './meta-pixel.service';
 import { BrevoService } from './brevo.service';
+import { GoogleAnalyticsService } from './google-analytics.service';
 
 export interface UtilisateurInscriptionDTO {
   nom: string;
@@ -12,6 +13,17 @@ export interface UtilisateurInscriptionDTO {
   telephonePersonnel: string;
   communication: {
     secteur: string;
+  };
+  /**
+   * Données de déduplication Pixel + Conversions API (voir META_CAPI_SPEC.md).
+   * Optionnel : le back les ignore tant qu'il n'implémente pas la CAPI
+   * (nécessite un parsing JSON tolérant aux champs inconnus — cas par défaut de Spring/Jackson).
+   */
+  meta?: {
+    eventId: string;
+    fbp: string | null;
+    fbc: string | null;
+    adConsent: boolean;
   };
 }
 
@@ -33,6 +45,7 @@ export class FunnelService {
   private http = inject(HttpClient);
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
+  private readonly ga = inject(GoogleAnalyticsService);
   /** Bases d'API — bascule prod / test (test activé via /commencer?test). */
   private readonly PROD_API = 'https://app.mozeconnect.fr';
   private readonly TEST_API = 'https://nico.by-moze.fr';
@@ -70,6 +83,7 @@ export class FunnelService {
     this.state.update(s => ({ ...s, sector }));
     this.metaPixel.trackFunnelStep1Completed(sector);
     this.brevo.trackFunnelStep1Completed(sector);
+    this.ga.trackFunnelStep1Completed(sector);
     this.nextStep();
   }
 
@@ -82,6 +96,7 @@ export class FunnelService {
     // Sémantiquement le step 2 demande "veux-tu le crédit d'impôt immédiat ?" — on tracke avec ce nom business.
     this.metaPixel.trackFunnelStep2Completed(hasSap);
     this.brevo.trackFunnelStep2Completed(hasSap);
+    this.ga.trackFunnelStep2Completed(hasSap);
     this.nextStep();
   }
 
@@ -98,6 +113,7 @@ export class FunnelService {
     const currentStep = this.state().step;
     this.metaPixel.trackFunnelAbandoned(currentStep, 'back_button');
     this.brevo.trackFunnelAbandoned(currentStep, 'back_button');
+    this.ga.trackFunnelAbandoned(currentStep, 'back_button');
     this.state.update(s => ({ ...s, step: Math.max(1, s.step - 1) }));
   }
 

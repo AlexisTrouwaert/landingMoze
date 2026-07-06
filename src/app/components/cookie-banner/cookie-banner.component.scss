@@ -203,7 +203,7 @@
 .drawer-desc {
   padding: 0.65rem 1.2rem 0;
   font-size: 0.8rem;
-  color: rgba(20, 73, 104, 0.78);
+  color: rgba(20, 73, 104, 0.9);
   line-height: 1.55;
   margin: 0;
 }
@@ -211,7 +211,7 @@
 .drawer-link {
   display: inline-block;
   margin: 0.35rem 1.2rem 0;
-  color: #0297d8;
+  color: #036aa1;
   font-weight: 600;
   text-decoration: none;
   font-size: 0.78rem;
@@ -253,7 +253,7 @@
 }
 
 .cat-name { font-size: 0.875rem; font-weight: 700; color: #145775; line-height: 1.2; }
-.cat-desc { font-size: 0.75rem; color: rgba(20, 73, 104, 0.68); line-height: 1.4; }
+.cat-desc { font-size: 0.75rem; color: rgba(20, 73, 104, 0.9); line-height: 1.4; }
 
 .cat-badge {
   font-size: 0.68rem;
@@ -265,8 +265,8 @@
   white-space: nowrap;
 
   &--optional {
-    background-color: rgba(20, 73, 104, 0.09);
-    color: rgba(20, 73, 104, 0.72);
+    background-color: rgba(20, 73, 104, 0.12);
+    color: #145775;
   }
 }
 
@@ -279,9 +279,17 @@
   position: relative;
   flex-shrink: 0;
   transition: background-color 0.22s ease;
+  /* reset pour la variante <button> interactive (toggles optionnels) */
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 
   &--on     { background-color: #73e491; }
-  &--locked { opacity: 0.6; pointer-events: none; }
+  &--locked { opacity: 0.6; pointer-events: none; cursor: default; }
+  &:focus-visible { outline: 2px solid #73e491; outline-offset: 2px; }
 }
 
 .toggle-thumb {
@@ -301,6 +309,7 @@
 /* Boutons drawer — Refuser (secondaire) | Accepter (primaire), poids visuel égal (CNIL) */
 .drawer-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   padding: 0.5rem 1.2rem 1.2rem;
 
@@ -338,6 +347,20 @@
 
   @media (hover: hover) {
     &:hover { box-shadow: 0 4px 14px rgba(115, 228, 145, 0.45); }
+  }
+}
+
+/* Enregistrer mes choix — action granulaire, pleine largeur sous les 2 boutons */
+.btn-save {
+  flex-basis: 100%;
+  background: none;
+  color: #036aa1;
+  font-weight: 600 !important;
+  text-decoration: underline;
+  padding: 0.4rem !important;
+
+  @media (hover: hover) {
+    &:hover { color: #145775; }
   }
 }
 

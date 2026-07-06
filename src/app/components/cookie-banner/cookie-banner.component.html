@@ -91,19 +91,42 @@
 
         <div class="drawer-divider" aria-hidden="true"></div>
 
-        <div class="drawer-category" role="group" aria-label="Cookies publicitaires et de mesure d'audience — optionnels">
+        <div class="drawer-category" role="group" aria-label="Cookies publicité et réseaux sociaux — optionnels">
           <div class="cat-text">
-            <span class="cat-name">Publicité, réseaux sociaux &amp; mesure d'audience</span>
+            <span class="cat-name">Publicité &amp; réseaux sociaux</span>
             <span class="cat-badge cat-badge--optional">Optionnel</span>
-            <span class="cat-desc">Meta Pixel (Facebook) &amp; Brevo — mesurent l'efficacité de nos publicités, analysent votre navigation et rattachent votre parcours à votre contact pour améliorer nos services et communications.</span>
+            <span class="cat-desc">Meta Pixel (Facebook) &amp; Brevo — mesurent l'efficacité de nos publicités et rattachent votre parcours à votre contact.</span>
           </div>
+          <button type="button" class="toggle" [class.toggle--on]="draftAds()"
+                  role="switch" [attr.aria-checked]="draftAds()"
+                  (click)="toggleAds()"
+                  aria-label="Autoriser les cookies publicité et réseaux sociaux">
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+
+        <div class="drawer-divider" aria-hidden="true"></div>
+
+        <div class="drawer-category" role="group" aria-label="Cookies de mesure d'audience — optionnels">
+          <div class="cat-text">
+            <span class="cat-name">Mesure d'audience</span>
+            <span class="cat-badge cat-badge--optional">Optionnel</span>
+            <span class="cat-desc">Google Analytics — analyse anonyme de votre navigation pour améliorer le site.</span>
+          </div>
+          <button type="button" class="toggle" [class.toggle--on]="draftAnalytics()"
+                  role="switch" [attr.aria-checked]="draftAnalytics()"
+                  (click)="toggleAnalytics()"
+                  aria-label="Autoriser les cookies de mesure d'audience">
+            <span class="toggle-thumb"></span>
+          </button>
         </div>
 
       </div>
 
       <div class="drawer-actions">
         <button class="btn-refuse" (click)="consent.refuseAll()">Refuser</button>
-        <button class="btn-accept" (click)="consent.acceptAll()">Accepter</button>
+        <button class="btn-accept" (click)="consent.acceptAll()">Tout accepter</button>
+        <button class="btn-save" (click)="saveChoices()">Enregistrer mes choix</button>
       </div>
 
     </div>

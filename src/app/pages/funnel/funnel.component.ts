@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {FunnelService} from "../../services/funnel.service";
 import {MetaPixelService} from "../../services/meta-pixel.service";
 import {BrevoService} from "../../services/brevo.service";
+import {GoogleAnalyticsService} from "../../services/google-analytics.service";
 import {SectorStepComponent} from "./steps/sector-step/sector-step.component";
 import {InterstitialStepComponent} from "./steps/interstitial-step/interstitial-step.component";
 import {SapStepComponent} from "./steps/sap-step/sap-step.component";
@@ -25,6 +26,7 @@ export class FunnelComponent implements OnInit {
   private router = inject(Router);
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
+  private readonly ga = inject(GoogleAnalyticsService);
 
   ngOnInit(): void {
     // Param de test → API de test (nico.by-moze.fr). Le flag est capturé au bootstrap
@@ -44,12 +46,14 @@ export class FunnelComponent implements OnInit {
     // Entrée du funnel — fire au premier rendu de /commencer.
     this.metaPixel.trackFunnelStarted();
     this.brevo.trackFunnelStarted();
+    this.ga.trackFunnelStarted();
   }
 
   goHome() {
     // Clic logo dans le header funnel = abandon explicite.
     this.metaPixel.trackFunnelAbandoned(this.fs.currentStep(), 'logo');
     this.brevo.trackFunnelAbandoned(this.fs.currentStep(), 'logo');
+    this.ga.trackFunnelAbandoned(this.fs.currentStep(), 'logo');
     this.router.navigate(['/']);
   }
 }

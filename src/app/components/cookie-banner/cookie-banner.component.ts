@@ -75,6 +75,10 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
 
   viewState = signal<CookieView>('pill');
 
+  // Draft des toggles optionnels du drawer (choix granulaire, opt-in → défaut false).
+  draftAds       = signal(false);
+  draftAnalytics = signal(false);
+
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
@@ -113,6 +117,15 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
     this.clearTimer();
     this.viewState.set('pill');
     this.scheduleShowButtons();
+  }
+
+  /** Toggles granulaires du drawer (opt-in). */
+  toggleAds(): void       { this.draftAds.update(v => !v); }
+  toggleAnalytics(): void { this.draftAnalytics.update(v => !v); }
+
+  /** Enregistre le choix granulaire courant (toggles). */
+  saveChoices(): void {
+    this.consent.setChoices({ advertising: this.draftAds(), analytics: this.draftAnalytics() });
   }
 
   private scheduleShowButtons(): void {

@@ -34,29 +34,46 @@ describe('CookieConsentService', () => {
     expect(service.advertisingConsent()).toBe(false);
   });
 
-  it('acceptAll() should persist advertising:true and mark consent decided', () => {
+  it('acceptAll() should persist advertising+analytics:true and mark consent decided', () => {
     const service = makeService();
     service.acceptAll();
 
     expect(service.consentDecided()).toBe(true);
     expect(service.advertisingConsent()).toBe(true);
+    expect(service.analyticsConsent()).toBe(true);
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({
       advertising: true,
+      analytics: true,
     });
   });
 
-  it('refuseAll() should persist advertising:false and mark consent decided', () => {
+  it('refuseAll() should persist advertising+analytics:false and mark consent decided', () => {
     const service = makeService();
     service.refuseAll();
 
     expect(service.consentDecided()).toBe(true);
     expect(service.advertisingConsent()).toBe(false);
+    expect(service.analyticsConsent()).toBe(false);
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({
       advertising: false,
+      analytics: false,
     });
   });
 
-  it('reset() should clear storage and reset both signals', () => {
+  it('setChoices() should persist a granular combination (analytics only)', () => {
+    const service = makeService();
+    service.setChoices({ advertising: false, analytics: true });
+
+    expect(service.consentDecided()).toBe(true);
+    expect(service.advertisingConsent()).toBe(false);
+    expect(service.analyticsConsent()).toBe(true);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({
+      advertising: false,
+      analytics: true,
+    });
+  });
+
+  it('reset() should clear storage and reset all signals', () => {
     const service = makeService();
     service.acceptAll();
     service.reset();
@@ -64,6 +81,15 @@ describe('CookieConsentService', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(service.consentDecided()).toBe(false);
     expect(service.advertisingConsent()).toBe(false);
+    expect(service.analyticsConsent()).toBe(false);
+  });
+
+  it('should rehydrate analyticsConsent independently from advertising', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ advertising: false, analytics: true }));
+    const service = makeService();
+    expect(service.consentDecided()).toBe(true);
+    expect(service.advertisingConsent()).toBe(false);
+    expect(service.analyticsConsent()).toBe(true);
   });
 
   it('should rehydrate advertisingConsent from localStorage on construction', () => {

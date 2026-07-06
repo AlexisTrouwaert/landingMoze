@@ -9,5 +9,7 @@ export const environment = {
   /** Pixel Meta dédié aux tests locaux — compte perso, ne pollue pas la prod. */
   metaPixelId: '949083607920305',
   /** Clé Marketing Automation Brevo (tracker on-site). Vide = tracker désactivé. À renseigner. */
-  brevoKey: ''
+  brevoKey: '',
+  /** ID de mesure Google Analytics 4 (G-XXXXXXXXXX). Vide = GA désactivé. Propriété de test perso. */
+  gaMeasurementId: 'G-N344GPCKE8'
 };

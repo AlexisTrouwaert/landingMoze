@@ -114,10 +114,15 @@ export class MetaPixelService {
     fbq('trackCustom', 'FunnelStep2Completed', { wants_tax_credit: wantsTaxCredit });
   }
 
-  /** Soumission réussie du formulaire d'inscription — event standard Meta. */
-  trackCompleteRegistration(data: Record<string, any> = {}): void {
+  /**
+   * Soumission réussie du formulaire d'inscription — event standard Meta.
+   * `eventId` = clé de déduplication partagée avec la Conversions API côté back
+   * (le même id envoyé par le pixel ET par le serveur => Meta compte 1 seule fois).
+   */
+  trackCompleteRegistration(data: Record<string, any> = {}, eventId?: string): void {
     if (typeof fbq === 'undefined') return;
-    fbq('track', 'CompleteRegistration', data);
+    const opts = eventId ? { eventID: eventId } : undefined;
+    opts ? fbq('track', 'CompleteRegistration', data, opts) : fbq('track', 'CompleteRegistration', data);
   }
 
   /** Abandon du funnel — clic logo (retour home), bouton "Retour", ou blocage honeypot. */
@@ -157,6 +162,42 @@ export class MetaPixelService {
     if (typeof fbq === 'undefined') return;
     const opts = eventId ? { eventID: eventId } : undefined;
     opts ? fbq('trackCustom', eventName, data, opts) : fbq('trackCustom', eventName, data);
+  }
+
+  /* ============================================================
+     CONVERSIONS API — données de dédup/matching à joindre à l'inscription.
+     Généré même sans consentement (le back décidera via adConsent).
+     ============================================================ */
+
+  /** Bloc à joindre au DTO d'inscription pour la Conversions API côté serveur. */
+  buildConversionMeta(): { eventId: string; fbp: string | null; fbc: string | null; adConsent: boolean } {
+    return {
+      eventId: this.newEventId(),
+      fbp: this.readCookie('_fbp'),
+      fbc: this.getFbc(),
+      adConsent: this.consent.advertisingConsent(),
+    };
+  }
+
+  /** UUID de déduplication (partagé pixel + CAPI). */
+  private newEventId(): string {
+    try { return crypto.randomUUID(); }
+    catch { return 'reg-' + Date.now() + '-' + Math.random().toString(36).slice(2); }
+  }
+
+  /** _fbc : cookie posé par le pixel, sinon reconstruit depuis le paramètre ?fbclid=. */
+  private getFbc(): string | null {
+    const cookie = this.readCookie('_fbc');
+    if (cookie) return cookie;
+    if (typeof location === 'undefined') return null;
+    const fbclid = new URLSearchParams(location.search).get('fbclid');
+    return fbclid ? `fb.1.${Date.now()}.${fbclid}` : null;
+  }
+
+  private readCookie(name: string): string | null {
+    if (typeof document === 'undefined') return null;
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
   }
 
   private grantConsent(): void {

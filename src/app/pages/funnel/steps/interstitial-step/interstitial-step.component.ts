@@ -8,6 +8,7 @@ import { FunnelService, UtilisateurInscriptionDTO } from "../../../../services/f
 import { ValidationService } from '../../../../services/validation.service';
 import { MetaPixelService } from "../../../../services/meta-pixel.service";
 import { BrevoService } from "../../../../services/brevo.service";
+import { GoogleAnalyticsService } from "../../../../services/google-analytics.service";
 
 @Component({
   selector: 'app-interstitial-step',
@@ -23,6 +24,7 @@ export class InterstitialStepComponent {
   private validationService = inject(ValidationService);
   private metaPixelService = inject(MetaPixelService);
   private brevoService = inject(BrevoService);
+  private googleAnalyticsService = inject(GoogleAnalyticsService);
 
   // --- SIGNAUX D'ÉTAT ---
   isCheckingEmail = signal(false);
@@ -125,6 +127,7 @@ export class InterstitialStepComponent {
         console.warn('Bot détecté (honeypot + soumission rapide).');
         this.metaPixelService.trackFunnelAbandoned(3, 'honeypot_triggered');
         this.brevoService.trackFunnelAbandoned(3, 'honeypot_triggered');
+        this.googleAnalyticsService.trackFunnelAbandoned(3, 'honeypot_triggered');
         return;
       }
 
@@ -162,6 +165,9 @@ export class InterstitialStepComponent {
       const randomSuffix = Math.floor(100 + Math.random() * 900);
       const pseudoGenere = `${nomClean}${prenomClean}${randomSuffix}`;
 
+      // Données de dédup Pixel + Conversions API, jointes à l'inscription (voir META_CAPI_SPEC.md).
+      const conv = this.metaPixelService.buildConversionMeta();
+
       const dto: UtilisateurInscriptionDTO = {
         nom: nomSan,
         prenom: prenomSan,
@@ -170,7 +176,8 @@ export class InterstitialStepComponent {
         telephonePersonnel: telSan,
         communication: {
           secteur: secteurChoisi || 'AUTRE'
-        }
+        },
+        meta: conv
       };
 
       if (isDevMode()) {
@@ -188,6 +195,12 @@ export class InterstitialStepComponent {
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
           this.metaPixelService.trackCompleteRegistration({
+            sector: secteurChoisi || 'AUTRE',
+            wants_tax_credit: this.fs.hasSapNumber() ?? false,
+            opt_in_newsletter: val.optIn ?? false,
+          }, conv.eventId);
+
+          this.googleAnalyticsService.trackSignUp('email', {
             sector: secteurChoisi || 'AUTRE',
             wants_tax_credit: this.fs.hasSapNumber() ?? false,
             opt_in_newsletter: val.optIn ?? false,
