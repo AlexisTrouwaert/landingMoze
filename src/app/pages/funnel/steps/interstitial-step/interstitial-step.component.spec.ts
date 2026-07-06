@@ -22,7 +22,14 @@ describe('InterstitialStepComponent', () => {
       'trackFunnelStep2Completed',
       'trackFunnelAbandoned',
       'trackCompleteRegistration',
+      'buildConversionMeta',
     ]);
+    pixel.buildConversionMeta.and.returnValue({
+      eventId: 'test-evt',
+      fbp: null,
+      fbc: null,
+      adConsent: false,
+    });
 
     await TestBed.configureTestingModule({
       imports: [InterstitialStepComponent],
@@ -142,6 +149,29 @@ describe('InterstitialStepComponent', () => {
     const spy = spyOn(fs, 'submitInscription');
     component.submit();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('submit() on localhost should fire the conversion (test IDs) and show success', () => {
+    // En Karma, window.location.hostname === 'localhost' → branche DEV : le POST est
+    // court-circuité mais la conversion (Meta + GA de test) doit quand même partir.
+    fs.setSector('SAP');
+    component.form.patchValue({
+      nom: 'John',
+      prenom: 'Doe',
+      email: 'john@doe.fr',
+      telephone: '0612345678',
+    });
+    component.emailExistsInBdd.set(false);
+
+    component.submit();
+
+    expect(pixel.buildConversionMeta).toHaveBeenCalled();
+    expect(pixel.trackCompleteRegistration).toHaveBeenCalledWith(
+      jasmine.objectContaining({ sector: 'SAP' }),
+      'test-evt',
+    );
+    expect(component.view()).toBe('success');
+    expect(component.isSubmitting()).toBe(false);
   });
 
   describe('submit() — DTO construction', () => {

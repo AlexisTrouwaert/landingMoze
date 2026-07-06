@@ -1,28 +1,41 @@
 /* SNPRO — une seule famille, une face statique par graisse (rendu de graisse correct
    sur Safari : pas d'axe variable). Comme * applique font-family:'SNPRO', un simple
    font-weight: 700 sélectionne automatiquement SNPro-Bold, 300 -> Light, etc. */
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Light.woff2') format('woff2'), url('/assets/fonts/SNPro-Light.ttf') format('truetype'); font-weight: 300; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Regular.woff2') format('woff2'), url('/assets/fonts/SNPro-Regular.ttf') format('truetype'); font-weight: 400; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Medium.woff2') format('woff2'), url('/assets/fonts/SNPro-Medium.ttf') format('truetype'); font-weight: 500; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-SemiBold.woff2') format('woff2'), url('/assets/fonts/SNPro-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Bold.woff2') format('woff2'), url('/assets/fonts/SNPro-Bold.ttf') format('truetype'); font-weight: 700; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-ExtraBold.woff2') format('woff2'), url('/assets/fonts/SNPro-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: optional; }
-@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Black.woff2') format('woff2'), url('/assets/fonts/SNPro-Black.ttf') format('truetype'); font-weight: 900; font-display: optional; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Light.woff2') format('woff2'), url('/assets/fonts/SNPro-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Regular.woff2') format('woff2'), url('/assets/fonts/SNPro-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Medium.woff2') format('woff2'), url('/assets/fonts/SNPro-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-SemiBold.woff2') format('woff2'), url('/assets/fonts/SNPro-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Bold.woff2') format('woff2'), url('/assets/fonts/SNPro-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-ExtraBold.woff2') format('woff2'), url('/assets/fonts/SNPro-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'SNPRO'; src: url('/assets/fonts/SNPro-Black.woff2') format('woff2'), url('/assets/fonts/SNPro-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
 
 /* Alias explicites (mêmes fichiers) — pour les composants qui appellent une graisse par son nom. */
-@font-face { font-family: 'SNPRO-Light';      src: url('/assets/fonts/SNPro-Light.woff2') format('woff2'), url('/assets/fonts/SNPro-Light.ttf')      format('truetype'); font-weight: 300; font-display: optional; }
-@font-face { font-family: 'SNPRO-Regular';    src: url('/assets/fonts/SNPro-Regular.woff2') format('woff2'), url('/assets/fonts/SNPro-Regular.ttf')    format('truetype'); font-weight: 400; font-display: optional; }
-@font-face { font-family: 'SNPRO-Medium';     src: url('/assets/fonts/SNPro-Medium.woff2') format('woff2'), url('/assets/fonts/SNPro-Medium.ttf')     format('truetype'); font-weight: 500; font-display: optional; }
-@font-face { font-family: 'SNPRO-SemiBold';   src: url('/assets/fonts/SNPro-SemiBold.woff2') format('woff2'), url('/assets/fonts/SNPro-SemiBold.ttf')   format('truetype'); font-weight: 600; font-display: optional; }
-@font-face { font-family: 'SNPRO-Bold';       src: url('/assets/fonts/SNPro-Bold.woff2') format('woff2'), url('/assets/fonts/SNPro-Bold.ttf')       format('truetype'); font-weight: 700; font-display: optional; }
-@font-face { font-family: 'SNPRO-ExtraBold';  src: url('/assets/fonts/SNPro-ExtraBold.woff2') format('woff2'), url('/assets/fonts/SNPro-ExtraBold.ttf')  format('truetype'); font-weight: 800; font-display: optional; }
-@font-face { font-family: 'SNPRO-Black';      src: url('/assets/fonts/SNPro-Black.woff2') format('woff2'), url('/assets/fonts/SNPro-Black.ttf')      format('truetype'); font-weight: 900; font-display: optional; }
+@font-face { font-family: 'SNPRO-Light';      src: url('/assets/fonts/SNPro-Light.woff2') format('woff2'), url('/assets/fonts/SNPro-Light.ttf')      format('truetype'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'SNPRO-Regular';    src: url('/assets/fonts/SNPro-Regular.woff2') format('woff2'), url('/assets/fonts/SNPro-Regular.ttf')    format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'SNPRO-Medium';     src: url('/assets/fonts/SNPro-Medium.woff2') format('woff2'), url('/assets/fonts/SNPro-Medium.ttf')     format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'SNPRO-SemiBold';   src: url('/assets/fonts/SNPro-SemiBold.woff2') format('woff2'), url('/assets/fonts/SNPro-SemiBold.ttf')   format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'SNPRO-Bold';       src: url('/assets/fonts/SNPro-Bold.woff2') format('woff2'), url('/assets/fonts/SNPro-Bold.ttf')       format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'SNPRO-ExtraBold';  src: url('/assets/fonts/SNPro-ExtraBold.woff2') format('woff2'), url('/assets/fonts/SNPro-ExtraBold.ttf')  format('truetype'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'SNPRO-Black';      src: url('/assets/fonts/SNPro-Black.woff2') format('woff2'), url('/assets/fonts/SNPro-Black.ttf')      format('truetype'); font-weight: 900; font-display: swap; }
+
+/* Fallback métrique : Arial ajusté aux métriques exactes de SNPro (extraites des .ttf :
+   unitsPerEm 1000, ascent 985, descent -315, lineGap 0, largeur moy. 588). Quand SNPro
+   remplace la fallback (font-display: swap), la boîte de texte est identique → CLS ~0.
+   Les métriques verticales de SNPro sont identiques sur toutes les graisses → une seule fallback suffit. */
+@font-face {
+  font-family: 'SNPRO-fallback';
+  src: local('Arial');
+  size-adjust: 133.21%;
+  ascent-override: 73.94%;
+  descent-override: 23.65%;
+  line-gap-override: 0%;
+}
 
 *{
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: 'SNPRO', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
 }
 
 /* =============================================

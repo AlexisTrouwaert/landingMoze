@@ -8,7 +8,7 @@
   box-sizing: border-box;
   padding: 0 2rem; /* gouttière : le dock ne touche jamais les bords */
   pointer-events: none; /* la zone hors de la pilule laisse passer les clics */
-  font-family: 'SNPRO', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
 }
 
 .dock {

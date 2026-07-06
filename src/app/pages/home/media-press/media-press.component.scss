@@ -39,7 +39,7 @@
   line-height: 1.15;
 
   span {
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     font-size: clamp(1.5rem, 3vw, 2.5rem);
     text-transform: uppercase;
     color: var(--moze-white);
@@ -209,7 +209,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 9px;
-  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
   letter-spacing: 0.18em;
   color: var(--moze-dark-blue);
   text-transform: uppercase;
@@ -258,7 +258,7 @@
   padding: 0 4px;
 
   .logo-placeholder {
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     font-size: 1.15rem;
     color: var(--moze-dark-blue);
     text-transform: uppercase;
@@ -347,7 +347,7 @@
 
   .label {
     font-size: 7.5px;
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     letter-spacing: 0.28em;
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
@@ -383,7 +383,7 @@
   justify-content: center;
   gap: 0.7rem;
   font-size: 1.05rem;
-  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 
@@ -421,7 +421,7 @@
   font-size: clamp(1.75rem, 2.6vw, 2.75rem);
   text-align: center;
   line-height: 1.35;
-  font-family: 'SNPRO-Medium', sans-serif;
+  font-family: 'SNPRO-Medium', 'SNPRO-fallback', sans-serif;
   color: var(--moze-dark-blue);
   padding-left: 1.5rem;
   margin: 0;
@@ -440,7 +440,7 @@
     top: -2.8rem;
     font-size: 10rem;
     line-height: 1;
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     color: var(--moze-green);
     opacity: 0.22;
     pointer-events: none;
@@ -468,14 +468,14 @@
   gap: 0.15rem;
 
   .name {
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     font-size: 1.25rem;
     color: var(--moze-dark-blue);
   }
 
   .show {
     font-size: 1rem;
-    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-family: 'SNPRO-SemiBold', 'SNPRO-fallback', sans-serif;
     color: #52697a;
   }
 }
@@ -485,7 +485,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
-  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-decoration: none;
@@ -529,7 +529,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 0.7rem;
-  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
   letter-spacing: 0.22em;
   color: var(--moze-dark-blue);
   text-transform: uppercase;
@@ -584,7 +584,7 @@
 
   .group-label {
     font-size: 0.78rem;
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--moze-dark-blue);
@@ -598,7 +598,7 @@
 
   .group-count {
     font-size: 0.7rem;
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     color: var(--moze-dark-blue);
     background: rgba(20, 73, 104, 0.08);
     padding: 0.15rem 0.5rem;
@@ -679,7 +679,7 @@
     transition: opacity 0.55s var(--ease-out-quint), background 0.55s var(--ease-out-quint);
 
     .logo-initials {
-      font-family: 'SNPRO-ExtraBold', sans-serif;
+      font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
       font-size: 1rem;
       color: var(--moze-dark-blue);
       text-transform: uppercase;
@@ -703,7 +703,7 @@
   }
 
   .name {
-    font-family: 'SNPRO-ExtraBold', sans-serif;
+    font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
     font-size: 0.95rem;
     color: var(--moze-dark-blue);
     overflow: hidden;
@@ -714,7 +714,7 @@
 
   .show {
     font-size: 0.72rem;
-    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-family: 'SNPRO-SemiBold', 'SNPRO-fallback', sans-serif;
     color: #52697a;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -734,7 +734,7 @@
       align-items: center;
       justify-content: center;
       font-size: 0.65rem;
-      font-family: 'SNPRO-ExtraBold', sans-serif;
+      font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--moze-white);
@@ -787,7 +787,7 @@
 
     .badge-date {
       font-size: 0.7rem;
-      font-family: 'SNPRO-Bold', sans-serif;
+      font-family: 'SNPRO-Bold', 'SNPRO-fallback', sans-serif;
       color: #7a8a96;
       letter-spacing: 0.04em;
       transition: color 0.3s var(--ease-out-quint);

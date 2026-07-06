@@ -186,7 +186,14 @@ export class InterstitialStepComponent {
       this.fs.setUserInfo(dto);
 
       if (window.location.hostname === 'localhost') {
-        console.log('[DEV] Soumission ignorée sur localhost.');
+        // DEV : le POST est court-circuité, mais on fire quand même la conversion vers les
+        // IDs de TEST (GA + pixel Meta de environment.ts) pour valider la chaîne en local.
+        console.log('[DEV] Soumission ignorée sur localhost — conversion envoyée vers les IDs de test.');
+        this.fireConversionTracking(conv.eventId, {
+          sector: secteurChoisi || 'AUTRE',
+          wants_tax_credit: this.fs.hasSapNumber() ?? false,
+          opt_in_newsletter: val.optIn ?? false,
+        });
         this.isSubmitting.set(false);
         this.view.set('success'); // affiche l'écran « Inscription réussie »
         return;
@@ -194,13 +201,7 @@ export class InterstitialStepComponent {
 
       this.fs.submitInscription(dto).subscribe({
         next: (response) => {
-          this.metaPixelService.trackCompleteRegistration({
-            sector: secteurChoisi || 'AUTRE',
-            wants_tax_credit: this.fs.hasSapNumber() ?? false,
-            opt_in_newsletter: val.optIn ?? false,
-          }, conv.eventId);
-
-          this.googleAnalyticsService.trackSignUp('email', {
+          this.fireConversionTracking(conv.eventId, {
             sector: secteurChoisi || 'AUTRE',
             wants_tax_credit: this.fs.hasSapNumber() ?? false,
             opt_in_newsletter: val.optIn ?? false,
@@ -240,6 +241,15 @@ export class InterstitialStepComponent {
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  /**
+   * Fire la conversion vers Meta (CompleteRegistration) + GA4 (sign_up), avec l'eventId de dédup.
+   * Utilisé par le POST réel (prod) ET par la branche localhost (envoie vers les IDs de TEST).
+   */
+  private fireConversionTracking(eventId: string, params: Record<string, any>): void {
+    this.metaPixelService.trackCompleteRegistration(params, eventId);
+    this.googleAnalyticsService.trackSignUp('email', params);
   }
 
   // --- ACTIONS DES ÉCRANS RÉSULTAT ---

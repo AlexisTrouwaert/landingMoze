@@ -79,7 +79,7 @@
     background: #FFFFFF;
     border: 2px solid var(--primary-color); // Bordure bleue cohérente avec les boutons précédents
     border-radius: 15px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
     font-size: 1rem;
     color: var(--primary-color);
     transition: all 0.3s;
@@ -117,7 +117,7 @@
   gap: 1rem;
   transition: all 0.3s ease;
   margin-top: 1rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
   width: 100%; // Bouton pleine largeur
 
   img {
@@ -444,7 +444,7 @@
   padding: 0.95rem 1.5rem;
   border-radius: 50px;
   border: none;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -473,7 +473,7 @@
   background: none;
   border: none;
   color: color-mix(in srgb, var(--primary-color) 70%, #ffffff);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-size: 0.9rem;
   cursor: pointer;
   text-decoration: underline;

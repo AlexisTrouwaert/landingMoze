@@ -63,7 +63,7 @@
 }
 
 .title-block {
-  font-family: 'SNPRO-ExtraBold', 'SNPRO', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-weight: 800;
   font-size: clamp(2.2rem, 5vw, 3.5rem);
   text-transform: uppercase;
@@ -91,7 +91,7 @@
 /* Statement — "Ton inscription est [CONFIRMÉE]" */
 .hero-statement {
   color: var(--moze-dark-blue);
-  font-family: 'SNPRO-Bold', 'SNPRO', sans-serif;
+  font-family: 'SNPRO-Bold', 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-weight: 700;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   text-transform: uppercase;
@@ -129,7 +129,7 @@
   display: inline-block;
   background-color: var(--moze-green);
   color: var(--moze-dark-blue);
-  font-family: 'SNPRO-ExtraBold', 'SNPRO', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-weight: 800;
   font-size: clamp(1.1rem, 2.3vw, 1.75rem);
   text-transform: uppercase;
@@ -214,7 +214,7 @@
   align-items: center;
   background: rgba(20, 87, 117, 0.08);
   color: var(--moze-dark-blue);
-  font-family: 'SNPRO-Bold', 'SNPRO', sans-serif;
+  font-family: 'SNPRO-Bold', 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-weight: 700;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
@@ -232,7 +232,7 @@
   position: relative;
   z-index: 1;
   color: var(--moze-dark-blue);
-  font-family: 'SNPRO-Bold', 'SNPRO', sans-serif;
+  font-family: 'SNPRO-Bold', 'SNPRO', 'SNPRO-fallback', sans-serif;
   font-weight: 700;
   font-size: clamp(1.1rem, 1.6vw, 1.35rem);
   line-height: 1.3;

@@ -3,7 +3,7 @@
   max-width: 1300px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: 'SNPRO', sans-serif;
+  font-family: 'SNPRO', 'SNPRO-fallback', sans-serif;
 }
 
 // Conteneur principal en Flex pour faire les 2 colonnes

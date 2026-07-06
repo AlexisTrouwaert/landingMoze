@@ -67,7 +67,7 @@
 }
 
 .overline {
-  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-family: 'SNPRO-SemiBold', 'SNPRO-fallback', sans-serif;
   font-size: 0.85rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -78,7 +78,7 @@
 }
 
 .title {
-  font-family: 'SNPRO-ExtraBold', sans-serif;
+  font-family: 'SNPRO-ExtraBold', 'SNPRO-fallback', sans-serif;
   font-size: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
   line-height: 1;
   margin: 0;
@@ -114,7 +114,7 @@
 }
 
 .subtitle {
-  font-family: 'SNPRO-Regular', sans-serif;
+  font-family: 'SNPRO-Regular', 'SNPRO-fallback', sans-serif;
   font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
   line-height: 1.5;
   margin: 0;
@@ -193,7 +193,7 @@
 .social-name {
   position: relative;
   z-index: 1;
-  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-family: 'SNPRO-SemiBold', 'SNPRO-fallback', sans-serif;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
 }
