@@ -8,12 +8,11 @@ import {
 import { ContactPanelService } from '../../services/contact-panel.service';
 
 @Component({
-  selector: 'app-contact-panel',
-  standalone: true,
-  imports: [],
-  templateUrl: './contact-panel.component.html',
-  styleUrl: './contact-panel.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-contact-panel',
+    imports: [],
+    templateUrl: './contact-panel.component.html',
+    styleUrl: './contact-panel.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactPanelComponent {
   panel = inject(ContactPanelService);

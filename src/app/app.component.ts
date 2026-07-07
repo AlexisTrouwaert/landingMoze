@@ -6,11 +6,10 @@ import { ContactPanelComponent } from './components/contact-panel/contact-panel.
 import { MetaPixelService } from './services/meta-pixel.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, CookieBannerComponent, ContactPanelComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [RouterOutlet, CookieBannerComponent, ContactPanelComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'landing';

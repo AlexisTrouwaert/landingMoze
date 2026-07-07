@@ -15,12 +15,11 @@ import { ArticleListItem, Tag } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 @Component({
-  selector: 'app-blog-list',
-  standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, FloatingDockComponent, ArticleCardComponent],
-  templateUrl: './blog-list.component.html',
-  styleUrl: './blog-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-blog-list',
+    imports: [RouterLink, ReactiveFormsModule, FloatingDockComponent, ArticleCardComponent],
+    templateUrl: './blog-list.component.html',
+    styleUrl: './blog-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlogListComponent {
   private readonly blog = inject(BlogService);

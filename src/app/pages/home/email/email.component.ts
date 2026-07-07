@@ -1,16 +1,15 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-email',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './email.component.html',
-  styleUrl: './email.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-email',
+    imports: [FormsModule],
+    templateUrl: './email.component.html',
+    styleUrl: './email.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmailComponent {
   private router = inject(Router);

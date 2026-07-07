@@ -63,12 +63,11 @@ const DRAWER_ANIM = trigger('drawerAnim', [
 ]);
 
 @Component({
-  selector: 'app-cookie-banner',
-  standalone: true,
-  imports: [RouterLink],
-  templateUrl: './cookie-banner.component.html',
-  styleUrl: './cookie-banner.component.scss',
-  animations: [PILL_ANIM, PILL_BTNS_ANIM, DRAWER_ANIM]
+    selector: 'app-cookie-banner',
+    imports: [RouterLink],
+    templateUrl: './cookie-banner.component.html',
+    styleUrl: './cookie-banner.component.scss',
+    animations: [PILL_ANIM, PILL_BTNS_ANIM, DRAWER_ANIM]
 })
 export class CookieBannerComponent implements OnInit, OnDestroy {
   consent = inject(CookieConsentService);

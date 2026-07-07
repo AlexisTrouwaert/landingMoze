@@ -4,12 +4,11 @@ import { Router } from '@angular/router';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-landing-section',
-  standalone: true,
-  imports: [],
-  templateUrl: './landing-section.component.html',
-  styleUrl: './landing-section.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-landing-section',
+    imports: [],
+    templateUrl: './landing-section.component.html',
+    styleUrl: './landing-section.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingSectionComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);

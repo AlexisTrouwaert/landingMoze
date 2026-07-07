@@ -22,19 +22,18 @@ interface TagOption {
  * depuis les suggestions). Valeur = tableau de noms (string[]).
  */
 @Component({
-  selector: 'app-tag-input',
-  standalone: true,
-  imports: [],
-  templateUrl: './tag-input.component.html',
-  styleUrl: './tag-input.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TagInputComponent),
-      multi: true,
-    },
-  ],
+    selector: 'app-tag-input',
+    imports: [],
+    templateUrl: './tag-input.component.html',
+    styleUrl: './tag-input.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => TagInputComponent),
+            multi: true,
+        },
+    ]
 })
 export class TagInputComponent implements ControlValueAccessor {
   /** Tags existants (pour l'autocomplétion + le CRUD). */

@@ -24,20 +24,19 @@ import { Article, ArticleInput, CoverPosition, Tag } from '../../model/article.m
 import { BlogService } from '../../services/blog.service';
 
 @Component({
-  selector: 'app-admin-blog-editor',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    WysiwygEditorComponent,
-    TagInputComponent,
-    ConfirmDialogComponent,
-    PromptDialogComponent,
-    ArticleCardComponent,
-    ArticleViewComponent,
-  ],
-  templateUrl: './admin-blog-editor.component.html',
-  styleUrl: './admin-blog-editor.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-admin-blog-editor',
+    imports: [
+        ReactiveFormsModule,
+        WysiwygEditorComponent,
+        TagInputComponent,
+        ConfirmDialogComponent,
+        PromptDialogComponent,
+        ArticleCardComponent,
+        ArticleViewComponent,
+    ],
+    templateUrl: './admin-blog-editor.component.html',
+    styleUrl: './admin-blog-editor.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminBlogEditorComponent {
   private readonly fb = inject(FormBuilder);

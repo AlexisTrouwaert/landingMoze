@@ -4,12 +4,11 @@ import { ContactPanelService } from '../../../services/contact-panel.service';
 import { CookieConsentService } from '../../../services/cookie-consent.service';
 
 @Component({
-  selector: 'app-footer',
-  standalone: true,
-  imports: [],
-  templateUrl: './footer.component.html',
-  styleUrl: './footer.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-footer',
+    imports: [],
+    templateUrl: './footer.component.html',
+    styleUrl: './footer.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FooterComponent {
 

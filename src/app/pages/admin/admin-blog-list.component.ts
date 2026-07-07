@@ -18,12 +18,11 @@ import { BlogService } from '../../services/blog.service';
 type StatusFilter = 'active' | 'all' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 @Component({
-  selector: 'app-admin-blog-list',
-  standalone: true,
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, ConfirmDialogComponent],
-  templateUrl: './admin-blog-list.component.html',
-  styleUrl: './admin-blog-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-admin-blog-list',
+    imports: [DatePipe, RouterLink, ReactiveFormsModule, ConfirmDialogComponent],
+    templateUrl: './admin-blog-list.component.html',
+    styleUrl: './admin-blog-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminBlogListComponent {
   private readonly blog = inject(BlogService);

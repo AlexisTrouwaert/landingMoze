@@ -18,26 +18,25 @@ import {MediaPressComponent} from "./media-press/media-press.component";
 import {FollowUsComponent} from "./follow-us/follow-us.component";
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    FloatingDockComponent,
-    ScrollTopComponent,
-    LandingSectionComponent,
-    TarifComponent,
-    ToolComponent,
-    FaqComponent,
-    EmailComponent,
-    FooterComponent,
-    CustomerReviewsComponent,
-    ActivityStepsComponent,
-    DownloadAppsComponent,
-    MediaPressComponent,
-    FollowUsComponent
-  ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-home',
+    imports: [
+        FloatingDockComponent,
+        ScrollTopComponent,
+        LandingSectionComponent,
+        TarifComponent,
+        ToolComponent,
+        FaqComponent,
+        EmailComponent,
+        FooterComponent,
+        CustomerReviewsComponent,
+        ActivityStepsComponent,
+        DownloadAppsComponent,
+        MediaPressComponent,
+        FollowUsComponent
+    ],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 

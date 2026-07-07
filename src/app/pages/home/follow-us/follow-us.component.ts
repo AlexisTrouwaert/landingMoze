@@ -8,12 +8,11 @@ interface SocialLink {
 }
 
 @Component({
-  selector: 'app-follow-us',
-  standalone: true,
-  imports: [],
-  templateUrl: './follow-us.component.html',
-  styleUrl: './follow-us.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-follow-us',
+    imports: [],
+    templateUrl: './follow-us.component.html',
+    styleUrl: './follow-us.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FollowUsComponent {
   /** Liens réseaux Moze — source unique pour le template. */

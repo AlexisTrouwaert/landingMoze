@@ -13,12 +13,11 @@ import {
  * Pilotée par le parent via `open` ; émet `confirmed` (avec la valeur) / `cancelled`.
  */
 @Component({
-  selector: 'app-prompt-dialog',
-  standalone: true,
-  imports: [],
-  templateUrl: './prompt-dialog.component.html',
-  styleUrl: './prompt-dialog.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-prompt-dialog',
+    imports: [],
+    templateUrl: './prompt-dialog.component.html',
+    styleUrl: './prompt-dialog.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PromptDialogComponent {
   readonly open = input(false);

@@ -19,19 +19,18 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * fonctionnel sur les navigateurs actuels — choix assumé pour le MVP.
  */
 @Component({
-  selector: 'app-wysiwyg-editor',
-  standalone: true,
-  imports: [],
-  templateUrl: './wysiwyg-editor.component.html',
-  styleUrl: './wysiwyg-editor.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => WysiwygEditorComponent),
-      multi: true,
-    },
-  ],
+    selector: 'app-wysiwyg-editor',
+    imports: [],
+    templateUrl: './wysiwyg-editor.component.html',
+    styleUrl: './wysiwyg-editor.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => WysiwygEditorComponent),
+            multi: true,
+        },
+    ]
 })
 export class WysiwygEditorComponent
   implements ControlValueAccessor, AfterViewInit

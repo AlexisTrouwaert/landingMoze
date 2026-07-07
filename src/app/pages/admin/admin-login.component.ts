@@ -10,12 +10,11 @@ import { PasswordInputComponent } from '../../components/password-input/password
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-admin-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, PasswordInputComponent],
-  templateUrl: './admin-login.component.html',
-  styleUrl: './admin-login.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-admin-login',
+    imports: [ReactiveFormsModule, PasswordInputComponent],
+    templateUrl: './admin-login.component.html',
+    styleUrl: './admin-login.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminLoginComponent {
   private readonly fb = inject(FormBuilder);

@@ -8,16 +8,15 @@ import {SapStepComponent} from "./steps/sap-step/sap-step.component";
 import {RedirectStepComponent} from "./steps/redirect-step/redirect-step.component";
 
 @Component({
-  selector: 'app-funnel',
-  standalone: true,
-  imports: [
-    SectorStepComponent,
-    InterstitialStepComponent,
-    SapStepComponent,
-    RedirectStepComponent
-  ],
-  templateUrl: './funnel.component.html',
-  styleUrl: './funnel.component.scss'
+    selector: 'app-funnel',
+    imports: [
+        SectorStepComponent,
+        InterstitialStepComponent,
+        SapStepComponent,
+        RedirectStepComponent
+    ],
+    templateUrl: './funnel.component.html',
+    styleUrl: './funnel.component.scss'
 })
 export class FunnelComponent implements OnInit {
   fs = inject(FunnelService);

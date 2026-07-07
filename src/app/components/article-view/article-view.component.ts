@@ -8,12 +8,11 @@ import { Article } from '../../model/article.model';
  * `back` (défaut true) affiche le lien « Tous les articles » — masqué en aperçu.
  */
 @Component({
-  selector: 'app-article-view',
-  standalone: true,
-  imports: [DatePipe, RouterLink],
-  templateUrl: './article-view.component.html',
-  styleUrl: './article-view.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-article-view',
+    imports: [DatePipe, RouterLink],
+    templateUrl: './article-view.component.html',
+    styleUrl: './article-view.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArticleViewComponent {
   readonly article = input.required<Article>();

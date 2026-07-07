@@ -6,12 +6,11 @@ import { FloatingDockComponent } from '../../components/floating-dock/floating-d
 interface TocItem { id: string; num: string; label: string; }
 
 @Component({
-  selector: 'app-cgv',
-  standalone: true,
-  imports: [FloatingDockComponent],
-  templateUrl: './cgv.component.html',
-  styleUrl: './cgv.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-cgv',
+    imports: [FloatingDockComponent],
+    templateUrl: './cgv.component.html',
+    styleUrl: './cgv.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CgvComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

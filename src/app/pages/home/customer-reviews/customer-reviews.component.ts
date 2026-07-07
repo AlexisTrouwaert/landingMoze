@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
 @Component({
-  selector: 'app-customer-reviews',
-  standalone: true,
-  imports: [],
-  templateUrl: './customer-reviews.component.html',
-  styleUrl: './customer-reviews.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-customer-reviews',
+    imports: [],
+    templateUrl: './customer-reviews.component.html',
+    styleUrl: './customer-reviews.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomerReviewsComponent {
 

@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MetaPixelService } from '../../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-redirect-step',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './redirect-step.component.html',
-  styleUrl: './redirect-step.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-redirect-step',
+    imports: [],
+    templateUrl: './redirect-step.component.html',
+    styleUrl: './redirect-step.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RedirectStepComponent {
   private readonly metaPixel = inject(MetaPixelService);

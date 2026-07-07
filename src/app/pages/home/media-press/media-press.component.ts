@@ -36,47 +36,41 @@ export interface MediaGroup {
 }
 
 @Component({
-  selector: 'app-media-press',
-  standalone: true,
-  imports: [],
-  templateUrl: './media-press.component.html',
-  styleUrl: './media-press.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    /* Logo du téléphone : fade-up-strong à chaque changement de média actif.
-       Le trigger est lié à activeMediaId() → toute mutation déclenche la
-       transition * => *. Remplace l'ancien pattern @for [array]; track id qui
-       recréait le DOM et provoquait le warning NG0956. */
-    trigger('logoSwap', [
-      /* :enter explicite + * => * : Angular ne déclenche pas toujours `* => *`
-         lors du tout premier rendu (void → state). Avec `:enter` on garantit
-         le fade-in initial. */
-      transition(':enter, * => *', [
-        style({ opacity: 0, transform: 'translateY(10px) scale(0.96)' }),
-        animate('0.55s cubic-bezier(0.22, 1, 0.36, 1)',
-          style({ opacity: 1, transform: 'translateY(0) scale(1)' })
-        )
-      ])
-    ]),
-
-    /* Quote-content : :enter + * => * sur activeMediaId. Les enfants
-       (meta/text/foot) sont animés en stagger pour retrouver le décalage
-       visuel d'avant (0.55s / 0.60s avec delays 0 / 80ms / 160ms). */
-    trigger('quoteSwap', [
-      transition(':enter, * => *', [
-        group([
-          query('.quote-meta, .quote-text, .quote-foot', [
-            style({ opacity: 0, transform: 'translateY(8px)' }),
-            stagger(80, [
-              animate('0.55s cubic-bezier(0.22, 1, 0.36, 1)',
-                style({ opacity: 1, transform: 'translateY(0)' })
-              )
+    selector: 'app-media-press',
+    imports: [],
+    templateUrl: './media-press.component.html',
+    styleUrl: './media-press.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    animations: [
+        /* Logo du téléphone : fade-up-strong à chaque changement de média actif.
+           Le trigger est lié à activeMediaId() → toute mutation déclenche la
+           transition * => *. Remplace l'ancien pattern @for [array]; track id qui
+           recréait le DOM et provoquait le warning NG0956. */
+        trigger('logoSwap', [
+            /* :enter explicite + * => * : Angular ne déclenche pas toujours `* => *`
+               lors du tout premier rendu (void → state). Avec `:enter` on garantit
+               le fade-in initial. */
+            transition(':enter, * => *', [
+                style({ opacity: 0, transform: 'translateY(10px) scale(0.96)' }),
+                animate('0.55s cubic-bezier(0.22, 1, 0.36, 1)', style({ opacity: 1, transform: 'translateY(0) scale(1)' }))
             ])
-          ], { optional: true })
+        ]),
+        /* Quote-content : :enter + * => * sur activeMediaId. Les enfants
+           (meta/text/foot) sont animés en stagger pour retrouver le décalage
+           visuel d'avant (0.55s / 0.60s avec delays 0 / 80ms / 160ms). */
+        trigger('quoteSwap', [
+            transition(':enter, * => *', [
+                group([
+                    query('.quote-meta, .quote-text, .quote-foot', [
+                        style({ opacity: 0, transform: 'translateY(8px)' }),
+                        stagger(80, [
+                            animate('0.55s cubic-bezier(0.22, 1, 0.36, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
+                        ])
+                    ], { optional: true })
+                ])
+            ])
         ])
-      ])
-    ])
-  ]
+    ]
 })
 export class MediaPressComponent implements OnInit, OnDestroy {
 

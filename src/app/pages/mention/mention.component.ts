@@ -4,12 +4,11 @@ import { Meta } from '@angular/platform-browser';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 
 @Component({
-  selector: 'app-mention',
-  standalone: true,
-  imports: [FloatingDockComponent],
-  templateUrl: './mention.component.html',
-  styleUrl: './mention.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-mention',
+    imports: [FloatingDockComponent],
+    templateUrl: './mention.component.html',
+    styleUrl: './mention.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MentionComponent implements OnInit {
   private readonly router = inject(Router);

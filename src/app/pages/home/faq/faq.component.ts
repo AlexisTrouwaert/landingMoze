@@ -5,12 +5,11 @@ import { MetaPixelService } from '../../../services/meta-pixel.service';
 interface FaqItem { title: string; answer: string; }
 
 @Component({
-  selector: 'app-faq',
-  standalone: true,
-  imports: [ScrollRevealDirective],
-  templateUrl: './faq.component.html',
-  styleUrl: './faq.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-faq',
+    imports: [ScrollRevealDirective],
+    templateUrl: './faq.component.html',
+    styleUrl: './faq.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FaqComponent implements OnDestroy {
 

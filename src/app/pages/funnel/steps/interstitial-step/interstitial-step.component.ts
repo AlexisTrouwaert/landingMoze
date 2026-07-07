@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, signal, isDevMode } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map } from 'rxjs/operators';
@@ -9,11 +9,10 @@ import { ValidationService } from '../../../../services/validation.service';
 import { MetaPixelService } from "../../../../services/meta-pixel.service";
 
 @Component({
-  selector: 'app-interstitial-step',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './interstitial-step.component.html',
-  styleUrl: './interstitial-step.component.scss'
+    selector: 'app-interstitial-step',
+    imports: [ReactiveFormsModule],
+    templateUrl: './interstitial-step.component.html',
+    styleUrl: './interstitial-step.component.scss'
 })
 export class InterstitialStepComponent {
   fs = inject(FunnelService);

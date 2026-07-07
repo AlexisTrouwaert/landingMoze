@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {FunnelService} from "../../../../services/funnel.service";
 
 @Component({
-  selector: 'app-sap-step',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './sap-step.component.html',
-  styleUrl: './sap-step.component.scss'
+    selector: 'app-sap-step',
+    imports: [],
+    templateUrl: './sap-step.component.html',
+    styleUrl: './sap-step.component.scss'
 })
 export class SapStepComponent {
   fs = inject(FunnelService);

@@ -4,12 +4,11 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-activity-steps',
-  standalone: true,
-  imports: [ScrollRevealDirective],
-  templateUrl: './activity-steps.component.html',
-  styleUrl: './activity-steps.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-activity-steps',
+    imports: [ScrollRevealDirective],
+    templateUrl: './activity-steps.component.html',
+    styleUrl: './activity-steps.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActivityStepsComponent {
   private router = inject(Router);

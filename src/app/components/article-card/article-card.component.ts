@@ -7,12 +7,11 @@ import { ArticleListItem } from '../../model/article.model';
  * Purement présentiel : la navigation est gérée par le parent (lien englobant).
  */
 @Component({
-  selector: 'app-article-card',
-  standalone: true,
-  imports: [DatePipe],
-  templateUrl: './article-card.component.html',
-  styleUrl: './article-card.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-article-card',
+    imports: [DatePipe],
+    templateUrl: './article-card.component.html',
+    styleUrl: './article-card.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArticleCardComponent {
   readonly article = input.required<ArticleListItem>();

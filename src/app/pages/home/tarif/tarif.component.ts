@@ -4,12 +4,11 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-tarif',
-  standalone: true,
-  imports: [ScrollRevealDirective],
-  templateUrl: './tarif.component.html',
-  styleUrl: './tarif.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-tarif',
+    imports: [ScrollRevealDirective],
+    templateUrl: './tarif.component.html',
+    styleUrl: './tarif.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TarifComponent {
   private router = inject(Router);

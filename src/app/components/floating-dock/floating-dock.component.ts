@@ -15,12 +15,11 @@ export interface DockGroup { title?: string; links: DockLink[]; }
  * que la cible n'est pas rendue (gère aussi l'arrivée via un lien partagé).
  */
 @Component({
-  selector: 'app-floating-dock',
-  standalone: true,
-  imports: [],
-  templateUrl: './floating-dock.component.html',
-  styleUrl: './floating-dock.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-floating-dock',
+    imports: [],
+    templateUrl: './floating-dock.component.html',
+    styleUrl: './floating-dock.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FloatingDockComponent implements OnDestroy {
 

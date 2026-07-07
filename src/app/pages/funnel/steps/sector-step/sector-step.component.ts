@@ -1,13 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {FunnelService, SectorType} from "../../../../services/funnel.service";
 
 @Component({
-  selector: 'app-sector-step',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './sector-step.component.html',
-  styleUrl: './sector-step.component.scss'
+    selector: 'app-sector-step',
+    imports: [],
+    templateUrl: './sector-step.component.html',
+    styleUrl: './sector-step.component.scss'
 })
 export class SectorStepComponent {
   fs = inject(FunnelService);

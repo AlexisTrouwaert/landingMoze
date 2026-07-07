@@ -13,12 +13,11 @@ import { Article } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 @Component({
-  selector: 'app-blog-article',
-  standalone: true,
-  imports: [RouterLink, FloatingDockComponent, ArticleViewComponent],
-  templateUrl: './blog-article.component.html',
-  styleUrl: './blog-article.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-blog-article',
+    imports: [RouterLink, FloatingDockComponent, ArticleViewComponent],
+    templateUrl: './blog-article.component.html',
+    styleUrl: './blog-article.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlogArticleComponent {
   private readonly route = inject(ActivatedRoute);

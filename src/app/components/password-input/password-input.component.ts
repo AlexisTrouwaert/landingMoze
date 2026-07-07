@@ -12,19 +12,18 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * S'utilise comme un input dans un formulaire réactif (`formControlName`).
  */
 @Component({
-  selector: 'app-password-input',
-  standalone: true,
-  imports: [],
-  templateUrl: './password-input.component.html',
-  styleUrl: './password-input.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => PasswordInputComponent),
-      multi: true,
-    },
-  ],
+    selector: 'app-password-input',
+    imports: [],
+    templateUrl: './password-input.component.html',
+    styleUrl: './password-input.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => PasswordInputComponent),
+            multi: true,
+        },
+    ]
 })
 export class PasswordInputComponent implements ControlValueAccessor {
   readonly placeholder = input('');
