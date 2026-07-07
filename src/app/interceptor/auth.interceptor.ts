@@ -6,12 +6,11 @@ import { environment } from '../../environements/environment';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Sur les appels authentifiés du back blog (admin + gestion de compte) :
- * ajoute `Authorization: Bearer <token>`. Sur un 401 de ces appels (session
- * invalide/expirée) : déconnecte et redirige vers /admin/login.
+ * Appels vers l'API blog qui nécessitent la session (login/logout, gestion de
+ * compte, admin) : joint le cookie httpOnly via `withCredentials`. Sur un 401
+ * (hors login) : nettoie l'état local et redirige vers /admin/login.
  *
- * Le login (`/auth/login`) n'a pas de token ; les lectures publiques (`/blog`)
- * non plus.
+ * Les lectures publiques (`/blog`) n'ont pas besoin du cookie.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
@@ -19,20 +18,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const base = environment.blogApiUrl;
 
   const isLogin = req.url === `${base}/auth/login`;
-  const isAuthenticated =
-    req.url.startsWith(`${base}/admin`) ||
-    (req.url.startsWith(`${base}/auth/`) && !isLogin);
+  const needsSession =
+    req.url.startsWith(`${base}/admin`) || req.url.startsWith(`${base}/auth/`);
 
-  const token = auth.token();
-  const request =
-    isAuthenticated && token
-      ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-      : req;
+  const request = needsSession ? req.clone({ withCredentials: true }) : req;
 
   return next(request).pipe(
     catchError((err) => {
-      if (err?.status === 401 && isAuthenticated) {
-        auth.logout();
+      if (err?.status === 401 && needsSession && !isLogin) {
+        auth.clearLocal();
         void router.navigate(['/admin/login']);
       }
       return throwError(() => err);

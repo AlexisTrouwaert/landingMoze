@@ -6,7 +6,7 @@ import { Article, ArticleInput, ArticlePage, Tag } from '../model/article.model'
 
 /**
  * Accès HTTP au back blog : lecture publique + opérations admin.
- * Le token admin est ajouté automatiquement par `authInterceptor`.
+ * La session (cookie httpOnly) est jointe automatiquement par `authInterceptor`.
  */
 @Injectable({ providedIn: 'root' })
 export class BlogService {

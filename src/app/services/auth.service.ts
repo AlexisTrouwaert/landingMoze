@@ -4,34 +4,31 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../environements/environment';
 
 interface LoginResponse {
-  token: string;
   role: string;
   mustChangePassword: boolean;
 }
 
-const TOKEN_KEY = 'moze_blog_token';
 const ROLE_KEY = 'moze_blog_role';
 const MUST_CHANGE_KEY = 'moze_blog_must_change';
 
 /**
- * Session admin du blog (côté landing). Le token JWT est conservé en mémoire
- * (signal) + `localStorage` pour persister la session entre rechargements.
+ * Session admin du blog. Le JWT vit dans un cookie **httpOnly** géré par le back
+ * (jamais accessible au JS → immunisé au vol par XSS). Le front ne conserve en
+ * local que l'état d'affichage (rôle + changement de mdp requis) ; l'autorité
+ * reste le cookie : un état local forgé se fait rejeter en 401 par l'API.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly base = environment.blogApiUrl;
 
-  private readonly _token = signal<string | null>(this.read(TOKEN_KEY));
   private readonly _role = signal<string | null>(this.read(ROLE_KEY));
   private readonly _mustChangePassword = signal<boolean>(
     this.read(MUST_CHANGE_KEY) === 'true',
   );
 
-  /** Vrai si une session ADMIN valide est présente. */
-  readonly isAdmin = computed(
-    () => this._role() === 'ADMIN' && !!this._token(),
-  );
+  /** Vrai si une session ADMIN est présente (état UI ; l'API tranche vraiment). */
+  readonly isAdmin = computed(() => this._role() === 'ADMIN');
 
   /** Vrai si l'utilisateur doit changer son mot de passe initial. */
   readonly mustChangePassword = computed(() => this._mustChangePassword());
@@ -40,11 +37,9 @@ export class AuthService {
     return this.http
       .post<LoginResponse>(`${this.base}/auth/login`, { email, password })
       .pipe(
-        tap(({ token, role, mustChangePassword }) => {
-          this._token.set(token);
+        tap(({ role, mustChangePassword }) => {
           this._role.set(role);
           this._mustChangePassword.set(mustChangePassword);
-          this.write(TOKEN_KEY, token);
           this.write(ROLE_KEY, role);
           this.write(MUST_CHANGE_KEY, String(mustChangePassword));
         }),
@@ -78,17 +73,19 @@ export class AuthService {
     );
   }
 
+  /** Déconnexion : demande au back d'effacer le cookie, puis nettoie l'état local. */
   logout(): void {
-    this._token.set(null);
-    this._role.set(null);
-    this._mustChangePassword.set(false);
-    this.remove(TOKEN_KEY);
-    this.remove(ROLE_KEY);
-    this.remove(MUST_CHANGE_KEY);
+    // Best-effort : on ignore l'erreur éventuelle (ex. cookie déjà expiré).
+    this.http.post(`${this.base}/auth/logout`, {}).subscribe({ error: () => {} });
+    this.clearLocal();
   }
 
-  token(): string | null {
-    return this._token();
+  /** Nettoie uniquement l'état local (sans appel réseau) — utilisé sur un 401. */
+  clearLocal(): void {
+    this._role.set(null);
+    this._mustChangePassword.set(false);
+    this.remove(ROLE_KEY);
+    this.remove(MUST_CHANGE_KEY);
   }
 
   // Accès localStorage défensif (compatible SSR / pré-rendu).

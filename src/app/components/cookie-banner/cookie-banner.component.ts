@@ -1,4 +1,5 @@
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, PLATFORM_ID, signal} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {CookieConsentService} from '../../services/cookie-consent.service';
@@ -71,12 +72,17 @@ const DRAWER_ANIM = trigger('drawerAnim', [
 })
 export class CookieBannerComponent implements OnInit, OnDestroy {
   consent = inject(CookieConsentService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   viewState = signal<CookieView>('pill');
 
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
+    // Logique purement navigateur (matchMedia + timers d'animation) : on la
+    // court-circuite côté serveur (SSR) où `window` n'existe pas.
+    if (!isPlatformBrowser(this.platformId)) return;
+
     const isDesktop = window.matchMedia('(min-width: 561px)').matches;
 
     if (isDesktop) {

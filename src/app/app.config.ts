@@ -5,12 +5,13 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import { authInterceptor } from './interceptor/auth.interceptor';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideAnimationsAsync()
+    provideAnimationsAsync(), provideClientHydration(withEventReplay())
   ]
 };
