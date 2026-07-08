@@ -74,6 +74,12 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
   consent = inject(CookieConsentService);
   private readonly platformId = inject(PLATFORM_ID);
 
+  /** Le consentement vit dans le localStorage (indisponible en SSR) : on ne rend
+   *  la pilule que côté navigateur. Sinon le serveur, incapable de lire le choix,
+   *  l'inclut toujours dans le HTML SSR → elle réapparaît sur /blog même après
+   *  acceptation. */
+  readonly isBrowser = isPlatformBrowser(this.platformId);
+
   viewState = signal<CookieView>('pill');
 
   private timer: ReturnType<typeof setTimeout> | null = null;
