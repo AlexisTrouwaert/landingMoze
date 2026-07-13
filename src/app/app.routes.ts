@@ -22,5 +22,9 @@ export const routes: Routes = [
     path: 'politique-confidentialite',
     loadChildren: () => import('./routes/legal.routes').then(m => m.POLITIQUE_ROUTES)
   },
+  {
+    path: 'desinscription',
+    loadComponent: () => import('./pages/desinscription/desinscription.component').then(m => m.DesinscriptionComponent)
+  },
 { path: '**', redirectTo: '' }
 ];

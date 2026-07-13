@@ -19,6 +19,7 @@ export class EmailComponent {
 
   emailValue = signal<string>('');
   optInValue = signal<boolean>(false);
+  pixelConsentValue = signal<boolean>(false); // Consentement au pixel de suivi (facultatif, distinct de l'opt-in newsletter)
   honeypotValue = signal<string>(''); // Notre Honeypot Angular
 
   status = signal<'IDLE' | 'SUCCESS' | 'ERROR' | 'LOADING'>('IDLE');
@@ -79,6 +80,8 @@ export class EmailComponent {
     const bodyParams = new URLSearchParams();
     bodyParams.append('EMAIL', this.emailValue());
     bodyParams.append('OPT_IN', '1');
+    // Consentement au pixel de suivi (CNIL) — champ _PIXEL_TRACKING_CONSENT du form Brevo. 1 = accepte, 0 = refuse.
+    bodyParams.append('_PIXEL_TRACKING_CONSENT', this.pixelConsentValue() ? '1' : '0');
     bodyParams.append('email_address_check', '');
     bodyParams.append('locale', 'fr');
 
@@ -107,5 +110,6 @@ export class EmailComponent {
     this.status.set('SUCCESS');
     this.emailValue.set('');
     this.optInValue.set(false);
+    this.pixelConsentValue.set(false);
   }
 }

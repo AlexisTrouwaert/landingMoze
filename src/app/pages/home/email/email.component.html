@@ -55,7 +55,22 @@
           />
           <div class="custom-checkmark" [class.error-box]="optInError()"></div>
           <span class="optin-text">
-            J'accepte de recevoir vos e-mails et votre politique de confidentialité.
+            J'accepte de recevoir vos e-mails et votre <a href="/politique-confidentialite" target="_blank" (click)="$event.stopPropagation()">politique de confidentialité</a>.
+          </span>
+        </label>
+      </div>
+
+      <div class="optin-row">
+        <label class="custom-checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="pixelConsentValue"
+            name="pixel_consent"
+            class="hidden-checkbox"
+          />
+          <div class="custom-checkmark"></div>
+          <span class="optin-text">
+            J'accepte que Moze mesure l'ouverture de ses e-mails pour me proposer des contenus personnalisés. <em>(facultatif)</em>
           </span>
         </label>
       </div>

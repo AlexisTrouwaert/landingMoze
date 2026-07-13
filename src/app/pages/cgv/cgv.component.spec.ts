@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { CgvComponent } from './cgv.component';
 
@@ -9,6 +10,7 @@ describe('CgvComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CgvComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CgvComponent);

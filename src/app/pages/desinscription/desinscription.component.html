@@ -1,0 +1,53 @@
+<app-floating-dock [buttonLabel]="'Retour'" (buttonClick)="goHome()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="legal-page">
+  <header class="legal-hero">
+    <p class="eyebrow">Newsletter</p>
+    <h1>Se désinscrire</h1>
+  </header>
+
+  <div class="action-wrap">
+    @if (done()) {
+      <div class="action-card">
+        <span class="action-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <h2>Tu es désinscrit(e)</h2>
+        <p>Tu ne recevras plus les e-mails de la newsletter Moze. La prise en compte peut prendre quelques minutes.</p>
+        <div class="action-btns">
+          <button type="button" class="btn btn-primary" (click)="goHome()">Retour au site</button>
+          <a class="btn btn-link" routerLink="/politique-confidentialite">Politique de confidentialité</a>
+        </div>
+      </div>
+    } @else {
+      <div class="action-card">
+        <span class="action-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        </span>
+        <h2>Confirmer la désinscription</h2>
+        <p>Tu ne recevras plus les e-mails de la newsletter Moze. Tu pourras te réinscrire à tout moment depuis le site.</p>
+
+        @if (ready()) {
+          @if (email()) {
+            <div class="action-btns">
+              <button type="button" class="btn btn-primary" [disabled]="sending()" (click)="confirmUnsub()">
+                {{ sending() ? 'Désinscription…' : 'Me désinscrire' }}
+              </button>
+              <button type="button" class="btn btn-ghost" (click)="goHome()">Annuler</button>
+              <a class="btn btn-link" routerLink="/politique-confidentialite">Politique de confidentialité</a>
+            </div>
+          } @else {
+            <p class="alt-note">Pour te désinscrire, ouvre le lien « Se désinscrire » situé en bas de l'un de nos e-mails : il identifie automatiquement ton adresse.</p>
+            <div class="action-btns">
+              <button type="button" class="btn btn-ghost" (click)="goHome()">Retour au site</button>
+            </div>
+          }
+
+          @if (error()) {
+            <p class="alt-note" role="alert">Une erreur est survenue, réessaie dans un instant.</p>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

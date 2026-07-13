@@ -1,0 +1,108 @@
+@use '../../../styles/legal' as legal;
+
+@include legal.page;
+
+.action-wrap {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.action-card {
+  background: #fff;
+  border: 1px solid #eaf0f3;
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(20, 73, 104, 0.07);
+  padding: 2.5rem 2.4rem;
+  text-align: center;
+}
+
+.action-ic {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #eafaf0;
+  color: #1f8a5e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+
+  svg { width: 28px; height: 28px; }
+}
+
+.action-card h2 {
+  margin: 0 0 0.7rem;
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.action-card p {
+  margin: 0 0 0.5rem;
+  color: #48606e;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1.6rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 50px;
+  padding: 0.9rem 1.4rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+
+  &:focus-visible { outline: 3px solid var(--interaction-color); outline-offset: 3px; }
+  &:disabled { opacity: 0.6; cursor: default; transform: none; }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff;
+  &:hover:not(:disabled) { transform: translateY(-2px); background: #1a5c83; }
+}
+
+.btn-ghost {
+  background: #eef4f8;
+  color: var(--primary-color);
+  &:hover { transform: translateY(-2px); background: #e2edf2; }
+}
+
+.btn-link {
+  background: none;
+  color: var(--interaction-color);
+  font-weight: 600;
+  &:hover { text-decoration: underline; }
+}
+
+.alt-note {
+  margin: 1.3rem 0 0;
+  font-size: 0.9rem;
+  color: #6b8595;
+  line-height: 1.6;
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+@media (max-width: 560px) {
+  .action-card { padding: 1.8rem 1.3rem; }
+}

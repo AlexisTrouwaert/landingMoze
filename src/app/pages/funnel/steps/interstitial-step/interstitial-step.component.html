@@ -106,6 +106,18 @@
           </label>
         </div>
 
+        <div class="brevo-optin-container fade-in">
+          <label class="custom-checkbox-label" for="pixelConsent">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="pixelConsent" formControlName="pixelConsent" class="brevo-optin-checkbox" />
+              <div class="custom-checkmark" aria-hidden="true"></div>
+            </div>
+            <span class="optin-text">
+              J'accepte que Moze mesure l'ouverture de ses e-mails pour me proposer des contenus personnalisés. <em>(facultatif)</em>
+            </span>
+          </label>
+        </div>
+
         <button type="submit" class="next-btn" [disabled]="form.invalid || isCheckingEmail() || isSubmitting()">
           @if (isSubmitting()) {
             Chargement...

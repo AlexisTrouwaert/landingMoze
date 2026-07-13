@@ -1,43 +1,84 @@
-.all{
-  width: 100%;
-  padding: 5rem 1rem 1rem 1rem;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+@use '../../../styles/legal' as legal;
+
+@include legal.page;
+
+/* Page mentions légales : présentation en cartes (pas de sommaire). */
+.legal-intro {
+  max-width: 760px;
+  margin: 0 0 2rem;
+  color: #48606e;
+  font-size: 1rem;
+  line-height: 1.7;
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: #fff;
+  border: 1px solid #eaf0f3;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(20, 73, 104, 0.07);
+  padding: 1.5rem 1.6rem;
+}
+
+.info-ic {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #eafaf0;
+  color: #1f8a5e;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+
+  svg { width: 22px; height: 22px; }
 }
 
-.mention-container{
-  width: 100%;
-  max-width: 1200px;
+.info-label {
+  margin-bottom: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6b8595;
 }
 
-h1{
-  font-size: 3rem;
-  margin-bottom: 2rem;
-}
-
-h2{
+.info-name {
+  margin-bottom: 0.3rem;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: var(--primary-color);
-  margin: 2rem 0 0.5rem 0;
 }
 
-a{
-  color: var(--interaction-color);
+.info-line {
+  font-size: 0.92rem;
+  color: #48606e;
+  line-height: 1.65;
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
 }
 
-h3{
-  color: var(--accent-color);
-  margin: 1rem 0 0.25rem 0;
+.info-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #6b8595;
+  line-height: 1.5;
 }
-
-li{
-  margin: 0.5rem 0 0.5rem 2rem;
-}
-
-.separator{
-  margin-top: 5rem;
-}
-
-

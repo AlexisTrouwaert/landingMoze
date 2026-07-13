@@ -72,6 +72,7 @@ export class InterstitialStepComponent {
     email: ['', [Validators.required, Validators.email]],
     telephone: ['', [Validators.required, Validators.pattern(/^(0|\+33)[6-7]([0-9]{2}){4}$/)]],
     optIn: [false],
+    pixelConsent: [false],
     honeypot: ['']
   });
 
@@ -302,6 +303,8 @@ export class InterstitialStepComponent {
     const bodyParams = new URLSearchParams();
     bodyParams.append('EMAIL', email);
     bodyParams.append('OPT_IN', '1');
+    // Consentement au pixel de suivi (CNIL) — champ _PIXEL_TRACKING_CONSENT du form Brevo. 1 = accepte, 0 = refuse.
+    bodyParams.append('_PIXEL_TRACKING_CONSENT', this.form.value.pixelConsent ? '1' : '0');
     bodyParams.append('email_address_check', '');
     bodyParams.append('locale', 'fr');
 
