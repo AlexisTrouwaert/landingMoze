@@ -106,6 +106,20 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; // pour que le focus ring du bouton ne déborde pas du card
+
+  /* Révélation au scroll — état initial masqué, piloté par le composant via
+     .is-revealed (l'ordre/stagger est calculé à partir de la position réelle). */
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+
+  &.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .title-container {
@@ -317,5 +331,16 @@
 
   .extended .answer {
     padding-bottom: 1rem;
+  }
+}
+
+/* =========================================
+   === ACCESSIBILITÉ — MOTION RÉDUIT ===
+   ========================================= */
+@media (prefers-reduced-motion: reduce) {
+  .question-container {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

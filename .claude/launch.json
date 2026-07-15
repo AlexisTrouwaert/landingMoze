@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "moze-landing",
+      "name": "front",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["start", "--", "--port", "4300"],
-      "port": 4300
+      "runtimeArgs": ["start"],
+      "port": 4200
     }
   ]
 }

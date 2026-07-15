@@ -1,26 +1,34 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+
 import { MetaPixelService } from '../../../../services/meta-pixel.service';
 import { BrevoService } from '../../../../services/brevo.service';
 
 @Component({
-  selector: 'app-redirect-step',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './redirect-step.component.html',
-  styleUrl: './redirect-step.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-redirect-step',
+    imports: [],
+    templateUrl: './redirect-step.component.html',
+    styleUrl: './redirect-step.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RedirectStepComponent {
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
 
+  isConfirmed = signal(false);
+
+  toggleConfirmation(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.isConfirmed.set(input.checked);
+  }
+
   goToConnexion(): void {
+    if (!this.isConfirmed()) return;
     this.redirectWithTracking('mozeconnect', 'https://app.mozeconnect.fr/connexion');
   }
 
   goToPlace(): void {
-    this.redirectWithTracking('mozeplace', 'https://place.mozeconnect.fr/feed');
+    if (!this.isConfirmed()) return;
+    this.redirectWithTracking('mozeplace', 'https://place.mozeconnect.fr/authentification');
   }
 
   /**

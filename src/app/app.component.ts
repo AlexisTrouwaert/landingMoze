@@ -7,11 +7,10 @@ import { MetaPixelService } from './services/meta-pixel.service';
 import { GoogleAnalyticsService } from './services/google-analytics.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, CookieBannerComponent, ContactPanelComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [RouterOutlet, CookieBannerComponent, ContactPanelComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'landing';

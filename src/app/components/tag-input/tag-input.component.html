@@ -1,0 +1,92 @@
+<div class="tagi" [class.tagi--disabled]="disabled()">
+  <div class="tagi__field">
+    @for (t of tags(); track t) {
+      <span class="tagi__chip">
+        {{ t }}
+        <button
+          type="button"
+          class="tagi__chip-x"
+          (click)="remove(t)"
+          [disabled]="disabled()"
+          aria-label="Retirer le tag"
+        >
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </span>
+    }
+    <input
+      class="tagi__input"
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="open()"
+      [value]="query()"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+      (focus)="open.set(true)"
+      (click)="open.set(true)"
+      (blur)="onBlur()"
+      placeholder="Ajouter un tag…"
+    />
+  </div>
+
+  @if (open() && options().length) {
+    <div class="tagi__menu" role="listbox">
+      @for (opt of options(); track opt.label + '|' + opt.create; let i = $index) {
+        @if (opt.create) {
+          <button
+            type="button"
+            class="tagi__option tagi__option--create"
+            role="option"
+            (mousedown)="$event.preventDefault(); createAndAdd(opt.label)"
+          >
+            Créer «&nbsp;{{ opt.label }}&nbsp;»
+          </button>
+        } @else {
+          <div
+            class="tagi__row"
+            [class.is-active]="activeIndex() === i"
+            (mouseenter)="activeIndex.set(i)"
+          >
+            <button
+              type="button"
+              class="tagi__option"
+              role="option"
+              [attr.aria-selected]="activeIndex() === i"
+              (mousedown)="$event.preventDefault(); add(opt.label)"
+            >
+              {{ opt.label }}
+            </button>
+            <button
+              type="button"
+              class="tagi__manage"
+              title="Renommer le tag"
+              aria-label="Renommer le tag"
+              (mousedown)="$event.preventDefault(); renameTagInList(opt.tag!)"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="tagi__manage tagi__manage--danger"
+              title="Supprimer le tag"
+              aria-label="Supprimer le tag"
+              (mousedown)="$event.preventDefault(); removeTagFromList(opt.tag!)"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

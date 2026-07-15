@@ -44,6 +44,7 @@ export class FunnelService {
 
   private http = inject(HttpClient);
   private readonly metaPixel = inject(MetaPixelService);
+  // private apiUrl = `https://nico.by-moze.fr`;
   private readonly brevo = inject(BrevoService);
   private readonly ga = inject(GoogleAnalyticsService);
   /** Bases d'API — bascule prod / test (test activé via /commencer?test). */

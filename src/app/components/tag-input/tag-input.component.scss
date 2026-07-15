@@ -1,0 +1,154 @@
+.tagi {
+  position: relative;
+
+  &__field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #cdd9d4;
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  &:focus-within &__field {
+    border-color: var(--interaction-color);
+    box-shadow: 0 0 0 3px rgba(2, 151, 216, 0.12);
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.3rem 0.25rem 0.65rem;
+    background: #eaf5ff;
+    color: var(--primary-color);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  &__chip-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: rgba(20, 87, 117, 0.14);
+    }
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 130px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.95rem;
+    padding: 0.25rem 0;
+
+    &::placeholder {
+      color: #9aa7ac;
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.3rem);
+    z-index: 30;
+    background: #fff;
+    border: 1px solid #e3ebe7;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(20, 87, 117, 0.14);
+    padding: 0.3rem;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    border-radius: 7px;
+
+    &.is-active {
+      background: #f1f6f3;
+    }
+  }
+
+  &__option {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: #36474e;
+    padding: 0.5rem 0.65rem;
+    border-radius: 7px;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    // Le bouton « Créer » est autonome (hors ligne) → surlignage propre.
+    &--create {
+      display: block;
+      width: 100%;
+      color: var(--interaction-color);
+      font-family: 'SNPRO-SemiBold', sans-serif;
+
+      &:hover,
+      &.is-active {
+        background: #f1f6f3;
+      }
+    }
+  }
+
+  &__manage {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.7rem;
+    height: 1.7rem;
+    margin-right: 0.15rem;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--interaction-color);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.12s ease, color 0.12s ease, background 0.12s ease;
+
+    &:hover {
+      background: rgba(2, 151, 216, 0.14);
+    }
+
+    &--danger {
+      color: #c0392b;
+
+      &:hover {
+        background: #fdecea;
+      }
+    }
+  }
+
+  &__row:hover &__manage,
+  &__row.is-active &__manage {
+    opacity: 1;
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}

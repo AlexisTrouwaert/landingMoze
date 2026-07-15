@@ -11,12 +11,11 @@ import { CookieConsentService } from '../../services/cookie-consent.service';
  * pas choisis, il se décale vers le haut pour ne pas chevaucher le bandeau.
  */
 @Component({
-  selector: 'app-scroll-top',
-  standalone: true,
-  imports: [],
-  templateUrl: './scroll-top.component.html',
-  styleUrl: './scroll-top.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-scroll-top',
+    imports: [],
+    templateUrl: './scroll-top.component.html',
+    styleUrl: './scroll-top.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScrollTopComponent implements OnDestroy {
 

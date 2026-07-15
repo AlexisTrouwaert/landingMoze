@@ -6,6 +6,8 @@
 export const environment = {
   production: false,
   apiUrl: 'https://app.mozeconnect.fr',
+  /** Back dédié au blog (POC). En dev : back NestJS local (landingMoze-back). */
+  blogApiUrl: 'http://localhost:3000',
   /** Pixel Meta dédié aux tests locaux — compte perso, ne pollue pas la prod. */
   metaPixelId: '949083607920305',
   /** Clé Marketing Automation Brevo (tracker on-site). Vide = tracker désactivé. À renseigner. */

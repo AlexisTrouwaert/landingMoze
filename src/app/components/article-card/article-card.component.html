@@ -1,0 +1,13 @@
+@if (article().coverImageUrl) {
+  <img class="card__cover" [src]="article().coverImageUrl" [alt]="article().title" loading="lazy" />
+} @else {
+  <div class="card__cover card__cover--placeholder" aria-hidden="true"></div>
+}
+<div class="card__body">
+  @if (article().publishedAt) {
+    <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
+  }
+  <h2 class="card__title">{{ article().title }}</h2>
+  <p class="card__excerpt">{{ article().excerpt }}</p>
+  <span class="card__more">Lire l'article →</span>
+</div>

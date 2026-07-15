@@ -5,11 +5,10 @@ import { By } from '@angular/platform-browser';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
 
 @Component({
-  standalone: true,
-  imports: [ScrollRevealDirective],
-  template: `
+    imports: [ScrollRevealDirective],
+    template: `
     <div appScrollReveal [delay]="delay" [threshold]="threshold"></div>
-  `,
+  `
 })
 class HostComponent {
   delay = 0;

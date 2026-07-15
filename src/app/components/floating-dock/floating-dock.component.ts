@@ -1,6 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, signal } from '@angular/core';
 
-export interface DockLink { id: string; label: string; icon?: string; desc?: string; action?: string; }
+export interface DockLink { id: string; label: string; icon?: string; desc?: string; }
 export interface DockGroup { title?: string; links: DockLink[]; }
 
 /**
@@ -15,12 +15,11 @@ export interface DockGroup { title?: string; links: DockLink[]; }
  * que la cible n'est pas rendue (gère aussi l'arrivée via un lien partagé).
  */
 @Component({
-  selector: 'app-floating-dock',
-  standalone: true,
-  imports: [],
-  templateUrl: './floating-dock.component.html',
-  styleUrl: './floating-dock.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-floating-dock',
+    imports: [],
+    templateUrl: './floating-dock.component.html',
+    styleUrl: './floating-dock.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FloatingDockComponent implements OnDestroy {
 
@@ -36,8 +35,6 @@ export class FloatingDockComponent implements OnDestroy {
   @Output() ctaClick = new EventEmitter<void>();
   /** Émis au clic sur le logo SI un écouteur est branché (sinon = simple lien vers /). */
   @Output() logoClick = new EventEmitter<Event>();
-  /** Émis au clic sur un lien marqué `action` (ex. ouvrir une popup) au lieu de scroller. */
-  @Output() linkAction = new EventEmitter<string>();
 
   /** Index du déroulant ouvert (null = aucun). */
   readonly openGroup = signal<number | null>(null);
@@ -102,23 +99,7 @@ export class FloatingDockComponent implements OnDestroy {
   }
 
   private allIds(): string[] {
-    // Les liens "action" (ex. Support → popup) ne sont pas des ancres de section.
-    return this.groups.flatMap(g => g.links.filter(l => !l.action).map(l => l.id));
-  }
-
-  /**
-   * Clic sur un lien du dock. Lien marqué `action` (ex. Support) → on émet
-   * `linkAction` (le parent ouvre la popup). Sinon → navigation par ancre classique.
-   */
-  onLinkClick(event: Event, link: DockLink): void {
-    if (link.action) {
-      event.preventDefault();
-      this.openGroup.set(null);
-      this.mobileOpen.set(false);
-      this.linkAction.emit(link.action);
-      return;
-    }
-    this.navigate(event, link.id);
+    return this.groups.flatMap(g => g.links.map(l => l.id));
   }
 
   /** Clic sur un lien : URL partageable (`/#id`) + scroll fluide + fermeture du déroulant. */

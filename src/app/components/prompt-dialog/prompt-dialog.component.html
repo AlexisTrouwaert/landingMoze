@@ -1,0 +1,31 @@
+@if (open()) {
+  <div class="pd-backdrop" (click)="onCancel()">
+    <div
+      class="pd-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 class="pd-title">{{ title() }}</h2>
+      @if (label()) {
+        <label class="pd-label">{{ label() }}</label>
+      }
+      <input
+        class="pd-input"
+        type="text"
+        [value]="value()"
+        (input)="onInput($event)"
+        (keydown.enter)="onConfirm()"
+        autofocus
+      />
+      <div class="pd-actions">
+        <button type="button" class="pd-btn pd-btn--ghost" (click)="onCancel()">
+          {{ cancelLabel() }}
+        </button>
+        <button type="button" class="pd-btn" (click)="onConfirm()">
+          {{ confirmLabel() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

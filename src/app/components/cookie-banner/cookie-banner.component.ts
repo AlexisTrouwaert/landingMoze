@@ -1,4 +1,5 @@
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, PLATFORM_ID, signal} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {CookieConsentService} from '../../services/cookie-consent.service';
@@ -63,15 +64,21 @@ const DRAWER_ANIM = trigger('drawerAnim', [
 ]);
 
 @Component({
-  selector: 'app-cookie-banner',
-  standalone: true,
-  imports: [RouterLink],
-  templateUrl: './cookie-banner.component.html',
-  styleUrl: './cookie-banner.component.scss',
-  animations: [PILL_ANIM, PILL_BTNS_ANIM, DRAWER_ANIM]
+    selector: 'app-cookie-banner',
+    imports: [RouterLink],
+    templateUrl: './cookie-banner.component.html',
+    styleUrl: './cookie-banner.component.scss',
+    animations: [PILL_ANIM, PILL_BTNS_ANIM, DRAWER_ANIM]
 })
 export class CookieBannerComponent implements OnInit, OnDestroy {
   consent = inject(CookieConsentService);
+  private readonly platformId = inject(PLATFORM_ID);
+
+  /** Le consentement vit dans le localStorage (indisponible en SSR) : on ne rend
+   *  la pilule que côté navigateur. Sinon le serveur, incapable de lire le choix,
+   *  l'inclut toujours dans le HTML SSR → elle réapparaît sur /blog même après
+   *  acceptation. */
+  readonly isBrowser = isPlatformBrowser(this.platformId);
 
   viewState = signal<CookieView>('pill');
 
@@ -82,6 +89,10 @@ export class CookieBannerComponent implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
+    // Logique purement navigateur (matchMedia + timers d'animation) : on la
+    // court-circuite côté serveur (SSR) où `window` n'existe pas.
+    if (!isPlatformBrowser(this.platformId)) return;
+
     const isDesktop = window.matchMedia('(min-width: 561px)').matches;
 
     if (isDesktop) {

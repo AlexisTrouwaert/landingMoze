@@ -7,12 +7,11 @@ import { CookieConsentService } from '../../services/cookie-consent.service';
 interface TocItem { id: string; num: string; label: string; }
 
 @Component({
-  selector: 'app-politique',
-  standalone: true,
-  imports: [FloatingDockComponent],
-  templateUrl: './politique.component.html',
-  styleUrl: './politique.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-politique',
+    imports: [FloatingDockComponent],
+    templateUrl: './politique.component.html',
+    styleUrl: './politique.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PolitiqueComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

@@ -1,0 +1,26 @@
+@if (open()) {
+  <div class="cd-backdrop" (click)="onCancel()">
+    <div
+      class="cd-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 class="cd-title">{{ title() }}</h2>
+      <p class="cd-message">{{ message() }}</p>
+      <div class="cd-actions">
+        <button type="button" class="cd-btn cd-btn--ghost" (click)="onCancel()">
+          {{ cancelLabel() }}
+        </button>
+        <button
+          type="button"
+          class="cd-btn"
+          [class.cd-btn--danger]="danger()"
+          (click)="onConfirm()"
+        >
+          {{ confirmLabel() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

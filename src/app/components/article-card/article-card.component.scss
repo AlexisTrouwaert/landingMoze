@@ -1,0 +1,59 @@
+// Le composant EST la carte (l'hôte porte le style ; le parent l'englobe dans un
+// lien en `display: contents` pour la navigation sans casser la grille).
+:host {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(20, 87, 117, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+:host(:hover) {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(20, 87, 117, 0.16);
+}
+
+.card__cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+
+  &--placeholder {
+    background: linear-gradient(135deg, var(--primary-color), var(--interaction-color));
+  }
+}
+
+.card__body {
+  padding: 1.25rem 1.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card__date {
+  color: #8a979d;
+  font-size: 0.8rem;
+}
+
+.card__title {
+  color: var(--primary-color);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.card__excerpt {
+  color: #4a5b63;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.card__more {
+  color: var(--interaction-color);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}

@@ -1,0 +1,17 @@
+<app-floating-dock [buttonLabel]="'Retour'" (buttonClick)="goBlog()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="article-page">
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else if (notFound()) {
+    <div class="state state--404">
+      <h1>Article introuvable</h1>
+      <p>Cet article n'existe pas ou n'est plus publié.</p>
+      <a class="btn" [routerLink]="['/blog']">← Retour au blog</a>
+    </div>
+  } @else {
+    @if (article(); as a) {
+      <app-article-view [article]="a" />
+    }
+  }
+</div>

@@ -4,12 +4,11 @@ import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directi
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
-  selector: 'app-tool',
-  standalone: true,
-  imports: [ScrollRevealDirective],
-  templateUrl: './tool.component.html',
-  styleUrl: './tool.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-tool',
+    imports: [ScrollRevealDirective],
+    templateUrl: './tool.component.html',
+    styleUrl: './tool.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolComponent {
   private router = inject(Router);

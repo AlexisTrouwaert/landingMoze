@@ -18,12 +18,16 @@
   <div class="newsletter-section" [class.shake]="isShaking()">
     <p class="newsletter-text">Inscrivez-vous pour recevoir nos actualités et nouveautés</p>
 
-    <div class="status-alert success" *ngIf="status() === 'SUCCESS'">
-      <span>✓ Votre inscription a été enregistrée avec succès.</span>
-    </div>
-    <div class="status-alert error" *ngIf="status() === 'ERROR'">
-      <span>✕ Trop de tentatives, veuillez réessayer plus tard.</span>
-    </div>
+    @if (status() === 'SUCCESS') {
+      <div class="status-alert success">
+        <span>✓ Votre inscription a été enregistrée avec succès.</span>
+      </div>
+    }
+    @if (status() === 'ERROR') {
+      <div class="status-alert error">
+        <span>✕ Trop de tentatives, veuillez réessayer plus tard.</span>
+      </div>
+    }
 
     <form (submit)="onSubmit($event)">
       <div class="form-row">
@@ -35,14 +39,14 @@
           placeholder="Votre adresse email"
           class="newsletter-input"
           [class.input-error]="emailError()"
-        />
+          />
 
-        <input type="text" [(ngModel)]="honeypotValue" name="check_field" style="display:none" tabindex="-1">
+          <input type="text" [(ngModel)]="honeypotValue" name="check_field" style="display:none" tabindex="-1">
 
-        <button type="submit" class="newsletter-submit-btn" [disabled]="status() === 'LOADING'">
-          {{ status() === 'LOADING' ? 'Envoi...' : "C'est parti !" }}
-        </button>
-      </div>
+          <button type="submit" class="newsletter-submit-btn" [disabled]="status() === 'LOADING'">
+            {{ status() === 'LOADING' ? 'Envoi...' : "C'est parti !" }}
+          </button>
+        </div>
 
       <div class="optin-row">
         <label class="custom-checkbox-label" [class.text-error]="optInError()">

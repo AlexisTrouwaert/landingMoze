@@ -1,0 +1,160 @@
+<div class="editor-page">
+  <header class="editor-bar">
+    <h1>{{ isEdit() ? 'Modifier l’article' : 'Nouvel article' }}</h1>
+    <button type="button" class="btn btn--ghost" (click)="cancel()">← Retour</button>
+  </header>
+
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else {
+    <form class="editor-form" [formGroup]="form" (ngSubmit)="save(false)">
+      <label class="field">
+        <span>Titre *</span>
+        <input type="text" formControlName="title" placeholder="Titre de l'article" />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <small class="field-error">Le titre est obligatoire (200 caractères max).</small>
+        }
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Slug</span>
+          <input type="text" formControlName="slug" placeholder="laissé vide = généré automatiquement" />
+        </label>
+        <label class="field">
+          <span>Auteur</span>
+          <input type="text" formControlName="author" placeholder="Équipe Moze" />
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Extrait</span>
+        <textarea formControlName="excerpt" rows="2" placeholder="Résumé affiché dans la liste et la meta description"></textarea>
+      </label>
+
+      <div class="field">
+        <span>Tags</span>
+        <app-tag-input
+          formControlName="tags"
+          [suggestions]="allTags()"
+          (tagRemove)="onTagRemove($event)"
+          (tagRename)="onTagRename($event)"
+          (tagCreate)="onTagCreate($event)"
+        ></app-tag-input>
+        <small class="field-hint">Tapez un mot-clé puis Entrée pour ajouter le tag (flèches ↑↓ pour parcourir les suggestions). Un tag qui n'existe pas encore sera créé automatiquement.</small>
+      </div>
+
+      <div class="field">
+        <span>Image de couverture</span>
+        <div class="cover">
+          @if (form.controls.coverImageUrl.value) {
+            <div class="cover__preview-wrap">
+              <img class="cover__preview" [src]="form.controls.coverImageUrl.value" alt="Aperçu couverture" />
+              <button type="button" class="btn btn--small btn--danger" (click)="removeCover()">
+                Retirer l'image
+              </button>
+            </div>
+          }
+          <div class="cover__controls">
+            <input type="text" formControlName="coverImageUrl" placeholder="URL de la couverture" />
+            <label class="btn btn--small cover__upload">
+              {{ uploadingCover() ? 'Envoi…' : 'Téléverser' }}
+              <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onCoverSelected($event)" />
+            </label>
+          </div>
+
+          @if (form.controls.coverImageUrl.value) {
+            <div class="cover-position">
+              <span class="cover-position__label">Position de l'image (le texte se place à l'opposé)</span>
+              <div class="cover-position__options" role="group" aria-label="Position de l'image">
+                @for (opt of coverPositions; track opt.value) {
+                  <button
+                    type="button"
+                    class="cover-position__btn"
+                    [class.cover-position__btn--active]="form.controls.coverPosition.value === opt.value"
+                    (click)="setCoverPosition(opt.value)"
+                  >
+                    {{ opt.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Contenu</span>
+        <app-wysiwyg-editor formControlName="content"></app-wysiwyg-editor>
+      </div>
+
+      <fieldset class="seo">
+        <legend>SEO (optionnel)</legend>
+        <label class="field">
+          <span>Meta title</span>
+          <input type="text" formControlName="metaTitle" placeholder="Par défaut : le titre" />
+        </label>
+        <label class="field">
+          <span>Meta description</span>
+          <textarea formControlName="metaDescription" rows="2" placeholder="Par défaut : l'extrait"></textarea>
+        </label>
+      </fieldset>
+
+      @if (error()) {
+        <p class="form-error">{{ error() }}</p>
+      }
+
+      <div class="editor-actions">
+        <button type="submit" class="btn" [disabled]="saving()">
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer (brouillon)' }}
+        </button>
+        <button type="button" class="btn btn--primary" (click)="save(true)" [disabled]="saving()">
+          Publier
+        </button>
+      </div>
+    </form>
+
+    <section class="preview">
+      <div class="preview__bar">
+        <h2 class="preview__title">Aperçu du rendu</h2>
+        <button type="button" class="btn btn--small" (click)="togglePreview()">
+          {{ showPreview() ? 'Masquer' : 'Afficher' }}
+        </button>
+      </div>
+      @if (showPreview()) {
+        <div class="preview__surface">
+          <div class="preview__block">
+            <span class="preview__label">Carte dans la liste</span>
+            <div class="preview__card">
+              <app-article-card [article]="previewArticle()" />
+            </div>
+          </div>
+          <div class="preview__block">
+            <span class="preview__label">Article complet</span>
+            <app-article-view [article]="previewArticle()" [back]="false" />
+          </div>
+        </div>
+      }
+    </section>
+  }
+
+  <app-confirm-dialog
+    [open]="tagToDelete() !== null"
+    title="Supprimer le tag"
+    [message]="deleteTagMessage()"
+    confirmLabel="Supprimer"
+    [danger]="true"
+    (confirmed)="confirmTagDelete()"
+    (cancelled)="cancelTagDelete()"
+  />
+
+  <app-prompt-dialog
+    [open]="tagToRename() !== null"
+    title="Renommer le tag"
+    label="Nouveau nom du tag"
+    [initialValue]="tagToRename()?.name ?? ''"
+    confirmLabel="Renommer"
+    (confirmed)="confirmTagRename($event)"
+    (cancelled)="cancelTagRename()"
+  />
+</div>

@@ -1,0 +1,76 @@
+<div class="account-page">
+  <header class="account-bar">
+    <h1>Mon compte</h1>
+    @if (!forced()) {
+      <button type="button" class="btn btn--ghost" (click)="backToDashboard()">← Retour</button>
+    }
+  </header>
+
+  @if (forced()) {
+    <p class="notice">
+      Pour des raisons de sécurité, vous devez <strong>changer votre mot de passe</strong>
+      avant d'accéder à l'administration.
+    </p>
+  }
+
+  <section class="card">
+    <h2>Mot de passe</h2>
+    <form [formGroup]="pwdForm" (ngSubmit)="submitPassword()">
+      <label class="field">
+        <span>Mot de passe actuel</span>
+        <app-password-input formControlName="currentPassword" autocomplete="current-password"></app-password-input>
+      </label>
+      <label class="field">
+        <span>Nouveau mot de passe</span>
+        <app-password-input formControlName="newPassword" autocomplete="new-password"></app-password-input>
+        @if (pwdForm.controls.newPassword.touched && pwdForm.controls.newPassword.invalid) {
+          <small class="field-error">8 caractères minimum.</small>
+        }
+      </label>
+      <label class="field">
+        <span>Confirmer le nouveau mot de passe</span>
+        <app-password-input formControlName="confirm" autocomplete="new-password"></app-password-input>
+      </label>
+
+      @if (pwdError()) {
+        <p class="form-error">{{ pwdError() }}</p>
+      }
+
+      <button type="submit" class="btn btn--primary" [disabled]="pwdLoading()">
+        {{ pwdLoading() ? 'Enregistrement…' : 'Changer le mot de passe' }}
+      </button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Adresse email</h2>
+    <form [formGroup]="emailForm" (ngSubmit)="submitEmail()">
+      <label class="field">
+        <span>Nouvel email</span>
+        <input type="email" formControlName="newEmail" autocomplete="email" />
+        @if (emailForm.controls.newEmail.touched && emailForm.controls.newEmail.invalid) {
+          <small class="field-error">Email invalide.</small>
+        }
+      </label>
+      <label class="field">
+        <span>Mot de passe (confirmation)</span>
+        <app-password-input formControlName="password" autocomplete="current-password"></app-password-input>
+      </label>
+
+      @if (emailError()) {
+        <p class="form-error">{{ emailError() }}</p>
+      }
+      @if (emailSuccess()) {
+        <p class="form-success">Email mis à jour.</p>
+      }
+
+      <button type="submit" class="btn" [disabled]="emailLoading()">
+        {{ emailLoading() ? 'Enregistrement…' : 'Changer l’email' }}
+      </button>
+    </form>
+  </section>
+
+  <footer class="account-footer">
+    <button type="button" class="btn btn--ghost" (click)="logout()">Déconnexion</button>
+  </footer>
+</div>

@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, signal, isDevMode } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize, tap, map } from 'rxjs/operators';
@@ -11,11 +11,10 @@ import { BrevoService } from "../../../../services/brevo.service";
 import { GoogleAnalyticsService } from "../../../../services/google-analytics.service";
 
 @Component({
-  selector: 'app-interstitial-step',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './interstitial-step.component.html',
-  styleUrl: './interstitial-step.component.scss'
+    selector: 'app-interstitial-step',
+    imports: [ReactiveFormsModule],
+    templateUrl: './interstitial-step.component.html',
+    styleUrl: './interstitial-step.component.scss'
 })
 export class InterstitialStepComponent {
   fs = inject(FunnelService);
@@ -31,13 +30,6 @@ export class InterstitialStepComponent {
   emailExistsInBdd = signal(false);
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
-
-  // Vue affichée : formulaire, succès (compte créé) ou compte déjà existant.
-  view = signal<'form' | 'success' | 'exists'>('form');
-
-  // Demande de lien de réinitialisation (boutons « mot de passe oublié » / « je n'ai pas reçu l'email »).
-  resetSending = signal(false);
-  resetMessage = signal<string | null>(null);
 
   // Horodatage d'affichage du formulaire — utilisé conjointement au honeypot pour
   // distinguer un vrai bot (remplissage quasi instantané) d'un autofill légitime
@@ -96,9 +88,7 @@ export class InterstitialStepComponent {
       filter((email): email is string => !!email && emailCtrl?.valid === true),
       switchMap(email => {
         if (window.location.hostname === 'localhost') {
-          // DEV : pas d'appel API. Pour prévisualiser l'écran « compte existant »,
-          // saisis un email contenant « exist » (ex. exist@test.com).
-          return of(email.includes('exist'));
+          return of(false);
         }
         this.isCheckingEmail.set(true);
         return this.validationService.validateEmail(email).pipe(
@@ -108,10 +98,17 @@ export class InterstitialStepComponent {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(exists => {
-      // On mémorise seulement l'existence du compte : le formulaire reste affiché
-      // pendant la saisie. La bascule vers l'écran « compte existant » se fait à la
-      // validation (submit), une fois les champs remplis et validés.
       this.emailExistsInBdd.set(exists);
+
+      if (exists) {
+        emailCtrl?.setErrors({ emailExists: true });
+      } else {
+        if (emailCtrl?.hasError('emailExists')) {
+          const errors = { ...emailCtrl.errors };
+          delete errors['emailExists'];
+          emailCtrl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+        }
+      }
     });
   }
 
@@ -196,7 +193,7 @@ export class InterstitialStepComponent {
           opt_in_newsletter: val.optIn ?? false,
         });
         this.isSubmitting.set(false);
-        this.view.set('success'); // affiche l'écran « Inscription réussie »
+        this.fs.nextStep(); // Passage à l'étape 4
         return;
       }
 
@@ -226,7 +223,7 @@ export class InterstitialStepComponent {
           }
 
           this.isSubmitting.set(false);
-          this.view.set('success'); // affiche l'écran « Inscription réussie »
+          this.fs.nextStep(); // Passage à l'étape 4
         },
         error: (err) => {
           if (isDevMode()) {
@@ -236,9 +233,6 @@ export class InterstitialStepComponent {
           this.submissionError.set("Une erreur est survenue, veuillez réessayer ultérieurement.");
         }
       });
-    } else if (this.form.valid && this.emailExistsInBdd()) {
-      // Champs remplis et validés, mais le compte existe déjà → écran « compte existant ».
-      this.view.set('exists');
     } else {
       this.form.markAllAsTouched();
     }

@@ -41,7 +41,7 @@
                 <a class="dd-link"
                    [class.is-active]="activeId() === link.id"
                    [attr.href]="'#' + link.id"
-                   (click)="onLinkClick($event, link)">
+                   (click)="navigate($event, link.id)">
                   @if (link.icon) {
                     <span class="dd-ic" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>
@@ -60,7 +60,7 @@
             <a class="dock-item"
                [class.is-active]="activeId() === link.id"
                [attr.href]="'#' + link.id"
-               (click)="onLinkClick($event, link)">
+               (click)="navigate($event, link.id)">
               {{ link.label }}
             </a>
           }
@@ -119,7 +119,7 @@
             <a class="dock-m-link"
                [class.is-active]="activeId() === link.id"
                [attr.href]="'#' + link.id"
-               (click)="onLinkClick($event, link)">
+               (click)="navigate($event, link.id)">
               @if (link.icon) {
                 <span class="dock-m-ic" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>

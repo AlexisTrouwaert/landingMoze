@@ -1,4 +1,4 @@
-@if (!consent.consentDecided()) {
+@if (isBrowser && !consent.consentDecided()) {
 
   <!-- ═══════════════════════════════════════════════════════
        PILL — stable pour 'pill' et 'pill-active'

@@ -16,36 +16,32 @@ import {ContactPanelService} from "../../services/contact-panel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
 import {DownloadAppsComponent} from "./download-apps/download-apps.component";
 import {MediaPressComponent} from "./media-press/media-press.component";
-import {FollowUsComponent} from "./follow-us/follow-us.component";
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    FloatingDockComponent,
-    ScrollTopComponent,
-    LandingSectionComponent,
-    TarifComponent,
-    ToolComponent,
-    FaqComponent,
-    EmailComponent,
-    FooterComponent,
-    CustomerReviewsComponent,
-    ActivityStepsComponent,
-    DownloadAppsComponent,
-    MediaPressComponent,
-    FollowUsComponent
-  ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-home',
+    imports: [
+        FloatingDockComponent,
+        ScrollTopComponent,
+        LandingSectionComponent,
+        TarifComponent,
+        ToolComponent,
+        FaqComponent,
+        EmailComponent,
+        FooterComponent,
+        CustomerReviewsComponent,
+        ActivityStepsComponent,
+        DownloadAppsComponent,
+        MediaPressComponent,
+    ],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly screenSizeService = inject(ScreenSizeService);
   private readonly metaPixelService  = inject(MetaPixelService);
   private readonly router            = inject(Router);
-  private readonly contactPanel      = inject(ContactPanelService);
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
@@ -54,24 +50,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     { title: 'Découvrir', links: [
       { id: 'etapes', label: 'Étapes', icon: 'steps', desc: 'Comment ça marche' },
       { id: 'outils', label: 'Outils', icon: 'tools', desc: 'Tout ce que Moze offre' },
+      { id: 'offres', label: 'Offres', icon: 'offres', desc: 'Nos formules' },
       { id: 'presse', label: 'Presse', icon: 'news',  desc: 'On parle de nous' },
       { id: 'avis',   label: 'Avis',   icon: 'star',  desc: 'La parole aux membres' },
-      { id: 'offres', label: 'Offres', icon: 'offres', desc: 'Nos formules' },
       { id: 'app', label: "L'app", icon: 'app', desc: 'iOS & Android' },
       { id: 'support', label: 'Support', icon: 'support', desc: "Une question ? On t'aide", action: 'support' }
     ]},
     { links: [
-      { id: 'faq', label: 'FAQ' }
+      { id: 'faq', label: 'FAQ' },
+      { id: 'app', label: "L'app" }
     ]}
   ];
-
-  /** Lien "action" du dock (ex. Support) → ouvre la popup support + pose l'ancre #support. */
-  onDockAction(action: string): void {
-    if (action === 'support') {
-      this.contactPanel.open();
-      if (typeof history !== 'undefined') history.replaceState(null, '', '#support');
-    }
-  }
 
   /** CTA du dock — conserve le comportement de l'ancien header (inscription → tunnel). */
   goToFunnel(): void {
@@ -115,10 +104,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.metaPixelService.trackViewContent();
-    // Ancre profonde : arriver sur /#support ouvre directement la popup support (lien partageable).
-    if (typeof location !== 'undefined' && location.hash === '#support') {
-      this.contactPanel.open();
-    }
   }
 
   ngAfterViewInit(): void {
