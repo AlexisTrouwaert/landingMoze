@@ -53,12 +53,17 @@ export class AdminBlogEditorComponent {
   readonly error = signal<string | null>(null);
   readonly allTags = signal<Tag[]>([]);
   readonly tagToDelete = signal<Tag | null>(null);
+  /** Nb d'articles portant le tag (renvoyé par le back au 1er refus) → confirmation forcée. */
+  readonly tagDeleteCount = signal<number | null>(null);
   readonly tagToRename = signal<Tag | null>(null);
   readonly deleteTagMessage = computed(() => {
     const t = this.tagToDelete();
-    return t
-      ? `Supprimer le tag « ${t.name} » ?\n\nIl sera retiré de tous les articles. Cette action est irréversible.`
-      : '';
+    if (!t) return '';
+    const count = this.tagDeleteCount();
+    if (count !== null) {
+      return `Le tag « ${t.name} » est utilisé par ${count} article(s).\n\nLe supprimer le retirera de ces ${count} article(s). Cette action est irréversible.`;
+    }
+    return `Supprimer le tag « ${t.name} » ?\n\nS'il est utilisé par des articles, il en sera retiré. Cette action est irréversible.`;
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -196,14 +201,18 @@ export class AdminBlogEditorComponent {
   // --- Suppression d'un tag global (modale de confirmation) ---
   onTagRemove(tag: Tag): void {
     this.tagToDelete.set(tag);
+    this.tagDeleteCount.set(null);
   }
   cancelTagDelete(): void {
     this.tagToDelete.set(null);
+    this.tagDeleteCount.set(null);
   }
   confirmTagDelete(): void {
     const tag = this.tagToDelete();
     if (!tag) return;
-    this.blog.deleteTag(tag.id).subscribe({
+    // `force` seulement après que le back a signalé le tag comme utilisé (2ᵉ confirmation).
+    const force = this.tagDeleteCount() !== null;
+    this.blog.deleteTag(tag.id, force).subscribe({
       next: () => {
         this.allTags.update((arr) => arr.filter((t) => t.id !== tag.id));
         const current = this.form.controls.tags.value.filter(
@@ -211,9 +220,17 @@ export class AdminBlogEditorComponent {
         );
         this.form.controls.tags.setValue(current);
         this.tagToDelete.set(null);
+        this.tagDeleteCount.set(null);
       },
-      error: () => {
+      error: (err) => {
+        // Garde-fou back : tag encore utilisé → on garde la modale ouverte et on
+        // affiche le nombre d'articles impactés pour une confirmation explicite.
+        if (err?.status === 409 && typeof err.error?.count === 'number') {
+          this.tagDeleteCount.set(err.error.count);
+          return;
+        }
         this.tagToDelete.set(null);
+        this.tagDeleteCount.set(null);
         this.error.set('Impossible de supprimer le tag.');
       },
     });

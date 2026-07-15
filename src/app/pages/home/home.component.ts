@@ -42,6 +42,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly screenSizeService = inject(ScreenSizeService);
   private readonly metaPixelService  = inject(MetaPixelService);
   private readonly router            = inject(Router);
+  private readonly contactPanel      = inject(ContactPanelService);
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
@@ -57,6 +58,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       { id: 'support', label: 'Support', icon: 'support', desc: "Une question ? On t'aide", action: 'support' }
     ]},
     { links: [
+      { id: 'blog', label: 'Blog', route: '/blog' },
       { id: 'faq', label: 'FAQ' },
       { id: 'app', label: "L'app" }
     ]}
@@ -66,6 +68,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   goToFunnel(): void {
     this.metaPixelService.trackLeadCTA('inscription_generic');
     this.router.navigate(['/commencer']);
+  }
+
+  /** Action émise par un lien du dock (ex. « Support » → ouvre le panneau de contact). */
+  onDockAction(action: string): void {
+    if (action === 'support') this.contactPanel.open();
   }
 
   /* === Tracking curseur → spotlight localisé sur chaque grid-patch === */

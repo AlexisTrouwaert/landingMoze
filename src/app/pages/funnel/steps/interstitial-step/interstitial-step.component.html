@@ -60,6 +60,28 @@
           }
         </div>
 
+        <!-- Compte déjà existant → propose connexion / réinitialisation du mot de passe. -->
+        @if (emailExistsInBdd()) {
+          <div class="fade-in" style="margin: -0.35rem 0 0.5rem; display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.9rem;">
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
+              <button type="button" (click)="goToConnexion()"
+                      style="background: none; border: none; padding: 0; font: inherit; font-weight: 600; color: var(--primary-color); text-decoration: underline; cursor: pointer;">
+                Se connecter
+              </button>
+              <span aria-hidden="true" style="color: #aaa;">·</span>
+              <button type="button" (click)="requestPasswordReset()" [disabled]="resetSending()"
+                      [style.opacity]="resetSending() ? '0.6' : '1'"
+                      [style.cursor]="resetSending() ? 'default' : 'pointer'"
+                      style="background: none; border: none; padding: 0; font: inherit; font-weight: 600; color: var(--primary-color); text-decoration: underline;">
+                @if (resetSending()) { Envoi en cours… } @else { Mot de passe oublié ? }
+              </button>
+            </div>
+            @if (resetMessage()) {
+              <small role="status" aria-live="polite" style="color: #1f9d57;">{{ resetMessage() }}</small>
+            }
+          </div>
+        }
+
         <div class="input-group">
           <label class="sr-only" for="telephone">Téléphone mobile</label>
           <input type="tel" id="telephone" formControlName="telephone" placeholder="Téléphone mobile"

@@ -1,6 +1,7 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
-export interface DockLink { id: string; label: string; icon?: string; desc?: string; }
+export interface DockLink { id: string; label: string; icon?: string; desc?: string; action?: string; route?: string; }
 export interface DockGroup { title?: string; links: DockLink[]; }
 
 /**
@@ -35,6 +36,10 @@ export class FloatingDockComponent implements OnDestroy {
   @Output() ctaClick = new EventEmitter<void>();
   /** Émis au clic sur le logo SI un écouteur est branché (sinon = simple lien vers /). */
   @Output() logoClick = new EventEmitter<Event>();
+  /** Émis au clic sur un lien porteur d'une `action` (ex. Support) — le parent gère (pas de scroll). */
+  @Output() linkAction = new EventEmitter<string>();
+
+  private readonly router = inject(Router);
 
   /** Index du déroulant ouvert (null = aucun). */
   readonly openGroup = signal<number | null>(null);
@@ -99,16 +104,20 @@ export class FloatingDockComponent implements OnDestroy {
   }
 
   private allIds(): string[] {
-    return this.groups.flatMap(g => g.links.map(l => l.id));
+    // Seuls les liens d'ancre (ni route, ni action) ciblent une section scrollable.
+    return this.groups.flatMap(g => g.links.filter(l => !l.route && !l.action).map(l => l.id));
   }
 
-  /** Clic sur un lien : URL partageable (`/#id`) + scroll fluide + fermeture du déroulant. */
-  navigate(event: Event, id: string): void {
+  /** Clic sur un lien : soit une `action` déléguée au parent (ex. Support), soit une
+   *  ancre partageable (`/#id`) + scroll fluide. Ferme le déroulant dans tous les cas. */
+  navigate(event: Event, link: DockLink): void {
     event.preventDefault();
     this.openGroup.set(null);
     this.mobileOpen.set(false);
-    if (typeof history !== 'undefined') history.replaceState(null, '', '#' + id);
-    this.scrollToId(id);
+    if (link.route) { void this.router.navigateByUrl(link.route); return; }
+    if (link.action) { this.linkAction.emit(link.action); return; }
+    if (typeof history !== 'undefined') history.replaceState(null, '', '#' + link.id);
+    this.scrollToId(link.id);
   }
 
   /** Le logo : lien vers / par défaut ; si `logoClick` est écouté, on délègue au parent. */

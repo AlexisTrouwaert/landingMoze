@@ -31,6 +31,12 @@ export class InterstitialStepComponent {
   isSubmitting = signal(false);
   submissionError = signal<string | null>(null);
 
+  // Flux « mot de passe oublié » / écrans résultat (requestPasswordReset, useAnotherEmail).
+  // ⚠️ Logique présente mais pas encore câblée au template (feature à finaliser).
+  view = signal<'form' | 'result'>('form');
+  resetSending = signal(false);
+  resetMessage = signal<string | null>(null);
+
   // Horodatage d'affichage du formulaire — utilisé conjointement au honeypot pour
   // distinguer un vrai bot (remplissage quasi instantané) d'un autofill légitime
   // (utilisateur humain dont le password manager a rempli le honeypot après plusieurs secondes).

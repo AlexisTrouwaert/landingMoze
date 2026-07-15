@@ -10,7 +10,13 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({
+  // Derrière le reverse proxy (Apache/nginx) : on fait confiance à ses en-têtes
+  // X-Forwarded-* (host / proto / for) pour que le SSR lise le vrai host et
+  // protocole du client. Sans ça, Angular avertit à chaque requête. Sûr ici car
+  // le process n'est joignable que via le proxy (bind 127.0.0.1:4000).
+  trustProxyHeaders: true,
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.

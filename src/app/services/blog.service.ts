@@ -69,9 +69,13 @@ export class BlogService {
     return this.http.put<Tag>(`${this.base}/admin/blog/tags/${id}`, { name });
   }
 
-  deleteTag(id: string): Observable<{ deleted: boolean; id: string }> {
+  deleteTag(
+    id: string,
+    force = false,
+  ): Observable<{ deleted: boolean; id: string }> {
     return this.http.delete<{ deleted: boolean; id: string }>(
       `${this.base}/admin/blog/tags/${id}`,
+      force ? { params: { force: 'true' } } : {},
     );
   }
 

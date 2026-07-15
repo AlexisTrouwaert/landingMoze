@@ -40,8 +40,8 @@
               @for (link of group.links; track link.id) {
                 <a class="dd-link"
                    [class.is-active]="activeId() === link.id"
-                   [attr.href]="'#' + link.id"
-                   (click)="navigate($event, link.id)">
+                   [attr.href]="link.route ?? ('#' + link.id)"
+                   (click)="navigate($event, link)">
                   @if (link.icon) {
                     <span class="dd-ic" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>
@@ -59,8 +59,8 @@
           @for (link of group.links; track link.id) {
             <a class="dock-item"
                [class.is-active]="activeId() === link.id"
-               [attr.href]="'#' + link.id"
-               (click)="navigate($event, link.id)">
+               [attr.href]="link.route ?? ('#' + link.id)"
+               (click)="navigate($event, link)">
               {{ link.label }}
             </a>
           }
@@ -118,8 +118,8 @@
           @for (link of group.links; track link.id) {
             <a class="dock-m-link"
                [class.is-active]="activeId() === link.id"
-               [attr.href]="'#' + link.id"
-               (click)="navigate($event, link.id)">
+               [attr.href]="link.route ?? ('#' + link.id)"
+               (click)="navigate($event, link)">
               @if (link.icon) {
                 <span class="dock-m-ic" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use [attr.href]="'#di-' + link.icon"></use></svg>
