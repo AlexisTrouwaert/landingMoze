@@ -22,6 +22,8 @@ export class GoogleAnalyticsService {
   private readonly consent = inject(CookieConsentService);
 
   private loaded = false;
+  /** true dès la 1re NavigationEnd observée (départage le page_view initial, cf. loadGtag). */
+  private navigated = false;
 
   constructor() {
     // Charge gtag.js une seule fois, dès que le consentement mesure d'audience passe à true.
@@ -32,7 +34,10 @@ export class GoogleAnalyticsService {
     // page_view automatique sur chaque NavigationEnd (SPA).
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.trackPageView());
+      .subscribe(() => {
+        this.navigated = true;
+        this.trackPageView();
+      });
   }
 
   /**
@@ -59,18 +64,53 @@ export class GoogleAnalyticsService {
     document.head.appendChild(init);
     this.loaded = true;
 
-    // La NavigationEnd initiale a pu passer avant le chargement → 1re page_view manuelle.
-    this.trackPageView();
+    // page_view manuelle SEULEMENT si l'app a déjà navigué (consentement donné en
+    // cours de session, alors que la NavigationEnd initiale est passée avant le
+    // chargement de gtag). Au chargement initial avec consentement déjà stocké,
+    // gtag se charge avant la 1re NavigationEnd : on la laisse émettre le page_view
+    // — sinon doublon + content_group calculé sur une URL encore transitoire ('/').
+    if (this.navigated) this.trackPageView();
   }
 
   /** page_view — déclenché automatiquement sur NavigationEnd. */
   trackPageView(): void {
     if (typeof gtag === 'undefined') return;
     gtag('event', 'page_view', {
+      // GA4 dérive la dimension « Chemin de page » de page_location (l'URL).
+      // page_path (Universal Analytics) est ignoré par GA4 → retiré.
       page_location: location.href,
-      page_path: this.router.url,
       page_title: document.title,
+      // Regroupe les pages par section → dimension « Groupe de contenu » dans
+      // GA4 : « combien de visiteurs sur le blog » devient une seule ligne de
+      // rapport, sans filtrer sur le motif d'URL.
+      content_group: this.contentGroup(this.router.url),
     });
+  }
+
+  /**
+   * Section de contenu déduite du 1er segment d'URL. Centralisé ici (plutôt que
+   * `data` sur chaque route) : une seule table à maintenir si une section bouge.
+   */
+  private contentGroup(url: string): string {
+    const segment = url.split(/[?#]/)[0].split('/').filter(Boolean)[0] ?? '';
+    switch (segment) {
+      case '':
+        return 'accueil';
+      case 'blog':
+        return 'blog';
+      case 'commencer':
+        return 'funnel';
+      case 'cgv-cgu':
+      case 'mentions-legales':
+      case 'politique-confidentialite':
+        return 'légal';
+      case 'desinscription':
+        return 'désinscription';
+      case 'admin':
+        return 'admin';
+      default:
+        return 'autre';
+    }
   }
 
   /* ============================================================

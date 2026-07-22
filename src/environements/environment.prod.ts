@@ -8,6 +8,6 @@ export const environment = {
   metaPixelId: '2004229900969485',
   /** Clé Marketing Automation Brevo (tracker on-site). */
   brevoKey: 'ghrjzu3w1m702ttnl2trie95',
-  /** ID de mesure Google Analytics 4 (G-XXXXXXXXXX). ⚠️ TODO : coller l'ID prod. Vide = GA désactivé. */
-  gaMeasurementId: ''
+  /** ID de mesure Google Analytics 4 (propriété prod Moze). Vide = GA désactivé. */
+  gaMeasurementId: 'G-39M2T9JEQP'
 };
