@@ -38,7 +38,7 @@
   }
 
   &:hover {
-    background: #1a5c83;
+    background: var(--interaction-color);
     transform: translateY(-3px) scale(1);
   }
 

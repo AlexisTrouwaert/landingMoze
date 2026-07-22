@@ -26,6 +26,8 @@ export class FloatingDockComponent implements OnDestroy {
 
   /** Navigation : groupe avec `title` = déroulant ; groupe sans `title` = liens directs. */
   @Input() groups: DockGroup[] = [];
+  /** Ids de liens à masquer sur la page courante (ex. `['blog']` sur le blog). */
+  @Input() hideLinkIds: string[] = [];
   /** Bouton custom (ex. "Retour"). null = pas de bouton. */
   @Input() buttonLabel: string | null = null;
   /** Libellé du CTA (bouton primaire à droite). null = pas de CTA. */
@@ -47,6 +49,14 @@ export class FloatingDockComponent implements OnDestroy {
   readonly activeId = signal<string>('');
   /** Menu mobile (burger) ouvert ? */
   readonly mobileOpen = signal<boolean>(false);
+
+  /** Groupes réellement affichés : retire les liens masqués (`hideLinkIds`) et les groupes vidés. */
+  get visibleGroups(): DockGroup[] {
+    if (!this.hideLinkIds.length) return this.groups;
+    return this.groups
+      .map(g => ({ ...g, links: g.links.filter(l => !this.hideLinkIds.includes(l.id)) }))
+      .filter(g => g.links.length > 0);
+  }
 
   private io: IntersectionObserver | null = null;
   private mo: MutationObserver | null = null;
@@ -116,8 +126,15 @@ export class FloatingDockComponent implements OnDestroy {
     this.mobileOpen.set(false);
     if (link.route) { void this.router.navigateByUrl(link.route); return; }
     if (link.action) { this.linkAction.emit(link.action); return; }
-    if (typeof history !== 'undefined') history.replaceState(null, '', '#' + link.id);
-    this.scrollToId(link.id);
+    // Ancre de section : présente sur la page courante → scroll fluide ; sinon
+    // (blog, tunnel…) → va à l'accueil avec le hash, qui scrollera à l'arrivée.
+    const el = typeof document !== 'undefined' ? document.getElementById(link.id) : null;
+    if (el) {
+      if (typeof history !== 'undefined') history.replaceState(null, '', '#' + link.id);
+      this.scrollToId(link.id);
+    } else {
+      void this.router.navigate(['/'], { fragment: link.id });
+    }
   }
 
   /** Le logo : lien vers / par défaut ; si `logoClick` est écouté, on délègue au parent. */

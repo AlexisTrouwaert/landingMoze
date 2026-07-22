@@ -68,14 +68,14 @@ export class AdminBlogEditorComponent {
 
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
-    slug: [''],
-    author: [''],
-    excerpt: [''],
-    coverImageUrl: [''],
+    slug: ['', [Validators.maxLength(120)]],
+    author: ['', [Validators.maxLength(120)]],
+    excerpt: ['', [Validators.maxLength(500)]],
+    coverImageUrl: ['', [Validators.maxLength(500)]],
     coverPosition: new FormControl<CoverPosition>('top', { nonNullable: true }),
     content: [''],
-    metaTitle: [''],
-    metaDescription: [''],
+    metaTitle: ['', [Validators.maxLength(200)]],
+    metaDescription: ['', [Validators.maxLength(500)]],
     tags: new FormControl<string[]>([], { nonNullable: true }),
   });
 
@@ -105,6 +105,7 @@ export class AdminBlogEditorComponent {
       coverPosition: v.coverPosition,
       author: v.author || 'Équipe Moze',
       status: 'DRAFT',
+      featuredAt: null, // l'aperçu n'est jamais épinglé
       metaTitle: v.metaTitle || null,
       metaDescription: v.metaDescription || null,
       createdAt: date,
@@ -294,13 +295,13 @@ export class AdminBlogEditorComponent {
         if (publish) {
           this.blog.publish(article.id).subscribe({
             next: () => this.done(),
-            error: () => this.failSave(),
+            error: (err) => this.failSave(err),
           });
         } else {
           this.done();
         }
       },
-      error: () => this.failSave(),
+      error: (err) => this.failSave(err),
     });
   }
 
@@ -312,8 +313,16 @@ export class AdminBlogEditorComponent {
     void this.router.navigate(['/admin/blog']);
   }
 
-  private failSave(): void {
+  private failSave(err?: unknown): void {
     this.saving.set(false);
-    this.error.set("Échec de l'enregistrement.");
+    this.error.set(this.extractError(err) ?? "Échec de l'enregistrement.");
+  }
+
+  /** Récupère le message d'erreur réel du back (NestJS : { message: string | string[] }). */
+  private extractError(err: unknown): string | null {
+    const msg = (err as { error?: { message?: string | string[] } } | null)?.error
+      ?.message;
+    if (Array.isArray(msg)) return msg.join(' · ');
+    return typeof msg === 'string' ? msg : null;
   }
 }

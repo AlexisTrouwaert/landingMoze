@@ -31,6 +31,30 @@ const angularApp = new AngularNodeAppEngine({
  */
 
 /**
+ * En-têtes de sécurité (défense en profondeur) — appliqués à TOUTES les réponses
+ * (pages SSR + fichiers statiques). Complètent les <meta> de index.html par de
+ * vrais en-têtes HTTP (plus fiables, non ignorables). Volontairement NON cassants :
+ *  - CSP minimale (frame-ancestors / object-src / base-uri) → anti-clickjacking +
+ *    blocage <object>/<base> injectés, SANS restreindre script/img/connect : le
+ *    Pixel Meta, GA, Brevo et l'API blog continuent de fonctionner tels quels.
+ *    (Un durcissement `script-src` par nonce est un chantier séparé.)
+ *  - HSTS sans includeSubDomains : la politique domaine-wide reste à l'ops (Apache).
+ * NB : si le reverse proxy Apache pose déjà l'un de ces en-têtes, retirer le doublon d'un côté.
+ */
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+  res.setHeader(
+    'Content-Security-Policy',
+    "frame-ancestors 'self'; object-src 'none'; base-uri 'self'",
+  );
+  next();
+});
+
+/**
  * Serve static files from /browser
  */
 app.use(

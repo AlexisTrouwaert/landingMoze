@@ -51,6 +51,16 @@
   }
 }
 
+.field-count {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  color: #8a979d;
+
+  &--warn {
+    color: #d98324;
+  }
+}
+
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

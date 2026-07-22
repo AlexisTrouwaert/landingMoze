@@ -151,7 +151,7 @@ describe('InterstitialStepComponent', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
-  it('submit() on localhost should fire the conversion (test IDs) and show success', () => {
+  it('submit() on localhost fires the conversion (test IDs) and advances the funnel', () => {
     // En Karma, window.location.hostname === 'localhost' → branche DEV : le POST est
     // court-circuité mais la conversion (Meta + GA de test) doit quand même partir.
     fs.setSector('SAP');
@@ -170,7 +170,9 @@ describe('InterstitialStepComponent', () => {
       jasmine.objectContaining({ sector: 'SAP' }),
       'test-evt',
     );
-    expect(component.view()).toBe('success');
+    // La branche localhost avance le funnel (nextStep) ; pas d'écran « success »
+    // dédié → le signal `view` reste 'form'.
+    expect(component.view()).toBe('form');
     expect(component.isSubmitting()).toBe(false);
   });
 
@@ -202,6 +204,42 @@ describe('InterstitialStepComponent', () => {
 
     it('honeypot field should be part of the form group', () => {
       expect(component.form.contains('honeypot')).toBe(true);
+    });
+  });
+
+  describe("messages d'erreur & garde-fou meta (correctifs session)", () => {
+    const msg = (err: unknown): string =>
+      (
+        component as unknown as { inscriptionErrorMessage(e: unknown): string }
+      ).inscriptionErrorMessage(err);
+
+    it('409 → « email déjà utilisé »', () => {
+      expect(msg({ status: 409 })).toContain('déjà utilisé');
+    });
+    it('400 → « informations invalides »', () => {
+      expect(msg({ status: 400 })).toContain('invalides');
+    });
+    it('0 (réseau) → « Connexion impossible »', () => {
+      expect(msg({ status: 0 })).toContain('Connexion impossible');
+    });
+    it('autre statut → message générique', () => {
+      expect(msg({ status: 500 })).toContain('Une erreur est survenue');
+    });
+
+    it('le DTO passé à setUserInfo NE contient PAS `meta` (garde-fou du 500 Spring)', () => {
+      fs.setSector('SAP');
+      component.form.patchValue({
+        nom: 'John',
+        prenom: 'Doe',
+        email: 'john@doe.fr',
+        telephone: '0612345678',
+      });
+      component.emailExistsInBdd.set(false);
+      const spy = spyOn(fs, 'setUserInfo');
+      component.submit();
+      expect(spy).toHaveBeenCalled();
+      const dto = spy.calls.mostRecent().args[0];
+      expect('meta' in dto).toBe(false);
     });
   });
 });

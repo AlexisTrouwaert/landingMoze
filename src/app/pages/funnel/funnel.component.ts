@@ -8,10 +8,14 @@ import {SectorStepComponent} from "./steps/sector-step/sector-step.component";
 import {InterstitialStepComponent} from "./steps/interstitial-step/interstitial-step.component";
 import {SapStepComponent} from "./steps/sap-step/sap-step.component";
 import {RedirectStepComponent} from "./steps/redirect-step/redirect-step.component";
+import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
+import {NAV_GROUPS} from "../../config/nav-groups";
+import {ContactPanelService} from "../../services/contact-panel.service";
 
 @Component({
     selector: 'app-funnel',
     imports: [
+        FloatingDockComponent,
         SectorStepComponent,
         InterstitialStepComponent,
         SapStepComponent,
@@ -26,6 +30,15 @@ export class FunnelComponent implements OnInit {
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
   private readonly ga = inject(GoogleAnalyticsService);
+  private readonly contactPanel = inject(ContactPanelService);
+
+  /** Navigation du dock (source partagée — uniformisée avec l'accueil et le blog). */
+  readonly navGroups = NAV_GROUPS;
+
+  /** Action d'un lien du dock (ex. « Support » → panneau de contact). */
+  onDockAction(action: string): void {
+    if (action === 'support') this.contactPanel.open();
+  }
 
   ngOnInit(): void {
     // Entrée du funnel — fire au premier rendu de /commencer.

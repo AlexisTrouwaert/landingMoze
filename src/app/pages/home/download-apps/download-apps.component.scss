@@ -4,6 +4,8 @@ $primary: var(--primary-color);
    SECTION PRINCIPALE
    ========================================= */
 .download-apps-section {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -12,6 +14,29 @@ $primary: var(--primary-color);
   background-color: $primary;
   color: white;
   text-align: center;
+
+  // Tâche verte en bas-droite : miroir du halo vert de la section newsletter
+  // (juste en dessous) → le halo traverse la frontière sans coupure nette.
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -200px;
+    right: -140px;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #6bd498, transparent 68%);
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Le contenu passe au-dessus de la tâche
+.download-header,
+.download-container {
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================================

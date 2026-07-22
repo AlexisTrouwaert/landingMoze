@@ -27,8 +27,13 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
+  /** Épinglé « à la une » : non-null = épinglé (la date sert d'ordre). */
+  featuredAt: string | null;
   tags: Tag[];
 }
+
+/** Nombre maximum d'articles épinglés (doit rester aligné avec le back). */
+export const MAX_FEATURED = 5;
 
 /** Carte d'article dans la liste publique (sans le `content`). */
 export type ArticleListItem = Pick<

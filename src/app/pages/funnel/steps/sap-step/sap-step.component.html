@@ -13,7 +13,16 @@
   </div>
 
   <div class="info-link">
-<!--    <p>Si tu as besoin d'informations sur le crédit d'impôt immédiat, <a (click)="openInfo()">clique ici</a></p>-->
-    <p>Crédit d'impôt immédiat* permet à vos clients particuliers de ne payer que 50% de la facture instantanément.</p>
+    <p>Si tu as besoin d'informations sur le crédit d'impôt immédiat, <a (click)="openInfo()">clique ici</a></p>
   </div>
 </div>
+
+<app-confirm-dialog
+  [open]="showInfo()"
+  title="Crédit d'impôt immédiat"
+  message="Le crédit d'impôt immédiat permet à vos clients particuliers de ne payer que 50% de la facture instantanément."
+  confirmLabel="J'ai compris"
+  [showCancel]="false"
+  (confirmed)="showInfo.set(false)"
+  (cancelled)="showInfo.set(false)"
+/>

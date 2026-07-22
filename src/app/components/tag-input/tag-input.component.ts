@@ -90,7 +90,9 @@ export class TagInputComponent implements ControlValueAccessor {
   });
 
   createAndAdd(name: string): void {
-    this.tagCreate.emit(name);
+    // La virgule est un séparateur : elle ne doit jamais faire partie du nom.
+    const clean = name.replace(/,/g, '').trim();
+    if (clean) this.tagCreate.emit(clean);
     this.query.set('');
     this.open.set(false);
     this.activeIndex.set(-1);
@@ -112,12 +114,38 @@ export class TagInputComponent implements ControlValueAccessor {
     this.disabled.set(isDisabled);
   }
 
-  add(name: string): void {
-    const n = name.trim();
-    if (n && !this.tags().some((t) => t.toLowerCase() === n.toLowerCase())) {
-      this.tags.update((arr) => [...arr, n]);
-      this.onChange(this.tags());
+  /**
+   * Ajoute un ou plusieurs tags depuis une saisie brute : découpe sur les virgules
+   * (« Voiture, mécanique, réparation » → 3 tags), dédoublonne (insensible à la
+   * casse) et réutilise le nom canonique d'un tag existant si la casse diffère.
+   * Les tags nouveaux sont créés à l'enregistrement de l'article (upsert côté back).
+   */
+  add(raw: string): void {
+    const names = raw
+      .split(',')
+      .map((n) => n.trim())
+      .filter(Boolean);
+
+    if (names.length) {
+      let changed = false;
+      this.tags.update((arr) => {
+        const next = [...arr];
+        for (const name of names) {
+          // Réutilise le tag existant (casse canonique) s'il y en a un.
+          const existing = this.suggestions().find(
+            (s) => s.name.toLowerCase() === name.toLowerCase(),
+          );
+          const finalName = existing?.name ?? name;
+          if (!next.some((t) => t.toLowerCase() === finalName.toLowerCase())) {
+            next.push(finalName);
+            changed = true;
+          }
+        }
+        return next;
+      });
+      if (changed) this.onChange(this.tags());
     }
+
     this.query.set('');
     this.open.set(false);
     this.activeIndex.set(-1);
@@ -139,9 +167,33 @@ export class TagInputComponent implements ControlValueAccessor {
   }
 
   onInput(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
+    // Une virgule agit comme séparateur : on valide les segments complets et on
+    // garde le reste dans le champ → jamais de virgule dans un nom de tag
+    // (ex. « data, » saisi ou collé ne crée pas le tag « data, » mais « data »).
+    if (value.includes(',')) {
+      const parts = value.split(',');
+      const remainder = parts.pop() ?? '';
+      const complete = parts.map((p) => p.trim()).filter(Boolean);
+      if (complete.length) this.add(complete.join(','));
+      this.query.set(remainder);
+      this.open.set(true);
+      this.activeIndex.set(-1);
+      return;
+    }
+    this.query.set(value);
     this.open.set(true);
     this.activeIndex.set(-1);
+  }
+
+  /** Collage : si le texte contient des virgules, on découpe en plusieurs tags. */
+  onPaste(event: ClipboardEvent): void {
+    const text = event.clipboardData?.getData('text/plain') ?? '';
+    if (text.includes(',')) {
+      event.preventDefault();
+      this.add(text);
+    }
+    // Sans virgule : collage normal → va dans le champ, validé comme d'habitude.
   }
 
   onKeydown(event: KeyboardEvent): void {

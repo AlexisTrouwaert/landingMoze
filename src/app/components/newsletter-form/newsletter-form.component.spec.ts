@@ -1,33 +1,26 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
 
-import { EmailComponent } from './email.component';
-import { MetaPixelService } from '../../../services/meta-pixel.service';
+import { NewsletterFormComponent } from './newsletter-form.component';
+import { MetaPixelService } from '../../services/meta-pixel.service';
 
-describe('EmailComponent', () => {
-  let fixture: ComponentFixture<EmailComponent>;
-  let component: EmailComponent;
-  let router: Router;
+describe('NewsletterFormComponent', () => {
+  let fixture: ComponentFixture<NewsletterFormComponent>;
+  let component: NewsletterFormComponent;
   let pixel: jasmine.SpyObj<MetaPixelService>;
 
   const HOUR = 60 * 60 * 1000;
 
   beforeEach(async () => {
     pixel = jasmine.createSpyObj<MetaPixelService>('MetaPixelService', [
-      'trackLeadCTA',
       'trackSubscribe',
     ]);
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [EmailComponent],
-      providers: [
-        provideRouter([]),
-        { provide: MetaPixelService, useValue: pixel },
-      ],
+      imports: [NewsletterFormComponent],
+      providers: [{ provide: MetaPixelService, useValue: pixel }],
     }).compileComponents();
-    fixture = TestBed.createComponent(EmailComponent);
+    fixture = TestBed.createComponent(NewsletterFormComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
@@ -45,19 +38,11 @@ describe('EmailComponent', () => {
   it('should create with defaults', () => {
     expect(component).toBeTruthy();
     expect(component.status()).toBe('IDLE');
-    expect(component.emailValue()).toBe('');
-    expect(component.optInValue()).toBe(false);
+    expect(component.source()).toBe('newsletter');
   });
 
-  it('goToFunnel() should track + navigate', () => {
-    spyOn(router, 'navigate');
-    component.goToFunnel();
-    expect(pixel.trackLeadCTA).toHaveBeenCalledWith('inscription_generic');
-    expect(router.navigate).toHaveBeenCalledWith(['/commencer']);
-  });
-
-  it('onSubmit() with invalid email should flag emailError and shake', fakeAsync(() => {
-    component.emailValue.set('not-an-email');
+  it('email invalide → emailError + shake', fakeAsync(() => {
+    component.emailValue.set('nope');
     component.optInValue.set(true);
     component.onSubmit(evt());
     expect(component.emailError()).toBe(true);
@@ -66,14 +51,14 @@ describe('EmailComponent', () => {
     expect(component.isShaking()).toBe(false);
   }));
 
-  it('onSubmit() with valid email but optIn false should flag optInError', () => {
+  it('optIn manquant → optInError', () => {
     component.emailValue.set('a@b.fr');
     component.optInValue.set(false);
     component.onSubmit(evt());
     expect(component.optInError()).toBe(true);
   });
 
-  it('honeypot rempli → succès silencieux, sans appel réseau', () => {
+  it('honeypot rempli → succès silencieux, sans réseau', () => {
     const fetchSpy = spyOn(window, 'fetch');
     component.emailValue.set('a@b.fr');
     component.optInValue.set(true);
@@ -83,7 +68,7 @@ describe('EmailComponent', () => {
     expect(component.status()).toBe('SUCCESS');
   });
 
-  it('rate-limité après MAX_ATTEMPTS envois récents → ERROR (pas de faux succès, pas de réseau)', () => {
+  it('rate-limité après 5 envois récents → ERROR (pas de faux succès, pas de réseau)', () => {
     const fetchSpy = spyOn(window, 'fetch');
     const now = Date.now();
     localStorage.setItem('nl_attempts', JSON.stringify([now, now, now, now, now]));
@@ -94,11 +79,11 @@ describe('EmailComponent', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('anciennes tentatives hors fenêtre → ignorées, l\'envoi repart (pas de ban définitif)', fakeAsync(() => {
+  it('anciennes tentatives hors fenêtre → ignorées, l\'envoi repart', fakeAsync(() => {
     const fetchSpy = spyOn(window, 'fetch').and.returnValue(
       Promise.resolve(new Response()),
     );
-    const old = Date.now() - 3 * HOUR; // au-delà de la fenêtre de 1 h
+    const old = Date.now() - 3 * HOUR;
     localStorage.setItem('nl_attempts', JSON.stringify([old, old, old, old, old]));
     component.emailValue.set('a@b.fr');
     component.optInValue.set(true);
@@ -108,7 +93,8 @@ describe('EmailComponent', () => {
     expect(component.status()).toBe('SUCCESS');
   }));
 
-  it('succès → POST Brevo + horodatage compté APRÈS succès seulement', fakeAsync(() => {
+  it('succès → POST + horodatage compté après succès, avec la source', fakeAsync(() => {
+    fixture.componentRef.setInput('source', 'newsletter_blog');
     const fetchSpy = spyOn(window, 'fetch').and.returnValue(
       Promise.resolve(new Response()),
     );
@@ -116,32 +102,25 @@ describe('EmailComponent', () => {
     component.optInValue.set(true);
     component.onSubmit(evt());
 
-    // Pendant l'envoi : LOADING, rien encore compté.
     expect(component.status()).toBe('LOADING');
     expect(localStorage.getItem('nl_attempts')).toBeNull();
 
     tick();
     expect(fetchSpy).toHaveBeenCalled();
-    expect(pixel.trackSubscribe).toHaveBeenCalled();
+    expect(pixel.trackSubscribe).toHaveBeenCalledWith({ source: 'newsletter_blog' });
     expect(component.status()).toBe('SUCCESS');
-    expect(component.emailValue()).toBe('');
-    expect(component.optInValue()).toBe(false);
-    // L'envoi réussi est compté (1 horodatage).
     expect(attempts().length).toBe(1);
   }));
 
-  it('erreur réseau → shake + IDLE, AUCUN envoi compté (pas de ban sur échec réseau)', fakeAsync(() => {
+  it('erreur réseau → IDLE, aucun envoi compté (pas de ban)', fakeAsync(() => {
     spyOn(window, 'fetch').and.returnValue(Promise.reject(new Error('net')));
-    const errSpy = spyOn(console, 'error');
+    spyOn(console, 'error');
     component.emailValue.set('a@b.fr');
     component.optInValue.set(true);
     component.onSubmit(evt());
     tick();
-    // triggerShake() pose un setTimeout 500ms.
     tick(500);
     expect(component.status()).toBe('IDLE');
-    expect(errSpy).toHaveBeenCalled();
-    // Point-clé du fix : une erreur réseau ne compte pas → jamais de ban permanent.
     expect(localStorage.getItem('nl_attempts')).toBeNull();
   }));
 });

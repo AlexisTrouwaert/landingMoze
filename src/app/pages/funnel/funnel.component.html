@@ -1,19 +1,11 @@
 <div class="funnel-container">
-  <header class="funnel-header">
-
-    <div class="header-right">
-      <img src="assets/icons/MozeLogo.svg" alt="MOZE" (click)="goHome()" class="logo" width="140" height="35">
-    </div>
-
-    <div class="header-left">
-      @if (fs.currentStep() > 1) {
-        <button (click)="fs.previousStep()" class="back-btn">
-          <img src="assets/icons/arrow.svg" class="back-icon" alt="" aria-hidden="true" width="16" height="16">
-          Retour
-        </button>
-      }
-    </div>
-  </header>
+  <!-- Dock unifié (identique à l'accueil / au blog). Logo = abandon ; « Retour » = étape précédente. -->
+  <app-floating-dock
+    [groups]="navGroups"
+    [buttonLabel]="fs.currentStep() > 1 ? 'Retour' : null"
+    (buttonClick)="fs.previousStep()"
+    (logoClick)="goHome()"
+    (linkAction)="onDockAction($event)"></app-floating-dock>
 
   <main class="step-content">
     @if (fs.currentStep() === 1) {

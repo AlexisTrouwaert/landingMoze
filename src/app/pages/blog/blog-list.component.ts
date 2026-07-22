@@ -1,22 +1,38 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ArticleCardComponent } from '../../components/article-card/article-card.component';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
+import { NewsletterFormComponent } from '../../components/newsletter-form/newsletter-form.component';
+import { FooterComponent } from '../home/footer/footer.component';
 import { ArticleListItem, Tag } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
+import { NAV_GROUPS } from '../../config/nav-groups';
+import { MetaPixelService } from '../../services/meta-pixel.service';
+import { ContactPanelService } from '../../services/contact-panel.service';
 
 @Component({
     selector: 'app-blog-list',
-    imports: [RouterLink, ReactiveFormsModule, FloatingDockComponent, ArticleCardComponent],
+    imports: [
+      RouterLink,
+      ReactiveFormsModule,
+      DatePipe,
+      FloatingDockComponent,
+      ArticleCardComponent,
+      NewsletterFormComponent,
+      FooterComponent,
+    ],
     templateUrl: './blog-list.component.html',
     styleUrl: './blog-list.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -24,6 +40,12 @@ import { BlogService } from '../../services/blog.service';
 export class BlogListComponent {
   private readonly blog = inject(BlogService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly metaPixel = inject(MetaPixelService);
+  private readonly contactPanel = inject(ContactPanelService);
+
+  /** Navigation du dock (source partagée). Le lien « Blog » est masqué ici. */
+  readonly navGroups = NAV_GROUPS;
 
   readonly items = signal<ArticleListItem[]>([]);
   readonly total = signal(0);
@@ -63,6 +85,46 @@ export class BlogListComponent {
       .filter((t): t is Tag => t != null),
   );
 
+  // ---- « À la une » (carrousel rotatif) ----
+
+  /** Vrai tant qu'aucun filtre n'est actif : l'à la une n'a de sens qu'en navigation libre. */
+  readonly showFeatured = computed(
+    () => !this.search() && this.selectedTags().length === 0,
+  );
+
+  /** Articles épinglés « à la une » par l'admin (max 5). */
+  private readonly pinned = signal<ArticleListItem[]>([]);
+
+  /**
+   * Articles mis en avant : ceux épinglés par l'admin. Si rien n'est épinglé,
+   * repli sur les 3 plus récents pour ne pas laisser le bandeau vide.
+   */
+  readonly featuredList = computed<ArticleListItem[]>(() => {
+    if (!this.showFeatured()) return [];
+    const pinned = this.pinned();
+    return pinned.length ? pinned : this.items().slice(0, 3);
+  });
+
+  /** Index de l'article à la une affiché (0..N-1). */
+  readonly featuredIndex = signal(0);
+
+  /** Pause la rotation au survol. */
+  readonly paused = signal(false);
+
+  /** Article à la une actuellement affiché (null si aucun). */
+  readonly currentFeatured = computed<ArticleListItem | null>(() => {
+    const list = this.featuredList();
+    if (!list.length) return null;
+    return list[this.featuredIndex() % list.length] ?? null;
+  });
+
+  /**
+   * Cartes de la grille : **toute** la liste, y compris les articles à la une.
+   * Les extraire donnait l'impression qu'ils ne faisaient pas partie du blog ;
+   * le bandeau met en avant, il ne retire pas de la liste.
+   */
+  readonly gridItems = computed<ArticleListItem[]>(() => this.items());
+
   readonly searchControl = new FormControl('', { nonNullable: true });
 
   private page = 0;
@@ -71,8 +133,12 @@ export class BlogListComponent {
   /** Cache slug → Tag pour résoudre les tags sélectionnés hors facettes courantes. */
   private readonly tagCache = new Map<string, Tag>();
 
+  /** Minuteur de rotation (navigateur uniquement). */
+  private rotateId: ReturnType<typeof setInterval> | null = null;
+
   constructor() {
     this.loadTags();
+    this.loadFeatured();
     // Valeur live (affichage du bouton ✕).
     this.searchControl.valueChanges
       .pipe(takeUntilDestroyed())
@@ -87,6 +153,45 @@ export class BlogListComponent {
         this.resetAndLoad();
       });
     this.loadMore();
+
+    // Rotation de l'à la une : démarrée côté navigateur uniquement (SSR-safe).
+    afterNextRender(() => {
+      this.startRotate();
+      this.destroyRef.onDestroy(() => this.stopRotate());
+    });
+  }
+
+  private startRotate(): void {
+    this.stopRotate();
+    this.rotateId = setInterval(() => {
+      if (this.paused()) return;
+      const n = this.featuredList().length;
+      if (n > 1) this.featuredIndex.update((i) => (i + 1) % n);
+    }, 6000);
+  }
+
+  private stopRotate(): void {
+    if (this.rotateId != null) {
+      clearInterval(this.rotateId);
+      this.rotateId = null;
+    }
+  }
+
+  /** Sélection manuelle d'un article à la une (via les points). */
+  selectFeatured(i: number): void {
+    this.featuredIndex.set(i);
+    this.startRotate(); // relance le minuteur après action manuelle
+  }
+
+  /**
+   * Charge les articles épinglés. En cas d'échec on laisse la liste vide :
+   * `featuredList` bascule alors sur les 3 plus récents (dégradation douce).
+   */
+  private loadFeatured(): void {
+    this.blog.featured().subscribe({
+      next: (list) => this.pinned.set(list),
+      error: () => this.pinned.set([]),
+    });
   }
 
   /** (Re)charge les tags du filtre, adaptés à la recherche courante (facettes). */
@@ -151,10 +256,18 @@ export class BlogListComponent {
     this.page = 0;
     this.items.set([]);
     this.total.set(0);
+    this.featuredIndex.set(0);
     this.loadMore();
   }
 
-  goHome(): void {
-    this.router.navigate(['/']);
+  /** CTA du dock → tunnel d'inscription. */
+  goToFunnel(): void {
+    this.metaPixel.trackLeadCTA('inscription_generic');
+    this.router.navigate(['/commencer']);
+  }
+
+  /** Action d'un lien du dock (ex. « Support » → panneau de contact). */
+  onDockAction(action: string): void {
+    if (action === 'support') this.contactPanel.open();
   }
 }

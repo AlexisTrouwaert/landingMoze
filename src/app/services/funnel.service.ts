@@ -16,8 +16,10 @@ export interface UtilisateurInscriptionDTO {
   };
   /**
    * Données de déduplication Pixel + Conversions API (voir META_CAPI_SPEC.md).
-   * Optionnel : le back les ignore tant qu'il n'implémente pas la CAPI
-   * (nécessite un parsing JSON tolérant aux champs inconnus — cas par défaut de Spring/Jackson).
+   * ⚠️ NE PAS envoyer tant que l'app Moze (Spring) refuse les champs inconnus :
+   * son DTO `UtilisateurInscriptionDTO` n'a pas `meta` → Jackson lève
+   * « Unrecognized field "meta" » et l'inscription échoue (500). Prérequis back :
+   * `@JsonIgnoreProperties(ignoreUnknown = true)` (ou ajouter le champ `meta`).
    */
   meta?: {
     eventId: string;

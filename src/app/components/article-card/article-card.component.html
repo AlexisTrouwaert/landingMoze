@@ -4,9 +4,17 @@
   <div class="card__cover card__cover--placeholder" aria-hidden="true"></div>
 }
 <div class="card__body">
-  @if (article().publishedAt) {
-    <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
-  }
+  <div class="card__meta">
+    @if (article().author) {
+      <span class="card__author">{{ article().author }}</span>
+    }
+    @if (article().author && article().publishedAt) {
+      <span class="card__meta-sep" aria-hidden="true">·</span>
+    }
+    @if (article().publishedAt) {
+      <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
+    }
+  </div>
   <h2 class="card__title">{{ article().title }}</h2>
   <p class="card__excerpt">{{ article().excerpt }}</p>
   <span class="card__more">Lire l'article →</span>

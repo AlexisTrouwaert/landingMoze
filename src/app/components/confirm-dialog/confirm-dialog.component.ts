@@ -24,6 +24,8 @@ export class ConfirmDialogComponent {
   readonly confirmLabel = input('Confirmer');
   readonly cancelLabel = input('Annuler');
   readonly danger = input(false);
+  /** `false` → masque le bouton d'annulation : modale d'information à un seul bouton. */
+  readonly showCancel = input(true);
 
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();

@@ -1,4 +1,4 @@
-@if (groups.length) {
+@if (visibleGroups.length) {
   <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0">
     <defs>
       <symbol id="di-steps" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
@@ -20,9 +20,9 @@
   </a>
 
   <!-- Navigation : déroulants + liens directs -->
-  @if (groups.length) {
+  @if (visibleGroups.length) {
     <nav class="dock-nav" aria-label="Sections">
-      @for (group of groups; track $index; let gi = $index) {
+      @for (group of visibleGroups; track $index; let gi = $index) {
         @if (group.title) {
           <div class="dock-dd">
             <button type="button"
@@ -91,7 +91,7 @@
   }
 
   <!-- Burger (mobile uniquement) -->
-  @if (groups.length) {
+  @if (visibleGroups.length) {
     <button type="button" class="dock-burger"
             [class.is-open]="mobileOpen()"
             (click)="toggleMobile()"
@@ -109,10 +109,10 @@
 </div>
 
 <!-- Menu mobile (drawer) — déroulé sous le dock quand le burger est ouvert -->
-@if (groups.length) {
+@if (visibleGroups.length) {
   <div class="dock-mobile" id="dock-mobile-panel" [class.is-open]="mobileOpen()">
     <nav class="dock-m-nav" aria-label="Sections">
-      @for (group of groups; track $index) {
+      @for (group of visibleGroups; track $index) {
         <div class="dock-m-group">
           @if (group.title) { <p class="dock-m-title">{{ group.title }}</p> }
           @for (link of group.links; track link.id) {

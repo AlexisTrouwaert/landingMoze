@@ -11,7 +11,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { Article } from '../../model/article.model';
+import { Article, MAX_FEATURED } from '../../model/article.model';
 import { AuthService } from '../../services/auth.service';
 import { BlogService } from '../../services/blog.service';
 
@@ -37,6 +37,16 @@ export class AdminBlogListComponent {
   readonly filterMenuOpen = signal(false);
   readonly archiveTarget = signal<Article | null>(null);
   readonly deleteTarget = signal<Article | null>(null);
+
+  /**
+   * Nombre d'articles à la une. Compté globalement via l'endpoint des épinglés
+   * (et non depuis `items()`, qui est filtré par la recherche et le statut).
+   */
+  readonly featuredCount = signal(0);
+  readonly maxFeatured = MAX_FEATURED;
+
+  /** Message renvoyé par l'API si l'épinglage est refusé (limite atteinte…). */
+  readonly featureError = signal<string | null>(null);
 
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly searchValue = signal('');
@@ -84,6 +94,7 @@ export class AdminBlogListComponent {
         this.reload();
       });
     this.reload();
+    this.loadFeaturedCount();
   }
 
   clearSearch(): void {
@@ -124,6 +135,40 @@ export class AdminBlogListComponent {
           this.loading.set(false);
         },
       });
+  }
+
+  /**
+   * Recharge le nombre d'épinglés. L'endpoint public des « à la une » renvoie
+   * exactement l'ensemble épinglé (seuls des articles publiés sont épinglables).
+   */
+  private loadFeaturedCount(): void {
+    this.blog.featured().subscribe({
+      next: (list) => this.featuredCount.set(list.length),
+      error: () => this.featuredCount.set(0),
+    });
+  }
+
+  /** Épingle / retire de la une, en remontant le message du back si refus. */
+  toggleFeature(a: Article): void {
+    this.featureError.set(null);
+    const op = a.featuredAt
+      ? this.blog.unfeature(a.id)
+      : this.blog.feature(a.id);
+    op.subscribe({
+      next: () => {
+        this.reload();
+        this.loadFeaturedCount();
+      },
+      error: (err) => this.featureError.set(this.extractError(err)),
+    });
+  }
+
+  /** Message lisible renvoyé par l'API (sinon repli générique). */
+  private extractError(err: unknown): string {
+    const msg = (err as { error?: { message?: string | string[] } })?.error
+      ?.message;
+    if (Array.isArray(msg)) return msg.join(' · ');
+    return msg || "L'opération a échoué.";
   }
 
   togglePublish(a: Article): void {

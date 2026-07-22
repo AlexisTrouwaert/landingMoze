@@ -96,6 +96,15 @@
     <p class="state state--error">Une erreur est survenue. <button type="button" (click)="reload()">Réessayer</button></p>
   }
 
+  @if (featureError()) {
+    <p class="state state--error">{{ featureError() }}</p>
+  }
+
+  <p class="featured-counter">
+    À la une : <strong>{{ featuredCount() }}/{{ maxFeatured }}</strong>
+    <span class="featured-counter__hint">— les articles épinglés s'affichent dans le bandeau, et restent dans la liste.</span>
+  </p>
+
   @if (loading()) {
     <p class="state">Chargement…</p>
   } @else if (items().length === 0) {
@@ -130,6 +139,24 @@
                 <button type="button" class="btn btn--small btn--danger" (click)="remove(a)">Supprimer définitivement</button>
               } @else {
                 <a class="btn btn--small" [routerLink]="['/admin/blog', a.id, 'edit']">Éditer</a>
+                @if (a.status === 'PUBLISHED') {
+                  <button
+                    type="button"
+                    class="btn btn--small"
+                    [class.is-featured]="a.featuredAt"
+                    [disabled]="!a.featuredAt && featuredCount() >= maxFeatured"
+                    [title]="
+                      a.featuredAt
+                        ? 'Retirer de la une'
+                        : featuredCount() >= maxFeatured
+                          ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
+                          : 'Mettre à la une'
+                    "
+                    (click)="toggleFeature(a)"
+                  >
+                    {{ a.featuredAt ? '★ À la une' : '☆ À la une' }}
+                  </button>
+                }
                 <button type="button" class="btn btn--small" (click)="togglePublish(a)">
                   {{ a.status === 'PUBLISHED' ? 'Dépublier' : 'Publier' }}
                 </button>

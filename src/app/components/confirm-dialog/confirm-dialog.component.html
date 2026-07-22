@@ -9,9 +9,11 @@
       <h2 class="cd-title">{{ title() }}</h2>
       <p class="cd-message">{{ message() }}</p>
       <div class="cd-actions">
-        <button type="button" class="cd-btn cd-btn--ghost" (click)="onCancel()">
-          {{ cancelLabel() }}
-        </button>
+        @if (showCancel()) {
+          <button type="button" class="cd-btn cd-btn--ghost" (click)="onCancel()">
+            {{ cancelLabel() }}
+          </button>
+        }
         <button
           type="button"
           class="cd-btn"

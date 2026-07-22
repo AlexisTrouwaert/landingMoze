@@ -50,10 +50,10 @@ describe('SapStepComponent', () => {
     expect(spy).toHaveBeenCalledWith(false);
   });
 
-  it('openInfo() should pop an alert with the SAP info copy', () => {
-    const spy = spyOn(window, 'alert');
+  // L'info passe désormais par une vraie modale (ConfirmDialog), plus par alert().
+  it('openInfo() ouvre la modale d\'info (fermée au départ)', () => {
+    expect(component.showInfo()).toBe(false);
     component.openInfo();
-    expect(spy).toHaveBeenCalled();
-    expect(spy.calls.mostRecent().args[0]).toContain('crédit');
+    expect(component.showInfo()).toBe(true);
   });
 });

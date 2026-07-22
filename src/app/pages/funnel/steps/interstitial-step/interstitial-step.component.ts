@@ -169,7 +169,11 @@ export class InterstitialStepComponent {
       const randomSuffix = Math.floor(100 + Math.random() * 900);
       const pseudoGenere = `${nomClean}${prenomClean}${randomSuffix}`;
 
-      // Données de dédup Pixel + Conversions API, jointes à l'inscription (voir META_CAPI_SPEC.md).
+      // eventId de dédup Pixel/CAPI — utilisé côté client pour la conversion.
+      // ⚠️ `meta` N'EST PAS envoyé au back : l'app Moze (Spring) refuse les champs
+      // inconnus → « Unrecognized field "meta" » = inscription en échec (500).
+      // À réactiver UNIQUEMENT une fois `@JsonIgnoreProperties(ignoreUnknown = true)`
+      // (ou le champ `meta`) ajouté côté back (voir META_CAPI_SPEC.md).
       const conv = this.metaPixelService.buildConversionMeta();
 
       const dto: UtilisateurInscriptionDTO = {
@@ -180,8 +184,7 @@ export class InterstitialStepComponent {
         telephonePersonnel: telSan,
         communication: {
           secteur: secteurChoisi || 'AUTRE'
-        },
-        meta: conv
+        }
       };
 
       if (isDevMode()) {
@@ -236,7 +239,7 @@ export class InterstitialStepComponent {
             console.error('Erreur lors de l\'inscription :', err);
           }
           this.isSubmitting.set(false);
-          this.submissionError.set("Une erreur est survenue, veuillez réessayer ultérieurement.");
+          this.submissionError.set(this.inscriptionErrorMessage(err));
         }
       });
     } else {
@@ -251,6 +254,21 @@ export class InterstitialStepComponent {
   private fireConversionTracking(eventId: string, params: Record<string, any>): void {
     this.metaPixelService.trackCompleteRegistration(params, eventId);
     this.googleAnalyticsService.trackSignUp('email', params);
+  }
+
+  /** Message d'inscription adapté au type d'échec (au lieu d'un message générique). */
+  private inscriptionErrorMessage(err: unknown): string {
+    const status = (err as { status?: number } | null)?.status;
+    if (status === 409) {
+      return "Cet email est déjà utilisé. Essaie de te connecter ou de réinitialiser ton mot de passe.";
+    }
+    if (status === 400) {
+      return "Certaines informations sont invalides, vérifie le formulaire.";
+    }
+    if (status === 0) {
+      return "Connexion impossible pour le moment. Vérifie ta connexion et réessaie.";
+    }
+    return "Une erreur est survenue, réessaie dans un instant.";
   }
 
   // --- ACTIONS DES ÉCRANS RÉSULTAT ---

@@ -1,11 +1,14 @@
 .wys {
   border: 1px solid #cdd9d4;
   border-radius: 12px;
-  overflow: hidden;
   background: #fff;
 }
 
 .wys-toolbar {
+  /* Sticky : la barre suit le scroll → toujours accessible sur les longs articles. */
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -13,8 +16,13 @@
   padding: 0.5rem;
   background: #f1f6f3;
   border-bottom: 1px solid #cdd9d4;
+  border-radius: 11px 11px 0 0;
+  box-shadow: 0 2px 8px rgba(20, 87, 117, 0.06);
 
   button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: 2rem;
     height: 2rem;
     padding: 0 0.5rem;
@@ -26,6 +34,21 @@
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
 
+    .wys-ic {
+      width: 18px;
+      height: 18px;
+      display: block;
+      /* L'icône ne doit jamais capter le pointeur : sinon `mousedown` vise le
+         `<use>` SVG au lieu du bouton, et le `preventDefault` de la barre ne
+         retient plus la sélection → bold/italic/etc. deviennent inopérants. */
+      pointer-events: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     &:hover:not(:disabled) {
       background: #fff;
       border-color: #cdd9d4;
@@ -34,6 +57,13 @@
     &:disabled {
       opacity: 0.5;
       cursor: default;
+    }
+
+    /* Bouton actif : le formatage est appliqué à l'emplacement du curseur. */
+    &.is-active:not(:disabled) {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
     }
   }
 }
@@ -45,12 +75,22 @@
   margin: 0 0.25rem;
 }
 
+.wys-error {
+  margin: 0;
+  padding: 0.5rem 1.1rem;
+  background: #fdecea;
+  color: #a3231a;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #f5c6c2;
+}
+
 .wys-editable {
   min-height: 280px;
   padding: 1rem 1.1rem;
   outline: none;
   color: #2c3a40;
   line-height: 1.6;
+  border-radius: 0 0 11px 11px;
 
   &:empty::before {
     content: attr(data-placeholder);

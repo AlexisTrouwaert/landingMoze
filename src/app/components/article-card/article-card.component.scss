@@ -32,6 +32,23 @@
   gap: 0.5rem;
 }
 
+.card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card__author {
+  color: var(--primary-color);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.8rem;
+}
+
+.card__meta-sep {
+  color: #b8c3c8;
+  font-size: 0.8rem;
+}
+
 .card__date {
   color: #8a979d;
   font-size: 0.8rem;

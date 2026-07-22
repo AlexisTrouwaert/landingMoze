@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environements/environment';
-import { Article, ArticleInput, ArticlePage, Tag } from '../model/article.model';
+import {
+  Article,
+  ArticleInput,
+  ArticleListItem,
+  ArticlePage,
+  Tag,
+} from '../model/article.model';
 
 /**
  * Accès HTTP au back blog : lecture publique + opérations admin.
@@ -33,6 +39,15 @@ export class BlogService {
 
   getBySlug(slug: string): Observable<Article> {
     return this.http.get<Article>(`${this.base}/blog/${slug}`);
+  }
+
+  /**
+   * Articles épinglés « à la une » (max 5), du plus récemment épinglé au plus
+   * ancien. Appel séparé de `list()` : un article épinglé n'est pas forcément
+   * dans la première page de la liste.
+   */
+  featured(): Observable<ArticleListItem[]> {
+    return this.http.get<ArticleListItem[]>(`${this.base}/blog/featured`);
   }
 
   /**
@@ -100,6 +115,18 @@ export class BlogService {
   unpublish(id: string): Observable<Article> {
     return this.http.post<Article>(
       `${this.base}/admin/blog/${id}/unpublish`,
+      {},
+    );
+  }
+
+  /** Épingle à la une (400 si déjà 5 épinglés, ou si l'article n'est pas publié). */
+  feature(id: string): Observable<Article> {
+    return this.http.post<Article>(`${this.base}/admin/blog/${id}/feature`, {});
+  }
+
+  unfeature(id: string): Observable<Article> {
+    return this.http.post<Article>(
+      `${this.base}/admin/blog/${id}/unfeature`,
       {},
     );
   }

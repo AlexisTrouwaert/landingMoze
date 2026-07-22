@@ -10,7 +10,7 @@
     <form class="editor-form" [formGroup]="form" (ngSubmit)="save(false)">
       <label class="field">
         <span>Titre *</span>
-        <input type="text" formControlName="title" placeholder="Titre de l'article" />
+        <input type="text" formControlName="title" maxlength="200" placeholder="Titre de l'article" />
         @if (form.controls.title.touched && form.controls.title.invalid) {
           <small class="field-error">Le titre est obligatoire (200 caractères max).</small>
         }
@@ -19,17 +19,18 @@
       <div class="field-row">
         <label class="field">
           <span>Slug</span>
-          <input type="text" formControlName="slug" placeholder="laissé vide = généré automatiquement" />
+          <input type="text" formControlName="slug" maxlength="120" placeholder="laissé vide = généré automatiquement" />
         </label>
         <label class="field">
           <span>Auteur</span>
-          <input type="text" formControlName="author" placeholder="Équipe Moze" />
+          <input type="text" formControlName="author" maxlength="120" placeholder="Équipe Moze" />
         </label>
       </div>
 
       <label class="field">
         <span>Extrait</span>
-        <textarea formControlName="excerpt" rows="2" placeholder="Résumé affiché dans la liste et la meta description"></textarea>
+        <textarea formControlName="excerpt" rows="2" maxlength="500" placeholder="Résumé affiché dans la liste et la meta description"></textarea>
+        <small class="field-count" [class.field-count--warn]="form.controls.excerpt.value.length > 450">{{ form.controls.excerpt.value.length }}/500</small>
       </label>
 
       <div class="field">
@@ -92,11 +93,12 @@
         <legend>SEO (optionnel)</legend>
         <label class="field">
           <span>Meta title</span>
-          <input type="text" formControlName="metaTitle" placeholder="Par défaut : le titre" />
+          <input type="text" formControlName="metaTitle" maxlength="200" placeholder="Par défaut : le titre" />
         </label>
         <label class="field">
           <span>Meta description</span>
-          <textarea formControlName="metaDescription" rows="2" placeholder="Par défaut : l'extrait"></textarea>
+          <textarea formControlName="metaDescription" rows="2" maxlength="500" placeholder="Par défaut : l'extrait"></textarea>
+          <small class="field-count" [class.field-count--warn]="form.controls.metaDescription.value.length > 450">{{ form.controls.metaDescription.value.length }}/500</small>
         </label>
       </fieldset>
 

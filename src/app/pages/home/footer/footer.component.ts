@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContactPanelService } from '../../../services/contact-panel.service';
 import { CookieConsentService } from '../../../services/cookie-consent.service';
@@ -11,6 +11,9 @@ import { CookieConsentService } from '../../../services/cookie-consent.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FooterComponent {
+
+  /** Retire le fond bleu foncé du footer (ex. sur le blog). */
+  readonly flat = input(false);
 
   private router = inject(Router);
   contactPanel  = inject(ContactPanelService);

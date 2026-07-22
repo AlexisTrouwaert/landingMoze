@@ -1,7 +1,8 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Router} from "@angular/router";
-import {DockGroup, FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
+import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
+import {NAV_GROUPS} from "../../config/nav-groups";
 import {ScrollTopComponent} from "../../components/scroll-top/scroll-top.component";
 import {LandingSectionComponent} from "./landing-section/landing-section.component";
 import {TarifComponent} from "./tarif/tarif.component";
@@ -46,23 +47,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
-  /** Navigation du dock. Les `id` correspondent aux ancres des sections. */
-  readonly navGroups: DockGroup[] = [
-    { title: 'Découvrir', links: [
-      { id: 'etapes', label: 'Étapes', icon: 'steps', desc: 'Comment ça marche' },
-      { id: 'outils', label: 'Outils', icon: 'tools', desc: 'Tout ce que Moze offre' },
-      { id: 'offres', label: 'Offres', icon: 'offres', desc: 'Nos formules' },
-      { id: 'presse', label: 'Presse', icon: 'news',  desc: 'On parle de nous' },
-      { id: 'avis',   label: 'Avis',   icon: 'star',  desc: 'La parole aux membres' },
-      { id: 'app', label: "L'app", icon: 'app', desc: 'iOS & Android' },
-      { id: 'support', label: 'Support', icon: 'support', desc: "Une question ? On t'aide", action: 'support' }
-    ]},
-    { links: [
-      { id: 'blog', label: 'Blog', route: '/blog' },
-      { id: 'faq', label: 'FAQ' },
-      { id: 'app', label: "L'app" }
-    ]}
-  ];
+  /** Navigation du dock (source partagée — voir config/nav-groups). */
+  readonly navGroups = NAV_GROUPS;
 
   /** CTA du dock — conserve le comportement de l'ancien header (inscription → tunnel). */
   goToFunnel(): void {

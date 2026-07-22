@@ -4,8 +4,21 @@
     {
       "name": "front",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["start"],
-      "port": 4200
+      "runtimeArgs": ["start", "--", "--port", "4321"],
+      "port": 4321,
+      "autoPort": false
+    },
+    {
+      "name": "back",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:/Users/utilisateur/Desktop/workspace/Back/landingMoze-back",
+        "run",
+        "start"
+      ],
+      "port": 3000,
+      "autoPort": false
     }
   ]
 }

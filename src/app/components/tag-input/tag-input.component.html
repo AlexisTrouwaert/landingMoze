@@ -26,6 +26,7 @@
       [disabled]="disabled()"
       (input)="onInput($event)"
       (keydown)="onKeydown($event)"
+      (paste)="onPaste($event)"
       (focus)="open.set(true)"
       (click)="open.set(true)"
       (blur)="onBlur()"
