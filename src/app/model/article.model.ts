@@ -56,6 +56,37 @@ export interface ArticlePage {
   size: number;
 }
 
+/** Compteurs du tableau de bord admin (`GET /admin/blog/stats`). */
+export interface AdminStats {
+  draft: number;
+  published: number;
+  archived: number;
+  featured: number;
+  maxFeatured: number;
+  total: number;
+}
+
+/**
+ * Actions applicables à une sélection d'articles en un seul appel.
+ * L'épinglage n'y figure pas : limité à 5 et ordonné par `featuredAt`, il reste
+ * une action unitaire.
+ */
+export type BulkAction =
+  | 'publish'
+  | 'unpublish'
+  | 'archive'
+  | 'unarchive'
+  | 'delete';
+
+/** Résultat de `POST /admin/blog/bulk`. */
+export interface BulkResult {
+  action: BulkAction;
+  requested: number;
+  affected: number;
+  /** Articles disparus entre l'affichage de la liste et l'action. */
+  missing: number;
+}
+
 /** Payload de création / édition d'un article (admin). */
 export interface ArticleInput {
   title: string;

@@ -1,60 +1,191 @@
-.admin-page {
-  max-width: 1000px;
+@use './admin-ui' as *;
+
+// Une seule grille pour l'en-tête et les lignes : les colonnes ne peuvent pas
+// se désaligner. La colonne d'actions a une largeur fixe — c'est elle qui
+// garantit un bord droit net quel que soit le libellé du bouton.
+// Sa largeur = étoile (28) + action (88) + menu (28) + deux gouttières (12).
+$row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
+
+.adm-page {
+  max-width: 1060px;
   margin: 0 auto;
-  padding: 2.5rem 1.25rem 5rem;
+  padding: 2.5rem 1.25rem 6rem;
+  color: var(--adm-ink-900);
 }
 
-.admin-bar {
+// -------------------------------------------------------------
+// En-tête
+// -------------------------------------------------------------
+.adm-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--adm-line);
 
-  h1 {
-    color: var(--primary-color);
-    font-family: 'SNPRO-Bold', sans-serif;
-    font-size: 1.8rem;
+  &__id {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
   }
 
-  &__link {
-    color: var(--interaction-color);
-    text-decoration: none;
-    font-size: 0.9rem;
+  &__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-ink-700);
+    color: #fff;
+  }
+
+  h1 {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    margin-top: 0.1rem;
+    color: var(--adm-ink-400);
+    font-size: 0.82rem;
   }
 
   &__actions {
     display: flex;
-    gap: 0.6rem;
+    align-items: center;
+    gap: 0.4rem;
   }
 }
 
-.admin-toolbar {
+// -------------------------------------------------------------
+// Tuiles de compteurs — quatre tuiles rigoureusement identiques,
+// dont trois servent de filtre rapide.
+// -------------------------------------------------------------
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 1.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 74px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--adm-t),
+    background var(--adm-t);
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--adm-ink-500);
+    font-size: 0.78rem;
+  }
+
+  &__value {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 1.35rem;
+    line-height: 1.3;
+  }
+
+  &__max {
+    color: var(--adm-ink-300);
+    font-family: 'SNPRO-Regular', sans-serif;
+    font-size: 0.85rem;
+  }
+
+  &__gauge {
+    display: block;
+    height: 3px;
+    margin-top: auto;
+    border-radius: var(--adm-pill);
+    background: var(--adm-line);
+    overflow: hidden;
+  }
+
+  &__gauge-fill {
+    display: block;
+    height: 100%;
+    border-radius: var(--adm-pill);
+    background: var(--adm-blue);
+    transition: width 0.25s ease;
+  }
+
+  &:hover:not(&--static) {
+    border-color: var(--adm-line-strong);
+    background: var(--adm-surface-alt);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+
+  &--on {
+    border-color: var(--adm-ink-700);
+    background: var(--adm-surface);
+  }
+
+  &--static {
+    cursor: default;
+  }
+}
+
+// -------------------------------------------------------------
+// Barre d'outils : deux contrôles distincts, même hauteur
+// -------------------------------------------------------------
+.adm-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.adm-search {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.2rem 0.3rem 0.2rem 1rem;
-  border: 1px solid #dce6e2;
-  border-radius: 14px;
-  background: #fff;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  flex: 1;
+  min-width: 0;
+  height: var(--adm-h-md);
+  padding: 0 0.5rem 0 0.8rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-pill);
+  background: var(--adm-surface);
+  transition:
+    border-color var(--adm-t),
+    box-shadow var(--adm-t);
 
   &:focus-within {
-    border-color: var(--interaction-color);
-    box-shadow: 0 0 0 3px rgba(2, 151, 216, 0.12);
+    border-color: var(--adm-blue);
+    box-shadow: var(--adm-ring);
   }
 
   &__icon {
     display: inline-flex;
-    flex-shrink: 0;
-    color: #9aa7ac;
-    transition: color 0.18s ease;
+    flex: 0 0 auto;
+    color: var(--adm-ink-300);
+    transition: color var(--adm-t);
   }
 
   &:focus-within &__icon {
-    color: var(--interaction-color);
+    color: var(--adm-blue);
   }
 
   &__input {
@@ -63,162 +194,372 @@
     border: none;
     outline: none;
     background: transparent;
-    font-size: 0.95rem;
-    padding: 0.6rem 0;
+    color: var(--adm-ink-900);
+    font-size: 0.92rem;
 
     &::placeholder {
-      color: #9aa7ac;
+      color: var(--adm-ink-300);
     }
 
-    // Masque le ✕ natif du type="search" (on a le nôtre).
+    // Le ✕ natif de `type=search` doublonnerait le nôtre.
     &::-webkit-search-cancel-button {
       display: none;
     }
   }
 
   &__clear {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 1.55rem;
-    height: 1.55rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: none;
     border-radius: 50%;
     background: transparent;
-    color: #9aa7ac;
+    color: var(--adm-ink-400);
     cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    transition:
+      background var(--adm-t),
+      color var(--adm-t);
 
     &:hover {
-      color: var(--primary-color);
-      background: #eef2f0;
+      background: var(--adm-surface-hover);
+      color: var(--adm-ink-700);
     }
 
-    &:active {
-      transform: scale(0.88);
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
     }
   }
 }
 
-.admin-filter {
-  position: relative;
-  flex-shrink: 0;
-  display: flex;
+// Le segmented control vient du socle partagé ; la liste ne fixe que sa place
+// dans la barre d'outils.
+.adm-seg {
+  flex: 0 0 auto;
+}
+
+.adm-alert {
+  margin-top: 0.8rem;
+}
+
+// -------------------------------------------------------------
+// Liste
+// -------------------------------------------------------------
+.adm-list {
+  margin-top: 0.9rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+
+  &.is-busy {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__head {
+    display: grid;
+    grid-template-columns: $row-grid;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.95rem;
+    border-bottom: 1px solid var(--adm-line);
+    color: var(--adm-ink-400);
+    font-size: 0.75rem;
+
+    // « Article » couvre la vignette et le titre : sans ça, l'en-tête n'a que
+    // cinq cellules pour six colonnes et tout se décale d'un cran.
+    > span:first-of-type {
+      grid-column: 2 / 4;
+    }
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: $row-grid;
   align-items: center;
+  gap: 0.75rem;
+  // Hauteur constante : c'est ce qui supprime l'effet « escalier » de l'ancienne
+  // colonne d'actions, où 4 boutons pouvaient passer à la ligne.
+  min-height: 64px;
+  padding: 0.6rem 0.95rem;
+  border-bottom: 1px solid var(--adm-line);
+  transition: background var(--adm-t);
 
-  &__btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    border: none;
-    border-left: 1px solid #e3ebe7;
-    border-radius: 0 12px 12px 0;
-    background: transparent;
-    color: var(--primary-color);
-    padding: 0.6rem 0.9rem;
-    font-family: 'SNPRO-SemiBold', sans-serif;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: background 0.15s ease;
-    white-space: nowrap;
+  &:last-child {
+    border-bottom: none;
+    border-radius: 0 0 var(--adm-radius) var(--adm-radius);
+  }
 
-    &:hover,
-    &.is-open {
-      background: #f1f6f3;
-    }
+  &:hover {
+    background: var(--adm-surface-alt);
+  }
 
-    .chevron {
-      transition: transform 0.18s ease;
-    }
+  &--picked {
+    background: var(--adm-blue-soft);
+  }
 
-    &.is-open .chevron {
-      transform: rotate(180deg);
+  &__thumb {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-surface-hover);
+    color: var(--adm-ink-300);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
 
-  &__reset {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 1.55rem;
-    height: 1.55rem;
-    padding: 0;
-    margin-right: 0.15rem;
-    border: none;
-    border-radius: 50%;
-    background: #fdecea;
-    color: #c0392b;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
-
-    &:hover {
-      background: #f7d4cf;
-    }
-
-    &:active {
-      transform: scale(0.88);
-    }
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
   }
 
-  &__backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-  }
-
-  &__menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.4rem);
-    z-index: 21;
-    min-width: 190px;
-    background: #fff;
-    border: 1px solid #e3ebe7;
-    border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(20, 87, 117, 0.14);
-    padding: 0.35rem;
-    animation: admin-filter-pop 0.15s ease;
-  }
-
-  &__item {
+  &__title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-    text-align: left;
-    border: none;
-    background: transparent;
-    color: #36474e;
-    padding: 0.55rem 0.7rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.12s ease;
+    gap: 0.35rem;
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    &:hover {
-      background: #f1f6f3;
+  // Étoile « à la une » : indicateur et commande à la fois, un seul clic.
+  &__star {
+    flex: 0 0 auto;
+    color: var(--adm-ink-300);
+
+    &:hover:not(:disabled) {
+      color: var(--adm-blue);
     }
 
-    &.is-active {
-      color: var(--primary-color);
-      font-family: 'SNPRO-SemiBold', sans-serif;
-      background: #eaf5ff;
+    &.is-on {
+      border-color: var(--adm-blue);
+      background: var(--adm-blue-soft);
+      color: var(--adm-blue);
     }
   }
 
-  &__check {
-    color: var(--interaction-color);
+  // Créneau vide des articles non épinglables : réserve la place de l'étoile
+  // pour que la colonne reste alignée d'une ligne à l'autre.
+  &__star-slot {
+    flex: 0 0 auto;
+    width: var(--adm-h-sm);
+  }
+
+  &__meta {
+    color: var(--adm-ink-400);
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__cta {
+    // Largeur figée, pas seulement un minimum : « Éditer » et « Restaurer »
+    // occupent la même boîte, donc l'étoile à gauche et le « ⋯ » à droite
+    // restent alignés d'une ligne à l'autre.
+    width: 88px;
+  }
+
+  &__more {
+    position: relative;
+    display: inline-flex;
   }
 }
 
-@keyframes admin-filter-pop {
+// En bureau, ce conteneur n'a pas de boîte : ses trois enfants sont des
+// cellules de la grille `.row`. Il ne reprend corps qu'en mode carte.
+.row__foot {
+  display: contents;
+}
+
+.col-status {
+  min-width: 0;
+}
+
+.col-date {
+  color: var(--adm-ink-400);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.col-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+// Le menu s'ouvre sous le bouton « ⋯ », aligné à droite.
+.adm-menu {
+  right: 0;
+  top: calc(100% + 6px);
+}
+
+// -------------------------------------------------------------
+// Chargement — le gabarit est déjà là, rien ne saute à l'arrivée des données
+// -------------------------------------------------------------
+.row--skeleton {
+  &:hover {
+    background: transparent;
+  }
+
+  .row__main {
+    gap: 0.4rem;
+  }
+}
+
+.sk {
+  display: block;
+  border-radius: 6px;
+  background: var(--adm-surface-hover);
+  animation: adm-pulse 1.3s ease-in-out infinite;
+
+  &--check {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+  }
+
+  &--thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--adm-radius-sm);
+  }
+
+  &--line {
+    width: 68%;
+    height: 10px;
+  }
+
+  &--short {
+    width: 38%;
+    height: 8px;
+  }
+
+  &--badge {
+    width: 64px;
+    height: 18px;
+    border-radius: var(--adm-pill);
+  }
+
+  &--date {
+    width: 46px;
+    height: 10px;
+  }
+
+  &--actions {
+    width: 156px;
+    height: var(--adm-h-sm);
+    border-radius: var(--adm-pill);
+  }
+}
+
+@keyframes adm-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+}
+
+// -------------------------------------------------------------
+// Liste vide
+// -------------------------------------------------------------
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.4rem;
+    border-radius: 50%;
+    background: var(--adm-surface-hover);
+    color: var(--adm-ink-300);
+  }
+
+  &__title {
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.95rem;
+  }
+
+  &__hint {
+    max-width: 34ch;
+    color: var(--adm-ink-400);
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    margin-top: 0.8rem;
+  }
+}
+
+// -------------------------------------------------------------
+// Barre d'actions groupées — n'apparaît qu'avec une sélection
+// -------------------------------------------------------------
+.adm-bulk {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+  padding: 0.55rem 0.65rem 0.55rem 1rem;
+  border: 1px solid var(--adm-ink-700);
+  border-radius: var(--adm-pill);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow-pop);
+  animation: adm-rise 0.16s ease;
+
+  &__count {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.85rem;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+}
+
+@keyframes adm-rise {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -226,154 +567,104 @@
   }
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid #cdd9d4;
-  background: #fff;
-  color: var(--primary-color);
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-  font-family: 'SNPRO-SemiBold', sans-serif;
-  font-size: 0.9rem;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    border-color: var(--interaction-color);
+// -------------------------------------------------------------
+// Responsive — la ligne devient une carte, sans changer de composants
+// -------------------------------------------------------------
+@media (max-width: 860px) {
+  .adm-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  &--primary {
-    background: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
-
-    &:hover {
-      background: var(--interaction-color);
-      border-color: var(--interaction-color);
-    }
-  }
-
-  &--ghost {
-    background: transparent;
-  }
-
-  &--small {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.82rem;
-  }
-
-  &--danger {
-    color: #c0392b;
-    &:hover {
-      border-color: #c0392b;
-      background: #fdecea;
-    }
-  }
-}
-
-.state {
-  text-align: center;
-  color: #4a5b63;
-  padding: 2.5rem 1rem;
-
-  &--error {
-    color: #c0392b;
-  }
-
-  button {
-    margin-left: 0.5rem;
-    background: none;
-    border: none;
-    color: var(--interaction-color);
-    text-decoration: underline;
-    cursor: pointer;
-  }
-}
-
-.featured-counter {
-  margin: 0 0 0.75rem;
-  font-size: 0.9rem;
-  color: #4a5b62;
-
-  &__hint {
-    color: #7d8f96;
-  }
-}
-
-/* Bouton « à la une » actif : l'article est épinglé. */
-.btn--small.is-featured {
-  background: var(--accent-color, #f0b429);
-  border-color: var(--accent-color, #f0b429);
-  color: #2c3a40;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 8px 30px rgba(20, 87, 117, 0.07);
-
-  th,
-  td {
-    padding: 0.85rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eef2f0;
-  }
-
-  th {
-    background: #f1f6f3;
-    color: var(--primary-color);
-    font-family: 'SNPRO-SemiBold', sans-serif;
-    font-size: 0.85rem;
-  }
-
-  .td-title {
-    font-family: 'SNPRO-SemiBold', sans-serif;
-    color: #2c3a40;
-  }
-
-  .td-date {
-    color: #8a979d;
-    font-size: 0.88rem;
-    white-space: nowrap;
-  }
-
-  .td-actions {
-    display: flex;
-    gap: 0.4rem;
-    justify-content: flex-end;
+  .adm-tools {
     flex-wrap: wrap;
   }
 
-  .ta-right {
-    text-align: right;
-  }
+  .adm-seg {
+    width: 100%;
+    overflow-x: auto;
 
-  tr:last-child td {
-    border-bottom: none;
+    &__btn {
+      flex: 1 0 auto;
+    }
   }
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.2rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-family: 'SNPRO-SemiBold', sans-serif;
-  background: #e7ecea;
-  color: #6a7a80;
-
-  &--published {
-    background: #e0f7e6;
-    color: #1f8a4c;
+@media (max-width: 760px) {
+  .adm-page {
+    padding: 1.5rem 0.9rem 6rem;
   }
 
-  &--archived {
-    background: #f0ece6;
-    color: #8a6d3b;
+  .adm-head__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .adm-list__head {
+    // Les libellés de colonnes n'ont plus de sens une fois la ligne repliée ;
+    // seule la case « tout sélectionner » reste utile.
+    grid-template-columns: 18px minmax(0, 1fr);
+
+    > span:first-of-type {
+      grid-column: 2;
+    }
+
+    .col-status,
+    .col-date,
+    .col-actions {
+      display: none;
+    }
+  }
+
+  .row {
+    grid-template-columns: 18px 40px minmax(0, 1fr);
+    row-gap: 0.7rem;
+    padding: 0.8rem 0.95rem;
+
+    > .adm-check,
+    &__thumb {
+      align-self: start;
+    }
+
+    &__title {
+      white-space: normal;
+    }
+
+    // Le conteneur reprend une boîte et occupe toute la largeur de la carte.
+    &__foot {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.6rem;
+      grid-column: 1 / -1;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--adm-line);
+    }
+  }
+
+  .col-date {
+    margin-right: auto;
+  }
+
+  // Reste à droite même si le pied passe sur deux lignes (petits écrans).
+  .col-actions {
+    margin-left: auto;
+  }
+
+  .row--skeleton {
+    grid-template-columns: 18px 40px minmax(0, 1fr);
+
+    .sk--badge,
+    .sk--date,
+    .sk--actions {
+      display: none;
+    }
+  }
+
+  .adm-bulk {
+    justify-content: center;
+
+    &__spacer {
+      display: none;
+    }
   }
 }

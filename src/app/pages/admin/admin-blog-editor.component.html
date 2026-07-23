@@ -1,78 +1,329 @@
-<div class="editor-page">
-  <header class="editor-bar">
-    <h1>{{ isEdit() ? 'Modifier l’article' : 'Nouvel article' }}</h1>
-    <button type="button" class="btn btn--ghost" (click)="cancel()">← Retour</button>
+<form class="ed" [formGroup]="form" (ngSubmit)="save(false)">
+  <!-- Repère observé par l'IntersectionObserver : tant qu'il est visible, la
+       page n'a pas défilé et la barre reste posée à plat. -->
+  <span #topSentinel class="ed-sentinel" aria-hidden="true"></span>
+
+  <!-- Barre collante : les actions restent atteignables quelle que soit la
+       longueur de l'article. -->
+  <header class="ed-bar" [class.is-scrolled]="scrolled()">
+    <button
+      type="button"
+      class="btn btn--sm btn--icon btn--ghost"
+      (click)="cancel()"
+      title="Retour à la liste"
+      aria-label="Retour à la liste"
+    >
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <div class="ed-bar__id">
+      <h1 class="ed-bar__title">
+        <span class="ed-bar__name">
+          {{ form.controls.title.value || (isEdit() ? 'Sans titre' : 'Nouvel article') }}
+        </span>
+        <span
+          class="badge"
+          [class.badge--published]="isPublished()"
+          [class.badge--archived]="status() === 'ARCHIVED'"
+        >
+          {{ statusLabel() }}
+        </span>
+      </h1>
+      <p class="ed-bar__hint">
+        @if (dirty()) {
+          <span class="ed-bar__dot" aria-hidden="true"></span> Modifications non enregistrées
+        } @else if (isEdit()) {
+          Aucune modification en cours
+        } @else {
+          Ce brouillon n'est pas encore créé
+        }
+      </p>
+    </div>
+
+    <div class="ed-bar__actions">
+      <button
+        type="button"
+        class="btn btn--sm ed-bar__preview"
+        [class.is-open]="showPreview()"
+        (click)="togglePreview()"
+        [attr.aria-expanded]="showPreview()"
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="2.5" />
+        </svg>
+        <span class="ed-bar__preview-label">Aperçu</span>
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn--sm"
+        [class.btn--primary]="isPublished()"
+        [disabled]="saving() || loading()"
+      >
+        {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+
+      @if (!isPublished()) {
+        <button
+          type="button"
+          class="btn btn--sm btn--primary"
+          [disabled]="saving() || loading()"
+          (click)="save(true)"
+        >
+          Publier
+        </button>
+      }
+
+      @if (isPublished()) {
+        <span class="ed-bar__more">
+          <button
+            type="button"
+            class="btn btn--sm btn--icon"
+            (click)="toggleMenu()"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuOpen()"
+            aria-label="Autres actions"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-hidden="true">
+              <circle cx="5" cy="12" r="1.6" />
+              <circle cx="12" cy="12" r="1.6" />
+              <circle cx="19" cy="12" r="1.6" />
+            </svg>
+          </button>
+
+          @if (menuOpen()) {
+            <span class="adm-menu__backdrop" (click)="closeMenu()"></span>
+            <span class="adm-menu" role="menu">
+              @if (savedSlug(); as slug) {
+                <a
+                  role="menuitem"
+                  class="adm-menu__item"
+                  [routerLink]="['/blog', slug]"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <path d="M15 3h6v6M10 14 21 3" />
+                  </svg>
+                  Voir sur le blog
+                </a>
+              }
+              <button
+                type="button"
+                role="menuitem"
+                class="adm-menu__item"
+                [disabled]="saving()"
+                (click)="unpublish()"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                  <path d="M9.4 5.2A9.5 9.5 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.2 3.3M6.3 6.8C3.9 8.3 3 10.5 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 3.7-.7" />
+                </svg>
+                Dépublier
+              </button>
+            </span>
+          }
+        </span>
+      }
+    </div>
   </header>
 
+  @if (error(); as msg) {
+    <p class="adm-alert ed-alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      {{ msg }}
+    </p>
+  }
+
   @if (loading()) {
-    <p class="state">Chargement…</p>
+    <div class="ed-grid" aria-hidden="true">
+      <div class="ed-main">
+        <section class="card">
+          <span class="sk sk--title"></span>
+          <span class="sk sk--line"></span>
+        </section>
+        <section class="card"><span class="sk sk--block"></span></section>
+      </div>
+      <aside class="ed-side">
+        <section class="card">
+          <span class="sk sk--line"></span>
+          <span class="sk sk--line sk--short"></span>
+        </section>
+        <section class="card"><span class="sk sk--block sk--block-sm"></span></section>
+      </aside>
+    </div>
+    <p class="sr-only">Chargement de l'article…</p>
   } @else {
-    <form class="editor-form" [formGroup]="form" (ngSubmit)="save(false)">
-      <label class="field">
-        <span>Titre *</span>
-        <input type="text" formControlName="title" maxlength="200" placeholder="Titre de l'article" />
-        @if (form.controls.title.touched && form.controls.title.invalid) {
-          <small class="field-error">Le titre est obligatoire (200 caractères max).</small>
-        }
-      </label>
-
-      <div class="field-row">
-        <label class="field">
-          <span>Slug</span>
-          <input type="text" formControlName="slug" maxlength="120" placeholder="laissé vide = généré automatiquement" />
-        </label>
-        <label class="field">
-          <span>Auteur</span>
-          <input type="text" formControlName="author" maxlength="120" placeholder="Équipe Moze" />
-        </label>
-      </div>
-
-      <label class="field">
-        <span>Extrait</span>
-        <textarea formControlName="excerpt" rows="2" maxlength="500" placeholder="Résumé affiché dans la liste et la meta description"></textarea>
-        <small class="field-count" [class.field-count--warn]="form.controls.excerpt.value.length > 450">{{ form.controls.excerpt.value.length }}/500</small>
-      </label>
-
-      <div class="field">
-        <span>Tags</span>
-        <app-tag-input
-          formControlName="tags"
-          [suggestions]="allTags()"
-          (tagRemove)="onTagRemove($event)"
-          (tagRename)="onTagRename($event)"
-          (tagCreate)="onTagCreate($event)"
-        ></app-tag-input>
-        <small class="field-hint">Tapez un mot-clé puis Entrée pour ajouter le tag (flèches ↑↓ pour parcourir les suggestions). Un tag qui n'existe pas encore sera créé automatiquement.</small>
-      </div>
-
-      <div class="field">
-        <span>Image de couverture</span>
-        <div class="cover">
-          @if (form.controls.coverImageUrl.value) {
-            <div class="cover__preview-wrap">
-              <img class="cover__preview" [src]="form.controls.coverImageUrl.value" alt="Aperçu couverture" />
-              <button type="button" class="btn btn--small btn--danger" (click)="removeCover()">
-                Retirer l'image
-              </button>
-            </div>
+    <div class="ed-grid">
+      <!-- Colonne de rédaction -->
+      <div class="ed-main">
+        <section class="card">
+          <label class="field">
+            <span class="sr-only">Titre de l'article</span>
+            <input
+              class="ed-title"
+              type="text"
+              formControlName="title"
+              maxlength="200"
+              placeholder="Titre de l'article"
+            />
+          </label>
+          @if (form.controls.title.touched && form.controls.title.invalid) {
+            <small class="field-error">Le titre est obligatoire (200 caractères max).</small>
           }
-          <div class="cover__controls">
-            <input type="text" formControlName="coverImageUrl" placeholder="URL de la couverture" />
-            <label class="btn btn--small cover__upload">
-              {{ uploadingCover() ? 'Envoi…' : 'Téléverser' }}
-              <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onCoverSelected($event)" />
-            </label>
+
+          <span class="card__sep"></span>
+
+          <div class="field">
+            <span class="field__head">
+              <span class="field__label">Extrait</span>
+              <span
+                class="counter"
+                [class.counter--warn]="form.controls.excerpt.value.length > 450"
+              >
+                {{ form.controls.excerpt.value.length }}/500
+              </span>
+            </span>
+            <textarea
+              formControlName="excerpt"
+              rows="2"
+              maxlength="500"
+              placeholder="Résumé affiché dans la liste et dans la meta description"
+            ></textarea>
+          </div>
+        </section>
+
+        <section class="card card--flush">
+          <app-wysiwyg-editor formControlName="content"></app-wysiwyg-editor>
+          <p class="ed-count">
+            {{ wordCount() }} mot{{ wordCount() > 1 ? 's' : '' }} ·
+            ~{{ readingMinutes() }} min de lecture
+          </p>
+        </section>
+      </div>
+
+      <!-- Colonne des réglages -->
+      <aside class="ed-side">
+        <section class="card">
+          <h2 class="card__title">Publication</h2>
+
+          <div class="side-row">
+            <span class="side-row__label">Statut</span>
+            <span
+              class="badge"
+              [class.badge--published]="isPublished()"
+              [class.badge--archived]="status() === 'ARCHIVED'"
+            >
+              {{ statusLabel() }}
+            </span>
           </div>
 
+          <label class="field">
+            <span class="field__label">Auteur</span>
+            <input type="text" formControlName="author" maxlength="120" placeholder="Équipe Moze" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Adresse de l'article</span>
+            <span class="slug">
+              <span class="slug__prefix">/blog/</span>
+              <input
+                type="text"
+                formControlName="slug"
+                maxlength="120"
+                placeholder="généré depuis le titre"
+              />
+            </span>
+          </label>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title">Tags</h2>
+          <app-tag-input
+            formControlName="tags"
+            [suggestions]="allTags()"
+            (tagRemove)="onTagRemove($event)"
+            (tagRename)="onTagRename($event)"
+            (tagCreate)="onTagCreate($event)"
+          ></app-tag-input>
+          <p class="hint">
+            Entrée pour ajouter, ↑↓ pour parcourir les suggestions. Un tag inconnu
+            est créé automatiquement.
+          </p>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title">Couverture</h2>
+
           @if (form.controls.coverImageUrl.value) {
-            <div class="cover-position">
-              <span class="cover-position__label">Position de l'image (le texte se place à l'opposé)</span>
-              <div class="cover-position__options" role="group" aria-label="Position de l'image">
+            <div class="cover">
+              <img
+                class="cover__img"
+                [src]="form.controls.coverImageUrl.value"
+                alt="Aperçu de la couverture"
+              />
+              <span class="cover__actions">
+                <label class="btn btn--sm cover__replace">
+                  {{ uploadingCover() ? 'Envoi…' : 'Remplacer' }}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                    (change)="onCoverSelected($event)"
+                  />
+                </label>
+                <button type="button" class="btn btn--sm btn--danger" (click)="removeCover()">
+                  Retirer
+                </button>
+              </span>
+            </div>
+          } @else {
+            <label class="dropzone" [class.is-busy]="uploadingCover()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="8.5" cy="9.5" r="1.5" />
+                <path d="m4 17 5-5 4 4 2-2 5 5" />
+              </svg>
+              <span class="dropzone__label">
+                {{ uploadingCover() ? 'Envoi en cours…' : 'Ajouter une image' }}
+              </span>
+              <span class="dropzone__hint">JPG, PNG ou WebP</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+                (change)="onCoverSelected($event)"
+              />
+            </label>
+          }
+
+          <label class="field">
+            <span class="field__label">…ou coller une URL</span>
+            <input type="text" formControlName="coverImageUrl" placeholder="https://…" />
+          </label>
+
+          @if (form.controls.coverImageUrl.value) {
+            <div class="field">
+              <span class="field__label">
+                Position <small>— le texte se place à l'opposé</small>
+              </span>
+              <div
+                class="adm-seg adm-seg--fill adm-seg--sm"
+                role="group"
+                aria-label="Position de l'image"
+              >
                 @for (opt of coverPositions; track opt.value) {
                   <button
                     type="button"
-                    class="cover-position__btn"
-                    [class.cover-position__btn--active]="form.controls.coverPosition.value === opt.value"
+                    class="adm-seg__btn"
+                    [class.is-active]="form.controls.coverPosition.value === opt.value"
+                    [attr.aria-pressed]="form.controls.coverPosition.value === opt.value"
                     (click)="setCoverPosition(opt.value)"
                   >
                     {{ opt.label }}
@@ -81,64 +332,112 @@
               </div>
             </div>
           }
+        </section>
+
+        <details class="card card--fold">
+          <summary class="fold__summary">
+            <span class="fold__text">
+              <span class="card__title">Référencement</span>
+              <span class="hint">Reprend le titre et l'extrait par défaut</span>
+            </span>
+            <svg class="fold__chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+
+          <div class="fold__body">
+            <label class="field">
+              <span class="field__label">Titre pour les moteurs</span>
+              <input
+                type="text"
+                formControlName="metaTitle"
+                maxlength="200"
+                placeholder="Par défaut : le titre de l'article"
+              />
+            </label>
+            <label class="field">
+              <span class="field__head">
+                <span class="field__label">Description</span>
+                <span
+                  class="counter"
+                  [class.counter--warn]="form.controls.metaDescription.value.length > 450"
+                >
+                  {{ form.controls.metaDescription.value.length }}/500
+                </span>
+              </span>
+              <textarea
+                formControlName="metaDescription"
+                rows="3"
+                maxlength="500"
+                placeholder="Par défaut : l'extrait"
+              ></textarea>
+            </label>
+          </div>
+        </details>
+      </aside>
+    </div>
+
+    <section #previewSection class="card ed-preview">
+      <header class="ed-preview__bar">
+        <h2 class="card__title">Aperçu</h2>
+        <div class="ed-preview__tools">
+          <div class="adm-seg adm-seg--sm" role="group" aria-label="Type d'aperçu">
+            <button
+              type="button"
+              class="adm-seg__btn"
+              [class.is-active]="showPreview() && previewMode() === 'card'"
+              (click)="setPreviewMode('card')"
+            >
+              Carte
+            </button>
+            <button
+              type="button"
+              class="adm-seg__btn"
+              [class.is-active]="showPreview() && previewMode() === 'article'"
+              (click)="setPreviewMode('article')"
+            >
+              Article complet
+            </button>
+          </div>
+          <button
+            type="button"
+            class="btn btn--sm btn--icon btn--ghost ed-preview__toggle"
+            [class.is-open]="showPreview()"
+            (click)="togglePreview()"
+            [attr.aria-expanded]="showPreview()"
+            aria-label="Afficher ou masquer l'aperçu"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div class="field">
-        <span>Contenu</span>
-        <app-wysiwyg-editor formControlName="content"></app-wysiwyg-editor>
-      </div>
-
-      <fieldset class="seo">
-        <legend>SEO (optionnel)</legend>
-        <label class="field">
-          <span>Meta title</span>
-          <input type="text" formControlName="metaTitle" maxlength="200" placeholder="Par défaut : le titre" />
-        </label>
-        <label class="field">
-          <span>Meta description</span>
-          <textarea formControlName="metaDescription" rows="2" maxlength="500" placeholder="Par défaut : l'extrait"></textarea>
-          <small class="field-count" [class.field-count--warn]="form.controls.metaDescription.value.length > 450">{{ form.controls.metaDescription.value.length }}/500</small>
-        </label>
-      </fieldset>
-
-      @if (error()) {
-        <p class="form-error">{{ error() }}</p>
-      }
-
-      <div class="editor-actions">
-        <button type="submit" class="btn" [disabled]="saving()">
-          {{ saving() ? 'Enregistrement…' : 'Enregistrer (brouillon)' }}
-        </button>
-        <button type="button" class="btn btn--primary" (click)="save(true)" [disabled]="saving()">
-          Publier
-        </button>
-      </div>
-    </form>
-
-    <section class="preview">
-      <div class="preview__bar">
-        <h2 class="preview__title">Aperçu du rendu</h2>
-        <button type="button" class="btn btn--small" (click)="togglePreview()">
-          {{ showPreview() ? 'Masquer' : 'Afficher' }}
-        </button>
-      </div>
       @if (showPreview()) {
-        <div class="preview__surface">
-          <div class="preview__block">
-            <span class="preview__label">Carte dans la liste</span>
-            <div class="preview__card">
+        <div class="ed-preview__surface">
+          @if (previewMode() === 'card') {
+            <div class="ed-preview__card">
               <app-article-card [article]="previewArticle()" />
             </div>
-          </div>
-          <div class="preview__block">
-            <span class="preview__label">Article complet</span>
+          } @else {
             <app-article-view [article]="previewArticle()" [back]="false" />
-          </div>
+          }
         </div>
       }
     </section>
   }
+
+  <app-confirm-dialog
+    [open]="leaveOpen()"
+    title="Quitter sans enregistrer"
+    [message]="leaveMessage"
+    confirmLabel="Quitter"
+    cancelLabel="Continuer l'édition"
+    [danger]="true"
+    (confirmed)="confirmLeave()"
+    (cancelled)="cancelLeave()"
+  />
 
   <app-confirm-dialog
     [open]="tagToDelete() !== null"
@@ -159,4 +458,4 @@
     (confirmed)="confirmTagRename($event)"
     (cancelled)="cancelTagRename()"
   />
-</div>
+</form>

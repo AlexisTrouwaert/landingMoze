@@ -1,0 +1,469 @@
+// =============================================================
+// Socle visuel des écrans /admin — tokens + primitives.
+//
+// À `@use` depuis le SCSS d'un composant admin (`@use '../admin-ui' as *;`),
+// jamais depuis styles.scss : ces styles ne doivent pas fuiter sur le site
+// public. Les couleurs de marque (--primary-color, --interaction-color) sont
+// définies sur `body` dans styles.scss et restent la source de vérité ; ce
+// fichier n'ajoute qu'une échelle de gris dérivée et les primitives.
+//
+// Règle : plus aucune couleur ni rayon en dur dans les composants admin.
+// =============================================================
+
+:host {
+  // -- Surfaces
+  --adm-canvas: var(--background-color, #f7fdf2);
+  --adm-surface: #ffffff;
+  --adm-surface-alt: #f7faf9;
+  --adm-surface-hover: #f1f6f3;
+
+  // -- Traits : deux niveaux, pas quatorze
+  --adm-line: #e2eae7;
+  --adm-line-strong: #d7e2dd;
+
+  // -- Encres : une seule échelle, dérivée du bleu de marque
+  --adm-ink-900: #0f3446;
+  --adm-ink-700: var(--primary-color, #145775);
+  --adm-ink-500: #5b7480;
+  --adm-ink-400: #8ba0a9;
+  --adm-ink-300: #a3b3ba;
+
+  // -- Rôles
+  --adm-blue: var(--interaction-color, #0297d8);
+  --adm-blue-soft: #e6f4fb;
+  --adm-green: #1f8a4c;
+  --adm-green-soft: #e0f7e6;
+  --adm-amber: #8a6d3b;
+  --adm-amber-soft: #f4efe6;
+  --adm-red: #c0392b;
+  --adm-red-soft: #fdecea;
+
+  // -- Rayons
+  --adm-radius-sm: 8px;
+  --adm-radius: 12px;
+  --adm-radius-lg: 16px;
+  --adm-pill: 999px;
+
+  // -- Hauteurs de contrôle : trois valeurs, pas une par composant
+  --adm-h-sm: 28px;
+  --adm-h-md: 36px;
+  --adm-h-lg: 44px;
+
+  // -- Élévation
+  --adm-shadow: 0 1px 2px rgba(20, 87, 117, 0.05);
+  --adm-shadow-pop: 0 10px 28px rgba(20, 87, 117, 0.13);
+  --adm-ring: 0 0 0 3px rgba(2, 151, 216, 0.22);
+
+  // -- Mouvement : trois durées, une seule courbe d'accélération.
+  // `--adm-ease` est une sortie douce (démarrage franc, arrivée amortie) : c'est
+  // elle qui donne le côté « posé » plutôt que mécanique.
+  --adm-t-fast: 0.1s ease;
+  --adm-t: 0.15s ease;
+  --adm-t-slow: 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  --adm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+// -------------------------------------------------------------
+// Entrées — apparition discrète, jamais plus de ~0.3 s.
+// `--d` permet d'échelonner une série d'éléments (cartes, sections).
+// Le réglage « animations réduites » du système les neutralise globalement
+// (cf. styles.scss).
+// -------------------------------------------------------------
+@keyframes adm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes adm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.adm-enter {
+  animation: adm-fade-up var(--adm-t-slow) both;
+  animation-delay: var(--d, 0s);
+}
+
+// -------------------------------------------------------------
+// Bouton — un seul système : 3 tailles × 4 variantes, hauteur fixe.
+// `--h` est une variable locale : `.btn--icon` en dérive sa largeur, donc
+// l'ordre des classes n'a aucune importance.
+// -------------------------------------------------------------
+.btn {
+  --h: var(--adm-h-md);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: var(--h);
+  padding: 0 1rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-pill);
+  background: var(--adm-surface);
+  color: var(--adm-ink-700);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--adm-t),
+    border-color var(--adm-t),
+    color var(--adm-t),
+    box-shadow var(--adm-t),
+    transform var(--adm-t-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--adm-blue);
+    color: var(--adm-blue);
+  }
+
+  // Micro-retour tactile : l'enfoncement se voit sans déplacer la mise en page.
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    flex: 0 0 auto;
+  }
+
+  &--sm {
+    --h: var(--adm-h-sm);
+    padding: 0 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  &--lg {
+    --h: var(--adm-h-lg);
+    padding: 0 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  // Carré : même hauteur que large, quelle que soit la taille.
+  &--icon {
+    width: var(--h);
+    padding: 0;
+  }
+
+  &--primary {
+    background: var(--adm-ink-700);
+    border-color: var(--adm-ink-700);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: var(--adm-blue);
+      border-color: var(--adm-blue);
+      color: #fff;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--adm-ink-500);
+
+    &:hover:not(:disabled) {
+      background: var(--adm-surface-hover);
+      border-color: transparent;
+      color: var(--adm-ink-700);
+    }
+  }
+
+  &--danger {
+    color: var(--adm-red);
+
+    &:hover:not(:disabled) {
+      border-color: var(--adm-red);
+      background: var(--adm-red-soft);
+      color: var(--adm-red);
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Badge de statut
+// -------------------------------------------------------------
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--adm-pill);
+  background: var(--adm-surface-hover);
+  color: var(--adm-ink-500);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  &--published {
+    background: var(--adm-green-soft);
+    color: var(--adm-green);
+  }
+
+  &--archived {
+    background: var(--adm-amber-soft);
+    color: var(--adm-amber);
+  }
+}
+
+// -------------------------------------------------------------
+// Segmented control — un choix exclusif parmi 2 à 5 options.
+// Sert au filtre de statut de la liste, à la position de couverture et au
+// sélecteur d'aperçu de l'éditeur.
+// -------------------------------------------------------------
+.adm-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--adm-h-md);
+  padding: 3px;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-pill);
+  background: var(--adm-surface);
+
+  &__btn {
+    height: 100%;
+    padding: 0 0.75rem;
+    border: none;
+    border-radius: var(--adm-pill);
+    background: transparent;
+    color: var(--adm-ink-500);
+    font-family: inherit;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background var(--adm-t),
+      color var(--adm-t);
+
+    &:hover {
+      background: var(--adm-surface-hover);
+      color: var(--adm-ink-700);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+
+    &.is-active {
+      background: var(--adm-ink-700);
+      color: #fff;
+      font-family: 'SNPRO-SemiBold', sans-serif;
+    }
+  }
+
+  // Occupe toute la largeur disponible, options à parts égales (colonne étroite).
+  &--fill {
+    display: flex;
+    width: 100%;
+
+    .adm-seg__btn {
+      flex: 1;
+      min-width: 0;
+      padding: 0 0.4rem;
+      font-size: 0.78rem;
+    }
+  }
+
+  &--sm {
+    height: var(--adm-h-sm);
+    padding: 2px;
+
+    .adm-seg__btn {
+      padding: 0 0.6rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Menu contextuel (⋯) — même gabarit partout
+// -------------------------------------------------------------
+.adm-menu {
+  position: absolute;
+  z-index: 21;
+  min-width: 208px;
+  padding: 0.3rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow-pop);
+  animation: adm-pop 0.14s ease;
+
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: none;
+    border-radius: var(--adm-radius-sm);
+    background: transparent;
+    color: var(--adm-ink-900);
+    font-family: inherit;
+    font-size: 0.86rem;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--adm-t);
+
+    svg {
+      flex: 0 0 auto;
+      color: var(--adm-ink-400);
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--adm-surface-hover);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &--danger {
+      color: var(--adm-red);
+
+      svg {
+        color: var(--adm-red);
+      }
+
+      &:hover:not(:disabled) {
+        background: var(--adm-red-soft);
+      }
+    }
+  }
+
+  &__sep {
+    height: 1px;
+    margin: 0.25rem 0.4rem;
+    background: var(--adm-line);
+  }
+}
+
+@keyframes adm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// -------------------------------------------------------------
+// Case à cocher — apparence unifiée (le natif diverge trop entre navigateurs)
+// -------------------------------------------------------------
+.adm-check {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1.5px solid var(--adm-line-strong);
+  border-radius: 5px;
+  background: var(--adm-surface);
+  appearance: none;
+  cursor: pointer;
+  transition:
+    background var(--adm-t),
+    border-color var(--adm-t);
+
+  &::after {
+    content: '';
+    width: 6px;
+    height: 4px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-right: 0;
+    transform: rotate(-45deg) scale(0);
+    transition: transform var(--adm-t);
+  }
+
+  &:hover {
+    border-color: var(--adm-blue);
+  }
+
+  &:checked,
+  &:indeterminate {
+    background: var(--adm-ink-700);
+    border-color: var(--adm-ink-700);
+  }
+
+  &:checked::after {
+    transform: rotate(-45deg) scale(1);
+  }
+
+  &:indeterminate::after {
+    width: 9px;
+    height: 0;
+    border-left: 0;
+    transform: rotate(0) scale(1);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+}
+
+// -------------------------------------------------------------
+// Bandeau d'alerte
+// -------------------------------------------------------------
+.adm-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--adm-red);
+  border-radius: var(--adm-radius);
+  background: var(--adm-red-soft);
+  color: var(--adm-red);
+  font-size: 0.88rem;
+
+  button {
+    margin-left: auto;
+    border: none;
+    background: none;
+    color: inherit;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

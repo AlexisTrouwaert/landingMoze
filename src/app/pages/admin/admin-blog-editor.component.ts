@@ -1,9 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  Injector,
+  afterNextRender,
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -11,8 +16,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ArticleCardComponent } from '../../components/article-card/article-card.component';
 import { ArticleViewComponent } from '../../components/article-view/article-view.component';
@@ -20,13 +25,20 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { PromptDialogComponent } from '../../components/prompt-dialog/prompt-dialog.component';
 import { TagInputComponent } from '../../components/tag-input/tag-input.component';
 import { WysiwygEditorComponent } from '../../components/wysiwyg/wysiwyg-editor.component';
-import { Article, ArticleInput, CoverPosition, Tag } from '../../model/article.model';
+import {
+  Article,
+  ArticleInput,
+  ArticleStatus,
+  CoverPosition,
+  Tag,
+} from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 @Component({
     selector: 'app-admin-blog-editor',
     imports: [
         ReactiveFormsModule,
+        RouterLink,
         WysiwygEditorComponent,
         TagInputComponent,
         ConfirmDialogComponent,
@@ -36,13 +48,25 @@ import { BlogService } from '../../services/blog.service';
     ],
     templateUrl: './admin-blog-editor.component.html',
     styleUrl: './admin-blog-editor.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: { '(document:keydown.escape)': 'closeMenu()' },
 })
 export class AdminBlogEditorComponent {
   private readonly fb = inject(FormBuilder);
   private readonly blog = inject(BlogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+
+  /** Repère d'un pixel placé avant la barre : sa sortie de l'écran = « on a défilé ». */
+  private readonly topSentinel =
+    viewChild<ElementRef<HTMLElement>>('topSentinel');
+  private readonly previewSection =
+    viewChild<ElementRef<HTMLElement>>('previewSection');
+
+  /** La barre ne prend son relief qu'une fois détachée du haut de page. */
+  readonly scrolled = signal(false);
 
   readonly id = signal<string | null>(null);
   readonly isEdit = computed(() => this.id() !== null);
@@ -79,7 +103,41 @@ export class AdminBlogEditorComponent {
     tags: new FormControl<string[]>([], { nonNullable: true }),
   });
 
-  readonly showPreview = signal(true);
+  /**
+   * Statut de l'article chargé — le formulaire ne le porte pas (il n'est pas
+   * modifiable directement), mais l'écran doit dire ce qu'on est en train
+   * d'éditer : un brouillon ou un article en ligne.
+   */
+  readonly status = signal<ArticleStatus | null>(null);
+  readonly isPublished = computed(() => this.status() === 'PUBLISHED');
+
+  /** Slug enregistré (≠ celui du formulaire tant qu'on n'a pas sauvegardé). */
+  readonly savedSlug = signal<string | null>(null);
+
+  readonly statusLabel = computed(() => {
+    switch (this.status()) {
+      case 'PUBLISHED':
+        return 'Publié';
+      case 'ARCHIVED':
+        return 'Archivé';
+      case 'DRAFT':
+        return 'Brouillon';
+      default:
+        return 'Nouveau';
+    }
+  });
+
+  /** Modifications non enregistrées : garde-fou avant de quitter la page. */
+  readonly dirty = signal(false);
+  readonly leaveOpen = signal(false);
+  readonly leaveMessage =
+    "Des modifications n'ont pas été enregistrées.\n\nElles seront perdues si vous quittez maintenant.";
+
+  /** Menu « ⋯ » de la barre (dépublier, voir en ligne). */
+  readonly menuOpen = signal(false);
+
+  readonly showPreview = signal(false);
+  readonly previewMode = signal<'card' | 'article'>('card');
 
   /** Valeur live du formulaire → aperçu réactif. */
   private readonly formValue = toSignal(
@@ -115,7 +173,43 @@ export class AdminBlogEditorComponent {
     };
   });
 
+  /**
+   * Nombre de mots du contenu : le HTML est dépouillé de ses balises, ce qui
+   * suffit pour un ordre de grandeur (on ne cherche pas la précision d'un
+   * compteur de traitement de texte).
+   */
+  readonly wordCount = computed(() => {
+    const text = (this.formValue().content ?? '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&[a-z]+;/gi, '');
+    return text.split(/\s+/).filter(Boolean).length;
+  });
+
+  /** ~200 mots/minute, la moyenne usuelle en lecture d'écran. */
+  readonly readingMinutes = computed(() =>
+    Math.max(1, Math.ceil(this.wordCount() / 200)),
+  );
+
   constructor() {
+    // Observateur plutôt qu'écouteur de `scroll` : aucun calcul à chaque pixel,
+    // et `afterNextRender` ne s'exécute pas côté serveur (rendu SSR).
+    afterNextRender(() => {
+      const sentinel = this.topSentinel()?.nativeElement;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(([entry]) =>
+        this.scrolled.set(!entry.isIntersecting),
+      );
+      observer.observe(sentinel);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
+
+    // Toute frappe rend le formulaire « sale » ; le pré-remplissage à l'ouverture
+    // d'un article existant est neutralisé juste après le patch.
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.dirty.set(true));
+
     this.blog.adminTags().subscribe((tags) => this.allTags.set(tags));
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -136,6 +230,11 @@ export class AdminBlogEditorComponent {
             metaDescription: a.metaDescription ?? '',
             tags: a.tags.map((t) => t.name),
           });
+          // `patchValue` a émis sur `valueChanges` : on repart d'un formulaire
+          // propre, sinon l'écran annonce des modifications dès l'ouverture.
+          this.dirty.set(false);
+          this.status.set(a.status);
+          this.savedSlug.set(a.slug);
           if (a.publishedAt) this.previewPublishedAt.set(a.publishedAt);
           this.loading.set(false);
         },
@@ -196,7 +295,61 @@ export class AdminBlogEditorComponent {
   }
 
   togglePreview(): void {
-    this.showPreview.update((v) => !v);
+    const opening = !this.showPreview();
+    this.showPreview.set(opening);
+    // Seule l'ouverture déplace la page : à la fermeture, on reste où on est.
+    if (opening) this.revealPreview();
+  }
+
+  setPreviewMode(mode: 'card' | 'article'): void {
+    const wasClosed = !this.showPreview();
+    this.previewMode.set(mode);
+    this.showPreview.set(true);
+    if (wasClosed) this.revealPreview();
+  }
+
+  /**
+   * Amène le panneau d'aperçu juste sous la barre collante.
+   *
+   * Le défilement attend le rendu du panneau : tant qu'il n'est pas dans le DOM,
+   * le document est trop court et le navigateur bute sur son bas — le panneau
+   * s'arrêtait alors au milieu de l'écran au lieu de remonter en haut. C'est
+   * aussi pour ça que le panneau réserve une hauteur d'écran (cf. le SCSS).
+   *
+   * Le défilement lui-même est délégué au CSS (`scroll-behavior: smooth` global,
+   * neutralisé par le réglage « animations réduites ») et `scroll-margin-top`
+   * réserve la hauteur de la barre.
+   */
+  private revealPreview(): void {
+    afterNextRender(
+      () =>
+        this.previewSection()?.nativeElement.scrollIntoView({ block: 'start' }),
+      { injector: this.injector },
+    );
+  }
+
+  toggleMenu(): void {
+    this.menuOpen.update((v) => !v);
+  }
+
+  closeMenu(): void {
+    this.menuOpen.set(false);
+  }
+
+  /** Retire l'article de la ligne sans quitter l'éditeur. */
+  unpublish(): void {
+    const id = this.id();
+    if (!id || this.saving()) return;
+    this.closeMenu();
+    this.saving.set(true);
+    this.error.set(null);
+    this.blog.unpublish(id).subscribe({
+      next: (a) => {
+        this.status.set(a.status);
+        this.saving.set(false);
+      },
+      error: (err) => this.failSave(err),
+    });
   }
 
   // --- Suppression d'un tag global (modale de confirmation) ---
@@ -305,8 +458,22 @@ export class AdminBlogEditorComponent {
     });
   }
 
+  /** Retour à la liste — demande confirmation si des modifications sont en cours. */
   cancel(): void {
-    void this.router.navigate(['/admin/blog']);
+    if (this.dirty()) {
+      this.leaveOpen.set(true);
+      return;
+    }
+    this.done();
+  }
+
+  confirmLeave(): void {
+    this.leaveOpen.set(false);
+    this.done();
+  }
+
+  cancelLeave(): void {
+    this.leaveOpen.set(false);
   }
 
   private done(): void {

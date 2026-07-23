@@ -3,10 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environements/environment';
 import {
+  AdminStats,
   Article,
   ArticleInput,
   ArticleListItem,
   ArticlePage,
+  BulkAction,
+  BulkResult,
   Tag,
 } from '../model/article.model';
 
@@ -73,6 +76,22 @@ export class BlogService {
 
   adminGet(id: string): Observable<Article> {
     return this.http.get<Article>(`${this.base}/admin/blog/${id}`);
+  }
+
+  /** Compteurs du tableau de bord (statuts + épinglés), en un appel. */
+  adminStats(): Observable<AdminStats> {
+    return this.http.get<AdminStats>(`${this.base}/admin/blog/stats`);
+  }
+
+  /**
+   * Applique une action à une sélection d'articles en une seule requête
+   * (le back fait un `updateMany`, pas N mises à jour).
+   */
+  bulk(action: BulkAction, ids: string[]): Observable<BulkResult> {
+    return this.http.post<BulkResult>(`${this.base}/admin/blog/bulk`, {
+      action,
+      ids,
+    });
   }
 
   /** Tous les tags (autocomplétion de l'éditeur). */

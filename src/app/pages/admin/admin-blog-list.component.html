@@ -1,191 +1,525 @@
-<div class="admin-page">
-  <header class="admin-bar">
-    <div>
-      <h1>Articles</h1>
-      <a class="admin-bar__link" routerLink="/blog" target="_blank">Voir le blog ↗</a>
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l7 7v7a2 2 0 0 1-2 2Z" />
+          <path d="M7 9h5M7 13h10M7 17h10" />
+        </svg>
+      </span>
+      <div>
+        <h1>Articles</h1>
+        @if (stats(); as s) {
+          <p class="adm-head__sub">
+            {{ s.total }} article{{ s.total > 1 ? 's' : '' }} ·
+            {{ s.featured }}/{{ s.maxFeatured }} à la une
+          </p>
+        }
+      </div>
     </div>
-    <div class="admin-bar__actions">
-      <a class="btn btn--primary" routerLink="/admin/blog/new">+ Nouvel article</a>
-      <a class="btn" routerLink="/admin/compte">Mon compte</a>
-      <button type="button" class="btn btn--ghost" (click)="logout()">Déconnexion</button>
+
+    <div class="adm-head__actions">
+      <a
+        class="btn btn--icon btn--ghost"
+        routerLink="/blog"
+        target="_blank"
+        rel="noopener"
+        title="Voir le blog"
+        aria-label="Voir le blog"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <path d="M15 3h6v6M10 14 21 3" />
+        </svg>
+      </a>
+      <a
+        class="btn btn--icon btn--ghost"
+        routerLink="/admin/compte"
+        title="Mon compte"
+        aria-label="Mon compte"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </a>
+      <button
+        type="button"
+        class="btn btn--icon btn--ghost"
+        (click)="logout()"
+        title="Déconnexion"
+        aria-label="Déconnexion"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="m16 17 5-5-5-5M21 12H9" />
+        </svg>
+      </button>
+      <a class="btn btn--primary" routerLink="/admin/blog/new">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Nouvel article
+      </a>
     </div>
   </header>
 
-  <div class="admin-toolbar">
-    <span class="admin-toolbar__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-    </span>
-    <input
-      type="search"
-      class="admin-toolbar__input"
-      [formControl]="searchControl"
-      placeholder="Rechercher…"
-      aria-label="Rechercher"
-    />
-    @if (searchValue()) {
+  @if (stats(); as s) {
+    <div class="adm-stats">
       <button
         type="button"
-        class="admin-toolbar__clear"
-        (click)="clearSearch()"
-        aria-label="Effacer la recherche"
+        class="stat"
+        [class.stat--on]="statusFilter() === 'PUBLISHED'"
+        [attr.aria-pressed]="statusFilter() === 'PUBLISHED'"
+        (click)="focusStatus('PUBLISHED')"
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-    }
-    <div class="admin-filter">
-      <button
-        type="button"
-        class="admin-filter__btn"
-        [class.is-open]="filterMenuOpen()"
-        (click)="toggleFilterMenu()"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="filterMenuOpen()"
-      >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-        </svg>
-        <span>{{ currentFilterLabel() }}</span>
-        <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        <span class="stat__label">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="m8.5 12 2.5 2.5 4.5-5" />
+          </svg>
+          Publiés
+        </span>
+        <span class="stat__value">{{ s.published }}</span>
       </button>
 
-      @if (statusFilter() !== 'active') {
+      <button
+        type="button"
+        class="stat"
+        [class.stat--on]="statusFilter() === 'DRAFT'"
+        [attr.aria-pressed]="statusFilter() === 'DRAFT'"
+        (click)="focusStatus('DRAFT')"
+      >
+        <span class="stat__label">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          Brouillons
+        </span>
+        <span class="stat__value">{{ s.draft }}</span>
+      </button>
+
+      <div class="stat stat--static">
+        <span class="stat__label">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+          </svg>
+          À la une
+        </span>
+        <span class="stat__value">
+          {{ s.featured }}<span class="stat__max">/{{ s.maxFeatured }}</span>
+        </span>
+        <span class="stat__gauge" aria-hidden="true">
+          <span
+            class="stat__gauge-fill"
+            [style.width.%]="(s.featured / s.maxFeatured) * 100"
+          ></span>
+        </span>
+      </div>
+
+      <button
+        type="button"
+        class="stat"
+        [class.stat--on]="statusFilter() === 'ARCHIVED'"
+        [attr.aria-pressed]="statusFilter() === 'ARCHIVED'"
+        (click)="focusStatus('ARCHIVED')"
+      >
+        <span class="stat__label">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+            <path d="M2 4h20v4H2zM10 12h4" />
+          </svg>
+          Archivés
+        </span>
+        <span class="stat__value">{{ s.archived }}</span>
+      </button>
+    </div>
+  }
+
+  <div class="adm-tools">
+    <div class="adm-search">
+      <span class="adm-search__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+      </span>
+      <input
+        type="search"
+        class="adm-search__input"
+        [formControl]="searchControl"
+        placeholder="Rechercher un article…"
+        aria-label="Rechercher un article"
+      />
+      @if (searchValue()) {
         <button
           type="button"
-          class="admin-filter__reset"
-          (click)="resetFilter()"
-          aria-label="Réinitialiser le filtre"
-          title="Réinitialiser le filtre"
+          class="adm-search__clear"
+          (click)="clearSearch()"
+          aria-label="Effacer la recherche"
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         </button>
       }
+    </div>
 
-      @if (filterMenuOpen()) {
-        <div class="admin-filter__backdrop" (click)="closeFilterMenu()"></div>
-        <div class="admin-filter__menu" role="menu">
-          @for (f of filters; track f.value) {
-            <button
-              type="button"
-              class="admin-filter__item"
-              [class.is-active]="statusFilter() === f.value"
-              (click)="selectStatus(f.value)"
-            >
-              <span>{{ f.label }}</span>
-              @if (statusFilter() === f.value) {
-                <span class="admin-filter__check" aria-hidden="true">✓</span>
-              }
-            </button>
-          }
-        </div>
+    <div class="adm-seg" role="group" aria-label="Filtrer par statut">
+      @for (f of filters; track f.value) {
+        <button
+          type="button"
+          class="adm-seg__btn"
+          [class.is-active]="statusFilter() === f.value"
+          [attr.aria-pressed]="statusFilter() === f.value"
+          (click)="selectStatus(f.value)"
+        >
+          {{ f.label }}
+        </button>
       }
     </div>
   </div>
 
   @if (error()) {
-    <p class="state state--error">Une erreur est survenue. <button type="button" (click)="reload()">Réessayer</button></p>
+    <p class="adm-alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      Le chargement a échoué.
+      <button type="button" (click)="reload()">Réessayer</button>
+    </p>
   }
 
-  @if (featureError()) {
-    <p class="state state--error">{{ featureError() }}</p>
+  @if (actionError(); as msg) {
+    <p class="adm-alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      {{ msg }}
+    </p>
   }
 
-  <p class="featured-counter">
-    À la une : <strong>{{ featuredCount() }}/{{ maxFeatured }}</strong>
-    <span class="featured-counter__hint">— les articles épinglés s'affichent dans le bandeau, et restent dans la liste.</span>
-  </p>
+  <section class="adm-list" [class.is-busy]="busy()">
+    <div class="adm-list__head">
+      <input
+        type="checkbox"
+        class="adm-check"
+        [checked]="allSelected()"
+        [indeterminate]="someSelected()"
+        [disabled]="loading() || items().length === 0"
+        (change)="toggleAll()"
+        aria-label="Tout sélectionner"
+      />
+      <span>Article</span>
+      <span class="col-status">Statut</span>
+      <span class="col-date">Modifié</span>
+      <span class="col-actions">Actions</span>
+    </div>
 
-  @if (loading()) {
-    <p class="state">Chargement…</p>
-  } @else if (items().length === 0) {
-    <p class="state">Aucun article ne correspond à ces critères.</p>
-  } @else {
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Titre</th>
-          <th>Statut</th>
-          <th>Modifié le</th>
-          <th class="ta-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (a of items(); track a.id) {
-          <tr>
-            <td class="td-title">{{ a.title }}</td>
-            <td>
+    @if (loading()) {
+      @for (i of skeletons; track i) {
+        <div class="row row--skeleton" aria-hidden="true">
+          <span class="sk sk--check"></span>
+          <span class="sk sk--thumb"></span>
+          <span class="row__main">
+            <span class="sk sk--line"></span>
+            <span class="sk sk--line sk--short"></span>
+          </span>
+          <span class="sk sk--badge"></span>
+          <span class="sk sk--date"></span>
+          <span class="sk sk--actions"></span>
+        </div>
+      }
+      <p class="sr-only">Chargement des articles…</p>
+    } @else if (items().length === 0) {
+      <div class="adm-empty">
+        <span class="adm-empty__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l7 7v7a2 2 0 0 1-2 2Z" />
+            <path d="M7 12h6M7 16h8" />
+          </svg>
+        </span>
+        @if (searchValue()) {
+          <p class="adm-empty__title">Aucun résultat pour « {{ searchValue() }} »</p>
+          <p class="adm-empty__hint">Essayez un autre mot-clé ou élargissez le filtre.</p>
+          <button type="button" class="btn btn--sm" (click)="clearSearch()">
+            Effacer la recherche
+          </button>
+        } @else {
+          <p class="adm-empty__title">Aucun article ici</p>
+          <p class="adm-empty__hint">
+            Changez de filtre, ou lancez-vous avec un premier article.
+          </p>
+          <a class="btn btn--sm btn--primary" routerLink="/admin/blog/new">
+            Nouvel article
+          </a>
+        }
+      </div>
+    } @else {
+      @for (a of items(); track a.id) {
+        <div class="row" [class.row--picked]="isSelected(a.id)">
+          <input
+            type="checkbox"
+            class="adm-check"
+            [checked]="isSelected(a.id)"
+            (change)="toggleOne(a.id)"
+            [attr.aria-label]="'Sélectionner ' + a.title"
+          />
+
+          <span class="row__thumb">
+            @if (a.coverImageUrl) {
+              <img [src]="a.coverImageUrl" alt="" loading="lazy" />
+            } @else {
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="8.5" cy="9.5" r="1.5" />
+                <path d="m4 17 5-5 4 4 2-2 5 5" />
+              </svg>
+            }
+          </span>
+
+          <span class="row__main">
+            <!-- Pas d'étoile ici : l'état « à la une » est porté par le bouton
+                 de la colonne d'actions, qui l'affiche et le pilote. -->
+            <span class="row__title">{{ a.title }}</span>
+            <span class="row__meta">
+              {{ a.author || 'Équipe Moze' }}@for (t of a.tags; track t.id) {<span> · {{ t.name }}</span>}
+            </span>
+          </span>
+
+          <!-- `display: contents` en bureau : les trois cellules restent dans la
+               grille de la ligne. En dessous de 760 px, ce conteneur redevient
+               une vraie boîte et forme le pied de la carte. -->
+          <span class="row__foot">
+            <span class="col-status">
               <span
                 class="badge"
                 [class.badge--published]="a.status === 'PUBLISHED'"
                 [class.badge--archived]="a.status === 'ARCHIVED'"
               >
-                {{ a.status === 'PUBLISHED' ? 'Publié' : a.status === 'ARCHIVED' ? 'Archivé' : 'Brouillon' }}
+                {{
+                  a.status === 'PUBLISHED'
+                    ? 'Publié'
+                    : a.status === 'ARCHIVED'
+                      ? 'Archivé'
+                      : 'Brouillon'
+                }}
               </span>
-            </td>
-            <td class="td-date">{{ a.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td class="ta-right td-actions">
-              @if (a.status === 'ARCHIVED') {
-                <button type="button" class="btn btn--small" (click)="unarchive(a)">Restaurer</button>
-                <button type="button" class="btn btn--small btn--danger" (click)="remove(a)">Supprimer définitivement</button>
-              } @else {
-                <a class="btn btn--small" [routerLink]="['/admin/blog', a.id, 'edit']">Éditer</a>
-                @if (a.status === 'PUBLISHED') {
-                  <button
-                    type="button"
-                    class="btn btn--small"
-                    [class.is-featured]="a.featuredAt"
-                    [disabled]="!a.featuredAt && featuredCount() >= maxFeatured"
-                    [title]="
-                      a.featuredAt
-                        ? 'Retirer de la une'
-                        : featuredCount() >= maxFeatured
-                          ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
-                          : 'Mettre à la une'
-                    "
-                    (click)="toggleFeature(a)"
-                  >
-                    {{ a.featuredAt ? '★ À la une' : '☆ À la une' }}
-                  </button>
-                }
-                <button type="button" class="btn btn--small" (click)="togglePublish(a)">
-                  {{ a.status === 'PUBLISHED' ? 'Dépublier' : 'Publier' }}
+            </span>
+
+            <span class="col-date">{{ a.updatedAt | date: 'dd/MM/yy' }}</span>
+
+            <span class="col-actions">
+              <!-- Accès direct à l'épinglage : un clic, sans passer par le menu.
+                   Seul un article publié est épinglable — pour les autres, le
+                   créneau reste occupé par un vide de même largeur, sinon la
+                   colonne se désaligne d'une ligne à l'autre. -->
+              @if (a.status === 'PUBLISHED') {
+                <button
+                  type="button"
+                  class="btn btn--sm btn--icon row__star"
+                  [class.is-on]="a.featuredAt"
+                  [disabled]="busy() || (!a.featuredAt && featuredFull())"
+                  [attr.aria-pressed]="!!a.featuredAt"
+                  [attr.aria-label]="
+                    (a.featuredAt ? 'Retirer de la une : ' : 'Mettre à la une : ') + a.title
+                  "
+                  [title]="
+                    a.featuredAt
+                      ? 'Retirer de la une'
+                      : featuredFull()
+                        ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
+                        : 'Mettre à la une'
+                  "
+                  (click)="toggleFeature(a)"
+                >
+                  @if (a.featuredAt) {
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
+                      <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+                    </svg>
+                  }
                 </button>
-                <button type="button" class="btn btn--small btn--danger" (click)="archive(a)">Archiver</button>
+              } @else {
+                <span class="row__star-slot" aria-hidden="true"></span>
               }
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+
+              @if (a.status === 'ARCHIVED') {
+                <button
+                  type="button"
+                  class="btn btn--sm row__cta"
+                  [disabled]="busy()"
+                  (click)="unarchive(a)"
+                >
+                  Restaurer
+                </button>
+              } @else {
+                <a class="btn btn--sm row__cta" [routerLink]="['/admin/blog', a.id, 'edit']">
+                  Éditer
+                </a>
+              }
+
+              <span class="row__more">
+                <button
+                  type="button"
+                  class="btn btn--sm btn--icon"
+                  [class.is-open]="openMenu() === a.id"
+                  (click)="toggleMenu(a.id)"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="openMenu() === a.id"
+                  [attr.aria-label]="'Autres actions pour ' + a.title"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-hidden="true">
+                    <circle cx="5" cy="12" r="1.6" />
+                    <circle cx="12" cy="12" r="1.6" />
+                    <circle cx="19" cy="12" r="1.6" />
+                  </svg>
+                </button>
+
+                @if (openMenu() === a.id) {
+                  <span class="adm-menu__backdrop" (click)="closeMenus()"></span>
+                  <span class="adm-menu" role="menu">
+                    @if (a.status === 'ARCHIVED') {
+                      <button
+                        type="button"
+                        role="menuitem"
+                        class="adm-menu__item adm-menu__item--danger"
+                        [disabled]="busy()"
+                        (click)="askDelete(a)"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M4 7h16M10 11v6M14 11v6" />
+                          <path d="M6 7h12l-1 13H7L6 7ZM9 7V4h6v3" />
+                        </svg>
+                        Supprimer définitivement
+                      </button>
+                    } @else {
+                      @if (a.status === 'PUBLISHED') {
+                        <a
+                          role="menuitem"
+                          class="adm-menu__item"
+                          [routerLink]="['/blog', a.slug]"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <path d="M15 3h6v6M10 14 21 3" />
+                          </svg>
+                          Voir sur le blog
+                        </a>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          class="adm-menu__item"
+                          [disabled]="busy() || (!a.featuredAt && featuredFull())"
+                          [title]="
+                            a.featuredAt
+                              ? 'Retirer de la une'
+                              : featuredFull()
+                                ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
+                                : 'Mettre à la une'
+                          "
+                          (click)="toggleFeature(a)"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+                          </svg>
+                          {{ a.featuredAt ? 'Retirer de la une' : 'Mettre à la une' }}
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          class="adm-menu__item"
+                          [disabled]="busy()"
+                          (click)="unpublish(a)"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                            <path d="M9.4 5.2A9.5 9.5 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.2 3.3M6.3 6.8C3.9 8.3 3 10.5 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 3.7-.7" />
+                          </svg>
+                          Dépublier
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          role="menuitem"
+                          class="adm-menu__item"
+                          [disabled]="busy()"
+                          (click)="publish(a)"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 19V5M5 12l7-7 7 7" />
+                          </svg>
+                          Publier
+                        </button>
+                      }
+                      <span class="adm-menu__sep"></span>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        class="adm-menu__item adm-menu__item--danger"
+                        [disabled]="busy()"
+                        (click)="askArchive(a)"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                          <path d="M2 4h20v4H2zM10 12h4" />
+                        </svg>
+                        Archiver
+                      </button>
+                    }
+                  </span>
+                }
+              </span>
+            </span>
+          </span>
+        </div>
+      }
+    }
+  </section>
+
+  @if (selectedCount() > 0) {
+    <div class="adm-bulk" role="region" aria-label="Actions groupées">
+      <span class="adm-bulk__count">
+        {{ selectedCount() }} sélectionné{{ selectedCount() > 1 ? 's' : '' }}
+      </span>
+      <button type="button" class="btn btn--sm btn--ghost" (click)="clearSelection()">
+        Annuler
+      </button>
+      <span class="adm-bulk__spacer"></span>
+      @if (selectionArchived()) {
+        <button type="button" class="btn btn--sm" [disabled]="busy()" (click)="bulkUnarchive()">
+          Restaurer
+        </button>
+        <button type="button" class="btn btn--sm btn--danger" [disabled]="busy()" (click)="askBulkDelete()">
+          Supprimer
+        </button>
+      } @else {
+        <button type="button" class="btn btn--sm" [disabled]="busy()" (click)="bulkPublish()">
+          Publier
+        </button>
+        <button type="button" class="btn btn--sm" [disabled]="busy()" (click)="bulkUnpublish()">
+          Dépublier
+        </button>
+        <button type="button" class="btn btn--sm btn--danger" [disabled]="busy()" (click)="askBulkArchive()">
+          Archiver
+        </button>
+      }
+    </div>
   }
 
   <app-confirm-dialog
-    [open]="archiveTarget() !== null"
-    title="Archiver l'article"
-    [message]="archiveMessage()"
-    confirmLabel="Archiver"
+    [open]="pending() !== null"
+    [title]="pending()?.title ?? ''"
+    [message]="pending()?.message ?? ''"
+    [confirmLabel]="pending()?.confirmLabel ?? 'Confirmer'"
     [danger]="true"
-    (confirmed)="confirmArchive()"
-    (cancelled)="cancelArchive()"
-  />
-
-  <app-confirm-dialog
-    [open]="deleteTarget() !== null"
-    title="Supprimer définitivement"
-    [message]="deleteMessage()"
-    confirmLabel="Supprimer"
-    [danger]="true"
-    (confirmed)="confirmDelete()"
-    (cancelled)="cancelDelete()"
+    (confirmed)="confirmPending()"
+    (cancelled)="cancelPending()"
   />
 </div>
