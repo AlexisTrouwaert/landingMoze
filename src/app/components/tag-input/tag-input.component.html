@@ -1,7 +1,37 @@
 <div class="tagi" [class.tagi--disabled]="disabled()">
   <div class="tagi__field">
-    @for (t of tags(); track t) {
-      <span class="tagi__chip">
+    @for (t of tags(); track t; let first = $first) {
+      <span class="tagi__chip" [class.tagi__chip--primary]="first">
+        <!-- Le premier tag est celui mis en avant sur le blog : l'étoile pleine
+             l'indique, l'étoile creuse des autres permet de le remplacer. -->
+        @if (first) {
+          <svg
+            class="tagi__chip-star"
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="currentColor"
+            stroke="none"
+            role="img"
+            aria-label="Tag mis en avant"
+          >
+            <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+          </svg>
+        } @else {
+          <button
+            type="button"
+            class="tagi__chip-promote"
+            (mousedown)="$event.preventDefault()"
+            (click)="promote(t)"
+            [disabled]="disabled()"
+            [title]="'Mettre « ' + t + ' » en avant'"
+            [attr.aria-label]="'Mettre le tag ' + t + ' en avant'"
+          >
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+            </svg>
+          </button>
+        }
         {{ t }}
         <button
           type="button"

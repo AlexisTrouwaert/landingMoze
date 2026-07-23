@@ -37,7 +37,11 @@
       <div class="feat-stage" (mouseenter)="paused.set(true)" (mouseleave)="paused.set(false)">
         @for (f of [currentFeatured()]; track f?.id) {
           @if (f) {
-            <a class="featured feat-anim" [routerLink]="['/blog', f.slug]">
+            @let firstTag = f.tags && f.tags.length ? f.tags[0] : null;
+            <!-- La carte n'est plus un <a> : son tag est un bouton de filtre, et
+                 imbriquer un bouton dans un lien est interdit. Le lien couvre la
+                 carte via `featured__link::after`, les tags passent au-dessus. -->
+            <div class="featured feat-anim">
               <div class="featured__media">
                 @if (f.coverImageUrl) {
                   <!-- fond : même image floutée → remplit la zone sans rogner l'image réelle -->
@@ -46,15 +50,41 @@
                 } @else {
                   <div class="featured__media-ph" aria-hidden="true"></div>
                 }
-                @if (f.tags && f.tags.length) {
-                  <span class="featured__flag">{{ f.tags[0].name }}</span>
+                @if (firstTag) {
+                  <button
+                    type="button"
+                    class="featured__flag"
+                    [class.is-on]="isTagSelected(firstTag.slug)"
+                    [attr.aria-pressed]="isTagSelected(firstTag.slug)"
+                    [attr.aria-label]="
+                      (isTagSelected(firstTag.slug) ? 'Retirer le filtre ' : 'Filtrer par ') +
+                      firstTag.name
+                    "
+                    (click)="toggleTag(firstTag.slug)"
+                  >
+                    {{ firstTag.name }}
+                  </button>
                 }
               </div>
               <div class="featured__body">
-                @if (f.tags && f.tags.length) {
-                  <span class="featured__cat">{{ f.tags[0].name }}</span>
+                @if (firstTag) {
+                  <button
+                    type="button"
+                    class="featured__cat"
+                    [class.is-on]="isTagSelected(firstTag.slug)"
+                    [attr.aria-pressed]="isTagSelected(firstTag.slug)"
+                    [attr.aria-label]="
+                      (isTagSelected(firstTag.slug) ? 'Retirer le filtre ' : 'Filtrer par ') +
+                      firstTag.name
+                    "
+                    (click)="toggleTag(firstTag.slug)"
+                  >
+                    {{ firstTag.name }}
+                  </button>
                 }
-                <h3 class="featured__title">{{ f.title }}</h3>
+                <a class="featured__link" [routerLink]="['/blog', f.slug]">
+                  <h3 class="featured__title">{{ f.title }}</h3>
+                </a>
                 <p class="featured__excerpt">{{ f.excerpt }}</p>
                 <div class="featured__meta">
                   @if (f.author) {
@@ -69,7 +99,7 @@
                 </div>
                 <span class="featured__more">Lire l'article →</span>
               </div>
-            </a>
+            </div>
           }
         }
       </div>
@@ -84,9 +114,13 @@
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     </span>
+    <!-- La touche « Rechercher » du clavier mobile ferme le clavier et sort du
+         champ par défaut. La recherche étant déjà instantanée, on neutralise
+         cette action : la saisie continue sans reprendre le focus. -->
     <input
       type="search"
       [formControl]="searchControl"
+      (keydown.enter)="$event.preventDefault()"
       placeholder="Rechercher un article…"
       aria-label="Rechercher un article"
     />

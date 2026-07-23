@@ -14,6 +14,12 @@
     @if (article().publishedAt) {
       <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
     }
+    @if (article().readingMinutes) {
+      @if (article().author || article().publishedAt) {
+        <span class="card__meta-sep" aria-hidden="true">·</span>
+      }
+      <span class="card__reading">{{ article().readingMinutes }} min de lecture</span>
+    }
   </div>
   <h2 class="card__title">{{ article().title }}</h2>
   <p class="card__excerpt">{{ article().excerpt }}</p>

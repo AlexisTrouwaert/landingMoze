@@ -35,7 +35,10 @@
 .card__meta {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  // Trois informations depuis l'ajout du temps de lecture : on autorise le
+  // retour à la ligne plutôt que le débordement sur un nom d'auteur long.
+  flex-wrap: wrap;
+  gap: 0.15rem 0.4rem;
 }
 
 .card__author {
@@ -49,7 +52,8 @@
   font-size: 0.8rem;
 }
 
-.card__date {
+.card__date,
+.card__reading {
   color: #8a979d;
   font-size: 0.8rem;
 }

@@ -181,11 +181,33 @@ $ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
 
+  // Lien étiré : le titre porte le lien (le nom accessible reste le titre de
+  // l'article) et son pseudo-élément couvre toute la carte, qui reste donc
+  // cliquable. Les tags sont des boutons posés au-dessus (z-index 2).
+  &__link {
+    color: inherit;
+    text-decoration: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--interaction-color);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+  }
+
   &__flag {
     position: absolute;
     top: 1rem;
     left: 1rem;
     z-index: 2;
+    border: none;
     background: rgba(255, 255, 255, 0.94);
     color: var(--primary-color);
     font-family: 'SNPRO-SemiBold', sans-serif;
@@ -195,6 +217,26 @@ $ease: cubic-bezier(0.16, 1, 0.3, 1);
     padding: 0.4rem 0.7rem;
     border-radius: 999px;
     box-shadow: 0 4px 14px rgba(20, 73, 104, 0.18);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+
+    &:hover {
+      background: #fff;
+      color: var(--interaction-color);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    // Le tag est déjà dans la sélection : le clic le retirera.
+    &.is-on {
+      background: var(--primary-color);
+      color: #fff;
+    }
   }
 
   &__body {
@@ -207,11 +249,38 @@ $ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &__cat {
+    // Au-dessus du lien étiré, sinon le clic tomberait sur la carte.
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    padding: 0;
+    border: none;
+    background: none;
     color: var(--interaction-color);
     font-family: 'SNPRO-SemiBold', sans-serif;
     font-size: 0.74rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--primary-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--interaction-color);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    &.is-on {
+      color: var(--primary-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
   }
 
   &__title {

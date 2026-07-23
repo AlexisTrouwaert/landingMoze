@@ -22,30 +22,83 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.25rem 0.3rem 0.25rem 0.65rem;
+    padding: 0.25rem 0.3rem 0.25rem 0.5rem;
     background: #eaf5ff;
     color: var(--primary-color);
     border-radius: 999px;
     font-size: 0.85rem;
     font-family: 'SNPRO-SemiBold', sans-serif;
+    transition: background 0.15s ease;
+
+    // Tag mis en avant : c'est lui que le blog affiche comme catégorie.
+    &--primary {
+      background: var(--primary-color);
+      color: #fff;
+    }
+  }
+
+  &__chip-star {
+    flex-shrink: 0;
+    color: #f0b429;
+  }
+
+  // Étoile creuse des autres tags : discrète au repos, elle se révèle au survol
+  // du champ pour ne pas transformer la ligne en sapin de Noël.
+  &__chip-promote {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--primary-color);
+    opacity: 0.35;
+    cursor: pointer;
+    transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+
+    &:hover {
+      opacity: 1;
+      color: #d99e0b;
+      background: rgba(240, 180, 41, 0.18);
+    }
+
+    &:focus-visible {
+      opacity: 1;
+      outline: 2px solid var(--interaction-color);
+      outline-offset: 1px;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
   }
 
   &__chip-x {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 1.05rem;
     height: 1.05rem;
     border: none;
     border-radius: 50%;
     background: transparent;
-    color: var(--primary-color);
+    color: inherit;
     cursor: pointer;
     transition: background 0.12s ease;
 
     &:hover {
       background: rgba(20, 87, 117, 0.14);
     }
+  }
+
+  // Sur le tag mis en avant (fond plein), le survol clair du × serait invisible.
+  &__chip--primary &__chip-x:hover {
+    background: rgba(255, 255, 255, 0.24);
   }
 
   &__input {

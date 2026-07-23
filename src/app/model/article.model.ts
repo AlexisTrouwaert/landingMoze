@@ -29,6 +29,12 @@ export interface Article {
   publishedAt: string | null;
   /** Épinglé « à la une » : non-null = épinglé (la date sert d'ordre). */
   featuredAt: string | null;
+  /**
+   * Temps de lecture estimé, en minutes. Calculé par le back à partir du
+   * contenu : la liste publique ne transporte pas `content`, le front ne peut
+   * donc pas le déduire lui-même.
+   */
+  readingMinutes?: number;
   tags: Tag[];
 }
 
@@ -45,6 +51,7 @@ export type ArticleListItem = Pick<
   | 'coverImageUrl'
   | 'author'
   | 'publishedAt'
+  | 'readingMinutes'
   | 'tags'
 >;
 

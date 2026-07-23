@@ -53,26 +53,41 @@ export class TagInputComponent implements ControlValueAccessor {
 
   readonly tagCreate = output<string>();
 
+  /**
+   * Clé de comparaison d'un nom de tag : sans casse ni accents, pour que
+   * « Électriciens », « electriciens » et « ÉLECTRICIENS » soient reconnus comme
+   * un seul et même tag. Même règle que le `slugify` du back, qui déduplique en
+   * base : sans ça, l'éditeur proposait de créer un tag que le back refusait
+   * ensuite comme déjà existant.
+   */
+  private fold(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .toLowerCase()
+      .trim();
+  }
+
   /** Suggestions filtrées par la saisie, hors tags déjà sélectionnés. */
   readonly filtered = computed<Tag[]>(() => {
-    const q = this.query().trim().toLowerCase();
-    const selected = new Set(this.tags().map((t) => t.toLowerCase()));
+    const q = this.fold(this.query());
+    const selected = new Set(this.tags().map((t) => this.fold(t)));
     return this.suggestions()
       .filter(
         (t) =>
-          !selected.has(t.name.toLowerCase()) &&
-          (!q || t.name.toLowerCase().includes(q)),
+          !selected.has(this.fold(t.name)) &&
+          (!q || this.fold(t.name).includes(q)),
       )
       .slice(0, 8);
   });
 
   /** La saisie correspond-elle à un nouveau tag (à créer) ? */
   readonly canCreate = computed(() => {
-    const q = this.query().trim().toLowerCase();
+    const q = this.fold(this.query());
     if (!q) return false;
     return (
-      !this.tags().some((t) => t.toLowerCase() === q) &&
-      !this.suggestions().some((s) => s.name.toLowerCase() === q)
+      !this.tags().some((t) => this.fold(t) === q) &&
+      !this.suggestions().some((s) => this.fold(s.name) === q)
     );
   });
 
@@ -116,8 +131,8 @@ export class TagInputComponent implements ControlValueAccessor {
 
   /**
    * Ajoute un ou plusieurs tags depuis une saisie brute : découpe sur les virgules
-   * (« Voiture, mécanique, réparation » → 3 tags), dédoublonne (insensible à la
-   * casse) et réutilise le nom canonique d'un tag existant si la casse diffère.
+   * (« Voiture, mécanique, réparation » → 3 tags), dédoublonne et réutilise le nom
+   * canonique d'un tag existant dès que seules la casse ou les accents diffèrent.
    * Les tags nouveaux sont créés à l'enregistrement de l'article (upsert côté back).
    */
   add(raw: string): void {
@@ -131,12 +146,13 @@ export class TagInputComponent implements ControlValueAccessor {
       this.tags.update((arr) => {
         const next = [...arr];
         for (const name of names) {
-          // Réutilise le tag existant (casse canonique) s'il y en a un.
+          // Réutilise l'orthographe déjà en base (« Électriciens » plutôt que la
+          // saisie « electriciens ») : c'est ce tag-là que le back rattachera.
           const existing = this.suggestions().find(
-            (s) => s.name.toLowerCase() === name.toLowerCase(),
+            (s) => this.fold(s.name) === this.fold(name),
           );
           const finalName = existing?.name ?? name;
-          if (!next.some((t) => t.toLowerCase() === finalName.toLowerCase())) {
+          if (!next.some((t) => this.fold(t) === this.fold(finalName))) {
             next.push(finalName);
             changed = true;
           }
@@ -153,6 +169,18 @@ export class TagInputComponent implements ControlValueAccessor {
 
   remove(name: string): void {
     this.tags.update((arr) => arr.filter((t) => t !== name));
+    this.onChange(this.tags());
+  }
+
+  /**
+   * Met un tag en tête de liste. C'est le premier tag qui est mis en avant côté
+   * blog (affiché comme catégorie sur la carte « à la une ») : le déplacer est
+   * la façon de choisir celui qu'on veut y voir.
+   */
+  promote(name: string): void {
+    const current = this.tags();
+    if (current[0] === name) return;
+    this.tags.set([name, ...current.filter((t) => t !== name)]);
     this.onChange(this.tags());
   }
 

@@ -145,10 +145,14 @@
           <path d="m21 21-4.35-4.35" />
         </svg>
       </span>
+      <!-- La touche « Rechercher » du clavier mobile ferme le clavier et sort du
+           champ par défaut. La recherche étant déjà instantanée, on neutralise
+           cette action : la saisie continue sans reprendre le focus. -->
       <input
         type="search"
         class="adm-search__input"
         [formControl]="searchControl"
+        (keydown.enter)="$event.preventDefault()"
         placeholder="Rechercher un article…"
         aria-label="Rechercher un article"
       />

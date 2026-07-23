@@ -100,7 +100,7 @@ $bar-gap: 8px;
     height: 6px;
     border-radius: 50%;
     background: #d98324;
-    animation: ed-dot-in var(--adm-t-slow) both;
+    animation: ed-dot-in var(--adm-t-slow) backwards;
   }
 
   &__actions {
@@ -147,7 +147,7 @@ $bar-gap: 8px;
 
 .ed-alert {
   margin-top: 1rem;
-  animation: adm-fade-up var(--adm-t-slow) both;
+  animation: adm-fade-up var(--adm-t-slow) backwards;
 }
 
 // -------------------------------------------------------------
@@ -175,16 +175,28 @@ $bar-gap: 8px;
 .ed-main > *,
 .ed-side > *,
 .ed-preview {
-  animation: adm-fade-up var(--adm-t-slow) both;
+  animation: adm-fade-up var(--adm-t-slow) backwards;
 }
 
 .ed-main > *:nth-child(2) {
   animation-delay: 0.05s;
 }
 
+// Empilement décroissant des cartes de réglages.
+//
+// Les menus déroulants (suggestions de tags…) s'ouvrent vers le bas et doivent
+// recouvrir les cartes qui suivent. Sans ordre explicite, ça ne tient que tant
+// qu'aucune carte ne crée de contexte d'empilement — or il en suffit de peu :
+// un `transform`, un `filter`, une `opacity` < 1, une animation en
+// `fill-mode: both`. Le menu se retrouve alors prisonnier de sa carte et passe
+// dessous la suivante, quel que soit son `z-index`.
+//
+// `z-index` s'applique aux enfants d'un conteneur flex ou grid sans avoir à les
+// positionner (flexbox §5.4) — c'est le cas ici dans les deux mises en page.
 @for $i from 1 through 4 {
   .ed-side > *:nth-child(#{$i}) {
     animation-delay: 0.04s * $i;
+    z-index: 10 - $i;
   }
 }
 
@@ -336,6 +348,21 @@ $bar-gap: 8px;
   color: var(--adm-ink-400);
   font-size: 0.75rem;
   line-height: 1.5;
+
+  // Règle de fonctionnement, pas simple rappel de saisie : un cran plus lisible.
+  &--accent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    margin-top: -0.35rem;
+    color: var(--adm-ink-500);
+
+    svg {
+      flex: 0 0 auto;
+      margin-top: 0.15rem;
+      color: #f0b429;
+    }
+  }
 }
 
 .ed-count {
@@ -617,7 +644,7 @@ details[open] .fold__chevron {
     // le défilement s'arrête au bas du document.
     min-height: max(320px, calc(100vh - #{$bar-h} - 7rem));
     background: var(--adm-canvas);
-    animation: adm-fade-up var(--adm-t-slow) both;
+    animation: adm-fade-up var(--adm-t-slow) backwards;
   }
 
   &__card {

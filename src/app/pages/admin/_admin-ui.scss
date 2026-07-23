@@ -90,7 +90,7 @@
 }
 
 .adm-enter {
-  animation: adm-fade-up var(--adm-t-slow) both;
+  animation: adm-fade-up var(--adm-t-slow) backwards;
   animation-delay: var(--d, 0s);
 }
 

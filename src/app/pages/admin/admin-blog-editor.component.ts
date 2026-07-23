@@ -169,6 +169,9 @@ export class AdminBlogEditorComponent {
       createdAt: date,
       updatedAt: date,
       publishedAt: date,
+      // Le back le calcule pour les listes ; ici c'est l'aperçu qui le fournit,
+      // sinon la carte d'aperçu n'afficherait pas ce que verra le visiteur.
+      readingMinutes: this.readingMinutes(),
       tags: (v.tags ?? []).map((name) => ({ id: name, name, slug: name })),
     };
   });
