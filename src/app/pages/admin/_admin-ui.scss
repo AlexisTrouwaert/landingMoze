@@ -200,6 +200,17 @@
       color: var(--adm-red);
     }
   }
+
+  // Neutre au repos, rouge au survol : pour une action de sortie qu'on ne veut
+  // pas signaler en permanence dans la barre. Déclaré après `--ghost` pour
+  // l'emporter sur son survol.
+  &--danger-hover:hover:not(:disabled) {
+    // Bordure de la même teinte que le fond : invisible sur un bouton fantôme,
+    // cohérente sur un bouton bordé.
+    border-color: var(--adm-red-soft);
+    background: var(--adm-red-soft);
+    color: var(--adm-red);
+  }
 }
 
 // -------------------------------------------------------------
