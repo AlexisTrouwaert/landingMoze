@@ -20,14 +20,23 @@
            (mouseenter)="pauseAutoScroll()"
            (mouseleave)="resumeAutoScroll()">
 
-        <ul class="feature-list" #carousel (scroll)="onScroll()">
+        <!-- Pas de `(scroll)` ici : l'écouteur est posé hors zone Angular dans
+             le composant (voir `bindCarouselScroll`), pour ne pas déclencher une
+             détection de changements à chaque frame de défilement. -->
+        <ul class="feature-list" #carousel>
           <li>Facture seul ou à plusieurs sur un même projet</li>
           <li>Facturation électronique conforme (réforme 2026)</li>
           <li>Accès au numéro SAP sans exclusivité (offre Coop)</li>
           <li>Réseau social d'apport d'affaires intégré</li>
         </ul>
 
-        <div class="carousel-dots hide-on-desktop" role="tablist" aria-label="Navigation du carrousel">
+        <!-- `role="group"` et non `tablist` : le rôle `tablist` exige des enfants
+             `role="tab"` reliés à des `tabpanel`. Or les diapositives sont des
+             `<li>` d'une liste défilante, pas des panneaux — promettre le motif
+             onglets sans le tenir dégrade la navigation au lecteur d'écran plus
+             qu'elle ne l'aide. `group` accepte des boutons quelconques et porte
+             le libellé. -->
+        <div class="carousel-dots hide-on-desktop" role="group" aria-label="Navigation du carrousel">
           @for (i of [0, 1, 2, 3]; track i) {
             <button
               type="button"

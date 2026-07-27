@@ -3,14 +3,24 @@
   <div class="backdrop" (click)="panel.close()" aria-hidden="true"></div>
 }
 
-<!-- Slide panel -->
+<!-- Slide panel.
+
+     `inert` plutôt qu'`aria-hidden` quand le panneau est fermé : `aria-hidden`
+     le masquait bien aux lecteurs d'écran, mais laissait ses quatre éléments
+     (fermeture, mailto, tel, copie) dans l'ordre de tabulation. Au clavier, on
+     tombait donc dans un panneau hors écran. `inert` retire le sous-arbre du
+     parcours de focus **et** de l'arbre d'accessibilité — il couvre les deux
+     besoins, d'où la disparition d'`aria-hidden`, devenu redondant.
+
+     La valeur doit être `null` et non `false` : `inert` est un attribut booléen,
+     `inert="false"` rendrait le panneau inerte en permanence. -->
 <div
   class="contact-panel"
   [class.open]="panel.isOpen()"
   role="dialog"
   aria-modal="true"
   aria-labelledby="contact-panel-title"
-  [attr.aria-hidden]="!panel.isOpen()">
+  [attr.inert]="panel.isOpen() ? null : ''">
 
   <!-- Header -->
   <div class="panel-header">

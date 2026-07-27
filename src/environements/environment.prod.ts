@@ -1,5 +1,12 @@
 export const environment = {
   production: true,
+  /**
+   * Origine publique du site, sans barre oblique finale.
+   * Sert à construire les URL absolues d'`og:url` et de `<link rel="canonical">` :
+   * les crawlers sociaux n'exécutent pas de JS et ne résolvent pas les chemins
+   * relatifs, et le rendu serveur n'a pas de `window.location` pour les déduire.
+   */
+  siteUrl: 'https://www.moze.fr',
   apiUrl: 'https://app.mozeconnect.fr',
   // apiUrl: 'https://nico.by-moze.fr'
   /** Back dédié au blog. Domaine public confirmé par l'ops. */

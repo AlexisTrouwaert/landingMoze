@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Router} from "@angular/router";
 import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
@@ -38,12 +38,20 @@ import {MediaPressComponent} from "./media-press/media-press.component";
     styleUrl: './home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy {
 
   private readonly screenSizeService = inject(ScreenSizeService);
   private readonly metaPixelService  = inject(MetaPixelService);
   private readonly router            = inject(Router);
   private readonly contactPanel      = inject(ContactPanelService);
+  private readonly destroyRef        = inject(DestroyRef);
+
+  constructor() {
+    // `afterNextRender` et non `ngAfterViewInit` : Angular exécute tout le cycle
+    // de vie pendant le rendu serveur, `ngAfterViewInit` compris. Depuis que `/`
+    // est prérendu, y toucher au DOM ferait échouer le build.
+    afterNextRender(() => this.setupSpotlight());
+  }
 
   public screenSize = toSignal(this.screenSizeService.screenSize$, { initialValue: 1200 });
 
@@ -99,8 +107,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.metaPixelService.trackViewContent();
   }
 
-  ngAfterViewInit(): void {
+  /**
+   * Installe le projecteur qui suit le curseur sur les `.grid-patch`.
+   *
+   * Deux refus possibles avant de brancher quoi que ce soit :
+   * - `prefers-reduced-motion`, l'effet étant purement décoratif ;
+   * - `pointer: fine`, c'est-à-dire un vrai curseur. Sans lui, l'effet est
+   *   invisible — le projecteur reste figé là où le doigt a touché — mais il
+   *   continuait de coûter un `getBoundingClientRect()` par patch à chaque
+   *   frame de scroll, chacun forçant un recalcul de mise en page, puis une
+   *   écriture de style qui l'invalide aussitôt. C'est le poste « Style &
+   *   Layout » du rapport mobile, payé pour rien.
+   *
+   * L'observateur de mutations disparaît avec : il rescannait tout le document
+   * à chaque insertion, donc neuf fois pendant que les sections `@defer`
+   * arrivent.
+   */
+  private setupSpotlight(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
 
     // Requête initiale + re-scan automatique quand les sections @defer(on idle)
     // injectent leurs patches dans le DOM
@@ -115,14 +140,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     document.addEventListener('pointermove', this.onPointerMove, { passive: true });
     document.addEventListener('scroll',      this.onScroll,      { passive: true });
+
+    // Démontage enregistré ici et non dans `ngOnDestroy` : au rendu serveur le
+    // composant est bien détruit, et `document` n'y existe pas plus qu'ailleurs.
+    this.destroyRef.onDestroy(() => {
+      this.mutationObserver?.disconnect();
+      document.removeEventListener('pointermove', this.onPointerMove);
+      document.removeEventListener('scroll',      this.onScroll);
+      if (this.rafId) cancelAnimationFrame(this.rafId);
+    });
   }
 
   ngOnDestroy(): void {
     this.metaPixelService.resetViewContent();
-
-    this.mutationObserver?.disconnect();
-    document.removeEventListener('pointermove', this.onPointerMove);
-    document.removeEventListener('scroll',      this.onScroll);
-    if (this.rafId) cancelAnimationFrame(this.rafId);
   }
 }

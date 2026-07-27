@@ -19,7 +19,10 @@
         <h2>À la une</h2>
         <span class="rule" aria-hidden="true"></span>
         @if (featuredList().length > 1) {
-          <div class="feat-dots" role="tablist" aria-label="Choisir l'article à la une">
+          <!-- `group` et non `tablist` : mêmes raisons que le carrousel du hero —
+               `tablist` exige des enfants `role="tab"` associés à des `tabpanel`,
+               ce que ces pastilles de pagination ne sont pas. -->
+          <div class="feat-dots" role="group" aria-label="Choisir l'article à la une">
             @for (f of featuredList(); track $index) {
               <button
                 type="button"
@@ -34,7 +37,12 @@
         }
       </div>
 
-      <div class="feat-stage" (mouseenter)="paused.set(true)" (mouseleave)="paused.set(false)">
+      <div
+        #featStage
+        class="feat-stage"
+        (mouseenter)="paused.set(true)"
+        (mouseleave)="paused.set(false)"
+      >
         @for (f of [currentFeatured()]; track f?.id) {
           @if (f) {
             @let firstTag = f.tags && f.tags.length ? f.tags[0] : null;
@@ -97,10 +105,39 @@
                     <time>{{ f.publishedAt | date: 'dd/MM/yyyy' }}</time>
                   }
                 </div>
-                <span class="featured__more">Lire l'article →</span>
+                <div class="featured__foot">
+                  <span class="featured__more">Lire l'article →</span>
+                  @if (f.readingMinutes) {
+                    <span class="featured__reading">{{ f.readingMinutes }} min de lecture</span>
+                  }
+                </div>
               </div>
             </div>
           }
+        }
+
+        @if (featuredList().length > 1) {
+          <!-- Flèches : équivalent souris/clavier du swipe tactile. -->
+          <button
+            type="button"
+            class="feat-nav feat-nav--prev"
+            (click)="prevFeatured()"
+            aria-label="Article à la une précédent"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="feat-nav feat-nav--next"
+            (click)="nextFeatured()"
+            aria-label="Article à la une suivant"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
         }
       </div>
     </section>
@@ -206,7 +243,26 @@
 
     @if (error()) {
       <p class="state state--error">Impossible de charger les articles. Réessayez plus tard.</p>
-    } @else if (items().length === 0 && !loading()) {
+    } @else if (firstLoad()) {
+      <!-- Premier chargement : squelettes au gabarit des cartes, pour réserver
+           la place et éviter le saut de mise en page à l'arrivée des données. -->
+      <div class="cards" aria-hidden="true">
+        @for (s of skeletons; track s) {
+          <div class="card-skeleton">
+            <span class="card-skeleton__cover skel"></span>
+            <span class="card-skeleton__body">
+              <span class="skel skel--tag"></span>
+              <span class="skel skel--meta"></span>
+              <span class="skel skel--title"></span>
+              <span class="skel skel--title skel--title-2"></span>
+              <span class="skel skel--text"></span>
+              <span class="skel skel--text skel--text-3"></span>
+            </span>
+          </div>
+        }
+      </div>
+      <p class="sr-only" role="status">Chargement des articles…</p>
+    } @else if (items().length === 0) {
       <p class="state">
         @if (search() || selectedTags().length) {
           Aucun article ne correspond à ces critères.
@@ -217,9 +273,13 @@
     } @else {
       <div class="cards">
         @for (a of gridItems(); track a.id) {
-          <a class="card-link" [routerLink]="['/blog', a.slug]">
-            <app-article-card [article]="a" />
-          </a>
+          <app-article-card
+            class="card-enter"
+            [article]="a"
+            [link]="['/blog', a.slug]"
+            [interactiveTag]="true"
+            (tagSelect)="toggleTag($event.slug)"
+          />
         }
       </div>
 
@@ -244,5 +304,11 @@
   </section>
 </div>
 
-<!-- Même footer que la page d'accueil, mais sans le fond bleu foncé (pleine largeur) -->
-<app-footer [flat]="true"></app-footer>
+<!-- Même footer que la page d'accueil, mais sans le fond bleu foncé (pleine largeur).
+
+     Masqué tant que la grille n'a pas ses articles : la page est alors courte,
+     le footer remontait donc en haut de l'écran avant d'être repoussé.
+     Une classe plutôt qu'un `@if` : l'élément reste dans le DOM, donc
+     l'hydratation du rendu serveur ne voit aucun écart de structure — et les
+     liens du footer restent dans le HTML servi aux crawlers. -->
+<app-footer [flat]="true" [class.is-pending]="firstLoad()"></app-footer>

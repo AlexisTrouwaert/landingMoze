@@ -149,6 +149,19 @@
     flex: 0 0 auto;
   }
 
+  // Libellé : élément à part entière plutôt qu'un nœud texte brut. Ainsi le
+  // texte est un flex-item centré par le bouton (align-items/justify-content),
+  // aligné proprement avec une éventuelle icône — pas dépendant du baseline.
+  &__label {
+    flex: 0 1 auto;
+    line-height: 1;
+    // Centrage optique : rogne la boîte de texte à la hauteur de capitale et à
+    // la ligne de base. Sans ça, le flex centre la boîte em de SNPro — très
+    // asymétrique (ascent 985 / descent 315) — et le libellé paraît décalé face
+    // à l'icône. Non supporté → ignoré, on retombe sur le rendu actuel.
+    text-box: trim-both cap alphabetic;
+  }
+
   &--sm {
     --h: var(--adm-h-sm);
     padding: 0 0.75rem;

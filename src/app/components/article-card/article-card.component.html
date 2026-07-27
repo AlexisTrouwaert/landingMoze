@@ -3,7 +3,26 @@
 } @else {
   <div class="card__cover card__cover--placeholder" aria-hidden="true"></div>
 }
+
+@let tags = article().tags;
+@let firstTag = tags && tags.length ? tags[0] : null;
+
 <div class="card__body">
+  @if (firstTag) {
+    @if (interactiveTag()) {
+      <button
+        type="button"
+        class="card__tag"
+        (click)="onTagSelect(firstTag, $event)"
+        [title]="'Filtrer par ' + firstTag.name"
+      >
+        {{ firstTag.name }}
+      </button>
+    } @else {
+      <span class="card__tag card__tag--static">{{ firstTag.name }}</span>
+    }
+  }
+
   <div class="card__meta">
     @if (article().author) {
       <span class="card__author">{{ article().author }}</span>
@@ -14,14 +33,22 @@
     @if (article().publishedAt) {
       <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
     }
+  </div>
+
+  @if (link(); as target) {
+    <a class="card__link" [routerLink]="target">
+      <h2 class="card__title">{{ article().title }}</h2>
+    </a>
+  } @else {
+    <h2 class="card__title">{{ article().title }}</h2>
+  }
+
+  <p class="card__excerpt">{{ article().excerpt }}</p>
+
+  <div class="card__foot">
+    <span class="card__more">Lire l'article →</span>
     @if (article().readingMinutes) {
-      @if (article().author || article().publishedAt) {
-        <span class="card__meta-sep" aria-hidden="true">·</span>
-      }
       <span class="card__reading">{{ article().readingMinutes }} min de lecture</span>
     }
   </div>
-  <h2 class="card__title">{{ article().title }}</h2>
-  <p class="card__excerpt">{{ article().excerpt }}</p>
-  <span class="card__more">Lire l'article →</span>
 </div>

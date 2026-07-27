@@ -261,9 +261,14 @@ export class AdminBlogListComponent {
       ? this.blog.unfeature(a.id)
       : this.blog.feature(a.id);
     op.subscribe({
-      next: () => {
+      next: (updated) => {
         this.busy.set(false);
-        this.reload();
+        // Mise à jour en place de la seule ligne concernée, sans `reload()` :
+        // l'épinglage modifie `updatedAt` (clé de tri), un rechargement ferait
+        // remonter l'article en tête. Ici il garde sa position dans la liste.
+        this.items.update((list) =>
+          list.map((it) => (it.id === updated.id ? updated : it)),
+        );
         this.loadStats();
       },
       error: (err) => {

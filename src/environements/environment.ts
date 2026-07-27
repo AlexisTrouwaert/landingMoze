@@ -5,6 +5,8 @@
  */
 export const environment = {
   production: false,
+  /** Origine publique du site, sans barre oblique finale (cf. environment.prod.ts). */
+  siteUrl: 'http://localhost:4200',
   apiUrl: 'https://app.mozeconnect.fr',
   /** Back dédié au blog (POC). En dev : back NestJS local (landingMoze-back). */
   blogApiUrl: 'http://localhost:3000',

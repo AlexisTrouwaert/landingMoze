@@ -14,9 +14,16 @@
   <meta name="facebook-domain-verification" content="qb3i2jbbq02ib9mrnxbxpl79irhcfm"/>
   <meta name="google-site-verification" content="GSLLsMMYKcO3a1cU4Bg-ADUtcUrVgOKgWZtox2OJj7g" />
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Préchargées : uniquement les graisses employées au-dessus de la ligne de
+       flottaison de l'accueil prérendu — 400 pour le texte courant (règle `*`
+       globale), 600 et 700 pour le dock et le hero. La 800 en sort : elle ne
+       sert qu'au bandeau cookies et au panneau de contact, qui peuvent
+       s'afficher un instant dans la fallback métrique sans décalage. Chaque
+       fichier pèse ~52 Ko ; au-delà de trois, ils se disputent la bande passante
+       avec l'image LCP au lieu de la libérer. -->
   <link rel="preload" href="assets/fonts/SNPro-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="assets/fonts/SNPro-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
   <link rel="preload" href="assets/fonts/SNPro-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-  <link rel="preload" href="assets/fonts/SNPro-ExtraBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 </head>

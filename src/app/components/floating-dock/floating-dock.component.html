@@ -16,7 +16,11 @@
 
   <!-- Logo (intact) -->
   <a class="dock-logo" href="/" (click)="onLogoClick($event)" aria-label="Accueil Moze">
-    <img src="assets/icons/MozeLogo.svg" alt="Moze" width="120" height="30">
+    <!-- Élément LCP de l'accueil : il est désormais dans le HTML prérendu, donc
+         trouvé par le préchargeur du navigateur dès l'arrivée du document.
+         `fetchpriority="high"` le sort de la file basse où les images entrent
+         par défaut, pour qu'il ne passe pas derrière les chunks JS. -->
+    <img src="assets/icons/MozeLogo.svg" alt="Moze" width="120" height="30" fetchpriority="high">
   </a>
 
   <!-- Navigation : déroulants + liens directs -->

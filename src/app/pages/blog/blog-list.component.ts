@@ -4,8 +4,10 @@ import {
   Component,
   computed,
   DestroyRef,
+  ElementRef,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -49,7 +51,11 @@ export class BlogListComponent {
 
   readonly items = signal<ArticleListItem[]>([]);
   readonly total = signal(0);
-  readonly loading = signal(false);
+  // Démarre en chargement : le premier fetch part dès le constructeur. Ainsi une
+  // arrivée sur /blog par navigation interne affiche le squelette d'emblée, sans
+  // frame d'état vide. (Au rendu serveur, le fetch est attendu avant sérialisation
+  // → le HTML contient les cartes, pas le squelette.)
+  readonly loading = signal(true);
   readonly error = signal(false);
   readonly search = signal('');
   readonly searchValue = signal('');
@@ -58,6 +64,22 @@ export class BlogListComponent {
   readonly showAllTags = signal(false);
 
   readonly canLoadMore = computed(() => this.items().length < this.total());
+
+  /** Cartes fantômes du premier chargement (2 rangées sur grand écran). */
+  readonly skeletons = [0, 1, 2, 3, 4, 5];
+
+  /**
+   * Tout premier chargement de la grille : ni articles, ni erreur, ni résultat
+   * vide — seulement des squelettes. Ce qui vient après la grille reste masqué
+   * tant que c'est vrai, sinon le footer se retrouve haut dans la page puis se
+   * fait repousser à l'arrivée des cartes.
+   *
+   * Faux dès qu'il y a des articles à l'écran : un « Charger plus » ne fait donc
+   * pas disparaître le bas de page.
+   */
+  readonly firstLoad = computed(
+    () => this.loading() && this.items().length === 0,
+  );
 
   /** Nombre de tags "populaires" affichés avant le bouton "+ N autres". */
   private readonly topTagsCount = 8;
@@ -111,6 +133,10 @@ export class BlogListComponent {
   /** Pause la rotation au survol. */
   readonly paused = signal(false);
 
+  /** Scène du carrousel : cible des gestes de swipe (mobile). */
+  private readonly featStage =
+    viewChild<ElementRef<HTMLElement>>('featStage');
+
   /** Article à la une actuellement affiché (null si aucun). */
   readonly currentFeatured = computed<ArticleListItem | null>(() => {
     const list = this.featuredList();
@@ -154,11 +180,91 @@ export class BlogListComponent {
       });
     this.loadMore();
 
-    // Rotation de l'à la une : démarrée côté navigateur uniquement (SSR-safe).
+    // Rotation de l'à la une + gestes de swipe : navigateur uniquement (SSR-safe).
     afterNextRender(() => {
       this.startRotate();
       this.destroyRef.onDestroy(() => this.stopRotate());
+      this.bindSwipe();
     });
+  }
+
+  // ---- Swipe du carrousel (mobile) ----
+
+  /**
+   * Fait glisser l'à la une au doigt. Le geste doit être distingué d'un tap :
+   * la carte est un lien vers l'article, un simple appui doit continuer d'ouvrir
+   * l'article. On mesure le déplacement au `pointerup` ; au-delà du seuil et
+   * si le geste est franchement horizontal, on change de slide et on neutralise
+   * le clic fantôme qui suit (capture) pour ne pas naviguer en même temps.
+   */
+  private bindSwipe(): void {
+    const el = this.featStage()?.nativeElement;
+    if (!el) return;
+
+    const THRESHOLD = 45; // px : en-deçà, c'est un tap, pas un swipe
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let swiped = false;
+
+    const onDown = (e: PointerEvent) => {
+      tracking = true;
+      swiped = false;
+      startX = e.clientX;
+      startY = e.clientY;
+    };
+
+    const onUp = (e: PointerEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      // Franchement horizontal : évite de capturer un scroll vertical.
+      if (Math.abs(dx) >= THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        swiped = true;
+        if (dx < 0) this.nextFeatured();
+        else this.prevFeatured();
+      }
+    };
+
+    // Capture : intercepte le clic fantôme post-swipe avant qu'il n'atteigne le
+    // lien de la carte. Un tap classique laisse `swiped` à false → clic normal.
+    const onClick = (e: MouseEvent) => {
+      if (swiped) {
+        e.preventDefault();
+        e.stopPropagation();
+        swiped = false;
+      }
+    };
+
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', () => (tracking = false));
+    el.addEventListener('click', onClick, true);
+
+    this.destroyRef.onDestroy(() => {
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('click', onClick, true);
+    });
+  }
+
+  /** Slide suivant, avec rebouclage, et relance du minuteur. */
+  nextFeatured(): void {
+    const n = this.featuredList().length;
+    if (n > 1) {
+      this.featuredIndex.update((i) => (i + 1) % n);
+      this.startRotate();
+    }
+  }
+
+  /** Slide précédent, avec rebouclage, et relance du minuteur. */
+  prevFeatured(): void {
+    const n = this.featuredList().length;
+    if (n > 1) {
+      this.featuredIndex.update((i) => (i - 1 + n) % n);
+      this.startRotate();
+    }
   }
 
   private startRotate(): void {

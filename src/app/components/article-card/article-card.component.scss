@@ -1,6 +1,8 @@
-// Le composant EST la carte (l'hôte porte le style ; le parent l'englobe dans un
-// lien en `display: contents` pour la navigation sans casser la grille).
+// Le composant EST la carte. `position: relative` : la carte est le bloc de
+// référence du lien étiré (`.card__link::after`), qui couvre alors toute la
+// surface, image comprise, pour rester cliquable.
 :host {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -30,13 +32,86 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  // La grille étire toutes les cartes d'une rangée à la même hauteur, mais le
+  // corps s'arrêtait à la hauteur de son contenu : d'où le blanc sous le CTA
+  // des cartes les plus courtes. Ici il occupe toute la hauteur restante.
+  // `flex-grow` seul (base `auto`) et non `flex: 1` : avec une base à 0 la
+  // hauteur naturelle du contenu ne servirait plus à calculer la rangée.
+  flex-grow: 1;
+}
+
+// Tag mis en avant, affiché comme catégorie au-dessus du titre.
+.card__tag {
+  align-self: flex-start;
+  // Au-dessus du lien étiré, sinon le clic filtrerait ET naviguerait.
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid rgba(2, 151, 216, 0.25);
+  border-radius: 999px;
+  background: #eaf5ff;
+  color: var(--interaction-color);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--interaction-color);
+    border-color: var(--interaction-color);
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--interaction-color);
+    outline-offset: 2px;
+  }
+
+  // Aperçu de l'éditeur : simple étiquette, non cliquable.
+  &--static {
+    cursor: default;
+
+    &:hover {
+      background: #eaf5ff;
+      border-color: rgba(2, 151, 216, 0.25);
+      color: var(--interaction-color);
+    }
+  }
+}
+
+// Lien étiré : le titre porte le lien accessible (son texte nomme le lien),
+// et le pseudo-élément couvre la carte entière pour la rendre cliquable.
+.card__link {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    .card__title {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
 }
 
 .card__meta {
   display: flex;
   align-items: center;
-  // Trois informations depuis l'ajout du temps de lecture : on autorise le
-  // retour à la ligne plutôt que le débordement sur un nom d'auteur long.
+  // Retour à la ligne plutôt que débordement sur un nom d'auteur long.
   flex-wrap: wrap;
   gap: 0.15rem 0.4rem;
 }
@@ -52,8 +127,7 @@
   font-size: 0.8rem;
 }
 
-.card__date,
-.card__reading {
+.card__date {
   color: #8a979d;
   font-size: 0.8rem;
 }
@@ -69,12 +143,33 @@
   color: #4a5b63;
   font-size: 0.95rem;
   line-height: 1.5;
-  flex: 1;
+}
+
+// Pied de carte : le CTA reste calé à gauche, le temps de lecture est poussé
+// tout à droite. `gap` garantit qu'ils ne se touchent jamais, même sur une
+// carte étroite où `space-between` n'a plus d'espace à distribuer.
+.card__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  // Collé au bas de la carte quoi qu'il arrive. C'était l'extrait qui faisait
+  // l'entretoise (`flex: 1`), mais un article sans extrait laissait le CTA
+  // remonter au milieu : la marge automatique ne dépend, elle, d'aucun contenu.
+  margin-top: auto;
+  padding-top: 0.4rem;
 }
 
 .card__more {
   color: var(--interaction-color);
   font-family: 'SNPRO-SemiBold', sans-serif;
   font-size: 0.9rem;
-  margin-top: 0.4rem;
+  white-space: nowrap;
+}
+
+.card__reading {
+  color: #8a979d;
+  font-size: 0.8rem;
+  // Le compteur ne se coupe pas : c'est le CTA, plus long, qui cède en premier.
+  white-space: nowrap;
 }

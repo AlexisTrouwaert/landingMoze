@@ -34,6 +34,12 @@ import {
 } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
+/** Auteur affiché quand le champ est laissé vide. */
+const DEFAULT_AUTHOR = 'Équipe Moze';
+
+/** Tag ajouté par défaut quand l'article n'en a aucun (après confirmation). */
+const DEFAULT_TAG = 'Moze';
+
 @Component({
     selector: 'app-admin-blog-editor',
     imports: [
@@ -135,6 +141,11 @@ export class AdminBlogEditorComponent {
 
   /** Menu « ⋯ » de la barre (dépublier, voir en ligne). */
   readonly menuOpen = signal(false);
+
+  /** Modale « aucun tag → tag par défaut » et intention d'enregistrement en attente. */
+  readonly defaultTagOpen = signal(false);
+  readonly defaultTag = DEFAULT_TAG;
+  private pendingPublish = false;
 
   readonly showPreview = signal(false);
   readonly previewMode = signal<'card' | 'article'>('card');
@@ -427,6 +438,29 @@ export class AdminBlogEditorComponent {
       this.form.markAllAsTouched();
       return;
     }
+    // Aucun tag : on propose d'ajouter le tag par défaut avant d'enregistrer,
+    // plutôt que de publier un article non classé sans le dire.
+    if (!this.form.controls.tags.value.length) {
+      this.pendingPublish = publish;
+      this.defaultTagOpen.set(true);
+      return;
+    }
+    this.performSave(publish);
+  }
+
+  /** L'admin accepte le tag par défaut : on l'ajoute puis on enregistre. */
+  confirmDefaultTag(): void {
+    this.defaultTagOpen.set(false);
+    this.form.controls.tags.setValue([DEFAULT_TAG]);
+    this.performSave(this.pendingPublish);
+  }
+
+  /** L'admin préfère saisir ses propres tags : on annule l'enregistrement. */
+  cancelDefaultTag(): void {
+    this.defaultTagOpen.set(false);
+  }
+
+  private performSave(publish: boolean): void {
     this.saving.set(true);
     this.error.set(null);
 
@@ -434,7 +468,8 @@ export class AdminBlogEditorComponent {
     const input: ArticleInput = {
       title: v.title,
       slug: v.slug || undefined,
-      author: v.author,
+      // Auteur par défaut si le champ est vide.
+      author: v.author.trim() || DEFAULT_AUTHOR,
       excerpt: v.excerpt,
       content: v.content,
       coverImageUrl: v.coverImageUrl || null,

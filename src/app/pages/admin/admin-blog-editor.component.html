@@ -63,7 +63,7 @@
         [class.btn--primary]="isPublished()"
         [disabled]="saving() || loading()"
       >
-        {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        <span class="btn__label">{{ saving() ? 'Enregistrement…' : 'Enregistrer' }}</span>
       </button>
 
       @if (!isPublished()) {
@@ -73,7 +73,7 @@
           [disabled]="saving() || loading()"
           (click)="save(true)"
         >
-          Publier
+          <span class="btn__label">Publier</span>
         </button>
       }
 
@@ -434,6 +434,20 @@
       }
     </section>
   }
+
+  <app-confirm-dialog
+    [open]="defaultTagOpen()"
+    title="Aucun tag"
+    [message]="
+      'Cet article n\'a aucun tag.\n\nLe tag « ' +
+      defaultTag +
+      ' » sera ajouté par défaut. Vous pouvez aussi annuler pour saisir vos propres tags.'
+    "
+    [confirmLabel]="'Ajouter « ' + defaultTag + ' » et enregistrer'"
+    cancelLabel="Saisir un tag"
+    (confirmed)="confirmDefaultTag()"
+    (cancelled)="cancelDefaultTag()"
+  />
 
   <app-confirm-dialog
     [open]="leaveOpen()"
