@@ -167,6 +167,49 @@ describe('WysiwygEditorComponent (nettoyage collage & liens)', () => {
     });
   });
 
+  /**
+   * Alignement. Trois couches le retirent si on le laisse en `style` : la whitelist du back,
+   * le sanitizer d'Angular au rendu, et le renommage `<div>` → `<p>` qui recrée l'élément sans
+   * ses attributs. La sortie doit donc toujours porter une classe `ta-*`, jamais un style.
+   */
+  describe('alignement', () => {
+    it('convertit le style inline d’`execCommand` en classe', () => {
+      expect(semantic('<p style="text-align: center">T</p>')).toBe('<p class="ta-center">T</p>');
+      expect(semantic('<h2 style="text-align: right">T</h2>')).toBe('<h2 class="ta-right">T</h2>');
+    });
+
+    it('conserve l’alignement à travers le renommage div → p', () => {
+      expect(semantic('<div style="text-align: center">T</div>')).toBe(
+        '<p class="ta-center">T</p>',
+      );
+    });
+
+    it('reprend l’attribut `align` des vieux éditeurs', () => {
+      expect(semantic('<p align="justify">T</p>')).toBe('<p class="ta-justify">T</p>');
+    });
+
+    it('ignore une valeur d’alignement inconnue, et le reste du style', () => {
+      expect(semantic('<p style="text-align: inherit">T</p>')).toBe('<p>T</p>');
+      expect(semantic('<p style="color: red">T</p>')).toBe('<p>T</p>');
+    });
+
+    it('ne laisse jamais passer un `style`', () => {
+      const html = semantic('<p style="text-align:center;color:red">T</p>');
+      expect(html).not.toContain('style');
+      expect(html).toContain('ta-center');
+    });
+
+    it('laisse intact un contenu déjà enregistré', () => {
+      // Rechargement d'un article : la classe est déjà là, rien ne doit bouger.
+      expect(semantic('<p class="ta-center">T</p>')).toBe('<p class="ta-center">T</p>');
+    });
+
+    it('conserve l’alignement d’un collage Word ou Docs', () => {
+      expect(clean('<p style="text-align:center">T</p>')).toBe('<p class="ta-center">T</p>');
+      expect(clean('<div align="right">T</div>')).toBe('<p class="ta-right">T</p>');
+    });
+  });
+
   describe('normalizeUrl', () => {
     it('ajoute https:// sans schéma', () => {
       expect(normalize('ex.com')).toBe('https://ex.com');
@@ -294,5 +337,50 @@ describe('WysiwygEditorComponent (lien affiché ≠ destination)', () => {
 
     expect(emitted).toBeNull();
     expect(component.mismatchedLinks().length).toBe(1);
+  });
+});
+
+/**
+ * Rendu de la zone éditable. Ce qu'elle contient vient de `innerHTML`, donc sans attribut
+ * d'encapsulation Angular : une règle de style écrite sans `::ng-deep` y est compilée en
+ * `.ta-center[_ngcontent-…]` et ne s'applique jamais. Le défaut ne se voit qu'à la réouverture
+ * d'un article — à la frappe, l'inline d'`execCommand` masque le problème.
+ */
+describe('WysiwygEditorComponent (alignement à la réouverture)', () => {
+  let fixture: ComponentFixture<WysiwygEditorComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [WysiwygEditorComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(WysiwygEditorComponent);
+  });
+
+  function open(html: string): HTMLElement {
+    fixture.componentInstance.writeValue(html);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('affiche l’alignement d’un contenu déjà enregistré', () => {
+    const host = open(
+      '<p class="ta-center">Centré</p><p class="ta-right">Droite</p>' +
+        '<p class="ta-justify">Justifié</p><p>Normal</p>',
+    );
+
+    const paragraphes = host.querySelectorAll('.wys-editable p');
+    expect(getComputedStyle(paragraphes[0]).textAlign).toBe('center');
+    expect(getComputedStyle(paragraphes[1]).textAlign).toBe('right');
+    expect(getComputedStyle(paragraphes[2]).textAlign).toBe('justify');
+    expect(getComputedStyle(paragraphes[3]).textAlign).not.toBe('center');
+  });
+
+  it('vaut aussi pour les titres et les listes', () => {
+    const host = open('<h2 class="ta-center">Titre</h2><ul><li class="ta-right">item</li></ul>');
+
+    expect(getComputedStyle(host.querySelector('.wys-editable h2')!).textAlign).toBe('center');
+    expect(getComputedStyle(host.querySelector('.wys-editable li')!).textAlign).toBe('right');
   });
 });

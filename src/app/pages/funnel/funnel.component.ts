@@ -12,6 +12,7 @@ import {RedirectStepComponent} from "./steps/redirect-step/redirect-step.compone
 import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
 import {NAV_GROUPS} from "../../config/nav-groups";
 import {ContactPanelService} from "../../services/contact-panel.service";
+import {SeoService, SOCIAL_IMAGE_ALT} from "../../services/seo.service";
 
 @Component({
     selector: 'app-funnel',
@@ -29,6 +30,7 @@ export class FunnelComponent implements OnInit {
   fs = inject(FunnelService);
   private router = inject(Router);
   private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
   private readonly ga = inject(GoogleAnalyticsService);
@@ -53,6 +55,9 @@ export class FunnelComponent implements OnInit {
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: 'Commencer gratuitement – Moze' });
     this.meta.updateTag({ property: 'og:description', content: description });
+    // Vignette de partage : sans elle, le lien d'inscription partagé sur LinkedIn arrivait sans
+    // image, donc en carte minuscule.
+    this.seo.setSocialImage(SeoService.DEFAULT_SOCIAL_IMAGE, SOCIAL_IMAGE_ALT);
 
     // Entrée du funnel — fire au premier rendu de /commencer.
     this.metaPixel.trackFunnelStarted();

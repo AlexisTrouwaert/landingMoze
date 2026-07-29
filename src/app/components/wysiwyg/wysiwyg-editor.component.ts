@@ -13,6 +13,29 @@ import { findUrls, sameUrl } from '../../common/link-detection';
 import { PromptDialogComponent } from '../prompt-dialog/prompt-dialog.component';
 import { BlogService } from '../../services/blog.service';
 
+/**
+ * Les seuls alignements acceptés. Doit rester aligné sur trois autres endroits : la whitelist du
+ * back (`common/sanitize.ts`, `allowedClasses`), les styles de l'article
+ * (`article-view.component.scss`) et ceux de la zone d'édition.
+ */
+const ALIGNMENTS = new Set(['left', 'center', 'right', 'justify']);
+
+/**
+ * L'alignement d'un élément, quelle qu'en soit la forme : `style="text-align:…"` que produit
+ * `execCommand`, attribut `align` des traitements de texte et vieux éditeurs, ou classe `ta-*`
+ * d'un contenu déjà enregistré. Chaîne vide s'il n'en porte pas, ou une valeur inconnue.
+ */
+function alignmentOf(element: HTMLElement): string {
+  const inline = (element.style.textAlign || element.getAttribute('align') || '').toLowerCase();
+  if (ALIGNMENTS.has(inline)) return inline;
+
+  for (const value of ALIGNMENTS) {
+    if (element.classList.contains(`ta-${value}`)) return value;
+  }
+
+  return '';
+}
+
 /** Un lien dont le texte affiché annonce une adresse, et le `href` une autre. */
 export interface MismatchedLink {
   /** L'adresse que le lecteur voit dans le texte. */
@@ -68,7 +91,8 @@ export class WysiwygEditorComponent
     ul: boolean;
     ol: boolean;
     block: string;
-  }>({ bold: false, italic: false, ul: false, ol: false, block: '' });
+    align: '' | 'left' | 'center' | 'right' | 'justify';
+  }>({ bold: false, italic: false, ul: false, ol: false, block: '', align: '' });
 
   private pendingValue = '';
   private onChange: (value: string) => void = () => {};
@@ -202,17 +226,42 @@ export class WysiwygEditorComponent
    * émise au formulaire est normalisée.
    */
   private toSemanticHtml(html: string): string {
-    if (!/<\/?(b|i|div)\b/i.test(html)) return html; // rien à convertir → coût nul
+    const aConvertir = /<\/?(b|i|div)\b/i.test(html);
+    // Tout attribut `style`, pas seulement un alignement : aucun n'a le droit de traverser — ni
+    // la whitelist du back ni le sanitizer d'Angular n'en laissent passer. Autant les retirer
+    // ici, pour que la valeur émise soit exactement celle qui sera enregistrée.
+    const aNettoyer = /style=|align=/i.test(html);
+    if (!aConvertir && !aNettoyer) return html; // rien à convertir → coût nul
+
     const RENAME: Record<string, string> = { B: 'strong', I: 'em', DIV: 'p' };
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    // NodeList statique : sûr même si l'on remplace des éléments imbriqués.
+
+    // 1. L'alignement passe de l'inline à une classe. `execCommand` écrit
+    //    `style="text-align:…"`, or ni la whitelist du back ni le sanitizer d'Angular ne
+    //    laissent passer un attribut `style` : le texte serait centré dans l'éditeur et à plat
+    //    en ligne. La classe, elle, traverse les deux (cf. `article-view.component.scss`).
+    doc.body.querySelectorAll<HTMLElement>('[style], [align]').forEach((el) => {
+      const alignment = alignmentOf(el);
+      el.removeAttribute('style');
+      el.removeAttribute('align');
+      el.removeAttribute('class');
+      if (alignment) el.setAttribute('class', `ta-${alignment}`);
+    });
+
+    // 2. Balises natives de `contentEditable` → balises sémantiques.
+    //    NodeList statique : sûr même si l'on remplace des éléments imbriqués.
     doc.body.querySelectorAll('b, i, div').forEach((el) => {
       const tag = RENAME[el.tagName];
       if (!tag) return;
       const replacement = doc.createElement(tag);
+      // Le renommage crée un élément neuf, donc sans attributs : sans ce report, une ligne
+      // centrée que la zone éditable a enfermée dans un `<div>` repartait à plat.
+      const classe = el.getAttribute('class');
+      if (classe) replacement.setAttribute('class', classe);
       while (el.firstChild) replacement.appendChild(el.firstChild);
       el.replaceWith(replacement);
     });
+
     return doc.body.innerHTML;
   }
 
@@ -294,7 +343,18 @@ export class WysiwygEditorComponent
         if (isBold(el)) inner = `<strong>${inner}</strong>`;
 
         const block = BLOCK[tag];
-        out += block ? `<${block}>${inner}</${block}>` : inner;
+        if (!block) {
+          out += inner;
+          return;
+        }
+
+        // L'alignement est la seule mise en forme de bloc reprise du collage : un texte centré
+        // dans Word ou Docs le reste. Tout le reste du style est écarté, comme avant. Classe et
+        // non `style`, pour la même raison qu'à la normalisation de sortie.
+        const alignment = alignmentOf(el);
+        out += alignment
+          ? `<${block} class="ta-${alignment}">${inner}</${block}>`
+          : `<${block}>${inner}</${block}>`;
       });
       return out;
     };
@@ -322,6 +382,33 @@ export class WysiwygEditorComponent
     this.exec('formatBlock', tag);
   }
 
+  /**
+   * Aligne le bloc courant.
+   *
+   * `styleWithCSS` est basculé le temps de la commande : à `false` — le réglage général, qui fait
+   * produire `<b>`/`<i>` plutôt que des `<span style>` — `justifyCenter` pose l'attribut
+   * historique `align="center"`, que la whitelist du back retire. L'alignement aurait disparu à
+   * l'enregistrement sans que rien ne le signale. À `true`, la commande écrit
+   * `style="text-align: center"`, seule forme que le back accepte (cf. `common/sanitize.ts`).
+   *
+   * Le réglage est remis à `false` aussitôt : le laisser à `true` ferait dériver le gras et
+   * l'italique vers des `<span>` stylés, hors whitelist eux aussi.
+   */
+  align(direction: 'Left' | 'Center' | 'Right' | 'Full'): void {
+    if (this.disabled()) return;
+
+    try {
+      document.execCommand('styleWithCSS', false, 'true');
+      this.exec(`justify${direction}`);
+    } finally {
+      try {
+        document.execCommand('styleWithCSS', false, 'false');
+      } catch {
+        /* non supporté → la normalisation de sortie sert de filet */
+      }
+    }
+  }
+
   /** Recalcule la surbrillance des boutons (frappe / déplacement du curseur). */
   onSelectionChange(): void {
     this.refreshActiveFormats();
@@ -339,10 +426,25 @@ export class WysiwygEditorComponent
         ul: document.queryCommandState('insertUnorderedList'),
         ol: document.queryCommandState('insertOrderedList'),
         block,
+        align: this.activeAlignment(),
       });
     } catch {
       /* queryCommand* indisponible (ex. SSR) → on ignore */
     }
+  }
+
+  /**
+   * Alignement du bloc sous le curseur.
+   *
+   * Les alignements explicites sont testés avant la gauche : le navigateur répond `true` à
+   * `justifyLeft` pour un texte simplement laissé au fil de l'eau, et le bouton « gauche »
+   * resterait allumé sur un paragraphe centré.
+   */
+  private activeAlignment(): '' | 'left' | 'center' | 'right' | 'justify' {
+    if (document.queryCommandState('justifyCenter')) return 'center';
+    if (document.queryCommandState('justifyRight')) return 'right';
+    if (document.queryCommandState('justifyFull')) return 'justify';
+    return document.queryCommandState('justifyLeft') ? 'left' : '';
   }
 
   /** État de la modale d'insertion de lien + sélection mémorisée à l'ouverture. */

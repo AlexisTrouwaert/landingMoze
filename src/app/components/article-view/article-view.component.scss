@@ -144,6 +144,14 @@
         color: var(--interaction-color);
       }
 
+      // Alignement posé par la barre d'outils de l'éditeur. Par classe et non par
+      // `style="text-align:…"` : le sanitizer d'Angular retire les attributs `style` du
+      // `[innerHTML]`, l'alignement n'aurait pas survécu à l'affichage.
+      .ta-left { text-align: left; }
+      .ta-center { text-align: center; }
+      .ta-right { text-align: right; }
+      .ta-justify { text-align: justify; }
+
       img {
         max-width: 100%;
         border-radius: 12px;

@@ -9,6 +9,10 @@
       <symbol id="wi-paragraph" viewBox="0 0 24 24"><path d="M13 4v16"/><path d="M17 4v16"/><path d="M19 4H9.5a4.5 4.5 0 0 0 0 9H13"/></symbol>
       <symbol id="wi-ul" viewBox="0 0 24 24"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></symbol>
       <symbol id="wi-ol" viewBox="0 0 24 24"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></symbol>
+      <symbol id="wi-align-left" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="13" y2="12"/><line x1="4" y1="18" x2="16" y2="18"/></symbol>
+      <symbol id="wi-align-center" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7.5" y1="12" x2="16.5" y2="12"/><line x1="6" y1="18" x2="18" y2="18"/></symbol>
+      <symbol id="wi-align-right" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="11" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/></symbol>
+      <symbol id="wi-align-justify" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></symbol>
       <symbol id="wi-quote" viewBox="0 0 24 24"><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="8" x2="19" y2="8"/><line x1="10" y1="12" x2="19" y2="12"/><line x1="10" y1="16" x2="16" y2="16"/></symbol>
       <symbol id="wi-hr" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/></symbol>
       <symbol id="wi-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
@@ -32,6 +36,11 @@
     <span class="wys-sep"></span>
     <button type="button" title="Liste à puces" [class.is-active]="activeFormats().ul" (click)="exec('insertUnorderedList')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-ul"></use></svg></button>
     <button type="button" title="Liste numérotée" [class.is-active]="activeFormats().ol" (click)="exec('insertOrderedList')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-ol"></use></svg></button>
+    <span class="wys-sep"></span>
+    <button type="button" title="Aligner à gauche" [class.is-active]="activeFormats().align === 'left'" (click)="align('Left')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-align-left"></use></svg></button>
+    <button type="button" title="Centrer" [class.is-active]="activeFormats().align === 'center'" (click)="align('Center')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-align-center"></use></svg></button>
+    <button type="button" title="Aligner à droite" [class.is-active]="activeFormats().align === 'right'" (click)="align('Right')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-align-right"></use></svg></button>
+    <button type="button" title="Justifier" [class.is-active]="activeFormats().align === 'justify'" (click)="align('Full')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-align-justify"></use></svg></button>
     <span class="wys-sep"></span>
     <button type="button" title="Citation" [class.is-active]="activeFormats().block === 'blockquote'" (click)="formatBlock('<blockquote>')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-quote"></use></svg></button>
     <button type="button" title="Séparateur" (click)="exec('insertHorizontalRule')"><svg class="wys-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#wi-hr"></use></svg></button>

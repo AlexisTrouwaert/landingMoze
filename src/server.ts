@@ -6,6 +6,13 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { environment } from './environements/environment';
+import {
+  articleEntries,
+  buildSitemap,
+  SitemapArticle,
+  staticEntries,
+} from './sitemap';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -75,6 +82,79 @@ app.use((_req, res, next) => {
     "frame-ancestors 'self'; object-src 'none'; base-uri 'self'",
   );
   next();
+});
+
+/**
+ * `sitemap.xml` — pages fixes + articles de blog publiés.
+ *
+ * Servi ici et non par le back : un sitemap ne peut déclarer que des URL de son propre domaine.
+ * Celui du blog vit sur `blog-api.moze.fr`, il ne peut donc pas déclarer `www.moze.fr`.
+ *
+ * Déclaré avant `express.static` pour prendre le pas sur un éventuel fichier du même nom.
+ */
+const SITEMAP_TTL_MS = 15 * 60 * 1000;
+/**
+ * Taille de page de l'API blog — le sitemap la parcourt entièrement.
+ *
+ * Ne pas dépasser 50 : `ListArticlesQueryDto` du back borne `size` à cette valeur, et rend une
+ * 400 au-delà. Le sitemap se retrouverait alors sans le moindre article, sans que rien d'autre
+ * ne le signale que la ligne de log du repli.
+ */
+const SITEMAP_PAGE_SIZE = 50;
+
+let sitemapCache: { xml: string; expiresAt: number } | null = null;
+
+/** Tous les articles publiés, page par page. Lève si l'API ne répond pas. */
+async function fetchArticles(): Promise<SitemapArticle[]> {
+  const collected: SitemapArticle[] = [];
+
+  for (let page = 1; ; page++) {
+    const response = await fetch(
+      `${environment.blogApiUrl}/blog?page=${page}&size=${SITEMAP_PAGE_SIZE}`,
+      // Un sitemap ne vaut pas de faire patienter : au-delà, on sert ce qu'on a.
+      { signal: AbortSignal.timeout(5000) },
+    );
+    if (!response.ok) throw new Error(`API blog: ${response.status}`);
+
+    const { items = [], total = 0 } = (await response.json()) as {
+      items?: SitemapArticle[];
+      total?: number;
+    };
+
+    collected.push(...items);
+
+    // La condition d'arrêt porte sur `items.length` autant que sur `total` : une API qui
+    // renverrait un total farfelu ne doit pas faire tourner la boucle indéfiniment.
+    if (!items.length || collected.length >= total) break;
+  }
+
+  return collected;
+}
+
+app.get('/sitemap.xml', async (_req, res) => {
+  const now = Date.now();
+  if (sitemapCache && sitemapCache.expiresAt > now) {
+    res.type('application/xml').send(sitemapCache.xml);
+    return;
+  }
+
+  const entries = staticEntries(environment.siteUrl);
+
+  try {
+    const articles = await fetchArticles();
+    entries.push(...articleEntries(articles, environment.siteUrl));
+  } catch (error) {
+    // API muette : on sert les pages fixes plutôt qu'une erreur. Un sitemap incomplet reste
+    // exploitable par un moteur ; une 500 lui fait abandonner le fichier entier. Et on ne met
+    // pas ce résultat dégradé en cache, pour retenter à la requête suivante.
+    console.error('sitemap.xml : articles indisponibles', error);
+    res.type('application/xml').send(buildSitemap(entries));
+    return;
+  }
+
+  const xml = buildSitemap(entries);
+  sitemapCache = { xml, expiresAt: now + SITEMAP_TTL_MS };
+  res.type('application/xml').send(xml);
 });
 
 /**

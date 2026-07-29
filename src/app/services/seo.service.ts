@@ -11,6 +11,9 @@ interface RouteSeo {
   noindex?: boolean;
 }
 
+/** Texte alternatif de la vignette de partage par défaut — elle ne montre que la marque. */
+export const SOCIAL_IMAGE_ALT = 'Moze — la plateforme des indépendants';
+
 /**
  * Balises SEO qui dépendent de l'adresse courante, posées à chaque navigation.
  *
@@ -84,6 +87,32 @@ export class SeoService {
     }
 
     link.setAttribute('href', url);
+  }
+
+  /**
+   * Image de partage par défaut, servie depuis les assets du site.
+   *
+   * JPEG et non WebP : le crawler LinkedIn refuse le second. Générée par
+   * `scripts/generate-og-image.mjs` — un visuel dessiné peut la remplacer sans toucher au code,
+   * pourvu qu'il fasse 1200x630.
+   */
+  static readonly DEFAULT_SOCIAL_IMAGE = `${environment.siteUrl}/assets/images/og-moze.jpg`;
+
+  /**
+   * Déclare la vignette affichée au partage : Open Graph pour LinkedIn, Facebook, WhatsApp et
+   * Slack, `twitter:*` pour X — que LinkedIn lit aussi en repli.
+   *
+   * Les dimensions sont annoncées bien qu'elles soient déductibles du fichier : LinkedIn choisit
+   * la grande carte sur cette seule foi, sans attendre d'avoir téléchargé l'image.
+   */
+  setSocialImage(imageUrl: string, alt: string): void {
+    this.meta.updateTag({ property: 'og:image', content: imageUrl });
+    this.meta.updateTag({ property: 'og:image:alt', content: alt });
+    this.meta.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
+    this.meta.updateTag({ property: 'og:image:width', content: '1200' });
+    this.meta.updateTag({ property: 'og:image:height', content: '630' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:image', content: imageUrl });
   }
 
   /**

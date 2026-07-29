@@ -6,6 +6,15 @@ export const routes: Routes = [
     pathMatch: 'full',
     loadChildren: () => import('./routes/home.routes').then(m => m.HOME_ROUTES)
   },
+  /**
+   * `/home` : l'alias de l'accueil hérité de l'ancien site. Même contenu, autre adresse — le cas
+   * d'école de la redirection permanente. Elle est déclarée ici, et non dans la configuration
+   * d'Apache, pour rester versionnée avec les routes qu'elle accompagne ; c'est la route serveur
+   * correspondante qui en fait une **301** et non la 302 par défaut.
+   *
+   * Doit précéder le joker, qui l'enverrait sinon sur la page 404.
+   */
+  { path: 'home', pathMatch: 'full', redirectTo: '' },
   {
     path: 'commencer',
     loadChildren: () => import('./routes/funnel.routes').then(m => m.FUNNEL_ROUTES)
@@ -32,6 +41,10 @@ export const routes: Routes = [
   },
   {
     path: 'desinscription',
+    // Page à usage unique, atteinte par un lien de désinscription : rien à y indexer.
+    // Doublée d'un en-tête `X-Robots-Tag` côté serveur (cf. `app.routes.server.ts`), la balise
+    // posée ici n'étant lue que par les robots qui exécutent le JavaScript.
+    data: { noindex: true },
     loadComponent: () => import('./pages/desinscription/desinscription.component').then(m => m.DesinscriptionComponent)
   },
   /**

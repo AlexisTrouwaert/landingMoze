@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Meta } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -23,6 +24,7 @@ import { BlogService } from '../../services/blog.service';
 import { NAV_GROUPS } from '../../config/nav-groups';
 import { MetaPixelService } from '../../services/meta-pixel.service';
 import { ContactPanelService } from '../../services/contact-panel.service';
+import { SeoService, SOCIAL_IMAGE_ALT } from '../../services/seo.service';
 
 @Component({
     selector: 'app-blog-list',
@@ -45,6 +47,8 @@ export class BlogListComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly metaPixel = inject(MetaPixelService);
   private readonly contactPanel = inject(ContactPanelService);
+  private readonly seo = inject(SeoService);
+  private readonly meta = inject(Meta);
 
   /** Navigation du dock (source partagée). Le lien « Blog » est masqué ici. */
   readonly navGroups = NAV_GROUPS;
@@ -163,6 +167,21 @@ export class BlogListComponent {
   private rotateId: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
+    // Description propre à la page : sans elle, `/blog` reprenait celle de l'accueil figée dans
+    // `index.html` — deux URL référencées sous la même description, que Google lit comme un
+    // doublon. Posée ici, donc présente dans le HTML rendu côté serveur.
+    const description =
+      'Conseils, guides et actualités pour les indépendants : facturation, ' +
+      "gestion d'activité et mise en réseau. Le blog de Moze.";
+
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: 'Blog – Moze' });
+    this.meta.updateTag({ property: 'og:description', content: description });
+
+    // Vignette de partage : sans elle, un lien vers le blog posté sur LinkedIn n'affichait
+    // aucune image. Les crawlers sociaux n'exécutent pas de JavaScript, d'où le constructeur.
+    this.seo.setSocialImage(SeoService.DEFAULT_SOCIAL_IMAGE, SOCIAL_IMAGE_ALT);
+
     this.loadTags();
     this.loadFeatured();
     // Valeur live (affichage du bouton ✕).

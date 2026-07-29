@@ -17,6 +17,7 @@ import {ContactPanelService} from "../../services/contact-panel.service";
 import {ActivityStepsComponent} from "./activity-steps/activity-steps.component";
 import {DownloadAppsComponent} from "./download-apps/download-apps.component";
 import {MediaPressComponent} from "./media-press/media-press.component";
+import {SeoService, SOCIAL_IMAGE_ALT} from "../../services/seo.service";
 
 @Component({
     selector: 'app-home',
@@ -45,8 +46,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly router            = inject(Router);
   private readonly contactPanel      = inject(ContactPanelService);
   private readonly destroyRef        = inject(DestroyRef);
+  private readonly seo               = inject(SeoService);
 
   constructor() {
+    // Vignette de partage. `index.html` porte déjà `og:title` et `og:description`, mais aucune
+    // image : partagé sur LinkedIn ou WhatsApp, le lien de l'accueil arrivait sans visuel, donc
+    // en carte réduite à deux lignes de texte.
+    this.seo.setSocialImage(SeoService.DEFAULT_SOCIAL_IMAGE, SOCIAL_IMAGE_ALT);
+
     // `afterNextRender` et non `ngAfterViewInit` : Angular exécute tout le cycle
     // de vie pendant le rendu serveur, `ngAfterViewInit` compris. Depuis que `/`
     // est prérendu, y toucher au DOM ferait échouer le build.

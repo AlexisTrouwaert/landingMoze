@@ -154,6 +154,21 @@ describe('ArticleViewComponent', () => {
     http.expectNone((r) => r.url.includes('/link-preview'));
   });
 
+  /**
+   * L'alignement posé par l'éditeur voyage en `style="text-align:…"`. Il traverse la whitelist du
+   * back, mais Angular sanitise à son tour le `[innerHTML]` : si le sanitizer retirait
+   * l'attribut, le rédacteur verrait son texte centré dans l'éditeur et à plat en ligne.
+   */
+  it('conserve l’alignement du texte jusqu’au DOM rendu', () => {
+    render('<p class="ta-center">Centré</p><p>Normal</p>');
+
+    const paragraphes = (fixture.nativeElement as HTMLElement).querySelectorAll('.article__content p');
+    expect(paragraphes.length).toBe(2);
+    expect(paragraphes[0].classList.contains('ta-center')).toBeTrue();
+    expect(getComputedStyle(paragraphes[0]).textAlign).toBe('center');
+    expect(getComputedStyle(paragraphes[1]).textAlign).not.toBe('center');
+  });
+
   it('sans lien : un seul bloc, le contenu tel quel', () => {
     render('<h2>Titre</h2><p>Du texte</p>');
 

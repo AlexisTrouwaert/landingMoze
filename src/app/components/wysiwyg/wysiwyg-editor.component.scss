@@ -164,6 +164,23 @@
     color: #9aa7ac;
   }
 
+  /* Alignement : le contenu enregistré revient avec ces classes, pas avec un `style` inline.
+     Sans ces règles, le rédacteur verrait son texte centré à la frappe — l'inline d'`execCommand`
+     s'affiche seul — puis à plat en rouvrant l'article, et croirait la mise en forme perdue.
+
+     `::ng-deep` est indispensable : ce que contient la zone éditable ne vient pas du gabarit
+     Angular mais de `innerHTML` et de la frappe, donc sans attribut d'encapsulation. Sans lui, la
+     règle compilée exige `.ta-center[_ngcontent-…]` et ne s'applique à rien.
+
+     Doit rester identique aux règles de `article-view.component.scss`, qui gouvernent
+     l'affichage public. */
+  ::ng-deep {
+    .ta-left { text-align: left; }
+    .ta-center { text-align: center; }
+    .ta-right { text-align: right; }
+    .ta-justify { text-align: justify; }
+  }
+
   h2 {
     color: var(--adm-ink-700, #145775);
     font-size: 1.5rem;
