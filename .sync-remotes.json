@@ -1,5 +1,11 @@
 {
-  "_comment": "Remotes synchronises par scripts/sync-remotes.mjs. branchPrefix isole ce repo des autres qui partagent le meme depot distant (le back pousse sous back/).",
+  "_comment": "Remotes synchronises par scripts/sync-remotes.mjs. Le premier remote est le remote de reference : un push vers lui declenche la propagation vers les suivants (hook .githooks/pre-push). branchPrefix isole ce repo des autres qui partagent le meme depot distant (le back pousse sous back/).",
+  "hooks": {
+    "_autoPull": "true = si la branche est en retard sur origin, le hook rapatrie puis annule le push (a relancer). false = il refuse simplement le push.",
+    "autoPull": true
+  },
+  "_checks": "Commandes shell lancees avant toute propagation. Ex: [\"npm run build\"]. Vide = aucune, le push reste instantane.",
+  "checks": [],
   "remotes": [
     {
       "name": "origin",
