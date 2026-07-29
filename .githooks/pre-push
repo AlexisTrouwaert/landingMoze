@@ -1,0 +1,8 @@
+#!/bin/sh
+# Propage vers les remotes secondaires a chaque "git push origin".
+# Toute la logique est dans scripts/sync-remotes.mjs (commande "hook").
+# Ce fichier est volontairement minimal : sous Windows il tourne avec le sh
+# fourni par Git for Windows, pas celui de WSL.
+#
+# Pour sauter le hook ponctuellement : git push --no-verify
+exec node "$(git rev-parse --show-toplevel)/scripts/sync-remotes.mjs" hook "$@"

@@ -10,7 +10,10 @@
     "archive:prod": "npm run build:prod && mkdir -p build/prod && (cd dist/landing && tar -czvf ../../build/prod/landing-PROD-$(date +%Y%m%d%H%M%S).tar.gz .)",
     "archive:prod-win": "npm run build:prod && powershell -Command \"mkdir -p build/prod -ErrorAction SilentlyContinue; cd dist/landing; tar -czvf ../../build/prod/landing-PROD-$(Get-Date -Format 'yyyyMMddHHmmss').tar.gz .\"",
 
-    "test": "ng test"
+    "test": "ng test",
+    "remotes:setup": "node scripts/sync-remotes.mjs setup",
+    "remotes:status": "node scripts/sync-remotes.mjs status",
+    "push:both": "node scripts/sync-remotes.mjs push"
   },
   "private": true,
   "dependencies": {
