@@ -182,6 +182,10 @@ export class BlogListComponent {
     // aucune image. Les crawlers sociaux n'exécutent pas de JavaScript, d'où le constructeur.
     this.seo.setSocialImage(SeoService.DEFAULT_SOCIAL_IMAGE, SOCIAL_IMAGE_ALT);
 
+    // Le composant peut disparaître alors que le champ a encore le focus (navigation vers un
+    // article depuis le clavier ouvert) : sans ça, l'écouteur de défilement survivrait à la page.
+    this.destroyRef.onDestroy(() => this.stopWatchingScroll());
+
     this.loadTags();
     this.loadFeatured();
     // Valeur live (affichage du bouton ✕).
@@ -330,6 +334,63 @@ export class BlogListComponent {
 
   clearSearch(): void {
     this.searchControl.setValue('');
+  }
+
+  // --- Fermeture du clavier natif ---
+
+  /** Champ de recherche : cible du retrait de focus. */
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  /**
+   * Défilement au-delà duquel on considère que le lecteur parcourt la page.
+   *
+   * Un seuil, et non le moindre pixel : sur iOS, donner le focus à un champ fait défiler la page
+   * d'elle-même pour le dégager du clavier qui s'ouvre. Sans cette marge, le champ se refermerait
+   * dans l'instant qui suit son ouverture, et la saisie serait impossible.
+   */
+  private static readonly SCROLL_DISMISS_PX = 48;
+
+  private scrollAtFocus = 0;
+  private stopScrollListener: (() => void) | null = null;
+
+  /**
+   * Sort du champ, ce qui referme le clavier natif.
+   *
+   * Appelé par la touche « Rechercher » du clavier mobile. `preventDefault` d'abord : cette
+   * touche vaut validation, et déclencherait la soumission du formulaire implicite de la page.
+   */
+  dismissSearchKeyboard(event?: Event): void {
+    event?.preventDefault();
+    this.searchInput()?.nativeElement.blur();
+  }
+
+  /**
+   * Referme aussi le clavier dès que le lecteur fait défiler la page.
+   *
+   * L'écouteur n'existe que pendant la saisie : il est posé à la prise de focus, retiré à sa
+   * perte. Un écouteur permanent sur le défilement tournerait à chaque pixel du reste de la
+   * visite, pour ne rien faire.
+   */
+  watchScrollToDismiss(): void {
+    if (this.stopScrollListener) return;
+
+    this.scrollAtFocus = window.scrollY;
+
+    const onScroll = () => {
+      const parcouru = Math.abs(window.scrollY - this.scrollAtFocus);
+      if (parcouru < BlogListComponent.SCROLL_DISMISS_PX) return;
+      this.dismissSearchKeyboard();
+    };
+
+    // `passive` : on ne bloque jamais le défilement, autant le dire au navigateur.
+    window.addEventListener('scroll', onScroll, { passive: true });
+    this.stopScrollListener = () =>
+      window.removeEventListener('scroll', onScroll);
+  }
+
+  stopWatchingScroll(): void {
+    this.stopScrollListener?.();
+    this.stopScrollListener = null;
   }
 
   toggleTag(slug: string): void {

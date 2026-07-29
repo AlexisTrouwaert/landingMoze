@@ -174,43 +174,46 @@
 
      Doit rester identique aux règles de `article-view.component.scss`, qui gouvernent
      l'affichage public. */
+  /* Tout ce qui suit vise le contenu, d'où le `::ng-deep` commun. Ces règles étaient écrites
+     sans lui : compilées en `h2[_ngcontent-…]`, elles ne s'appliquaient à rien, et l'éditeur
+     affichait le rendu par défaut du navigateur — d'où l'écart avec l'article publié. */
   ::ng-deep {
     .ta-left { text-align: left; }
     .ta-center { text-align: center; }
     .ta-right { text-align: right; }
     .ta-justify { text-align: justify; }
-  }
 
-  h2 {
-    color: var(--adm-ink-700, #145775);
-    font-size: 1.5rem;
-    margin: 1.2rem 0 0.5rem;
-  }
-  h3 {
-    color: var(--adm-ink-700, #145775);
-    font-size: 1.2rem;
-    margin: 1rem 0 0.4rem;
-  }
-  p {
-    margin: 0 0 0.8rem;
-  }
-  ul,
-  ol {
-    margin: 0 0 0.8rem 1.5rem;
-  }
-  a {
-    color: var(--interaction-color);
-  }
-  img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin: 0.75rem 0;
-  }
-  blockquote {
-    border-left: 4px solid var(--accent-color);
-    background: #eef9ef;
-    padding: 0.6rem 1rem;
-    margin: 1rem 0;
-    border-radius: 0 8px 8px 0;
+    h2 {
+      color: var(--adm-ink-700, #145775);
+      font-size: 1.5rem;
+      margin: 1.2rem 0 0.5rem;
+    }
+    h3 {
+      color: var(--adm-ink-700, #145775);
+      font-size: 1.2rem;
+      margin: 1rem 0 0.4rem;
+    }
+    p {
+      margin: 0 0 0.8rem;
+    }
+    ul,
+    ol {
+      margin: 0 0 0.8rem 1.5rem;
+    }
+    a {
+      color: var(--interaction-color);
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 0.75rem 0;
+    }
+    blockquote {
+      border-left: 4px solid var(--accent-color);
+      background: #eef9ef;
+      padding: 0.6rem 1rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
   }
 }

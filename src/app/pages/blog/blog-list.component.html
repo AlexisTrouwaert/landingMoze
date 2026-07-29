@@ -151,13 +151,18 @@
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     </span>
-    <!-- La touche « Rechercher » du clavier mobile ferme le clavier et sort du
-         champ par défaut. La recherche étant déjà instantanée, on neutralise
-         cette action : la saisie continue sans reprendre le focus. -->
+    <!-- La touche « Rechercher » du clavier mobile et le défilement de la page sortent tous deux
+         du champ, donc referment le clavier. La recherche étant instantanée, les résultats sont
+         déjà là : garder le clavier ouvert masquerait la moitié de l'écran au moment précis où le
+         lecteur veut les parcourir. `enterkeyhint` demande explicitement la loupe. -->
     <input
+      #searchInput
       type="search"
       [formControl]="searchControl"
-      (keydown.enter)="$event.preventDefault()"
+      enterkeyhint="search"
+      (keydown.enter)="dismissSearchKeyboard($event)"
+      (focus)="watchScrollToDismiss()"
+      (blur)="stopWatchingScroll()"
       placeholder="Rechercher un article…"
       aria-label="Rechercher un article"
     />

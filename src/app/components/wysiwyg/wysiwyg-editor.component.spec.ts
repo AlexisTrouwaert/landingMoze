@@ -383,4 +383,21 @@ describe('WysiwygEditorComponent (alignement à la réouverture)', () => {
     expect(getComputedStyle(host.querySelector('.wys-editable h2')!).textAlign).toBe('center');
     expect(getComputedStyle(host.querySelector('.wys-editable li')!).textAlign).toBe('right');
   });
+
+  /**
+   * Même mécanisme, même piège : ces règles-là étaient écrites sans `::ng-deep` et
+   * n'atteignaient donc pas le contenu. L'éditeur montrait le rendu par défaut du navigateur,
+   * d'où l'écart avec l'article publié.
+   */
+  it('applique la mise en forme du contenu, pas seulement l’alignement', () => {
+    const host = open('<h2>Titre</h2><blockquote>Citation</blockquote><p>Texte</p>');
+
+    // `--adm-ink-700` n'est pas défini dans le contexte du test : c'est le repli #145775.
+    expect(getComputedStyle(host.querySelector('.wys-editable h2')!).color).toBe(
+      'rgb(20, 87, 117)',
+    );
+    expect(
+      getComputedStyle(host.querySelector('.wys-editable blockquote')!).backgroundColor,
+    ).toBe('rgb(238, 249, 239)');
+  });
 });

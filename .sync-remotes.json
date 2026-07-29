@@ -1,0 +1,15 @@
+{
+  "_comment": "Remotes synchronises par scripts/sync-remotes.mjs. branchPrefix isole ce repo des autres qui partagent le meme depot distant (le back pousse sous back/).",
+  "remotes": [
+    {
+      "name": "origin",
+      "url": "https://github.com/AlexisTrouwaert/landingMoze.git",
+      "branchPrefix": ""
+    },
+    {
+      "name": "origin2",
+      "url": "https://github.com/MOZECONNECT/moze.fr.git",
+      "branchPrefix": "front/"
+    }
+  ]
+}

@@ -165,3 +165,108 @@ describe('BlogListComponent', () => {
     discardPeriodicTasks();
   }));
 });
+
+/**
+ * Sortie du champ de recherche : le clavier natif masque la moitié de l'écran, alors que les
+ * résultats sont déjà là — la recherche est instantanée. La touche « Rechercher » et le
+ * défilement doivent donc tous deux rendre l'écran au lecteur.
+ *
+ * `window.scrollY` est simulé : le navigateur de test ne défile pas de lui-même.
+ */
+describe('BlogListComponent (fermeture du clavier)', () => {
+  let blog: jasmine.SpyObj<BlogService>;
+  let fixture: ComponentFixture<BlogListComponent>;
+  let input: HTMLInputElement;
+  let scrollY = 0;
+  let descripteurOrigine: PropertyDescriptor | undefined;
+
+  beforeEach(() => {
+    blog = jasmine.createSpyObj<BlogService>('BlogService', ['list', 'publicTags', 'featured']);
+    blog.publicTags.and.returnValue(of([]));
+    blog.featured.and.returnValue(of([]));
+    blog.list.and.returnValue(of({ items: [], total: 0, page: 1, size: 9 }));
+
+    TestBed.configureTestingModule({
+      imports: [BlogListComponent],
+      providers: [
+        provideRouter([]),
+        { provide: BlogService, useValue: blog },
+        {
+          provide: MetaPixelService,
+          useValue: jasmine.createSpyObj('MetaPixelService', ['trackLeadCTA']),
+        },
+        {
+          provide: ContactPanelService,
+          useValue: jasmine.createSpyObj('ContactPanelService', ['open']),
+        },
+      ],
+    });
+
+    descripteurOrigine = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: () => scrollY });
+    scrollY = 0;
+
+    fixture = TestBed.createComponent(BlogListComponent);
+    fixture.detectChanges();
+    input = fixture.nativeElement.querySelector('input[type="search"]');
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (descripteurOrigine) Object.defineProperty(window, 'scrollY', descripteurOrigine);
+    else delete (window as unknown as Record<string, unknown>)['scrollY'];
+  });
+
+  /** Défile puis émet l'événement : le navigateur de test ne le fait pas seul. */
+  function defiler(y: number): void {
+    scrollY = y;
+    window.dispatchEvent(new Event('scroll'));
+  }
+
+  it('la touche « Rechercher » du clavier sort du champ', () => {
+    input.focus();
+    expect(document.activeElement).toBe(input);
+
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }),
+    );
+
+    expect(document.activeElement).not.toBe(input);
+  });
+
+  it('un défilement franc sort du champ', () => {
+    input.focus();
+    defiler(200);
+    expect(document.activeElement).not.toBe(input);
+  });
+
+  it('le défilement d’ouverture du clavier (iOS) ne sort pas du champ', () => {
+    // iOS remonte la page de quelques dizaines de pixels pour dégager le champ du clavier.
+    // Sans seuil, la saisie serait impossible : le champ se refermerait aussitôt ouvert.
+    input.focus();
+    defiler(30);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('le seuil repart de la position à laquelle on revient dans le champ', () => {
+    input.focus();
+    defiler(300);
+    expect(document.activeElement).not.toBe(input);
+
+    // L'écouteur a été retiré à la sortie : en revenant, le seuil se mesure depuis 300 px,
+    // pas depuis le haut de la page.
+    input.focus();
+    defiler(320);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('la saisie n’est pas perdue en refermant le clavier', () => {
+    input.focus();
+    input.value = 'crédit';
+    input.dispatchEvent(new Event('input'));
+    defiler(200);
+
+    expect(document.activeElement).not.toBe(input);
+    expect(input.value).toBe('crédit');
+  });
+});
