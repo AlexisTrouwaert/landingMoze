@@ -9,8 +9,19 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { findUrls, sameUrl } from '../../common/link-detection';
 import { PromptDialogComponent } from '../prompt-dialog/prompt-dialog.component';
 import { BlogService } from '../../services/blog.service';
+
+/** Un lien dont le texte affiché annonce une adresse, et le `href` une autre. */
+export interface MismatchedLink {
+  /** L'adresse que le lecteur voit dans le texte. */
+  readonly shown: string;
+  /** La destination réelle du clic. */
+  readonly target: string;
+  /** Son hôte seul, pour un message court. */
+  readonly targetHost: string;
+}
 
 /**
  * Éditeur WYSIWYG maison (sans librairie externe, cf. BLOG_DETAILLE §7).
@@ -66,6 +77,9 @@ export class WysiwygEditorComponent
   ngAfterViewInit(): void {
     if (this.editorRef) {
       this.editorRef.nativeElement.innerHTML = this.pendingValue;
+      // Un article déjà enregistré peut porter le défaut : on le signale dès l'ouverture, sans
+      // attendre que l'auteur touche au texte.
+      this.refreshMismatchedLinks();
     }
     // Sans ça, `execCommand` produit des `<span style="font-weight:bold">` et la
     // zone éditable crée un `<div>` à chaque retour à la ligne : deux formes
@@ -83,6 +97,7 @@ export class WysiwygEditorComponent
     this.pendingValue = value ?? '';
     if (this.editorRef) {
       this.editorRef.nativeElement.innerHTML = this.pendingValue;
+      this.refreshMismatchedLinks();
     }
   }
   registerOnChange(fn: (value: string) => void): void {
@@ -99,6 +114,80 @@ export class WysiwygEditorComponent
   onInput(): void {
     if (this.editorRef)
       this.onChange(this.toSemanticHtml(this.editorRef.nativeElement.innerHTML));
+    this.refreshMismatchedLinks();
+  }
+
+  // --- Garde-fou : libellé ≠ destination ---
+
+  /**
+   * Liens dont le texte affiché est une adresse, différente de celle où mène le clic.
+   *
+   * Le cas se produit tout seul : on retape ou on colle une URL **à l'intérieur** d'un lien déjà
+   * posé. Le libellé change, le `href` reste — `contentEditable` ne le réécrit pas, et le
+   * nettoyage de sortie conserve l'attribut tel quel (cf. `cleanPastedHtml`). Rien ne le
+   * signalait, ni à la frappe ni à l'enregistrement : l'article partait en ligne en annonçant une
+   * adresse et en menant à une autre.
+   */
+  readonly mismatchedLinks = signal<MismatchedLink[]>([]);
+
+  private refreshMismatchedLinks(): void {
+    const root = this.editorRef?.nativeElement;
+    if (!root) return;
+
+    const found: MismatchedLink[] = [];
+
+    for (const anchor of Array.from(root.querySelectorAll('a[href]'))) {
+      const shown = this.shownUrl(anchor);
+      const target = anchor.getAttribute('href')?.trim();
+      if (!shown || !target || sameUrl(shown, target)) continue;
+
+      found.push({ shown, target, targetHost: this.hostOf(target) });
+    }
+
+    this.mismatchedLinks.set(found);
+  }
+
+  /**
+   * L'adresse qu'un lien affiche, à condition que son libellé ne soit **que** cela.
+   *
+   * `null` dès que l'auteur a écrit une phrase (« voir l'article ») : là, le texte et la
+   * destination n'ont aucune raison de coïncider, et prévenir serait du bruit.
+   */
+  private shownUrl(anchor: Element): string | null {
+    const label = anchor.textContent?.trim() ?? '';
+    if (!label) return null;
+
+    const urls = findUrls(label);
+    return urls.length === 1 && urls[0].text === label ? urls[0].href : null;
+  }
+
+  private hostOf(url: string): string {
+    try {
+      return new URL(url).host.replace(/^www\./, '');
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Aligne la destination des liens signalés sur l'adresse qu'ils affichent.
+   *
+   * Le texte fait foi, pas le `href` : c'est lui que l'auteur vient d'écrire, et c'est lui que le
+   * lecteur voit. L'inverse — corriger le texte — effacerait la saisie la plus récente.
+   */
+  alignMismatchedLinks(): void {
+    const root = this.editorRef?.nativeElement;
+    if (!root || this.disabled()) return;
+
+    for (const anchor of Array.from(root.querySelectorAll('a[href]'))) {
+      const shown = this.shownUrl(anchor);
+      const target = anchor.getAttribute('href')?.trim();
+      if (!shown || !target || sameUrl(shown, target)) continue;
+
+      anchor.setAttribute('href', shown);
+    }
+
+    this.onInput();
   }
 
   /**

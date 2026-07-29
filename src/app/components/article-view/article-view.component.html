@@ -10,15 +10,36 @@
     </div>
   </header>
 
-  <!-- Contenu HTML rendu via [innerHTML] : sanitizé côté back (whitelist) ET par
-       Angular au rendu (double protection anti-XSS, cf. §13).
-       La couverture se place selon `coverPosition`, le texte à l'opposé. -->
+  <!-- La couverture se place selon `coverPosition`, le texte à l'opposé. Le corps est le même
+       dans les deux cas, d'où le gabarit partagé plutôt qu'une copie. -->
   @if (article().coverImageUrl) {
     <div [class]="'article__body article__body--' + article().coverPosition">
       <img class="article__cover" [src]="article().coverImageUrl" [alt]="article().title" />
-      <div class="article__content" [innerHTML]="article().content"></div>
+      <ng-container *ngTemplateOutlet="body"></ng-container>
     </div>
   } @else {
-    <div class="article__content" [innerHTML]="article().content"></div>
+    <ng-container *ngTemplateOutlet="body"></ng-container>
   }
 </article>
+
+<ng-template #body>
+  <div class="article__content">
+    <!-- Segments rendus dans l'ordre : chaque carte se retrouve ainsi juste après le lien qu'elle
+         illustre (cf. `blocks`). Suivi par position et non par URL : un même lien peut être cité
+         deux fois, et deux segments porteraient alors la même clé. Recréer une carte ne coûte pas
+         de requête, `LinkPreviewService` gardant chaque aperçu en cache.
+
+         Contenu HTML rendu via [innerHTML] : sanitizé côté back (whitelist) ET par Angular au
+         rendu (double protection anti-XSS, cf. §13). Les URL laissées en texte brut y sont
+         devenues des liens cliquables. -->
+    @for (block of blocks(); track $index) {
+      @if (block.kind === 'preview') {
+        <app-link-preview
+          [url]="block.url"
+          (resolved)="onPreviewResolved(block.url, $event)" />
+      } @else {
+        <div class="article__part" [innerHTML]="block.html"></div>
+      }
+    }
+  </div>
+</ng-template>

@@ -8,8 +8,12 @@
     (linkAction)="onDockAction($event)"></app-floating-dock>
 
   <main class="step-content">
+    <!-- Première étape rendue directement, sans `@defer` : un bloc différé n'est pas rendu côté
+         serveur, si bien que `/commencer` ne partait qu'avec son dock — pas de `<h1>`, pas une
+         ligne du contenu pour les robots. Les étapes suivantes restent différées : elles ne sont
+         atteintes qu'après une interaction, personne ne les indexe. -->
     @if (fs.currentStep() === 1) {
-      @defer (on immediate) { <app-sector-step /> }
+      <app-sector-step />
     }
     @if (fs.currentStep() === 2) {
       @defer (on immediate) { <app-sap-step /> }

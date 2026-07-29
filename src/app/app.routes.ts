@@ -34,5 +34,18 @@ export const routes: Routes = [
     path: 'desinscription',
     loadComponent: () => import('./pages/desinscription/desinscription.component').then(m => m.DesinscriptionComponent)
   },
-{ path: '**', redirectTo: '' }
+  /**
+   * URL inconnue → page 404, et non plus `redirectTo: ''`.
+   *
+   * Le rendu serveur traduisait cette redirection en **302 vers `/`** : la Search Console y
+   * voyait autant de « pages avec redirection », et le visiteur atterrissait sur l'accueil sans
+   * savoir ce qu'était devenue la page demandée. Le statut 404 est posé par la route serveur
+   * correspondante (`app.routes.server.ts`).
+   */
+  {
+    path: '**',
+    title: 'Page introuvable – Moze',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
+  }
 ];

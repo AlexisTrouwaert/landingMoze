@@ -1,4 +1,5 @@
 import {Component, inject, OnInit} from '@angular/core';
+import {Meta} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {FunnelService} from "../../services/funnel.service";
 import {MetaPixelService} from "../../services/meta-pixel.service";
@@ -27,6 +28,7 @@ import {ContactPanelService} from "../../services/contact-panel.service";
 export class FunnelComponent implements OnInit {
   fs = inject(FunnelService);
   private router = inject(Router);
+  private readonly meta = inject(Meta);
   private readonly metaPixel = inject(MetaPixelService);
   private readonly brevo = inject(BrevoService);
   private readonly ga = inject(GoogleAnalyticsService);
@@ -41,6 +43,17 @@ export class FunnelComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Description propre à la page : sans elle, `/commencer` reprenait mot pour mot celle de
+    // l'accueil figée dans `index.html` — même titre, même description, deux URL : le signal de
+    // duplication que Google pénalise, sur la page qui porte l'inscription.
+    const description =
+      "Créez votre compte Moze en quelques minutes : facturation collaborative, " +
+      "facturation électronique (Factur-X) et mise en réseau entre indépendants. Inscription gratuite.";
+
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: 'Commencer gratuitement – Moze' });
+    this.meta.updateTag({ property: 'og:description', content: description });
+
     // Entrée du funnel — fire au premier rendu de /commencer.
     this.metaPixel.trackFunnelStarted();
     this.brevo.trackFunnelStarted();

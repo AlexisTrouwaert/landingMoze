@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -179,5 +179,120 @@ describe('WysiwygEditorComponent (nettoyage collage & liens)', () => {
     it('email → mailto:', () => {
       expect(normalize('a@b.fr')).toBe('mailto:a@b.fr');
     });
+  });
+});
+
+/**
+ * Garde-fou : un lien dont le texte affiché est une adresse différente de sa destination.
+ * Ici la vue est rendue — la détection travaille sur le DOM de la zone éditable.
+ */
+describe('WysiwygEditorComponent (lien affiché ≠ destination)', () => {
+  let fixture: ComponentFixture<WysiwygEditorComponent>;
+  let component: WysiwygEditorComponent;
+  let emitted: string | null;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [WysiwygEditorComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(WysiwygEditorComponent);
+    component = fixture.componentInstance;
+    emitted = null;
+    component.registerOnChange((value) => (emitted = value));
+  });
+
+  /** Ouvre l'éditeur sur un contenu existant (comme à l'édition d'un article enregistré). */
+  function open(html: string): void {
+    component.writeValue(html);
+    fixture.detectChanges();
+  }
+
+  const link = (href: string, label: string) =>
+    `<p><a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a></p>`;
+
+  it('signale dès l’ouverture un lien qui affiche une adresse et mène ailleurs', () => {
+    open(link('https://x.com/user/status/123?s=46', 'https://www.youtube.com/watch?v=abc'));
+
+    expect(component.mismatchedLinks()).toEqual([
+      {
+        shown: 'https://www.youtube.com/watch?v=abc',
+        target: 'https://x.com/user/status/123?s=46',
+        targetHost: 'x.com',
+      },
+    ]);
+  });
+
+  it('se tait quand le libellé est une phrase', () => {
+    open(link('https://x.com/a', 'voir notre guide'));
+
+    expect(component.mismatchedLinks()).toEqual([]);
+  });
+
+  it('se tait sur les écarts de présentation (schéma, www., barre finale)', () => {
+    open(
+      link('https://www.moze.fr/blog/', 'moze.fr/blog') +
+        link('https://exemple.fr/a', 'http://exemple.fr/a'),
+    );
+
+    expect(component.mismatchedLinks()).toEqual([]);
+  });
+
+  it('relève chaque lien fautif', () => {
+    open(
+      link('https://x.com/a', 'https://youtube.com/watch?v=1') +
+        link('https://ok.fr/a', 'https://ok.fr/a') +
+        link('https://b.fr/a', 'https://c.fr/a'),
+    );
+
+    expect(component.mismatchedLinks().map((l) => l.targetHost)).toEqual(['x.com', 'b.fr']);
+  });
+
+  it('le bouton fait pointer le lien vers l’adresse affichée', () => {
+    open(link('https://x.com/user/status/123', 'https://www.youtube.com/watch?v=abc'));
+
+    component.alignMismatchedLinks();
+    fixture.detectChanges();
+
+    expect(component.mismatchedLinks()).toEqual([]);
+    expect(emitted).toContain('href="https://www.youtube.com/watch?v=abc"');
+    expect(emitted).not.toContain('x.com');
+    // Le libellé, lui, n'est pas touché : c'est la saisie la plus récente de l'auteur.
+    expect(emitted).toContain('>https://www.youtube.com/watch?v=abc</a>');
+  });
+
+  it('affiche l’avertissement sous la barre, et le clic le fait disparaître', () => {
+    open(link('https://x.com/user/status/123', 'https://www.youtube.com/watch?v=abc'));
+
+    const banner: HTMLElement = fixture.nativeElement.querySelector('.wys-mismatch');
+    expect(banner).not.toBeNull();
+    expect(banner.textContent).toContain('Un lien affiche une adresse');
+    expect(banner.textContent).toContain('https://www.youtube.com/watch?v=abc');
+    expect(banner.textContent).toContain('x.com');
+
+    banner.querySelector<HTMLButtonElement>('.wys-mismatch__fix')!.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.wys-mismatch')).toBeNull();
+    expect(emitted).toContain('href="https://www.youtube.com/watch?v=abc"');
+  });
+
+  it('un libellé sans schéma donne une destination absolue', () => {
+    open(link('https://x.com/a', 'www.moze.fr/blog'));
+
+    component.alignMismatchedLinks();
+
+    expect(emitted).toContain('href="https://www.moze.fr/blog"');
+  });
+
+  it('éditeur désactivé : le bouton ne modifie rien', () => {
+    open(link('https://x.com/a', 'https://youtube.com/watch?v=abc'));
+    component.setDisabledState(true);
+
+    component.alignMismatchedLinks();
+
+    expect(emitted).toBeNull();
+    expect(component.mismatchedLinks().length).toBe(1);
   });
 });

@@ -1,0 +1,108 @@
+// Toutes les règles internes sont imbriquées sous `.link-preview`, à dessein : la carte est
+// rendue à l'intérieur de `.article__content`, dont les styles `::ng-deep` (`img`, `a`…)
+// atteignent le DOM de ce composant. Un sélecteur à deux classes passe devant `.article__content
+// img` — sans quoi la marge des images d'article s'appliquerait à la vignette de la carte.
+:host {
+  display: block;
+  // La colonne de l'article monte à 760px : sans borne, l'image Open Graph (1200x630) occuperait
+  // toute la largeur et prendrait le pas sur le texte. La carte reste fluide en dessous.
+  // Pas de marge externe ici : l'espacement relève du contexte qui accueille la carte.
+  max-width: 520px;
+}
+
+.link-preview {
+  display: block;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(20, 87, 117, 0.12);
+  background: #fff;
+  text-decoration: none;
+  box-shadow: 0 8px 30px rgba(20, 87, 117, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(2, 151, 216, 0.35);
+    box-shadow: 0 14px 40px rgba(20, 87, 117, 0.14);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--interaction-color);
+    outline-offset: 2px;
+  }
+
+  .lp-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .lp-title {
+    color: var(--primary-color);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.35;
+    // Faute de titre, la ligne porte l'adresse : une URL n'a pas d'espace où se couper.
+    overflow-wrap: anywhere;
+    // Un titre d'article peut être long : on le borne à deux lignes plutôt que de laisser
+    // l'en-tête pousser l'image hors de vue.
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .lp-source {
+    color: #8a979d;
+    font-size: 0.8rem;
+    // Le domaine dit où mène le clic : information de confiance, pas décorative.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lp-image {
+    display: block;
+    width: 100%;
+    // Ratio Open Graph usuel : réserve la place avant le chargement, donc pas de saut.
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+    // Annule la mise en forme des images du corps de l'article (`article-view`), qui vise les
+    // illustrations posées par l'auteur, pas la vignette d'une carte.
+    border-radius: 0;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .lp-icon {
+    flex-shrink: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: #8a979d;
+  }
+}
+
+// Repli sans image : une seule ligne, icône à gauche, textes à droite.
+.link-preview--compact {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1rem;
+
+  .lp-header {
+    padding: 0;
+    // Indispensable pour que l'ellipsis des enfants s'applique dans un conteneur flex.
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-preview {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

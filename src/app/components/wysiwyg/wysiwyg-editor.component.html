@@ -59,6 +59,33 @@
     <p class="wys-error" role="alert">{{ imageError() }}</p>
   }
 
+  <!-- Garde-fou : un lien qui affiche une adresse et mène ailleurs. Volontairement non bloquant
+       (`role="status"`, pas `alert`) : c'est parfois voulu — un lien de suivi, un raccourcisseur.
+       L'auteur corrige d'un clic, ou continue. -->
+  @if (mismatchedLinks().length) {
+    <div class="wys-mismatch" role="status">
+      <p class="wys-mismatch__title">
+        @if (mismatchedLinks().length === 1) {
+          Un lien affiche une adresse qui n'est pas sa destination :
+        } @else {
+          {{ mismatchedLinks().length }} liens affichent une adresse qui n'est pas leur destination :
+        }
+      </p>
+      <ul class="wys-mismatch__list">
+        @for (link of mismatchedLinks(); track link.shown + '|' + link.target) {
+          <li>
+            <span class="wys-mismatch__shown">{{ link.shown }}</span>
+            <span class="wys-mismatch__arrow">mène à</span>
+            <strong [title]="link.target">{{ link.targetHost }}</strong>
+          </li>
+        }
+      </ul>
+      <button type="button" class="wys-mismatch__fix" [disabled]="disabled()" (click)="alignMismatchedLinks()">
+        Faire pointer {{ mismatchedLinks().length === 1 ? 'le lien' : 'les liens' }} vers l'adresse affichée
+      </button>
+    </div>
+  }
+
   <div
     #editor
     class="wys-editable"

@@ -9,6 +9,28 @@ import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+/**
+ * Hôtes autorisés à déclencher le rendu serveur.
+ *
+ * Angular refuse de rendre une page pour un `Host` (ou `X-Forwarded-Host`) qu'il ne reconnaît
+ * pas — protection anti-SSRF introduite en v20. **Tant que cette liste est vide, aucun hôte
+ * n'est reconnu** : le moteur journalise « Falling back to client side rendering » et sert la
+ * coquille `index.csr.html`, en 200. Toutes les pages partaient donc vides chez les robots,
+ * accueil prérendu compris — d'où les pages mal indexées.
+ *
+ * `moze.fr` et `*.moze.fr` couvrent le domaine public et ses sous-domaines (www, préprod).
+ * `localhost` couvre le cas où le proxy ne conserve pas l'en-tête `Host` d'origine
+ * (`ProxyPreserveHost Off`) : Node voit alors `localhost:4000`. Le port n'entre pas dans la
+ * comparaison, seul le nom d'hôte compte.
+ *
+ * ⚠️ Un hôte hors liste reçoit désormais une **400**, plus une page vide : toute nouvelle
+ * origine servie par le proxy doit être ajoutée ici, ou passée par `NG_ALLOWED_HOSTS`.
+ */
+const ALLOWED_HOSTS = (process.env['NG_ALLOWED_HOSTS'] ?? 'moze.fr,*.moze.fr,localhost')
+  .split(',')
+  .map((host) => host.trim())
+  .filter(Boolean);
+
 const app = express();
 const angularApp = new AngularNodeAppEngine({
   // Derrière le reverse proxy (Apache/nginx) : on fait confiance à ses en-têtes
@@ -16,6 +38,7 @@ const angularApp = new AngularNodeAppEngine({
   // protocole du client. Sans ça, Angular avertit à chaque requête. Sûr ici car
   // le process n'est joignable que via le proxy (bind 127.0.0.1:4000).
   trustProxyHeaders: true,
+  allowedHosts: ALLOWED_HOSTS,
 });
 
 /**

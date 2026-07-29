@@ -3,6 +3,7 @@ import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
+import { environment } from '../../environements/environment';
 import { SeoService } from './seo.service';
 
 describe('SeoService', () => {
@@ -54,10 +55,15 @@ describe('SeoService', () => {
     }
   }
 
-  it('should remove robots meta tag by default (no route data)', () => {
+  /**
+   * Avant la première navigation, il n'y a pas d'adresse courante : le service ne touche à rien
+   * plutôt que de poser une canonique arbitraire. Le retrait du `robots` a bien lieu, mais à la
+   * navigation — cf. « should remove robots meta when noindex is missing ».
+   */
+  it('should not touch any tag before the first navigation', () => {
     TestBed.inject(SeoService);
     flush();
-    expect(metaRemoveSpy).toHaveBeenCalledWith('name="robots"');
+    expect(metaRemoveSpy).not.toHaveBeenCalled();
     expect(metaUpdateSpy).not.toHaveBeenCalled();
   });
 
@@ -108,5 +114,66 @@ describe('SeoService', () => {
     flush();
 
     expect(metaRemoveSpy).toHaveBeenCalledWith('name="robots"');
+  });
+
+  /**
+   * Canonique et `og:url` : figées sur l'accueil dans `index.html`, elles annonçaient chaque page
+   * comme un doublon de la page d'accueil.
+   */
+  describe('canonique et og:url', () => {
+    const canonical = (): string | null =>
+      document.head
+        .querySelector<HTMLLinkElement>('link[rel="canonical"]')
+        ?.getAttribute('href') ?? null;
+
+    afterEach(() => {
+      document.head.querySelector('link[rel="canonical"]')?.remove();
+    });
+
+    function navigate(url: string): void {
+      TestBed.inject(SeoService);
+      events$.next(new NavigationEnd(1, url, url));
+      flush();
+    }
+
+    it('pose la canonique et og:url sur l’adresse courante', () => {
+      navigate('/blog/mon-article');
+
+      expect(canonical()).toBe(`${environment.siteUrl}/blog/mon-article`);
+      expect(metaUpdateSpy).toHaveBeenCalledWith({
+        property: 'og:url',
+        content: `${environment.siteUrl}/blog/mon-article`,
+      });
+    });
+
+    it('écarte les paramètres de requête et l’ancre', () => {
+      navigate('/commencer?utm_source=linkedin&utm_medium=post#form');
+
+      expect(canonical()).toBe(`${environment.siteUrl}/commencer`);
+    });
+
+    it('garde la barre oblique de la racine, et une seule', () => {
+      navigate('/');
+      expect(canonical()).toBe(`${environment.siteUrl}/`);
+
+      navigate('/blog/');
+      expect(canonical()).toBe(`${environment.siteUrl}/blog`);
+    });
+
+    it('suit la redirection : c’est l’adresse d’arrivée qui fait foi', () => {
+      TestBed.inject(SeoService);
+      events$.next(new NavigationEnd(1, '/admin', '/admin/login'));
+      flush();
+
+      expect(canonical()).toBe(`${environment.siteUrl}/admin/login`);
+    });
+
+    it('réutilise la balise existante au lieu d’en empiler une seconde', () => {
+      navigate('/blog');
+      navigate('/commencer');
+
+      expect(document.head.querySelectorAll('link[rel="canonical"]').length).toBe(1);
+      expect(canonical()).toBe(`${environment.siteUrl}/commencer`);
+    });
   });
 });

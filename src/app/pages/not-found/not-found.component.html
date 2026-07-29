@@ -1,0 +1,14 @@
+<app-floating-dock [buttonLabel]="'Accueil'" (buttonClick)="goHome()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="notfound">
+  <p class="notfound__code">404</p>
+  <h1 class="notfound__title">Cette page n'existe pas</h1>
+  <p class="notfound__text">
+    L'adresse est peut-être erronée, ou la page a été retirée.
+  </p>
+
+  <div class="notfound__actions">
+    <a class="btn" [routerLink]="['/']">Retour à l'accueil</a>
+    <a class="btn btn--ghost" [routerLink]="['/blog']">Voir le blog</a>
+  </div>
+</div>

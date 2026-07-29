@@ -1,7 +1,7 @@
-import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  RESPONSE_INIT,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +12,7 @@ import { ArticleViewComponent } from '../../components/article-view/article-view
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 import { Article } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
+import { SeoService } from '../../services/seo.service';
 import { environment } from '../../../environements/environment';
 
 @Component({
@@ -27,7 +28,13 @@ export class BlogArticleComponent {
   private readonly blog = inject(BlogService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
-  private readonly document = inject(DOCUMENT);
+  private readonly seo = inject(SeoService);
+
+  /**
+   * En-tête de la réponse en cours de rendu — présent uniquement côté serveur, `null` dans le
+   * navigateur. Muter son `status` avant la fin du rendu change le code HTTP servi.
+   */
+  private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
 
   readonly article = signal<Article | null>(null);
   readonly loading = signal(true);
@@ -42,6 +49,7 @@ export class BlogArticleComponent {
           return this.blog.getBySlug(p.get('slug') ?? '').pipe(
             catchError(() => {
               this.notFound.set(true);
+              this.markNotFound();
               return of(null);
             }),
           );
@@ -54,6 +62,20 @@ export class BlogArticleComponent {
           this.applySeo(a);
         }
       });
+  }
+
+  /**
+   * Fait répondre 404 au lieu de 200 quand l'article n'existe pas.
+   *
+   * Sans ça, un slug mort renvoyait une page « Article introuvable » en **200** : pour un moteur,
+   * c'est une page valide et indexable — le « soft 404 » que la Search Console signale. Le lien
+   * partagé d'un article dépublié restait donc référencé.
+   *
+   * Sans effet dans le navigateur (`RESPONSE_INIT` y est `null`) : la navigation interne vers un
+   * article supprimé continue d'afficher la même page, sans rechargement.
+   */
+  private markNotFound(): void {
+    if (this.responseInit) this.responseInit.status = 404;
   }
 
   goHome(): void {
@@ -126,7 +148,11 @@ export class BlogArticleComponent {
       this.meta.updateTag({ name: 'twitter:card', content: 'summary' });
     }
 
-    this.setCanonical(url);
+    // La canonique est déjà posée par `SeoService` à la navigation, avec l'URL demandée. On la
+    // repose ici avec le slug de l'article tel que l'API le renvoie : les deux coïncident en
+    // temps normal, mais un ancien slug encore résolu par le back doit désigner l'adresse
+    // actuelle de l'article, pas celle par laquelle on est arrivé.
+    this.seo.setCanonical(url);
   }
 
   /**
@@ -150,19 +176,4 @@ export class BlogArticleComponent {
     return match ? `${match[1]}/og/${match[2]}.jpg` : coverImageUrl;
   }
 
-  /**
-   * `<link rel="canonical">` : `Meta` ne gère que les `<meta>`, on passe donc
-   * par le DOM. `DOCUMENT` et non `document` — ce code s'exécute aussi pendant
-   * le rendu serveur, où la variable globale n'existe pas.
-   */
-  private setCanonical(url: string): void {
-    const head = this.document.head;
-    let link = head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!link) {
-      link = this.document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      head.appendChild(link);
-    }
-    link.setAttribute('href', url);
-  }
 }

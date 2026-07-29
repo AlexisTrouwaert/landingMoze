@@ -98,6 +98,59 @@
   border-bottom: 1px solid #f5c6c2;
 }
 
+/* Avertissement, pas erreur : l'ambre plutôt que le rouge de `.wys-error`, qui signale un échec. */
+.wys-mismatch {
+  padding: 0.6rem 1.1rem 0.75rem;
+  background: #fff8e6;
+  border-bottom: 1px solid #f0dda6;
+  font-size: 0.85rem;
+  color: #7a5b12;
+
+  &__title {
+    margin: 0 0 0.35rem;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  &__list {
+    margin: 0 0 0.5rem;
+    padding-left: 1.1rem;
+
+    li {
+      margin-bottom: 0.15rem;
+      /* Une URL n'a pas d'espace où se couper : sans ça, elle pousse le bloc en largeur. */
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__shown {
+    font-family: ui-monospace, 'SFMono-Regular', 'Consolas', monospace;
+    font-size: 0.8rem;
+  }
+
+  &__arrow {
+    margin: 0 0.25rem;
+  }
+
+  &__fix {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid #e0c46a;
+    border-radius: 8px;
+    background: #fff;
+    color: #7a5b12;
+    font-size: 0.82rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: #fdf3dc;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
 .wys-editable {
   min-height: 280px;
   padding: 1rem 1.1rem;

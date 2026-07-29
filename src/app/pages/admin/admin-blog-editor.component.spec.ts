@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { AdminBlogEditorComponent } from './admin-blog-editor.component';
+import { Article } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 describe('AdminBlogEditorComponent', () => {
@@ -76,6 +77,9 @@ describe('AdminBlogEditorComponent', () => {
   describe('save() — remontée du vrai message back (correctif #3)', () => {
     it('affiche le message renvoyé par le back au lieu du générique', () => {
       component.form.controls.title.setValue('Un titre');
+      // Sans tag, save() ouvre d'abord la modale du tag par défaut et ne
+      // soumet pas (cf. test « aucun tag » ci-dessous).
+      component.form.controls.tags.setValue(['Moze']);
       blog.create.and.returnValue(
         throwError(() => ({
           error: { message: 'excerpt must be shorter than or equal to 500 characters' },
@@ -93,6 +97,29 @@ describe('AdminBlogEditorComponent', () => {
       component.form.controls.title.setValue(''); // requis manquant
       component.save(false);
       expect(blog.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('save() — garde-fou du tag par défaut', () => {
+    it('aucun tag → ouvre la modale au lieu de soumettre', () => {
+      component.form.controls.title.setValue('Un titre');
+      component.save(false);
+      expect(component.defaultTagOpen()).toBe(true);
+      expect(blog.create).not.toHaveBeenCalled();
+    });
+
+    it('confirmation → ajoute le tag par défaut puis soumet', () => {
+      // Le TestBed n'a aucune route : on neutralise la redirection de fin.
+      spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      component.form.controls.title.setValue('Un titre');
+      blog.create.and.returnValue(of({ id: 'a1' } as Article));
+      component.save(false);
+      component.confirmDefaultTag();
+      expect(component.defaultTagOpen()).toBe(false);
+      expect(component.form.controls.tags.value).toEqual(['Moze']);
+      expect(blog.create).toHaveBeenCalledWith(
+        jasmine.objectContaining({ tags: ['Moze'] }),
+      );
     });
   });
 });
