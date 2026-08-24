@@ -51,8 +51,8 @@ export const STATIC_PATHS: readonly {
  */
 export const MAX_ARTICLES = 5000;
 
-/** Échappe les caractères que la norme XML interdit dans une URL. */
-function escapeXml(value: string): string {
+/** Échappe les caractères réservés de XML. Partagé avec le flux RSS (`rss.ts`). */
+export function escapeXml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

@@ -116,6 +116,36 @@ export class SeoService {
   }
 
   /**
+   * Pose (ou remplace) un bloc de données structurées `application/ld+json`.
+   *
+   * Un `<script>` par `id` : la page article en pose deux (Article + fil d'Ariane) et chacun se
+   * remplace indépendamment à la navigation. `Meta` ne gère que les `<meta>`, d'où le DOM — et
+   * `DOCUMENT` plutôt que la variable globale, ce code tournant aussi côté serveur : c'est
+   * justement ce qui met le JSON-LD dans le HTML que lisent les robots.
+   *
+   * `<` est échappé en `\u003c` dans le JSON : un contenu qui contiendrait `</script>` fermerait
+   * sinon le bloc et déverserait le reste dans la page.
+   */
+  setJsonLd(id: string, data: object): void {
+    const scriptId = `ld-${id}`;
+    let script = this.document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (!script) {
+      script = this.document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      this.document.head.appendChild(script);
+    }
+
+    script.textContent = JSON.stringify(data).replace(/</g, '\\u003c');
+  }
+
+  /** Retire un bloc posé par `setJsonLd` — au départ de la page qui l'a déclaré. */
+  removeJsonLd(id: string): void {
+    this.document.getElementById(`ld-${id}`)?.remove();
+  }
+
+  /**
    * Adresse publique absolue d'un chemin de routeur.
    *
    * Les paramètres de requête sont retirés : `?utm_source=…` ou un filtre du blog ne créent pas

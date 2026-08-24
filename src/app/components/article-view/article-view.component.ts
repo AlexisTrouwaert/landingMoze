@@ -29,8 +29,6 @@ interface SegmentContext {
   readonly placed: Set<string>;
   /** Liens dont la carte aboutit, seuls à voir leur ancre retirée du texte. */
   readonly shown: ReadonlySet<string>;
-  /** Cartes déjà émises, tous niveaux confondus (plafond global). */
-  cards: number;
 }
 
 /**
@@ -38,14 +36,6 @@ interface SegmentContext {
  * la constante globale `Node` (même raison que dans `common/link-detection.ts`).
  */
 const ELEMENT_NODE = 1;
-
-/**
- * Plafond d'aperçus par article.
- *
- * Chaque carte occupe la hauteur d'une vignette : au-delà de trois, le texte de l'auteur se perd
- * dans une pile d'aperçus. Les liens excédentaires restent cliquables, simplement sans carte.
- */
-const MAX_PREVIEWS = 3;
 
 /** Hôte du site, pour écarter les liens internes. `environment` est figé, un calcul suffit. */
 const SITE_HOST = (() => {
@@ -87,7 +77,7 @@ export class ArticleViewComponent {
     linkifyHtml(this.article().content ?? '', this.document),
   );
 
-  /** Liens à prévisualiser, dans leur ordre d'apparition, dédoublonnés et plafonnés. */
+  /** Liens à prévisualiser, dans leur ordre d'apparition, dédoublonnés. */
   private readonly previewUrls = computed(() => this.pickPreviewUrls(this.content()));
 
   /**
@@ -146,7 +136,6 @@ export class ArticleViewComponent {
       if (this.isInternal(url)) continue;
 
       picked.push(url);
-      if (picked.length === MAX_PREVIEWS) break;
     }
 
     return picked;
@@ -191,7 +180,6 @@ export class ArticleViewComponent {
       eligible: new Set(previewUrls),
       placed: new Set<string>(),
       shown,
-      cards: 0,
     };
 
     const blocks = this.segment(Array.from(container.childNodes), context);
@@ -199,10 +187,8 @@ export class ArticleViewComponent {
     // Un aperçu dont l'ancre n'a pas été retrouvée (contenu inattendu) ferme la marche plutôt que
     // de disparaître.
     for (const url of context.eligible) {
-      if (context.cards >= MAX_PREVIEWS) break;
       if (context.placed.has(url)) continue;
       blocks.push({ kind: 'preview', url });
-      context.cards++;
     }
 
     return blocks;
@@ -258,14 +244,12 @@ export class ArticleViewComponent {
         buffer += element.outerHTML;
       }
 
-      if (!here.length || context.cards >= MAX_PREVIEWS) continue;
+      if (!here.length) continue;
 
       flushText();
       for (const url of here) {
-        if (context.cards >= MAX_PREVIEWS) break;
         blocks.push({ kind: 'preview', url });
         context.placed.add(url);
-        context.cards++;
       }
     }
 
@@ -320,7 +304,7 @@ export class ArticleViewComponent {
    * Les URL prévisualisables que ce nœud cite, dans l'ordre du document.
    *
    * Une même URL citée deux fois donne deux entrées : chaque occurrence reçoit sa carte, à sa
-   * place dans le texte. Le plafond global reste `MAX_PREVIEWS`.
+   * place dans le texte.
    */
   private previewUrlsIn(node: Node, eligible: ReadonlySet<string>): string[] {
     if (node.nodeType !== ELEMENT_NODE) return [];

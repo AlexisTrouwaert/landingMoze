@@ -42,7 +42,7 @@ describe('WysiwygEditorComponent (nettoyage collage & liens)', () => {
    */
   describe('toSemanticHtml (survie à la whitelist du back)', () => {
     const BACK_WHITELIST = [
-      'h2', 'h3', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'blockquote', 'br', 'hr',
+      'h2', 'h3', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'br', 'hr',
     ];
     const tagsOf = (h: string): string[] =>
       [...h.matchAll(/<([a-z0-9]+)\b/gi)].map((m) => m[1].toLowerCase());
@@ -337,6 +337,234 @@ describe('WysiwygEditorComponent (lien affiché ≠ destination)', () => {
 
     expect(emitted).toBeNull();
     expect(component.mismatchedLinks().length).toBe(1);
+  });
+});
+
+/**
+ * Liens : autodétection à la frappe, bulle d'actions au survol, édition de l'alias.
+ * La vue est rendue — tout travaille sur le DOM réel de la zone éditable.
+ */
+describe('WysiwygEditorComponent (autodétection & actions de lien)', () => {
+  let fixture: ComponentFixture<WysiwygEditorComponent>;
+  let component: WysiwygEditorComponent;
+  let emitted: string | null;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [WysiwygEditorComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(WysiwygEditorComponent);
+    component = fixture.componentInstance;
+    emitted = null;
+    component.registerOnChange((value) => (emitted = value));
+  });
+
+  function open(html: string): HTMLElement {
+    component.writeValue(html);
+    fixture.detectChanges();
+    return fixture.nativeElement.querySelector('.wys-editable') as HTMLElement;
+  }
+
+  /** Pose le curseur à la fin du premier nœud de texte du sélecteur donné. */
+  function caretAtEndOf(editable: HTMLElement, selector: string): void {
+    const node = editable.querySelector(selector)!.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(node, node.length);
+    range.collapse(true);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  function pressSpace(editable: HTMLElement): void {
+    editable.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    fixture.detectChanges();
+  }
+
+  describe('autodétection à la frappe', () => {
+    it('espace après une URL : elle devient un lien, curseur préservé après l’ancre', () => {
+      const editable = open('<p>voir https://exemple.fr/a</p>');
+      caretAtEndOf(editable, 'p');
+
+      pressSpace(editable);
+
+      const anchor = editable.querySelector('a')!;
+      expect(anchor.getAttribute('href')).toBe('https://exemple.fr/a');
+      expect(anchor.textContent).toBe('https://exemple.fr/a');
+      expect(anchor.getAttribute('rel')).toContain('noopener');
+      expect(emitted).toContain('href="https://exemple.fr/a"');
+      expect(editable.textContent).toBe('voir https://exemple.fr/a');
+    });
+
+    it('www. sans schéma : href complété en https://', () => {
+      const editable = open('<p>voir www.moze.fr</p>');
+      caretAtEndOf(editable, 'p');
+
+      pressSpace(editable);
+
+      expect(editable.querySelector('a')?.getAttribute('href')).toBe('https://www.moze.fr');
+      expect(editable.querySelector('a')?.textContent).toBe('www.moze.fr');
+    });
+
+    it('la ponctuation de fin de phrase reste du texte', () => {
+      const editable = open('<p>voir https://exemple.fr/a.</p>');
+      caretAtEndOf(editable, 'p');
+
+      pressSpace(editable);
+
+      expect(editable.querySelector('a')?.getAttribute('href')).toBe('https://exemple.fr/a');
+      expect(editable.querySelector('p')?.textContent).toBe('voir https://exemple.fr/a.');
+    });
+
+    it('ne touche ni au texte simple, ni à une URL déjà dans un lien', () => {
+      const editable = open('<p>du texte sans adresse</p>');
+      caretAtEndOf(editable, 'p');
+      pressSpace(editable);
+      expect(editable.querySelector('a')).toBeNull();
+
+      const withLink = open('<p><a href="https://a.fr">https://a.fr</a></p>');
+      caretAtEndOf(withLink, 'a');
+      pressSpace(withLink);
+      expect(withLink.querySelectorAll('a').length).toBe(1);
+    });
+  });
+
+  describe('bulle d’actions au survol', () => {
+    const hover = (target: Element) => {
+      target.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    it('survol d’un lien : la bulle montre les trois actions et l’adresse', () => {
+      const editable = open('<p><a href="https://exemple.fr/a">le guide</a></p>');
+      hover(editable.querySelector('a')!);
+
+      const pop: HTMLElement = fixture.nativeElement.querySelector('.wys-linkpop');
+      expect(pop).not.toBeNull();
+      expect(pop.textContent).toContain('https://exemple.fr/a');
+      expect(pop.textContent).toContain('Voir le lien');
+      expect(pop.textContent).toContain('Insérer un lien');
+      expect(pop.textContent).toContain('Copier');
+    });
+
+    it('survol du texte hors lien : pas de bulle', () => {
+      const editable = open('<p>du texte <a href="https://a.fr">lien</a></p>');
+      hover(editable.querySelector('p')!);
+
+      expect(fixture.nativeElement.querySelector('.wys-linkpop')).toBeNull();
+    });
+
+    it('survit au trajet de la souris vers ses actions, puis se ferme une fois partie', async () => {
+      const pop = () => fixture.nativeElement.querySelector('.wys-linkpop');
+      const editable = open('<p>texte <a href="https://a.fr">lien</a></p>');
+
+      hover(editable.querySelector('a')!);
+      expect(pop()).not.toBeNull();
+
+      // Trajet : la souris traverse du texte neutre — fermeture différée, pas immédiate.
+      hover(editable.querySelector('p')!);
+      expect(pop()).not.toBeNull();
+
+      // Arrivée sur la bulle : la fermeture programmée est annulée.
+      hover(pop()!);
+      await new Promise((r) => setTimeout(r, 400));
+      fixture.detectChanges();
+      expect(pop()).not.toBeNull();
+
+      // Souris repartie sans revenir : là, elle se ferme.
+      hover(editable.querySelector('p')!);
+      await new Promise((r) => setTimeout(r, 400));
+      fixture.detectChanges();
+      expect(pop()).toBeNull();
+    });
+
+    it('« Copier » copie l’adresse et l’accuse brièvement', async () => {
+      const editable = open('<p><a href="https://exemple.fr/a">le guide</a></p>');
+      hover(editable.querySelector('a')!);
+
+      // Même motif que contact-panel : `navigator.clipboard` est redéfini (et non épié),
+      // un spy posé par un autre fichier de spec pouvant persister sur l'objet global.
+      const write = jasmine.createSpy('writeText').and.resolveTo();
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: write },
+      });
+
+      component.copyHoveredLink();
+      await fixture.whenStable();
+
+      expect(write).toHaveBeenCalledWith('https://exemple.fr/a');
+      expect(component.linkCopied()).toBeTrue();
+    });
+
+    it('« Insérer un lien » ouvre la modale pré-remplie sur le lien survolé', () => {
+      const editable = open('<p><a href="https://exemple.fr/a">le guide</a></p>');
+      hover(editable.querySelector('a')!);
+
+      component.editHoveredLink();
+
+      expect(component.linkDialogOpen()).toBeTrue();
+      expect(component.linkDialogUrl()).toBe('https://exemple.fr/a');
+      expect(component.linkDialogLabel()).toBe('le guide');
+      // La bulle s'efface au profit de la modale.
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.wys-linkpop')).toBeNull();
+    });
+  });
+
+  describe('édition d’un lien existant (alias)', () => {
+    it('met à jour l’adresse et le texte affiché en place', () => {
+      const editable = open('<p>voir <a href="https://a.fr">ancien texte</a> ici</p>');
+
+      component.openLinkEditor(editable.querySelector('a')!);
+      component.onLinkConfirm({ url: 'b.fr/page', label: 'nouveau texte' });
+      fixture.detectChanges();
+
+      expect(emitted).toContain('href="https://b.fr/page"');
+      expect(emitted).toContain('>nouveau texte</a>');
+      expect(emitted).not.toContain('ancien texte');
+      // Le reste de la phrase n'a pas bougé.
+      expect(editable.textContent).toBe('voir nouveau texte ici');
+    });
+
+    it('alias vidé : l’adresse sert de texte affiché', () => {
+      const editable = open('<p><a href="https://a.fr">ancien</a></p>');
+
+      component.openLinkEditor(editable.querySelector('a')!);
+      component.onLinkConfirm({ url: 'https://a.fr', label: '' });
+
+      expect(emitted).toContain('>https://a.fr</a>');
+    });
+  });
+
+  describe('collage d’une URL seule', () => {
+    function paste(editable: HTMLElement, text: string): void {
+      const data = new DataTransfer();
+      data.setData('text/plain', text);
+      editable.focus();
+      const event = new ClipboardEvent('paste', { clipboardData: data });
+      component.onPaste(event);
+      fixture.detectChanges();
+    }
+
+    it('une URL collée seule devient un lien', () => {
+      const editable = open('<p>x</p>');
+      caretAtEndOf(editable, 'p');
+      paste(editable, 'https://exemple.fr/a');
+
+      expect(emitted).toContain('href="https://exemple.fr/a"');
+    });
+
+    it('une phrase contenant une URL reste du texte (linkifiée au rendu)', () => {
+      const editable = open('<p>x</p>');
+      caretAtEndOf(editable, 'p');
+      paste(editable, 'voir https://exemple.fr/a demain');
+
+      expect(emitted ?? '').not.toContain('<a ');
+      expect(emitted ?? '').toContain('voir https://exemple.fr/a demain');
+    });
   });
 });
 

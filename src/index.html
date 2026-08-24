@@ -26,6 +26,36 @@
   <link rel="preload" href="assets/fonts/SNPro-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- Flux RSS du blog (servi par server.ts, même mécanique que sitemap.xml). -->
+  <link rel="alternate" type="application/rss+xml" title="Blog Moze" href="/rss.xml">
+  <!-- Identité du site pour les moteurs (résultats enrichis). Statique et en dur sur le domaine
+       public, comme og:url ci-dessus : ces données ne varient pas par page — celles qui varient
+       (Article, fil d'Ariane) sont posées par SeoService.setJsonLd au rendu de chaque page. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.moze.fr/#organization",
+        "name": "Moze",
+        "url": "https://www.moze.fr/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.moze.fr/assets/icons/MozeLogo.svg"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.moze.fr/#website",
+        "name": "Moze",
+        "url": "https://www.moze.fr/",
+        "inLanguage": "fr-FR",
+        "publisher": { "@id": "https://www.moze.fr/#organization" }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 <app-root></app-root>

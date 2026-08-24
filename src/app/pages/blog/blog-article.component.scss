@@ -26,3 +26,25 @@
     font-family: 'SNPRO-SemiBold', sans-serif;
   }
 }
+
+/* « À lire ensuite » — maillage interne sous l'article. */
+.related {
+  margin-top: 4rem;
+
+  &__title {
+    color: var(--primary-color);
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.35rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+
+    @media (min-width: 720px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}

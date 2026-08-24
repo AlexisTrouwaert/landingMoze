@@ -217,3 +217,65 @@
     }
   }
 }
+
+/* Enveloppe de la zone éditable : référentiel de position de la bulle d'actions. */
+.wys-body {
+  position: relative;
+}
+
+/* Bulle d'actions au survol d'un lien : voir / modifier / copier. */
+.wys-linkpop {
+  position: absolute;
+  z-index: 6; /* au-dessus du texte, sous rien d'autre — la barre sticky est à 5 mais hors flux */
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.25rem;
+  background: #fff;
+  border: 1px solid var(--adm-line-strong, #cdd9d4);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(20, 87, 117, 0.14);
+
+  /* Pont invisible vers le lien : le trajet souris entre les deux reste « dans » la bulle,
+     le survol ne se rompt donc pas dans l'interstice. */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    left: 0;
+    right: 0;
+    height: 0.5rem;
+  }
+
+  &__url {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 0.375rem;
+    font-size: 0.75rem;
+    color: var(--adm-ink-400, #5b6b76);
+  }
+
+  &__btn {
+    border: 0;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--adm-ink-700, #145775);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: rgba(20, 87, 117, 0.08);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}

@@ -95,23 +95,51 @@
     </div>
   }
 
+  <!-- Enveloppe : porte le suivi du survol des liens et positionne la bulle d'actions.
+       mousedown.preventDefault sur la bulle : le clic sur une action ne doit pas
+       déplacer le curseur ni défaire la sélection de la zone éditable. -->
   <div
-    #editor
-    class="wys-editable"
-    [attr.contenteditable]="disabled() ? 'false' : 'true'"
-    data-placeholder="Rédigez votre article…"
-    (input)="onInput()"
-    (blur)="onBlur()"
-    (paste)="onPaste($event)"
-    (keyup)="onSelectionChange()"
-    (mouseup)="onSelectionChange()"
-  ></div>
+    #body
+    class="wys-body"
+    (mouseover)="onBodyMouseOver($event)"
+    (mouseleave)="onBodyMouseLeave()"
+  >
+    <div
+      #editor
+      class="wys-editable"
+      [attr.contenteditable]="disabled() ? 'false' : 'true'"
+      data-placeholder="Rédigez votre article…"
+      (input)="onInput()"
+      (blur)="onBlur()"
+      (paste)="onPaste($event)"
+      (keydown)="onEditorKeydown($event)"
+      (keyup)="onSelectionChange()"
+      (mouseup)="onSelectionChange()"
+    ></div>
 
-  <app-prompt-dialog
+    @if (linkBubble(); as bubble) {
+      <div
+        class="wys-linkpop"
+        role="toolbar"
+        aria-label="Actions du lien"
+        [style.top.px]="bubble.top"
+        [style.left.px]="bubble.left"
+        (mousedown)="$event.preventDefault()"
+      >
+        <span class="wys-linkpop__url" [title]="bubble.href">{{ bubble.href }}</span>
+        <button type="button" class="wys-linkpop__btn" (click)="openHoveredLink()">Voir le lien</button>
+        <button type="button" class="wys-linkpop__btn" [disabled]="disabled()" (click)="editHoveredLink()">Insérer un lien</button>
+        <button type="button" class="wys-linkpop__btn" (click)="copyHoveredLink()">{{ linkCopied() ? 'Copié !' : 'Copier' }}</button>
+      </div>
+    }
+  </div>
+
+  <app-link-dialog
     [open]="linkDialogOpen()"
-    title="Insérer un lien"
-    label="Adresse du lien (https://…)"
-    confirmLabel="Insérer"
+    [title]="linkDialogTitle()"
+    [initialUrl]="linkDialogUrl()"
+    [initialLabel]="linkDialogLabel()"
+    [confirmLabel]="linkDialogTitle() === 'Modifier le lien' ? 'Enregistrer' : 'Insérer'"
     (confirmed)="onLinkConfirm($event)"
     (cancelled)="onLinkCancel()"
   />

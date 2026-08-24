@@ -1,0 +1,37 @@
+@if (open()) {
+  <div class="pd-backdrop" (click)="onCancel()">
+    <div
+      class="pd-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 class="pd-title">{{ title() }}</h2>
+      <label class="pd-label">Adresse du lien (https://…)</label>
+      <input
+        class="pd-input"
+        type="text"
+        [value]="url()"
+        (input)="onUrlInput($event)"
+        (keydown.enter)="onConfirm()"
+        autofocus
+      />
+      <label class="pd-label">Texte affiché (facultatif — l'adresse si vide)</label>
+      <input
+        class="pd-input"
+        type="text"
+        [value]="label()"
+        (input)="onLabelInput($event)"
+        (keydown.enter)="onConfirm()"
+      />
+      <div class="pd-actions">
+        <button type="button" class="pd-btn pd-btn--ghost" (click)="onCancel()">
+          Annuler
+        </button>
+        <button type="button" class="pd-btn" (click)="onConfirm()">
+          {{ confirmLabel() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

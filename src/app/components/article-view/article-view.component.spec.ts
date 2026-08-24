@@ -121,23 +121,23 @@ describe('ArticleViewComponent', () => {
     expect(first.kind === 'html' && first.html).not.toContain('href');
   });
 
-  it('plafonne à trois cartes, les liens suivants restant cliquables', () => {
+  it('chaque lien reçoit sa carte, sans plafond', () => {
     render(
       ['a', 'b', 'c', 'd']
         .map((p) => `<p><a href="https://exemple.fr/${p}">https://exemple.fr/${p}</a></p>`)
         .join(''),
     );
 
-    expect(blocks().filter((b) => b.kind === 'preview').length).toBe(3);
+    expect(blocks().filter((b) => b.kind === 'preview').length).toBe(4);
 
-    resolvePreviews();
+    // Les quatre aperçus sont demandés, et chaque ancre-URL-brute s'efface au profit de sa carte.
+    expect(resolvePreviews().length).toBe(4);
 
     const texte = blocks()
       .filter((b): b is { kind: 'html'; html: string } => b.kind === 'html')
       .map((b) => b.html)
       .join('');
-    expect(texte).toContain('exemple.fr/d');
-    expect(texte).not.toContain('exemple.fr/a');
+    expect(texte).not.toContain('exemple.fr');
   });
 
   it('ignore les liens vers le site lui-même', () => {

@@ -176,4 +176,54 @@ describe('SeoService', () => {
       expect(canonical()).toBe(`${environment.siteUrl}/commencer`);
     });
   });
+
+  describe('données structurées (JSON-LD)', () => {
+    const script = (id: string): HTMLScriptElement | null =>
+      document.getElementById(`ld-${id}`) as HTMLScriptElement | null;
+
+    afterEach(() => {
+      script('test')?.remove();
+    });
+
+    it('pose un <script application/ld+json> dans le head', () => {
+      TestBed.inject(SeoService).setJsonLd('test', { '@type': 'Article', headline: 'Titre' });
+
+      const tag = script('test');
+      expect(tag).not.toBeNull();
+      expect(tag!.type).toBe('application/ld+json');
+      expect(JSON.parse(tag!.textContent ?? '')).toEqual({
+        '@type': 'Article',
+        headline: 'Titre',
+      });
+    });
+
+    it('remplace le bloc du même id au lieu d’en empiler un second', () => {
+      const service = TestBed.inject(SeoService);
+      service.setJsonLd('test', { a: 1 });
+      service.setJsonLd('test', { a: 2 });
+
+      expect(document.querySelectorAll('#ld-test').length).toBe(1);
+      expect(JSON.parse(script('test')!.textContent ?? '')).toEqual({ a: 2 });
+    });
+
+    it('un contenu ne peut pas fermer le script (échappement de `<`)', () => {
+      TestBed.inject(SeoService).setJsonLd('test', { headline: 'a</script><b>' });
+
+      expect(script('test')!.textContent).not.toContain('</script>');
+      // Et le JSON reste fidèle une fois relu.
+      expect(JSON.parse(script('test')!.textContent ?? '')).toEqual({
+        headline: 'a</script><b>',
+      });
+    });
+
+    it('removeJsonLd retire le bloc — et tolère un id inconnu', () => {
+      const service = TestBed.inject(SeoService);
+      service.setJsonLd('test', { a: 1 });
+
+      service.removeJsonLd('test');
+      expect(script('test')).toBeNull();
+
+      expect(() => service.removeJsonLd('jamais-pose')).not.toThrow();
+    });
+  });
 });

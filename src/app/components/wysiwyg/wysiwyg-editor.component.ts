@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { findUrls, sameUrl } from '../../common/link-detection';
+import { LinkDialogComponent, LinkDialogResult } from '../link-dialog/link-dialog.component';
 import { PromptDialogComponent } from '../prompt-dialog/prompt-dialog.component';
 import { BlogService } from '../../services/blog.service';
 
@@ -57,7 +58,7 @@ export interface MismatchedLink {
  */
 @Component({
     selector: 'app-wysiwyg-editor',
-    imports: [PromptDialogComponent],
+    imports: [LinkDialogComponent, PromptDialogComponent],
     templateUrl: './wysiwyg-editor.component.html',
     styleUrl: './wysiwyg-editor.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,6 +74,7 @@ export class WysiwygEditorComponent
   implements ControlValueAccessor, AfterViewInit
 {
   @ViewChild('editor') private editorRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('body') private bodyRef?: ElementRef<HTMLDivElement>;
   @ViewChild('imageInput') private fileRef?: ElementRef<HTMLInputElement>;
 
   private readonly blog = inject(BlogService);
@@ -122,6 +124,8 @@ export class WysiwygEditorComponent
     if (this.editorRef) {
       this.editorRef.nativeElement.innerHTML = this.pendingValue;
       this.refreshMismatchedLinks();
+      // Le contenu vient d'être remplacé : le lien que la bulle visait n'existe plus.
+      this.hideLinkBubble();
     }
   }
   registerOnChange(fn: (value: string) => void): void {
@@ -139,6 +143,72 @@ export class WysiwygEditorComponent
     if (this.editorRef)
       this.onChange(this.toSemanticHtml(this.editorRef.nativeElement.innerHTML));
     this.refreshMismatchedLinks();
+    // L'édition a pu détacher le lien que la bulle visait (mot supprimé, ligne refaite).
+    if (this.bubbleAnchor && !this.bubbleAnchor.isConnected) this.hideLinkBubble();
+  }
+
+  /**
+   * Autodétection de lien à la frappe : espace ou Entrée juste après une URL la transforme en
+   * ancre, comme le font les éditeurs de mail ou Docs.
+   *
+   * Sur `keydown` et non `input` : le caractère séparateur n'est pas encore inséré, le texte
+   * avant le curseur se termine donc par l'URL — pas besoin de la découper autour.
+   */
+  onEditorKeydown(event: KeyboardEvent): void {
+    if (event.key === ' ' || event.key === 'Enter') this.autolinkBeforeCaret();
+  }
+
+  /**
+   * Transforme en ancre l'URL qui précède immédiatement le curseur, s'il y en a une.
+   *
+   * Ne touche à rien dans une ancre existante (lien dans un lien) ni dans un bloc de code, où
+   * une URL est citée comme texte — mêmes protections que `linkifyHtml` au rendu. La ponctuation
+   * de fin de phrase entre l'URL et le curseur (« voir moze.fr. ») est tolérée : elle reste du
+   * texte, seul le cœur devient un lien.
+   */
+  private autolinkBeforeCaret(): void {
+    const root = this.editorRef?.nativeElement;
+    const selection = window.getSelection();
+    if (!root || !selection?.rangeCount || !selection.isCollapsed) return;
+
+    const node = selection.anchorNode;
+    const offset = selection.anchorOffset;
+    if (!node || node.nodeType !== Node.TEXT_NODE || !root.contains(node)) return;
+    if (node.parentElement?.closest('a, code, pre')) return;
+
+    const typed = (node.nodeValue ?? '').slice(0, offset);
+    const urls = findUrls(typed);
+    const url = urls[urls.length - 1];
+    if (!url) return;
+    if (!/^[.,;:!?…)»\]]*$/.test(typed.slice(url.end))) return;
+
+    const range = document.createRange();
+    range.setStart(node, url.start);
+    range.setEnd(node, url.end);
+
+    const anchor = document.createElement('a');
+    anchor.setAttribute('href', url.href);
+    anchor.setAttribute('target', '_blank');
+    anchor.setAttribute('rel', 'noopener noreferrer');
+    anchor.textContent = url.text;
+
+    range.deleteContents();
+    range.insertNode(anchor);
+
+    // Restaure le curseur là où il était : dans le texte qui suit l'ancre s'il y en a un
+    // (la ponctuation conservée), sinon juste après elle.
+    const caret = document.createRange();
+    const rest = anchor.nextSibling;
+    if (rest && rest.nodeType === Node.TEXT_NODE) {
+      caret.setStart(rest, Math.min(offset - url.end, rest.nodeValue?.length ?? 0));
+    } else {
+      caret.setStartAfter(anchor);
+    }
+    caret.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(caret);
+
+    this.onInput();
   }
 
   // --- Garde-fou : libellé ≠ destination ---
@@ -282,10 +352,38 @@ export class WysiwygEditorComponent
     if (cleaned) {
       document.execCommand('insertHTML', false, cleaned);
     } else {
-      const raw = event.clipboardData?.getData('text/plain') ?? '';
-      document.execCommand('insertText', false, this.decodeEntities(raw));
+      const raw = this.decodeEntities(event.clipboardData?.getData('text/plain') ?? '');
+      const urlOnly = this.asSingleUrl(raw);
+      if (urlOnly) {
+        // Une URL collée seule devient un lien tout de suite — même résultat qu'à la frappe
+        // (cf. autolinkBeforeCaret), sans attendre un espace qui ne viendra peut-être pas.
+        const safeHref = this.escapeHtml(urlOnly.href);
+        const safeText = this.escapeHtml(urlOnly.text);
+        document.execCommand(
+          'insertHTML',
+          false,
+          `<a href="${safeHref}" target="_blank" rel="noopener noreferrer">${safeText}</a>`,
+        );
+      } else {
+        document.execCommand('insertText', false, raw);
+      }
     }
     this.onInput();
+  }
+
+  /**
+   * L'URL que ce texte *est* — pas celle qu'il contient. Un collage multi-lignes ou une phrase
+   * autour de l'adresse gardent le comportement texte : la linkification au rendu s'en charge.
+   */
+  private asSingleUrl(raw: string): { href: string; text: string } | null {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+
+    const urls = findUrls(trimmed);
+    const url = urls.length === 1 ? urls[0] : undefined;
+    return url && url.start === 0 && url.text === trimmed
+      ? { href: url.href, text: url.text }
+      : null;
   }
 
   /**
@@ -447,59 +545,121 @@ export class WysiwygEditorComponent
     return document.queryCommandState('justifyLeft') ? 'left' : '';
   }
 
-  /** État de la modale d'insertion de lien + sélection mémorisée à l'ouverture. */
+  /** État de la modale de lien + sélection mémorisée à l'ouverture. */
   readonly linkDialogOpen = signal(false);
+  readonly linkDialogTitle = signal('Insérer un lien');
+  readonly linkDialogUrl = signal('');
+  readonly linkDialogLabel = signal('');
   private savedLinkRange: Range | null = null;
   private linkHadSelection = false;
+  /** Lien existant en cours d'édition (bulle de survol, ou curseur posé dedans). Sinon `null`. */
+  private editingLink: HTMLAnchorElement | null = null;
 
-  /** Ouvre la modale d'insertion de lien en mémorisant la sélection courante. */
+  /**
+   * Bouton « Insérer un lien » de la barre. Curseur dans un lien existant : on l'édite plutôt
+   * que d'en créer un second au même endroit. Sinon, insertion — la sélection courante est
+   * mémorisée et proposée comme texte affiché.
+   */
   addLink(): void {
     if (this.disabled()) return;
+
     const selection = window.getSelection();
+    const inside = this.anchorAtCaret(selection);
+    if (inside) {
+      this.openLinkEditor(inside);
+      return;
+    }
+
+    this.editingLink = null;
     this.savedLinkRange =
       selection && selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
     this.linkHadSelection =
       !!this.savedLinkRange && this.savedLinkRange.toString().trim().length > 0;
+    this.linkDialogTitle.set('Insérer un lien');
+    this.linkDialogUrl.set('');
+    this.linkDialogLabel.set(this.savedLinkRange?.toString().trim() ?? '');
     this.linkDialogOpen.set(true);
+  }
+
+  /** Ouvre la modale sur un lien existant, adresse et texte affiché pré-remplis. */
+  openLinkEditor(anchor: HTMLAnchorElement): void {
+    if (this.disabled()) return;
+    this.hideLinkBubble();
+    this.editingLink = anchor;
+    this.savedLinkRange = null;
+    this.linkHadSelection = false;
+    this.linkDialogTitle.set('Modifier le lien');
+    this.linkDialogUrl.set(anchor.getAttribute('href') ?? '');
+    this.linkDialogLabel.set(anchor.textContent?.trim() ?? '');
+    this.linkDialogOpen.set(true);
+  }
+
+  /** L'ancre qui contient le curseur (ou le début de la sélection), s'il y en a une. */
+  private anchorAtCaret(selection: Selection | null): HTMLAnchorElement | null {
+    const root = this.editorRef?.nativeElement;
+    const node = selection?.anchorNode;
+    if (!root || !node || !root.contains(node)) return null;
+
+    const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement;
+    const anchor = element?.closest('a[href]');
+    return anchor && root.contains(anchor) ? (anchor as HTMLAnchorElement) : null;
   }
 
   onLinkCancel(): void {
     this.linkDialogOpen.set(false);
     this.savedLinkRange = null;
+    this.editingLink = null;
   }
 
   /**
-   * Insère le lien saisi dans la modale.
+   * Applique la saisie de la modale de lien.
    *  - Normalise l'URL : préfixe `https://` si aucun schéma (sinon lien relatif
    *    cassé une fois enregistré), `mailto:` si ça ressemble à un e-mail.
-   *  - Restaure la sélection d'origine (le focus était parti dans la modale).
-   *  - Avec sélection : l'enveloppe en conservant son formatage. Sans : insère
-   *    l'URL comme texte cliquable.
+   *  - Édition d'un lien existant : `href` et texte affiché mis à jour en place.
+   *  - Insertion avec sélection : l'enveloppe en conservant son formatage tant que l'alias n'en
+   *    diverge pas ; un alias différent remplace la sélection.
+   *  - Insertion sans sélection : l'alias (ou l'URL à défaut) devient le texte cliquable.
    *  - Ouvre dans un nouvel onglet (`target="_blank"` ; le back reforce le `rel`).
    */
-  onLinkConfirm(rawUrl: string): void {
+  onLinkConfirm({ url: rawUrl, label: rawLabel }: LinkDialogResult): void {
     this.linkDialogOpen.set(false);
+    const editing = this.editingLink;
     const savedRange = this.savedLinkRange;
     const hadSelection = this.linkHadSelection;
+    this.editingLink = null;
     this.savedLinkRange = null;
 
     const url = this.normalizeUrl(rawUrl.trim());
     if (!url) return;
+    const label = rawLabel.trim();
+
+    if (editing) {
+      editing.setAttribute('href', url);
+      editing.setAttribute('target', '_blank');
+      editing.setAttribute('rel', 'noopener noreferrer');
+      const next = label || url;
+      // `textContent` réécrit efface la mise en forme interne du libellé — acceptable : l'auteur
+      // vient précisément de saisir un nouveau texte.
+      if (next !== (editing.textContent?.trim() ?? '')) editing.textContent = next;
+      this.onInput();
+      return;
+    }
 
     const selection = this.restoreSelection(savedRange);
+    const selectedText = savedRange?.toString().trim() ?? '';
 
-    if (hadSelection) {
+    if (hadSelection && (!label || label === selectedText)) {
       document.execCommand('createLink', false, url);
       // createLink ne pose pas `target` → on l'ajoute sur le lien fraîchement créé.
       const anchor = selection?.anchorNode?.parentElement?.closest('a');
       anchor?.setAttribute('target', '_blank');
       anchor?.setAttribute('rel', 'noopener noreferrer');
     } else {
-      const safe = this.escapeHtml(url);
+      const text = this.escapeHtml(label || url);
       document.execCommand(
         'insertHTML',
         false,
-        `<a href="${safe}" target="_blank" rel="noopener noreferrer">${safe}</a>`,
+        `<a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`,
       );
     }
 
@@ -509,6 +669,112 @@ export class WysiwygEditorComponent
   /** Retire le lien à l'emplacement du curseur (ou de la sélection). */
   removeLink(): void {
     this.exec('unlink');
+  }
+
+  // --- Bulle d'actions au survol d'un lien ---
+
+  /** Lien survolé : adresse + position de la bulle, relative à la zone d'édition. `null` = cachée. */
+  readonly linkBubble = signal<{ href: string; top: number; left: number } | null>(null);
+  /** Retour visuel éphémère après « Copier ». */
+  readonly linkCopied = signal(false);
+  private bubbleAnchor: HTMLAnchorElement | null = null;
+  private copiedTimer: ReturnType<typeof setTimeout> | null = null;
+  private hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Suivi du survol sur l'enveloppe (zone éditable + bulle) et non sur les ancres une à une :
+   * `mouseover` remonte, un seul écouteur suffit.
+   *
+   * La fermeture n'est jamais immédiate : le trajet de la souris entre le lien et la bulle
+   * traverse du texte « neutre », et fermer à ce moment-là rendrait les actions incliquables.
+   * Elle est programmée (cf. `scheduleHideBubble`) et annulée dès que la souris atteint la bulle
+   * ou revient sur un lien.
+   */
+  onBodyMouseOver(event: MouseEvent): void {
+    const target = event.target as Element | null;
+    if (!target) return;
+
+    if (target.closest('.wys-linkpop')) {
+      this.cancelScheduledHide();
+      return;
+    }
+
+    const root = this.editorRef?.nativeElement;
+    const anchor = target.closest('a[href]');
+    if (root && anchor && root.contains(anchor)) {
+      this.cancelScheduledHide();
+      this.showLinkBubble(anchor as HTMLAnchorElement);
+    } else {
+      this.scheduleHideBubble();
+    }
+  }
+
+  onBodyMouseLeave(): void {
+    this.scheduleHideBubble();
+  }
+
+  /** Ferme la bulle dans 300 ms — le temps pour la souris d'atteindre les actions. */
+  private scheduleHideBubble(): void {
+    if (!this.linkBubble()) return;
+    this.cancelScheduledHide();
+    this.hideTimer = setTimeout(() => this.hideLinkBubble(), 300);
+  }
+
+  private cancelScheduledHide(): void {
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+  }
+
+  private showLinkBubble(anchor: HTMLAnchorElement): void {
+    if (this.bubbleAnchor === anchor) return;
+    const host = this.bodyRef?.nativeElement;
+    if (!host) return;
+
+    const hostRect = host.getBoundingClientRect();
+    const rect = anchor.getBoundingClientRect();
+    this.bubbleAnchor = anchor;
+    this.linkCopied.set(false);
+    this.linkBubble.set({
+      href: anchor.getAttribute('href') ?? '',
+      top: rect.bottom - hostRect.top + 6,
+      left: Math.max(0, rect.left - hostRect.left),
+    });
+  }
+
+  hideLinkBubble(): void {
+    this.cancelScheduledHide();
+    this.bubbleAnchor = null;
+    this.linkBubble.set(null);
+  }
+
+  /** « Voir le lien » : ouvre la destination dans un nouvel onglet. */
+  openHoveredLink(): void {
+    const href = this.linkBubble()?.href;
+    if (href) window.open(href, '_blank', 'noopener');
+  }
+
+  /** « Insérer un lien » : ouvre la modale sur le lien survolé — l'alias y est modifiable. */
+  editHoveredLink(): void {
+    if (this.bubbleAnchor) this.openLinkEditor(this.bubbleAnchor);
+  }
+
+  /** « Copier » : copie l'adresse du lien, avec un accusé bref dans la bulle. */
+  copyHoveredLink(): void {
+    const href = this.linkBubble()?.href;
+    if (!href || !navigator.clipboard) return;
+
+    navigator.clipboard
+      .writeText(href)
+      .then(() => {
+        this.linkCopied.set(true);
+        if (this.copiedTimer) clearTimeout(this.copiedTimer);
+        this.copiedTimer = setTimeout(() => this.linkCopied.set(false), 1500);
+      })
+      .catch(() => {
+        /* presse-papiers refusé (permissions) → pas d'accusé, rien à casser */
+      });
   }
 
   /**
