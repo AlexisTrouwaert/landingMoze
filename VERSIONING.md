@@ -68,7 +68,44 @@ npm run release:prod-win
 ```
 
 Release **puis** construction de l'artefact, en une commande. L'archive porte automatiquement le
-numéro qui vient d'être posé (`landing-PROD-v1.2.0-<horodatage>.tar.gz`).
+numéro qui vient d'être posé, dans `build/prod/` et sous un nom identique de part et d'autre :
+
+| Dépôt | Nom produit |
+|---|---|
+| Front | `FRONT-landing-PROD-v1.2.0-<horodatage>.tar.gz` |
+| Back | `BACK-landing-PROD-v1.2.0-<horodatage>.tar.gz` |
+
+L'horodatage (`AAAAMMJJhhmmss`) distingue deux constructions d'une même version : reconstruire
+n'écrase jamais l'archive précédente.
+
+## Vérifier quelle version tourne réellement
+
+Le numéro ne vit pas que dans le nom du fichier : il est **embarqué dans le build** et
+interrogeable une fois déployé. C'est ce qui permet de confirmer, depuis l'extérieur, que
+l'artefact attendu est bien en ligne.
+
+| Dépôt | Où lire la version | Source du numéro |
+|---|---|---|
+| Back | `GET /health` → `{ "version": "1.1.0", ... }` | Le `package.json` livré dans l'archive, lu au démarrage |
+| Back | Log PM2 au démarrage : `landingMoze-back v1.1.0 démarré sur ...` | idem |
+| Front | `GET /version.json` → `{ "version": "1.1.0", "builtAt": "..." }` | `package.json` au moment du build, figé dans l'artefact |
+
+```bash
+curl -s https://blog-api.moze.fr/health
+curl -s https://www.moze.fr/version.json
+```
+
+Les trois numéros (nom de l'archive, réponse HTTP, tag git) proviennent tous du même
+`package.json` : ils ne peuvent pas diverger.
+
+Deux détails d'implémentation :
+
+- **Back** — la version est lue dans le `package.json` que l'archive contient, pas inscrite en
+  dur. `process.env.npm_package_version` ne conviendrait pas : il n'est renseigné que sous un
+  script npm, alors qu'en production PM2 lance `node dist/main` directement.
+- **Front** — l'archive ne contient que la sortie d'`ng build`, où Angular ne copie aucun
+  `package.json`. Le hook `postbuild:prod` écrit donc `version.json` dans la sortie navigateur ;
+  il est servi tel quel par l'`express.static` du SSR, sans code serveur supplémentaire.
 
 Après vérification, la publication reste un geste manuel : `git push && git push --tags`.
 
