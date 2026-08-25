@@ -76,12 +76,20 @@ function git(args, { allowFail = false } = {}) {
   return (res.stdout || '').trim();
 }
 
+/**
+ * `shell: true` n'est pas une facilite : sous Windows, npm est un `.cmd`, et depuis les
+ * correctifs de securite de Node (18.20 / 20.12 / 22, CVE-2024-27980) `spawn` refuse d'executer
+ * un `.cmd` sans shell — il echoue en `EINVAL`, sans rien lancer. C'est le shell qui resout
+ * l'extension. Les arguments sont fixes et sans espace, aucune surface d'injection.
+ */
 function npm(args) {
-  // npm.cmd sous Windows : spawnSync ne passe pas par un shell, il ne resout
-  // donc pas tout seul l'extension.
-  const bin = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const res = spawnSync(bin, args, { stdio: 'inherit' });
-  if (res.status !== 0) fail(`npm ${args.join(' ')} a echoue.`);
+  // Commande passee en UNE chaine : avec `shell: true`, fournir un tableau d'arguments separe
+  // est deprecie par Node (ils ne sont que concatenes, jamais echappes) et emet un avertissement.
+  const res = spawnSync(`npm ${args.join(' ')}`, { stdio: 'inherit', shell: true });
+  // `error` couvre l'echec de lancement (binaire absent, EINVAL) ; `status` l'echec de la
+  // commande elle-meme. Les deux doivent etre distingues, sinon le diagnostic est illisible.
+  if (res.error) fail(`npm ${args.join(' ')} n a pas pu etre lance : ${res.error.message}`);
+  if (res.status !== 0) fail(`npm ${args.join(' ')} a echoue (code ${res.status}).`);
 }
 
 function repoRoot() {
