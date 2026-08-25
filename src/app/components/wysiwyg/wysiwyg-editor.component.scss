@@ -178,6 +178,10 @@
      sans lui : compilées en `h2[_ngcontent-…]`, elles ne s'appliquaient à rien, et l'éditeur
      affichait le rendu par défaut du navigateur — d'où l'écart avec l'article publié. */
   ::ng-deep {
+    /* Justifié par défaut, à l'identique du rendu public (article-view.component.scss) :
+       seul un alignement choisi dans la barre (classes `ta-*`) y déroge. */
+    p, li, blockquote { text-align: justify; }
+
     .ta-left { text-align: left; }
     .ta-center { text-align: center; }
     .ta-right { text-align: right; }

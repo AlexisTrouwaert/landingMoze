@@ -166,7 +166,8 @@ describe('ArticleViewComponent', () => {
     expect(paragraphes.length).toBe(2);
     expect(paragraphes[0].classList.contains('ta-center')).toBeTrue();
     expect(getComputedStyle(paragraphes[0]).textAlign).toBe('center');
-    expect(getComputedStyle(paragraphes[1]).textAlign).not.toBe('center');
+    // Sans classe `ta-*`, le corps de texte est justifié par défaut.
+    expect(getComputedStyle(paragraphes[1]).textAlign).toBe('justify');
   });
 
   it('sans lien : un seul bloc, le contenu tel quel', () => {

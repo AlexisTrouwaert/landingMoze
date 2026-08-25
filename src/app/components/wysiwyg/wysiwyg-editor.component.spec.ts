@@ -204,9 +204,15 @@ describe('WysiwygEditorComponent (nettoyage collage & liens)', () => {
       expect(semantic('<p class="ta-center">T</p>')).toBe('<p class="ta-center">T</p>');
     });
 
-    it('conserve l’alignement d’un collage Word ou Docs', () => {
-      expect(clean('<p style="text-align:center">T</p>')).toBe('<p class="ta-center">T</p>');
-      expect(clean('<div align="right">T</div>')).toBe('<p class="ta-right">T</p>');
+    it('n’importe pas l’alignement d’un collage Word ou Docs — justifié par défaut', () => {
+      // Seul un alignement choisi dans la barre fait foi : celui du document source est écarté,
+      // et le texte collé retombe sur le justifié par défaut du site.
+      expect(clean('<p style="text-align:center">T</p>')).toBe('<p>T</p>');
+      expect(clean('<div align="right">T</div>')).toBe('<p>T</p>');
+    });
+
+    it('garde une classe `ta-*` au recollage : un choix déjà fait dans cet éditeur', () => {
+      expect(clean('<p class="ta-center">T</p>')).toBe('<p class="ta-center">T</p>');
     });
   });
 
@@ -514,6 +520,101 @@ describe('WysiwygEditorComponent (autodétection & actions de lien)', () => {
     });
   });
 
+  describe('sélecteur de liens internes', () => {
+    let http: HttpTestingController;
+
+    beforeEach(() => {
+      http = TestBed.inject(HttpTestingController);
+    });
+
+    /** Ouvre la modale de lien et répond à la liste publique avec les articles donnés. */
+    function openDialogWith(titles: Array<{ slug: string; title: string }>): void {
+      component.addLink();
+      fixture.detectChanges();
+
+      http
+        .expectOne(
+          (r) =>
+            r.url === `${environment.blogApiUrl}/blog` && r.params.get('size') === '50',
+        )
+        .flush({
+          items: titles.map(({ slug, title }) => ({
+            id: slug,
+            slug,
+            title,
+            excerpt: '',
+            coverImageUrl: null,
+            author: '',
+            publishedAt: null,
+            tags: [],
+          })),
+          total: titles.length,
+          page: 1,
+          size: 50,
+        });
+      fixture.detectChanges();
+    }
+
+    it('propose les pages fixes et les articles publiés', () => {
+      open('<p>x</p>');
+      openDialogWith([{ slug: 'mon-guide', title: 'Mon guide' }]);
+
+      const select = fixture.nativeElement.querySelector('.pd-select') as HTMLSelectElement;
+      expect(select).not.toBeNull();
+      expect(select.textContent).toContain('Accueil');
+      expect(select.textContent).toContain('Blog');
+      expect(select.textContent).toContain('Mon guide');
+    });
+
+    it('choisir un article remplit l’adresse (origine canonique) et l’alias vide', () => {
+      open('<p>x</p>');
+      openDialogWith([{ slug: 'mon-guide', title: 'Mon guide' }]);
+
+      const select = fixture.nativeElement.querySelector('.pd-select') as HTMLSelectElement;
+      select.value = `${environment.siteUrl}/blog/mon-guide`;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      const inputs = fixture.nativeElement.querySelectorAll('.pd-card .pd-input');
+      expect((inputs[0] as HTMLInputElement).value).toBe(
+        `${environment.siteUrl}/blog/mon-guide`,
+      );
+      // Le titre de l'article fait l'ancre — pas un « lire la suite ».
+      expect((inputs[1] as HTMLInputElement).value).toBe('Mon guide');
+    });
+
+    it('un alias déjà saisi n’est pas écrasé par le choix d’une cible', () => {
+      const editable = open('<p><a href="https://a.fr">mon texte</a></p>');
+      component.openLinkEditor(editable.querySelector('a')!);
+      fixture.detectChanges();
+      http
+        .expectOne((r) => r.url === `${environment.blogApiUrl}/blog`)
+        .flush({ items: [], total: 0, page: 1, size: 50 });
+      fixture.detectChanges();
+
+      const select = fixture.nativeElement.querySelector('.pd-select') as HTMLSelectElement;
+      select.value = `${environment.siteUrl}/blog`;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      const inputs = fixture.nativeElement.querySelectorAll('.pd-card .pd-input');
+      expect((inputs[0] as HTMLInputElement).value).toBe(`${environment.siteUrl}/blog`);
+      expect((inputs[1] as HTMLInputElement).value).toBe('mon texte');
+    });
+
+    it('la liste n’est chargée qu’une fois par session d’édition', () => {
+      open('<p>x</p>');
+      openDialogWith([]);
+      component.onLinkCancel();
+      fixture.detectChanges();
+
+      component.addLink();
+      fixture.detectChanges();
+
+      http.expectNone((r) => r.url === `${environment.blogApiUrl}/blog`);
+    });
+  });
+
   describe('édition d’un lien existant (alias)', () => {
     it('met à jour l’adresse et le texte affiché en place', () => {
       const editable = open('<p>voir <a href="https://a.fr">ancien texte</a> ici</p>');
@@ -602,7 +703,8 @@ describe('WysiwygEditorComponent (alignement à la réouverture)', () => {
     expect(getComputedStyle(paragraphes[0]).textAlign).toBe('center');
     expect(getComputedStyle(paragraphes[1]).textAlign).toBe('right');
     expect(getComputedStyle(paragraphes[2]).textAlign).toBe('justify');
-    expect(getComputedStyle(paragraphes[3]).textAlign).not.toBe('center');
+    // Sans classe `ta-*`, le paragraphe suit le défaut du site : justifié.
+    expect(getComputedStyle(paragraphes[3]).textAlign).toBe('justify');
   });
 
   it('vaut aussi pour les titres et les listes', () => {

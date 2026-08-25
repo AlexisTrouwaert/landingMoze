@@ -45,6 +45,14 @@ export class BlogService {
   }
 
   /**
+   * Signale une consultation d'article (compteur de vues, visible en admin).
+   * Répond 204 quoi qu'il arrive — l'appelant n'a rien à en faire.
+   */
+  countView(slug: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/blog/${slug}/view`, {});
+  }
+
+  /**
    * Articles épinglés « à la une » (max 5), du plus récemment épinglé au plus
    * ancien. Appel séparé de `list()` : un article épinglé n'est pas forcément
    * dans la première page de la liste.

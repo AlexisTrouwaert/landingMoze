@@ -1,10 +1,13 @@
 <div class="faq-container">
   <div class="banner-container" appScrollReveal>
+    <!-- H2 et non H3 : la section vit sous le H1 de l'accueil, un H3 sans H2
+         parent est un saut de niveau. Le doublon du bandeau est purement
+         décoratif : il sort de l'arborescence (aria-hidden, pas un titre). -->
     <div class="banner-header">
-      <h3>FOIRE AUX QUESTIONS</h3>
+      <h2>FOIRE AUX QUESTIONS</h2>
     </div>
-    <div class="banner-header-secondary">
-      <h3>FOIRE AUX QUESTIONS</h3>
+    <div class="banner-header-secondary" aria-hidden="true">
+      <p>FOIRE AUX QUESTIONS</p>
     </div>
   </div>
   <div class="questions-container" (click)="onAnswerLinkClick($event)">

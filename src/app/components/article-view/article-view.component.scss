@@ -144,6 +144,12 @@
         color: var(--interaction-color);
       }
 
+      // Justifié par défaut : le corps de texte l'est sans que l'auteur n'ait rien à demander,
+      // texte collé compris. Les classes `ta-*` ci-dessous — l'alignement choisi dans la barre —
+      // l'emportent (spécificité supérieure). Les titres, eux, restent à gauche : un titre
+      // justifié sur deux lignes creuse des espaces disgracieux.
+      p, li, blockquote { text-align: justify; }
+
       // Alignement posé par la barre d'outils de l'éditeur. Par classe et non par
       // `style="text-align:…"` : le sanitizer d'Angular retire les attributs `style` du
       // `[innerHTML]`, l'alignement n'aurait pas survécu à l'affichage.

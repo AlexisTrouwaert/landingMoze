@@ -139,6 +139,7 @@
     [title]="linkDialogTitle()"
     [initialUrl]="linkDialogUrl()"
     [initialLabel]="linkDialogLabel()"
+    [targets]="internalTargets()"
     [confirmLabel]="linkDialogTitle() === 'Modifier le lien' ? 'Enregistrer' : 'Insérer'"
     (confirmed)="onLinkConfirm($event)"
     (cancelled)="onLinkCancel()"

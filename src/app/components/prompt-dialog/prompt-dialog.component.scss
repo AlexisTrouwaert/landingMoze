@@ -111,3 +111,23 @@
     animation: none;
   }
 }
+
+/* Sélecteur (lien interne de la modale de lien) — même gabarit que .pd-input,
+   classe distincte pour que « champ de saisie » et « sélecteur » restent
+   ciblables séparément (styles comme tests). */
+.pd-select {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #cdd9d4;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    border-color: var(--interaction-color);
+    box-shadow: 0 0 0 3px rgba(2, 151, 216, 0.15);
+  }
+}

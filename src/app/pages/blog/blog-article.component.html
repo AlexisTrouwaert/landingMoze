@@ -11,7 +11,26 @@
     </div>
   } @else {
     @if (article(); as a) {
+      <!-- Fil d'Ariane VISIBLE : le balisage BreadcrumbList (JSON-LD) doit décrire
+           quelque chose que le lecteur voit — c'est la règle des données structurées. -->
+      <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a class="crumbs__link" routerLink="/">Accueil</a>
+        <span class="crumbs__sep" aria-hidden="true">›</span>
+        <a class="crumbs__link" routerLink="/blog">Blog</a>
+        <span class="crumbs__sep" aria-hidden="true">›</span>
+        <span class="crumbs__here" aria-current="page">{{ a.title }}</span>
+      </nav>
+
       <app-article-view [article]="a" />
+
+      <aside class="article-cta">
+        <p class="article-cta__title">
+          Indépendant&nbsp;? Facturez, collaborez et développez votre activité avec Moze.
+        </p>
+        <a class="article-cta__btn" routerLink="/commencer" (click)="onCtaClick()">
+          Commencer gratuitement
+        </a>
+      </aside>
 
       @if (related().length) {
         <aside class="related" aria-labelledby="related-title">

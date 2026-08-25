@@ -22,6 +22,9 @@ import { BlogService } from '../../services/blog.service';
 
 type StatusFilter = 'active' | 'all' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
+/** Ordre d'affichage : celui de l'API (récents), ou par compteur de vues. */
+type SortMode = 'recent' | 'views-desc' | 'views-asc';
+
 /** Action destructrice en attente de confirmation. */
 interface PendingAction {
   action: BulkAction;
@@ -48,6 +51,26 @@ export class AdminBlogListComponent {
   readonly loading = signal(false);
   readonly error = signal(false);
   readonly statusFilter = signal<StatusFilter>('active');
+
+  /** Tri d'affichage. Local à l'écran : l'API renvoie toujours la liste par date. */
+  readonly sortMode = signal<SortMode>('recent');
+
+  /**
+   * Liste affichée : celle de l'API, retriée par vues à la demande.
+   * Copie triée (`[...]`) — `items` reste l'ordre de référence de l'API.
+   */
+  readonly displayedItems = computed(() => {
+    const list = this.items();
+    const mode = this.sortMode();
+    if (mode === 'recent') return list;
+
+    const sign = mode === 'views-desc' ? -1 : 1;
+    return [...list].sort((a, b) => sign * ((a.views ?? 0) - (b.views ?? 0)));
+  });
+
+  onSortChange(event: Event): void {
+    this.sortMode.set((event.target as HTMLSelectElement).value as SortMode);
+  }
 
   /** Compteurs globaux : indépendants de la recherche et du filtre courant. */
   readonly stats = signal<AdminStats | null>(null);

@@ -4,7 +4,8 @@
 // se désaligner. La colonne d'actions a une largeur fixe — c'est elle qui
 // garantit un bord droit net quel que soit le libellé du bouton.
 // Sa largeur = étoile (28) + action (88) + menu (28) + deux gouttières (12).
-$row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
+// check / vignette / article / statut / vues / modifié / actions
+$row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 156px;
 
 .adm-page {
   max-width: 1060px;
@@ -270,10 +271,27 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
     color: var(--adm-ink-400);
     font-size: 0.75rem;
 
-    // « Article » couvre la vignette et le titre : sans ça, l'en-tête n'a que
-    // cinq cellules pour six colonnes et tout se décale d'un cran.
+    // Chaque libellé est calé explicitement sur sa piste : « Article » démarre
+    // au-dessus des titres (la vignette n'a pas de libellé), et sans placement
+    // explicite les libellés suivants glisseraient dans la piste 2 restée libre.
     > span:first-of-type {
-      grid-column: 2 / 4;
+      grid-column: 3 / 4;
+    }
+
+    .col-status {
+      grid-column: 4;
+    }
+
+    .col-views {
+      grid-column: 5;
+    }
+
+    .col-date {
+      grid-column: 6;
+    }
+
+    .col-actions {
+      grid-column: 7;
     }
   }
 }
@@ -389,14 +407,28 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
   display: contents;
 }
 
+// Statut, Vues et Modifié sont centrés sur leur piste : libellés d'en-tête et
+// cellules partagent ces classes, le centrage vaut donc pour les deux d'un coup.
 .col-status {
   min-width: 0;
+  text-align: center;
+}
+
+.col-views {
+  color: var(--adm-ink-400);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  // Centré (libellé et valeurs partagent la classe) : un « 0 » collé au bord
+  // gauche d'une piste plus large que lui semblait désaligné de son libellé.
+  text-align: center;
 }
 
 .col-date {
   color: var(--adm-ink-400);
   font-size: 0.78rem;
   white-space: nowrap;
+  text-align: center;
 }
 
 .col-actions {
@@ -404,6 +436,19 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
+}
+
+// Tri d'affichage (récents / plus vus / moins vus), à droite des filtres.
+.adm-sort__select {
+  height: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--adm-line-strong, #cdd9d4);
+  border-radius: 10px;
+  background: var(--adm-surface, #fff);
+  color: var(--adm-ink-700, #145775);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 // Le menu s'ouvre sous le bouton « ⋯ », aligné à droite.
@@ -609,6 +654,7 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
     }
 
     .col-status,
+    .col-views,
     .col-date,
     .col-actions {
       display: none;
@@ -645,6 +691,12 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
     margin-right: auto;
   }
 
+  // En pied de carte, le nombre seul ne se comprend plus sans l'en-tête de
+  // colonne : l'unité est ajoutée en CSS.
+  .row .col-views::after {
+    content: ' vues';
+  }
+
   // Reste à droite même si le pied passe sur deux lignes (petits écrans).
   .col-actions {
     margin-left: auto;
@@ -654,6 +706,7 @@ $row-grid: 18px 40px minmax(0, 1fr) 92px 62px 156px;
     grid-template-columns: 18px 40px minmax(0, 1fr);
 
     .sk--badge,
+    .sk--views,
     .sk--date,
     .sk--actions {
       display: none;

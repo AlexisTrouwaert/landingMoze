@@ -1,16 +1,20 @@
 {
   "name": "landing",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "build:prod": "ng build --configuration production",
-    "archive:prod": "npm run build:prod && mkdir -p build/prod && (cd dist/landing && tar -czvf ../../build/prod/landing-PROD-$(date +%Y%m%d%H%M%S).tar.gz .)",
-    "archive:prod-win": "npm run build:prod && powershell -Command \"mkdir -p build/prod -ErrorAction SilentlyContinue; cd dist/landing; tar -czvf ../../build/prod/landing-PROD-$(Get-Date -Format 'yyyyMMddHHmmss').tar.gz .\"",
+    "release": "node scripts/release.mjs",
+    "archive:prod": "npm run build:prod && mkdir -p build/prod && (cd dist/landing && tar -czvf ../../build/prod/landing-PROD-v${npm_package_version}-$(date +%Y%m%d%H%M%S).tar.gz .)",
+    "archive:prod-win": "npm run build:prod && powershell -Command \"mkdir -p build/prod -ErrorAction SilentlyContinue; cd dist/landing; tar -czvf ../../build/prod/landing-PROD-v${env:npm_package_version}-$(Get-Date -Format 'yyyyMMddHHmmss').tar.gz .\"",
     "test": "ng test",
     "serve:ssr:landing": "node dist/landing/server/server.mjs",
+    "release:dry": "node scripts/release.mjs --dry-run",
+    "release": "node scripts/release.mjs",
+    "release:prod-win": "npm run release && npm run archive:prod-win",
     "remotes:setup": "node scripts/sync-remotes.mjs setup",
     "remotes:status": "node scripts/sync-remotes.mjs status",
     "push:both": "node scripts/sync-remotes.mjs push"

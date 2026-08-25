@@ -20,20 +20,33 @@ describe('sitemap', () => {
   });
 
   describe('articleEntries', () => {
-    it('construit l’URL de l’article et sa date de publication', () => {
+    it('construit l’URL de l’article ; `lastmod` = date de modification réelle', () => {
       const entries = articleEntries(
-        [{ slug: 'mon-article', publishedAt: '2026-07-14T09:30:00.000Z' }],
+        [
+          {
+            slug: 'mon-article',
+            publishedAt: '2026-07-14T09:30:00.000Z',
+            updatedAt: '2026-08-02T08:00:00.000Z',
+          },
+        ],
         SITE,
       );
 
       expect(entries).toEqual([
         {
           loc: `${SITE}/blog/mon-article`,
-          lastmod: '2026-07-14',
-          changefreq: 'monthly',
-          priority: '0.7',
+          lastmod: '2026-08-02',
         },
       ]);
+    });
+
+    it('se replie sur la date de publication sans date de modification', () => {
+      const [entry] = articleEntries(
+        [{ slug: 'a', publishedAt: '2026-07-14T09:30:00.000Z' }],
+        SITE,
+      );
+
+      expect(entry.lastmod).toBe('2026-07-14');
     });
 
     it('omet `lastmod` plutôt que d’inventer une date', () => {
@@ -57,7 +70,7 @@ describe('sitemap', () => {
   describe('buildSitemap', () => {
     it('produit un urlset valide', () => {
       const xml = buildSitemap([
-        { loc: `${SITE}/`, changefreq: 'weekly', priority: '1.0' },
+        { loc: `${SITE}/` },
         { loc: `${SITE}/blog/a`, lastmod: '2026-07-14' },
       ]);
 
@@ -70,11 +83,12 @@ describe('sitemap', () => {
       expect(xml.match(/<url>/g)?.length).toBe(2);
     });
 
-    it('n’écrit pas les champs absents', () => {
+    it('n’écrit ni champ absent, ni `priority`/`changefreq` (ignorés par Google)', () => {
       const xml = buildSitemap([{ loc: `${SITE}/blog/a` }]);
 
       expect(xml).not.toContain('<lastmod>');
       expect(xml).not.toContain('<priority>');
+      expect(xml).not.toContain('<changefreq>');
     });
 
     /**

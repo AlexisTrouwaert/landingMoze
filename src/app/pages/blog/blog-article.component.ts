@@ -1,7 +1,9 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  PLATFORM_ID,
   RESPONSE_INIT,
   inject,
   signal,
@@ -14,6 +16,7 @@ import { ArticleViewComponent } from '../../components/article-view/article-view
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 import { Article, ArticleListItem } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
+import { GoogleAnalyticsService } from '../../services/google-analytics.service';
 import { SeoService } from '../../services/seo.service';
 import { environment } from '../../../environements/environment';
 
@@ -40,12 +43,18 @@ export class BlogArticleComponent implements OnDestroy {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly seo = inject(SeoService);
+  private readonly ga = inject(GoogleAnalyticsService);
 
   /**
    * En-tête de la réponse en cours de rendu — présent uniquement côté serveur, `null` dans le
    * navigateur. Muter son `status` avant la fin du rendu change le code HTTP servi.
    */
   private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
+
+  /** CTA de fin d'article — event GA4 recommandé `generate_lead`, avec sa provenance. */
+  onCtaClick(): void {
+    this.ga.trackGenerateLead({ source: 'blog_article', article: this.article()?.slug });
+  }
 
   readonly article = signal<Article | null>(null);
   readonly loading = signal(true);
@@ -58,27 +67,83 @@ export class BlogArticleComponent implements OnDestroy {
     this.route.paramMap
       .pipe(
         switchMap((p) => {
+          const requested = p.get('slug') ?? '';
           this.loading.set(true);
           this.notFound.set(false);
           this.related.set([]);
-          return this.blog.getBySlug(p.get('slug') ?? '').pipe(
+          return this.blog.getBySlug(requested).pipe(
+            map((article) => ({ requested, article: article as Article | null })),
             catchError(() => {
               this.notFound.set(true);
               this.markNotFound();
               this.removeJsonLd();
-              return of(null);
+              return of({ requested, article: null });
             }),
           );
         }),
       )
-      .subscribe((a) => {
+      .subscribe(({ requested, article: a }) => {
         this.loading.set(false);
-        if (a) {
-          this.article.set(a);
-          this.applySeo(a);
-          this.loadRelated(a);
+        if (!a) return;
+
+        // Le back résout aussi les ANCIENS slugs (renommages) en renvoyant
+        // l'article avec son slug actuel : l'écart demandé ≠ reçu signifie que
+        // l'adresse consultée n'est plus la bonne — on redirige au lieu d'afficher.
+        if (a.slug !== requested) {
+          this.redirectToCurrentSlug(a.slug);
+          return;
         }
+
+        this.article.set(a);
+        this.applySeo(a);
+        this.loadRelated(a);
+        this.countView(a.slug);
       });
+  }
+
+  /**
+   * L'adresse canonique est celle du slug actuel de l'article.
+   *
+   * Côté serveur : une vraie 301 (statut + `Location`) — c'est elle qui transfère
+   * aux moteurs l'historique de l'ancienne URL vers la nouvelle, en un seul saut.
+   * Côté navigateur : navigation interne en remplaçant l'entrée d'historique,
+   * pour que « précédent » ne repasse pas par l'ancienne adresse.
+   */
+  private redirectToCurrentSlug(slug: string): void {
+    if (this.responseInit) {
+      this.responseInit.status = 301;
+      const headers = new Headers(this.responseInit.headers);
+      headers.set('Location', `${environment.siteUrl}/blog/${slug}`);
+      this.responseInit.headers = headers;
+      return;
+    }
+    void this.router.navigate(['/blog', slug], { replaceUrl: true });
+  }
+
+  private readonly platformId = inject(PLATFORM_ID);
+
+  /**
+   * Signale la consultation au compteur de vues (statistique admin).
+   *
+   * Navigateur uniquement : pendant le rendu serveur, le « lecteur » est
+   * souvent un robot — qui, lui, n'exécutera jamais ce code côté client. Une
+   * seule vue par article et par session de navigation (`sessionStorage`) :
+   * recharger la page ou y revenir dans la foulée ne gonfle pas le compteur.
+   */
+  private countView(slug: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const key = `moze-viewed-${slug}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      /* stockage indisponible (navigation privée stricte) → on compte quand même */
+    }
+
+    // Échec silencieux : le compteur est un sous-produit de la lecture, pas une
+    // fonctionnalité de la page.
+    this.blog.countView(slug).subscribe({ error: () => {} });
   }
 
   /**
@@ -251,7 +316,8 @@ export class BlogArticleComponent implements OnDestroy {
 
     this.seo.setJsonLd('article', {
       '@context': 'https://schema.org',
-      '@type': 'Article',
+      // `BlogPosting` : la spécialisation d'`Article` qui décrit exactement ces pages.
+      '@type': 'BlogPosting',
       headline: title,
       description,
       mainEntityOfPage: url,

@@ -6,7 +6,14 @@
     <h1 class="article__title">{{ article().title }}</h1>
     <div class="article__meta">
       @if (article().author) { <span>{{ article().author }}</span> }
-      @if (article().publishedAt) { <time>{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time> }
+      @if (article().publishedAt) { <time [attr.datetime]="article().publishedAt">Publié le {{ article().publishedAt | date: 'dd/MM/yyyy' }}</time> }
+      <!-- Signal de fraîcheur : sur un contenu réglementaire retouché, la date de
+           mise à jour compte autant que celle de publication. -->
+      @if (updatedLater()) {
+        <time class="article__updated" [attr.datetime]="article().updatedAt">
+          · Mis à jour le {{ article().updatedAt | date: 'dd/MM/yyyy' }}
+        </time>
+      }
     </div>
   </header>
 

@@ -7,6 +7,26 @@
       (click)="$event.stopPropagation()"
     >
       <h2 class="pd-title">{{ title() }}</h2>
+      @if (targets().length) {
+        <label class="pd-label">Lien interne — remplit l'adresse pour vous</label>
+        <select class="pd-select" [value]="selectedTarget()" (change)="onInternalPick($event)">
+          <option value="">— Choisir une page ou un article —</option>
+          @if (pages().length) {
+            <optgroup label="Pages">
+              @for (t of pages(); track t.url) {
+                <option [value]="t.url">{{ t.label }}</option>
+              }
+            </optgroup>
+          }
+          @if (articles().length) {
+            <optgroup label="Articles">
+              @for (t of articles(); track t.url) {
+                <option [value]="t.url">{{ t.label }}</option>
+              }
+            </optgroup>
+          }
+        </select>
+      }
       <label class="pd-label">Adresse du lien (https://…)</label>
       <input
         class="pd-input"

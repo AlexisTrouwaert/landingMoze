@@ -1,6 +1,7 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, signal } from '@angular/core';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
+import { SeoService } from '../../../services/seo.service';
 
 interface FaqItem { title: string; answer: string; }
 
@@ -14,6 +15,7 @@ interface FaqItem { title: string; answer: string; }
 export class FaqComponent implements OnDestroy {
 
   private readonly metaPixel = inject(MetaPixelService);
+  private readonly seo = inject(SeoService);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
 
   selectedQ = signal<number | null>(null);
@@ -29,10 +31,33 @@ export class FaqComponent implements OnDestroy {
     // en 2 colonnes (desktop), les 2 cartes d'une même ligne ont le même top et
     // se révèlent ensemble ; en 1 colonne (mobile/tablette), elles se suivent.
     afterNextRender(() => this.setupReveal());
+
+    // Données structurées FAQPage — générées depuis le MÊME tableau que
+    // l'affichage : le balisage décrit exactement ce qui est à l'écran, comme
+    // l'exigent les règles de Google. Seules les vraies questions/réponses
+    // (`commonQuestions`) y figurent — les cartes fonctionnalités du dessus
+    // n'ont pas la forme question → réponse. Posé au rendu serveur aussi,
+    // c'est ce qui le met dans le HTML que lisent les robots.
+    this.seo.setJsonLd('faq', {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: this.commonQuestions.map((q) => ({
+        '@type': 'Question',
+        name: q.title,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          // Les <span> ne servent qu'au style de l'accordéon ; le reste
+          // (liens, listes, <br>) fait partie des balises admises par Google.
+          text: q.answer.replace(/<\/?span>/g, ''),
+        },
+      })),
+    });
   }
 
   ngOnDestroy(): void {
     this.revealObserver?.disconnect();
+    // Le bloc décrit CETTE section : parti ailleurs, il n'a plus lieu d'être.
+    this.seo.removeJsonLd('faq');
   }
 
   private setupReveal(): void {

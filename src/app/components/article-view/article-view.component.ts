@@ -64,6 +64,17 @@ export class ArticleViewComponent {
   readonly back = input(true);
 
   /**
+   * Vrai quand la dernière modification est postérieure au **jour** de publication.
+   * Comparaison au jour près : publier bouge aussi `updatedAt` de quelques
+   * secondes, et « mis à jour le » le jour même de la publication serait du bruit.
+   */
+  readonly updatedLater = computed(() => {
+    const a = this.article();
+    if (!a.publishedAt || !a.updatedAt) return false;
+    return a.updatedAt.slice(0, 10) > a.publishedAt.slice(0, 10);
+  });
+
+  /**
    * Corps de l'article, URL tapées en texte brut converties en liens cliquables.
    *
    * L'éditeur ne transforme que les liens saisis via son outil dédié : une adresse simplement

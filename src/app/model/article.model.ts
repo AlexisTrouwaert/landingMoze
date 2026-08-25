@@ -35,6 +35,12 @@ export interface Article {
    * donc pas le déduire lui-même.
    */
   readingMinutes?: number;
+  /**
+   * Nombre de consultations publiques. Statistique réservée à l'admin :
+   * seules les réponses de l'API admin la transportent — absente (donc
+   * `undefined`) sur tout ce qui vient des endpoints publics.
+   */
+  views?: number;
   tags: Tag[];
 }
 

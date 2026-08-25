@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
+  computed,
   effect,
   input,
   output,
@@ -14,6 +15,17 @@ export interface LinkDialogResult {
   readonly url: string;
   /** Le texte affiché (l'alias). Vide : l'appelant choisit (sélection en cours, ou l'URL). */
   readonly label: string;
+}
+
+/**
+ * Cible interne proposée par le sélecteur : une page du site ou un article publié.
+ * L'URL est absolue, construite sur l'origine canonique — c'est justement pour que
+ * la rédaction n'ait ni URL à taper, ni version www à deviner.
+ */
+export interface InternalLinkTarget {
+  readonly group: 'Pages' | 'Articles';
+  readonly label: string;
+  readonly url: string;
 }
 
 /**
@@ -36,12 +48,38 @@ export class LinkDialogComponent {
   readonly initialUrl = input('');
   readonly initialLabel = input('');
   readonly confirmLabel = input('Insérer');
+  /** Cibles internes proposées (vide = pas de sélecteur, saisie libre seulement). */
+  readonly targets = input<InternalLinkTarget[]>([]);
 
   readonly confirmed = output<LinkDialogResult>();
   readonly cancelled = output<void>();
 
   readonly url = signal('');
   readonly label = signal('');
+
+  readonly pages = computed(() => this.targets().filter((t) => t.group === 'Pages'));
+  readonly articles = computed(() => this.targets().filter((t) => t.group === 'Articles'));
+
+  /** L'option du sélecteur qui correspond à l'adresse courante — sinon le placeholder. */
+  readonly selectedTarget = computed(
+    () => this.targets().find((t) => t.url === this.url())?.url ?? '',
+  );
+
+  /**
+   * Choix d'une cible interne : remplit l'adresse, et propose le libellé de la
+   * cible comme texte affiché si l'auteur n'en a pas déjà saisi un — le titre de
+   * l'article lié fait une bien meilleure ancre qu'une URL ou un « lire la suite ».
+   */
+  onInternalPick(event: Event): void {
+    const url = (event.target as HTMLSelectElement).value;
+    if (!url) return;
+
+    this.url.set(url);
+    if (!this.label().trim()) {
+      const target = this.targets().find((t) => t.url === url);
+      if (target) this.label.set(target.label);
+    }
+  }
 
   constructor() {
     // À l'ouverture, pré-remplit les champs (lien en cours d'édition, ou sélection).

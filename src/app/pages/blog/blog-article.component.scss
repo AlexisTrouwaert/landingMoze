@@ -48,3 +48,71 @@
     }
   }
 }
+
+/* Fil d'Ariane — sobre, au-dessus de l'article. */
+.crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  color: #4a5b63;
+
+  &__link {
+    color: var(--interaction-color, #1d7bb8);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__sep {
+    color: #9ab0b9;
+  }
+
+  &__here {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 28ch;
+  }
+}
+
+/* CTA de fin d'article : la lecture débouche sur une proposition, pas sur un cul-de-sac. */
+.article-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 16px;
+  background: var(--primary-color, #145775);
+  color: #fff;
+
+  &__title {
+    margin: 0;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    max-width: 34rem;
+  }
+
+  &__btn {
+    flex: 0 0 auto;
+    padding: 0.75rem 1.6rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--primary-color, #145775);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    text-decoration: none;
+    transition: transform 0.15s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}

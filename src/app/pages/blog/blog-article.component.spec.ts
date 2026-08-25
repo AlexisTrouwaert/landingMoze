@@ -7,6 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
   ParamMap,
+  Router,
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
@@ -80,6 +81,8 @@ describe('BlogArticleComponent', () => {
     fixture = TestBed.createComponent(BlogArticleComponent);
     fixture.detectChanges();
     http = TestBed.inject(HttpTestingController);
+    // La déduplication des vues (une par session) survivrait d'un spec à l'autre.
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -88,12 +91,75 @@ describe('BlogArticleComponent', () => {
     http.verify();
   });
 
-  /** Navigue vers le slug et répond à `GET /blog/:slug` avec l'article donné. */
+  /**
+   * Navigue vers le slug et répond à `GET /blog/:slug` avec l'article donné.
+   * Solde aussi le ping de vue : Karma tourne dans un navigateur, il part donc
+   * à chaque premier chargement d'un article dans la session.
+   */
   function load(article: Article): void {
     paramMap$.next(convertToParamMap({ slug: article.slug }));
     http.expectOne(`${base}/blog/${article.slug}`).flush(article);
+    http
+      .expectOne({ method: 'POST', url: `${base}/blog/${article.slug}/view` })
+      .flush(null, { status: 204, statusText: 'No Content' });
     fixture.detectChanges();
   }
+
+  it('un ancien slug redirige vers l’actuel, sans rien charger d’autre', () => {
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+
+    // L'API résout l'ancien slug mais renvoie l'article avec son slug ACTUEL.
+    paramMap$.next(convertToParamMap({ slug: 'ancien-slug' }));
+    http
+      .expectOne(`${base}/blog/ancien-slug`)
+      .flush(fullArticle({ slug: 'slug-actuel' }));
+    fixture.detectChanges();
+
+    expect(navigate).toHaveBeenCalledWith(['/blog', 'slug-actuel'], { replaceUrl: true });
+    // Ni ping de vue, ni suggestions, ni SEO : la page redirigée ne compte pas.
+    http.expectNone((r) => r.url !== `${base}/blog/ancien-slug`);
+    expect(fixture.componentInstance.article()).toBeNull();
+  });
+
+  it('affiche le fil d’Ariane et le CTA de fin d’article', () => {
+    load(fullArticle({ tags: [] }));
+    http
+      .expectOne((r) => r.url === `${base}/blog` && !r.params.has('tags'))
+      .flush({ items: [], total: 0, page: 1, size: 4 });
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const crumbs = host.querySelector('.crumbs');
+    expect(crumbs).not.toBeNull();
+    expect(crumbs?.textContent).toContain('Accueil');
+    expect(crumbs?.textContent).toContain('Blog');
+    expect(crumbs?.textContent).toContain('Mon article');
+
+    const cta = host.querySelector<HTMLAnchorElement>('.article-cta__btn');
+    expect(cta).not.toBeNull();
+    expect(cta?.getAttribute('href')).toBe('/commencer');
+  });
+
+  it('compte une seule vue par session de navigation', () => {
+    const article = fullArticle({ tags: [] });
+    load(article); // le premier ping est soldé par le helper
+
+    http
+      .expectOne((r) => r.url === `${base}/blog` && !r.params.has('tags'))
+      .flush({ items: [], total: 0, page: 1, size: 4 });
+
+    // Retour sur le même article, même session : article rechargé, mais pas de
+    // second ping — c'est le http.verify() de l'afterEach qui le garantit aussi.
+    paramMap$.next(convertToParamMap({ slug: article.slug }));
+    http.expectOne(`${base}/blog/${article.slug}`).flush(article);
+    http
+      .expectOne((r) => r.url === `${base}/blog` && !r.params.has('tags'))
+      .flush({ items: [], total: 0, page: 1, size: 4 });
+    fixture.detectChanges();
+
+    http.expectNone((r) => r.method === 'POST' && r.url.endsWith('/view'));
+  });
 
   it('charge les suggestions par tags communs, article courant exclu', () => {
     load(fullArticle());
@@ -174,7 +240,7 @@ describe('BlogArticleComponent', () => {
       flushRelated();
 
       const article = ld('article') as Record<string, unknown>;
-      expect(article['@type']).toBe('Article');
+      expect(article['@type']).toBe('BlogPosting');
       expect(article['headline']).toBe('Mon article');
       expect(article['datePublished']).toBe('2026-07-01T00:00:00.000Z');
       expect(article['dateModified']).toBe('2026-07-02T00:00:00.000Z');

@@ -10,9 +10,14 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { findUrls, sameUrl } from '../../common/link-detection';
-import { LinkDialogComponent, LinkDialogResult } from '../link-dialog/link-dialog.component';
+import {
+  InternalLinkTarget,
+  LinkDialogComponent,
+  LinkDialogResult,
+} from '../link-dialog/link-dialog.component';
 import { PromptDialogComponent } from '../prompt-dialog/prompt-dialog.component';
 import { BlogService } from '../../services/blog.service';
+import { environment } from '../../../environements/environment';
 
 /**
  * Les seuls alignements acceptés. Doit rester aligné sur trois autres endroits : la whitelist du
@@ -412,6 +417,14 @@ export class WysiwygEditorComponent
       if (/font-style:\s*normal/.test(s)) return false;
       return el.tagName === 'I' || el.tagName === 'EM' || /font-style:\s*italic/.test(s);
     };
+    // Une classe `ta-*` ne peut venir que de la barre d'outils de cet éditeur : la retrouver au
+    // collage, c'est retrouver un choix déjà fait par l'auteur — elle seule est conservée.
+    const ownAlignment = (el: HTMLElement): string => {
+      for (const value of ALIGNMENTS) {
+        if (el.classList.contains(`ta-${value}`)) return value;
+      }
+      return '';
+    };
 
     const walk = (node: Node): string => {
       let out = '';
@@ -446,10 +459,11 @@ export class WysiwygEditorComponent
           return;
         }
 
-        // L'alignement est la seule mise en forme de bloc reprise du collage : un texte centré
-        // dans Word ou Docs le reste. Tout le reste du style est écarté, comme avant. Classe et
-        // non `style`, pour la même raison qu'à la normalisation de sortie.
-        const alignment = alignmentOf(el);
+        // L'alignement du document source (style Word/Docs, attribut `align`) n'est PAS repris :
+        // le corps d'article est justifié par défaut, et seul un alignement choisi par l'auteur
+        // dans la barre doit y déroger. Un texte collé arrive donc « neutre » — sauf s'il porte
+        // déjà une classe `ta-*`, trace d'un choix fait dans cet éditeur.
+        const alignment = ownAlignment(el);
         out += alignment
           ? `<${block} class="ta-${alignment}">${inner}</${block}>`
           : `<${block}>${inner}</${block}>`;
@@ -545,6 +559,46 @@ export class WysiwygEditorComponent
     return document.queryCommandState('justifyLeft') ? 'left' : '';
   }
 
+  /**
+   * Cibles du sélecteur de lien interne : pages fixes + articles publiés.
+   * Chargées à la première ouverture de la modale seulement — la liste des
+   * articles ne bouge pas pendant une session de rédaction, un appel suffit.
+   * URLs absolues sur l'origine canonique : la rédaction n'a ni adresse à
+   * taper, ni version www à deviner.
+   */
+  readonly internalTargets = signal<InternalLinkTarget[]>([]);
+  private internalTargetsLoaded = false;
+
+  private loadInternalTargets(): void {
+    if (this.internalTargetsLoaded) return;
+    this.internalTargetsLoaded = true;
+
+    const site = environment.siteUrl;
+    const pages: InternalLinkTarget[] = [
+      { group: 'Pages', label: 'Accueil', url: `${site}/` },
+      { group: 'Pages', label: 'Commencer (inscription)', url: `${site}/commencer` },
+      { group: 'Pages', label: 'Blog', url: `${site}/blog` },
+    ];
+    this.internalTargets.set(pages);
+
+    // Liste PUBLIQUE : seuls les articles publiés sont proposés — un lien vers
+    // un brouillon serait un 404 en ligne. 50 = plafond de l'API.
+    this.blog.list(1, 50).subscribe({
+      next: (page) =>
+        this.internalTargets.set([
+          ...pages,
+          ...page.items.map((a) => ({
+            group: 'Articles' as const,
+            label: a.title,
+            url: `${site}/blog/${a.slug}`,
+          })),
+        ]),
+      error: () => {
+        /* la saisie manuelle reste possible, le sélecteur montre au moins les pages */
+      },
+    });
+  }
+
   /** État de la modale de lien + sélection mémorisée à l'ouverture. */
   readonly linkDialogOpen = signal(false);
   readonly linkDialogTitle = signal('Insérer un lien');
@@ -578,6 +632,7 @@ export class WysiwygEditorComponent
     this.linkDialogTitle.set('Insérer un lien');
     this.linkDialogUrl.set('');
     this.linkDialogLabel.set(this.savedLinkRange?.toString().trim() ?? '');
+    this.loadInternalTargets();
     this.linkDialogOpen.set(true);
   }
 
@@ -591,6 +646,7 @@ export class WysiwygEditorComponent
     this.linkDialogTitle.set('Modifier le lien');
     this.linkDialogUrl.set(anchor.getAttribute('href') ?? '');
     this.linkDialogLabel.set(anchor.textContent?.trim() ?? '');
+    this.loadInternalTargets();
     this.linkDialogOpen.set(true);
   }
 
