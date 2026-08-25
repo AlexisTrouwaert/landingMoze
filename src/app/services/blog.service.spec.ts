@@ -115,4 +115,43 @@ describe('BlogService', () => {
     expect(req.request.body instanceof FormData).toBe(true);
     req.flush({ url: 'http://x/img.png' });
   });
+
+  /**
+   * Le compteur de vues est une statistique de confort. Si la route est absente du back déployé,
+   * il ne doit pas produire une 404 par article consulté : une série d'erreurs identiques depuis
+   * une même IP est lue comme un scan par le pare-feu applicatif, qui bannit le visiteur.
+   */
+  describe('countView — disjoncteur', () => {
+    // `error` obligatoire : le service laisse l'erreur remonter (c'est l'appelant qui décide
+    // quoi en faire), une souscription nue la ferait éclater hors du test.
+    const ping = (slug: string) => service.countView(slug).subscribe({ error: () => {} });
+    const failOnce = (slug: string) => {
+      ping(slug);
+      http
+        .expectOne(`${base}/blog/${slug}/view`)
+        .flush(null, { status: 404, statusText: 'Not Found' });
+    };
+
+    it('cesse d’appeler après deux échecs d’affilée', () => {
+      failOnce('a');
+      failOnce('b');
+
+      ping('c');
+      http.expectNone((r) => r.url.endsWith('/view'));
+    });
+
+    it('un appel qui aboutit remet le compteur à zéro', () => {
+      failOnce('a');
+
+      ping('b');
+      http
+        .expectOne(`${base}/blog/b/view`)
+        .flush(null, { status: 204, statusText: 'No Content' });
+
+      // Le quota est reparti de zéro : deux nouveaux échecs sont à nouveau tolérés.
+      failOnce('c');
+      ping('d');
+      http.expectOne(`${base}/blog/d/view`).flush(null, { status: 204, statusText: 'No Content' });
+    });
+  });
 });

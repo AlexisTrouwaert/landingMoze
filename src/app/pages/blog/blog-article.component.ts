@@ -136,14 +136,26 @@ export class BlogArticleComponent implements OnDestroy {
     const key = `moze-viewed-${slug}`;
     try {
       if (sessionStorage.getItem(key)) return;
+      // Posé avant l'appel : empêche un double comptage si la page est ré-affichée
+      // pendant que la requête est encore en vol.
       sessionStorage.setItem(key, '1');
     } catch {
       /* stockage indisponible (navigation privée stricte) → on compte quand même */
     }
 
-    // Échec silencieux : le compteur est un sous-produit de la lecture, pas une
-    // fonctionnalité de la page.
-    this.blog.countView(slug).subscribe({ error: () => {} });
+    this.blog.countView(slug).subscribe({
+      // Échec silencieux côté affichage — le compteur est un sous-produit de la
+      // lecture, pas une fonctionnalité de la page — mais le marqueur est retiré :
+      // sans ça, une panne passagère (back redémarré, réseau coupé) empêcherait
+      // définitivement de compter cet article pour toute la session.
+      error: () => {
+        try {
+          sessionStorage.removeItem(key);
+        } catch {
+          /* même repli que ci-dessus */
+        }
+      },
+    });
   }
 
   /**

@@ -3,7 +3,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { environment } from '../../../environements/environment';
@@ -121,7 +121,11 @@ describe('ArticleViewComponent', () => {
     expect(first.kind === 'html' && first.html).not.toContain('href');
   });
 
-  it('chaque lien reçoit sa carte, sans plafond', () => {
+  /**
+   * `fakeAsync` : les demandes d'aperçu simultanées sont volontairement échelonnées côté service
+   * (cf. `STAGGER_MS`), pour qu'un endpoint en panne n'engendre pas une rafale d'erreurs.
+   */
+  it('chaque lien reçoit sa carte, sans plafond', fakeAsync(() => {
     render(
       ['a', 'b', 'c', 'd']
         .map((p) => `<p><a href="https://exemple.fr/${p}">https://exemple.fr/${p}</a></p>`)
@@ -129,6 +133,8 @@ describe('ArticleViewComponent', () => {
     );
 
     expect(blocks().filter((b) => b.kind === 'preview').length).toBe(4);
+
+    tick(1000);
 
     // Les quatre aperçus sont demandés, et chaque ancre-URL-brute s'efface au profit de sa carte.
     expect(resolvePreviews().length).toBe(4);
@@ -138,10 +144,28 @@ describe('ArticleViewComponent', () => {
       .map((b) => b.html)
       .join('');
     expect(texte).not.toContain('exemple.fr');
-  });
+  }));
 
   it('ignore les liens vers le site lui-même', () => {
     render(`<p><a href="${environment.siteUrl}/mentions-legales">Mentions légales</a></p>`);
+
+    expect(kinds()).toEqual(['html']);
+    http.expectNone((r) => r.url.includes('/link-preview'));
+  });
+
+  /**
+   * Incident de production : des liens internes écrits sans `www` passaient pour externes, et
+   * l'article demandait un aperçu au back pour chacun de nos propres articles. Une dizaine de
+   * requêtes d'un coup depuis la même IP — lues comme un scan par le pare-feu applicatif, qui
+   * bannissait le visiteur.
+   */
+  it('reconnaît un lien interne quelle que soit la forme de l’hôte (apex ou www)', () => {
+    const apex = environment.siteUrl.replace('://www.', '://');
+
+    render(
+      `<p><a href="${apex}/blog/mon-article">Un article</a></p>` +
+        `<p><a href="${environment.siteUrl}/blog/autre">Un autre</a></p>`,
+    );
 
     expect(kinds()).toEqual(['html']);
     http.expectNone((r) => r.url.includes('/link-preview'));

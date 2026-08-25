@@ -141,6 +141,32 @@ describe('BlogArticleComponent', () => {
     expect(cta?.getAttribute('href')).toBe('/commencer');
   });
 
+  it('un ping en échec ne condamne pas le comptage pour la session', () => {
+    const article = fullArticle({ tags: [] });
+
+    // 1er passage : le ping échoue (back redémarré, réseau coupé...).
+    paramMap$.next(convertToParamMap({ slug: article.slug }));
+    http.expectOne(`${base}/blog/${article.slug}`).flush(article);
+    http
+      .expectOne({ method: 'POST', url: `${base}/blog/${article.slug}/view` })
+      .flush(null, { status: 503, statusText: 'Service Unavailable' });
+    http
+      .expectOne((r) => r.url === `${base}/blog` && !r.params.has('tags'))
+      .flush({ items: [], total: 0, page: 1, size: 4 });
+    fixture.detectChanges();
+
+    // 2e passage : le marqueur a été retiré, un nouveau ping doit partir.
+    paramMap$.next(convertToParamMap({ slug: article.slug }));
+    http.expectOne(`${base}/blog/${article.slug}`).flush(article);
+    http
+      .expectOne({ method: 'POST', url: `${base}/blog/${article.slug}/view` })
+      .flush(null, { status: 204, statusText: 'No Content' });
+    http
+      .expectOne((r) => r.url === `${base}/blog` && !r.params.has('tags'))
+      .flush({ items: [], total: 0, page: 1, size: 4 });
+    fixture.detectChanges();
+  });
+
   it('compte une seule vue par session de navigation', () => {
     const article = fullArticle({ tags: [] });
     load(article); // le premier ping est soldé par le helper

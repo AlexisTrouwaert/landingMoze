@@ -37,10 +37,21 @@ interface SegmentContext {
  */
 const ELEMENT_NODE = 1;
 
+/**
+ * Hôte réduit à sa forme comparable : minuscules, sans `www.`.
+ *
+ * `moze.fr` et `www.moze.fr` servent le même site. Comparer les hôtes bruts faisait passer pour
+ * externe tout lien interne écrit sans `www` — donc une demande d'aperçu au back pour nos propres
+ * articles, une par lien.
+ */
+function bareHost(host: string): string {
+  return host.toLowerCase().replace(/^www\./, '');
+}
+
 /** Hôte du site, pour écarter les liens internes. `environment` est figé, un calcul suffit. */
 const SITE_HOST = (() => {
   try {
-    return new URL(environment.siteUrl).host;
+    return bareHost(new URL(environment.siteUrl).host);
   } catch {
     return '';
   }
@@ -162,7 +173,7 @@ export class ArticleViewComponent {
    */
   private isInternal(url: string): boolean {
     try {
-      return new URL(url).host === SITE_HOST;
+      return bareHost(new URL(url).host) === SITE_HOST;
     } catch {
       // URL que le navigateur lui-même refuse d'analyser : rien de bon à en tirer.
       return true;

@@ -142,6 +142,12 @@ async function main() {
   }
 
   const root = repoRoot();
+
+  // Verifie AVANT toute analyse : demander de confirmer un numero, puis refuser a cause de
+  // fichiers non commites, laisse croire que la release est passee alors que rien n'a eu lieu —
+  // et, enchainee a la construction de l'artefact, la coupe sans que la raison saute aux yeux.
+  if (!dryRun) requireCleanTree();
+
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   const tag = git(['describe', '--tags', '--abbrev=0', '--match', 'v[0-9]*'], { allowFail: true });
 
@@ -159,7 +165,6 @@ async function main() {
     }
 
     await confirm(`Poser le tag v${pkg.version} ?`, yes);
-    requireCleanTree();
     git(['tag', '-a', `v${pkg.version}`, '-m', `v${pkg.version}`]);
     console.log(`\n  Tag v${pkg.version} pose. Reste a faire : git push && git push --tags\n`);
     return;
@@ -217,7 +222,6 @@ async function main() {
   }
 
   await confirm(`Publier la version ${target} ?`, yes);
-  requireCleanTree();
 
   if (pkg.version === target) {
     // package.json deja au bon numero : il ne reste que le tag a poser.

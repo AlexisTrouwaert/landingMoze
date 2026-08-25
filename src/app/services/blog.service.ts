@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../environements/environment';
 import {
   AdminStats,
@@ -12,6 +12,9 @@ import {
   BulkResult,
   Tag,
 } from '../model/article.model';
+
+/** Échecs consécutifs du ping de vue au-delà desquels on arrête d'appeler (cf. `countView`). */
+const MAX_VIEW_PING_FAILURES = 2;
 
 /**
  * Accès HTTP au back blog : lecture publique + opérations admin.
@@ -46,11 +49,26 @@ export class BlogService {
 
   /**
    * Signale une consultation d'article (compteur de vues, visible en admin).
-   * Répond 204 quoi qu'il arrive — l'appelant n'a rien à en faire.
+   *
+   * Disjoncteur : après deux échecs d'affilée, on cesse d'appeler pour le reste de la session.
+   * Sans lui, un back qui ne connaît pas encore la route renverrait une 404 à **chaque** article
+   * consulté ; une douzaine de lectures rapprochées suffisent alors à faire passer le visiteur
+   * pour un scanner aux yeux du pare-feu applicatif, qui bannit son adresse IP. Le compteur est
+   * une statistique de confort : il ne vaut pas ce risque.
    */
   countView(slug: string): Observable<void> {
-    return this.http.post<void>(`${this.base}/blog/${slug}/view`, {});
+    if (this.viewPingFailures >= MAX_VIEW_PING_FAILURES) return of(void 0);
+
+    return this.http.post<void>(`${this.base}/blog/${slug}/view`, {}).pipe(
+      tap({
+        next: () => (this.viewPingFailures = 0),
+        error: () => this.viewPingFailures++,
+      }),
+    );
   }
+
+  /** Échecs consécutifs du ping de vue ; remis à zéro dès qu'un appel aboutit. */
+  private viewPingFailures = 0;
 
   /**
    * Articles épinglés « à la une » (max 5), du plus récemment épinglé au plus
