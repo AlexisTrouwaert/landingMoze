@@ -123,7 +123,15 @@ function bump(version, level) {
 async function confirm(question, skip) {
   if (skip) return;
   if (!process.stdin.isTTY) {
-    fail('Pas de terminal interactif : relancez avec --yes, ou --dry-run pour un apercu.');
+    // npm ne transmet pas toujours un terminal interactif au sous-processus, selon le terminal
+    // depuis lequel la commande est lancee. Sans ce repli, la release s'arrete ici sans rien
+    // faire — et, enchainee a la construction, aucun artefact ne sort.
+    fail(
+      'Pas de terminal interactif : la confirmation ne peut pas etre demandee.\n' +
+        '  Apercu   : npm run release:dry\n' +
+        '  Publier  : npm run release -- --yes\n' +
+        '  Ou tout  : npm run release:prod-win  (release + artefact, sans confirmation)',
+    );
   }
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const answer = (await rl.question(`  ${question} [o/N] `)).trim().toLowerCase();

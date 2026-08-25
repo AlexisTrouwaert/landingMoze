@@ -67,8 +67,13 @@ désigner exactement ce qui part en production.
 npm run release:prod-win
 ```
 
-Release **puis** construction de l'artefact, en une commande. L'archive porte automatiquement le
-numéro qui vient d'être posé, dans `build/prod/` et sous un nom identique de part et d'autre :
+Release **puis** construction de l'artefact, en une commande. **Sans confirmation** : le nom de la
+commande dit déjà l'intention, et npm ne fournit pas toujours un terminal interactif au
+sous-processus — la demande de confirmation interrompait la chaîne, sans artefact au bout. Pour
+voir le verdict avant de s'engager, `npm run release:dry` reste là.
+
+L'archive porte automatiquement le numéro qui vient d'être posé, dans `build/prod/` et sous un nom
+identique de part et d'autre :
 
 | Dépôt | Nom produit |
 |---|---|
