@@ -2,9 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../environements/environment';
+import { PersistentCircuitBreaker } from '../common/circuit-breaker';
 import {
   AdminStats,
   Article,
+  ArticleCard,
   ArticleInput,
   ArticleListItem,
   ArticlePage,
@@ -15,6 +17,9 @@ import {
 
 /** Échecs consécutifs du ping de vue au-delà desquels on arrête d'appeler (cf. `countView`). */
 const MAX_VIEW_PING_FAILURES = 2;
+
+/** Durée de la coupure avant de retenter — le service rétabli reprend seul. */
+const VIEW_PING_COOLDOWN_MS = 10 * 60 * 1000;
 
 /**
  * Accès HTTP au back blog : lecture publique + opérations admin.
@@ -48,6 +53,20 @@ export class BlogService {
   }
 
   /**
+   * Cartes d'articles publiés, par slug — pour illustrer les liens internes d'un article.
+   *
+   * Une requête pour tous les liens d'une page, contre un aller-retour par lien si l'on passait
+   * par `/link-preview` : ce dernier ferait aller le serveur lire son propre site en HTTP, pour
+   * n'en ramener que le nom de domaine. Les slugs inconnus sont absents de la réponse.
+   */
+  cards(slugs: readonly string[]): Observable<ArticleCard[]> {
+    if (!slugs.length) return of([]);
+    return this.http.get<ArticleCard[]>(`${this.base}/blog/cards`, {
+      params: { slugs: slugs.join(',') },
+    });
+  }
+
+  /**
    * Signale une consultation d'article (compteur de vues, visible en admin).
    *
    * Disjoncteur : après deux échecs d'affilée, on cesse d'appeler pour le reste de la session.
@@ -57,18 +76,25 @@ export class BlogService {
    * une statistique de confort : il ne vaut pas ce risque.
    */
   countView(slug: string): Observable<void> {
-    if (this.viewPingFailures >= MAX_VIEW_PING_FAILURES) return of(void 0);
+    if (this.viewPingBreaker.isOpen()) return of(void 0);
 
     return this.http.post<void>(`${this.base}/blog/${slug}/view`, {}).pipe(
       tap({
-        next: () => (this.viewPingFailures = 0),
-        error: () => this.viewPingFailures++,
+        next: () => this.viewPingBreaker.recordSuccess(),
+        error: () => this.viewPingBreaker.recordFailure(),
       }),
     );
   }
 
-  /** Échecs consécutifs du ping de vue ; remis à zéro dès qu'un appel aboutit. */
-  private viewPingFailures = 0;
+  /**
+   * Coupure partagée entre onglets et rechargements : un compteur en mémoire repartirait de zéro
+   * à chaque page, et chaque onglet relancerait le quota d'échecs pour son compte.
+   */
+  private readonly viewPingBreaker = new PersistentCircuitBreaker(
+    'moze-view-down-until',
+    MAX_VIEW_PING_FAILURES,
+    VIEW_PING_COOLDOWN_MS,
+  );
 
   /**
    * Articles épinglés « à la une » (max 5), du plus récemment épinglé au plus

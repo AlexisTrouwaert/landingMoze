@@ -146,30 +146,49 @@ describe('ArticleViewComponent', () => {
     expect(texte).not.toContain('exemple.fr');
   }));
 
-  it('ignore les liens vers le site lui-même', () => {
-    render(`<p><a href="${environment.siteUrl}/mentions-legales">Mentions légales</a></p>`);
+  it('ignore les pages du site qui ne sont pas des articles', () => {
+    render(
+      `<p><a href="${environment.siteUrl}/mentions-legales">Mentions légales</a></p>` +
+        `<p><a href="${environment.siteUrl}/">Accueil</a></p>`,
+    );
 
+    // Le lecteur est déjà sur le site : ces liens n'ont pas de carte à montrer.
     expect(kinds()).toEqual(['html']);
     http.expectNone((r) => r.url.includes('/link-preview'));
+    http.expectNone((r) => r.url.includes('/blog/cards'));
   });
 
   /**
-   * Incident de production : des liens internes écrits sans `www` passaient pour externes, et
-   * l'article demandait un aperçu au back pour chacun de nos propres articles. Une dizaine de
-   * requêtes d'un coup depuis la même IP — lues comme un scan par le pare-feu applicatif, qui
-   * bannissait le visiteur.
+   * Un lien vers un autre de nos articles reçoit bien une carte, mais construite depuis notre
+   * base (`/blog/cards`) — jamais par `/link-preview`, qui ferait aller le serveur relire son
+   * propre site, une requête par lien, pour n'en ramener que le nom de domaine.
+   *
+   * Les deux formes d'hôte sont testées : c'est un lien interne écrit sans `www` qui, pris pour
+   * un lien externe, avait déclenché la rafale de requêtes ayant fait bannir un visiteur.
    */
-  it('reconnaît un lien interne quelle que soit la forme de l’hôte (apex ou www)', () => {
+  it('les liens vers nos articles sont servis par la base, en UNE requête', fakeAsync(() => {
     const apex = environment.siteUrl.replace('://www.', '://');
 
     render(
-      `<p><a href="${apex}/blog/mon-article">Un article</a></p>` +
-        `<p><a href="${environment.siteUrl}/blog/autre">Un autre</a></p>`,
+      `<p><a href="${apex}/blog/premier">Premier</a></p>` +
+        `<p><a href="${environment.siteUrl}/blog/second">Second</a></p>`,
     );
 
-    expect(kinds()).toEqual(['html']);
+    tick(1000);
+
+    // Un seul appel groupé pour les deux liens, et aucun scraping.
     http.expectNone((r) => r.url.includes('/link-preview'));
-  });
+    const req = http.expectOne((r) => r.url.includes('/blog/cards'));
+    expect(req.request.params.get('slugs')).toBe('premier,second');
+
+    req.flush([
+      { slug: 'premier', title: 'Le premier', excerpt: 'Résumé 1', coverImageUrl: null },
+      { slug: 'second', title: 'Le second', excerpt: 'Résumé 2', coverImageUrl: null },
+    ]);
+    fixture.detectChanges();
+
+    expect(blocks().filter((b) => b.kind === 'preview').length).toBe(2);
+  }));
 
   it('laisse intacte une URL citée dans un bloc de code', () => {
     render('<p>Exemple : <code>https://exemple.fr/a</code></p>');

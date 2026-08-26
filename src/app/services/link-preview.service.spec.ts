@@ -15,12 +15,18 @@ describe('LinkPreviewService', () => {
   const endpoint = `${environment.blogApiUrl}/link-preview`;
 
   beforeEach(() => {
+    // Le disjoncteur persiste dans `localStorage` (partage entre onglets) : sans ce nettoyage,
+    // la coupure posée par un test condamnerait les suivants.
+    localStorage.removeItem('moze-lp-down-until');
+
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(LinkPreviewService);
     http = TestBed.inject(HttpTestingController);
   });
+
+  afterEach(() => localStorage.removeItem('moze-lp-down-until'));
 
   afterEach(() => http.verify());
 

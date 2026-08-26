@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { environment } from '../../../environements/environment';
+import { internalBlogSlug, isInternalUrl } from '../../common/internal-links';
 import { collectUrls, linkifyHtml, sameUrl } from '../../common/link-detection';
 import { Article } from '../../model/article.model';
 import { LinkPreviewComponent } from '../link-preview/link-preview.component';
@@ -37,25 +37,8 @@ interface SegmentContext {
  */
 const ELEMENT_NODE = 1;
 
-/**
- * Hôte réduit à sa forme comparable : minuscules, sans `www.`.
- *
- * `moze.fr` et `www.moze.fr` servent le même site. Comparer les hôtes bruts faisait passer pour
- * externe tout lien interne écrit sans `www` — donc une demande d'aperçu au back pour nos propres
- * articles, une par lien.
- */
-function bareHost(host: string): string {
-  return host.toLowerCase().replace(/^www\./, '');
-}
-
-/** Hôte du site, pour écarter les liens internes. `environment` est figé, un calcul suffit. */
-const SITE_HOST = (() => {
-  try {
-    return bareHost(new URL(environment.siteUrl).host);
-  } catch {
-    return '';
-  }
-})();
+// La reconnaissance des liens internes vit dans `common/internal-links` : le service d'aperçu
+// s'appuie sur les mêmes règles pour décider où chercher la donnée, les deux doivent s'accorder.
 
 /**
  * Rendu complet d'un article (page publique + aperçu admin).
@@ -155,7 +138,7 @@ export class ArticleViewComponent {
     const picked: string[] = [];
 
     for (const url of collectUrls(html, this.document)) {
-      if (this.isInternal(url)) continue;
+      if (!this.isPreviewable(url)) continue;
 
       picked.push(url);
     }
@@ -164,20 +147,19 @@ export class ArticleViewComponent {
   }
 
   /**
-   * Un lien vers le site lui-même n'est pas une source externe à prévisualiser : le lecteur y est
-   * déjà.
+   * Un lien mérite-t-il une carte ?
    *
-   * `environment.siteUrl` et non `window.location` : le rendu serveur n'a pas de `window`, or les
-   * deux côtés doivent découper l'article exactement de la même façon — sans quoi l'hydratation
-   * trouverait un DOM différent de celui qu'elle a reçu.
+   * Tous les liens externes, et — parmi les nôtres — les seuls **articles de blog** : leur carte
+   * est construite depuis notre propre base (cf. `LinkPreviewService`), ce qui en fait un renvoi
+   * illustré vers un autre article. L'accueil, l'inscription ou les mentions légales n'ont rien
+   * à montrer de tel : le lecteur est déjà sur le site, le lien suffit.
+   *
+   * La comparaison s'appuie sur `environment.siteUrl` et non sur `window.location` : le rendu
+   * serveur n'a pas de `window`, or les deux côtés doivent découper l'article exactement de la
+   * même façon — sans quoi l'hydratation trouverait un DOM différent de celui qu'elle a reçu.
    */
-  private isInternal(url: string): boolean {
-    try {
-      return bareHost(new URL(url).host) === SITE_HOST;
-    } catch {
-      // URL que le navigateur lui-même refuse d'analyser : rien de bon à en tirer.
-      return true;
-    }
+  private isPreviewable(url: string): boolean {
+    return !isInternalUrl(url) || internalBlogSlug(url) !== null;
   }
 
   /**

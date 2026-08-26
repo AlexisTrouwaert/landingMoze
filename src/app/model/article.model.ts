@@ -61,6 +61,15 @@ export type ArticleListItem = Pick<
   | 'tags'
 >;
 
+/**
+ * Ce qu'il faut pour illustrer un lien interne cité dans un article (`GET /blog/cards`).
+ * Volontairement minimal : ni contenu, ni tags, ni dates — une carte n'en a pas l'usage.
+ */
+export type ArticleCard = Pick<
+  Article,
+  'slug' | 'title' | 'excerpt' | 'coverImageUrl'
+>;
+
 /** Réponse paginée de `GET /blog`. */
 export interface ArticlePage {
   items: ArticleListItem[];

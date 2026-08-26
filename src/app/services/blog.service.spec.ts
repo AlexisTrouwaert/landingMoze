@@ -13,6 +13,11 @@ describe('BlogService', () => {
   let http: HttpTestingController;
   const base = environment.blogApiUrl;
 
+  // Le disjoncteur du ping de vue persiste dans `localStorage` (partage entre onglets) : sans ce
+  // nettoyage, la coupure posée par un test condamnerait les suivants.
+  beforeEach(() => localStorage.removeItem('moze-view-down-until'));
+  afterEach(() => localStorage.removeItem('moze-view-down-until'));
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
