@@ -30,6 +30,12 @@ export interface Article {
   /** Épinglé « à la une » : non-null = épinglé (la date sert d'ordre). */
   featuredAt: string | null;
   /**
+   * Échange « à la une » en attente : l'article que celui-ci remplacera à sa parution.
+   * Renseigné quand on programme un article à la une alors que les 5 emplacements sont pris —
+   * l'ancien reste affiché jusqu'à l'échéance. Réservé aux réponses admin.
+   */
+  featureReplacesId?: string | null;
+  /**
    * Temps de lecture estimé, en minutes. Calculé par le back à partir du
    * contenu : la liste publique ne transporte pas `content`, le front ne peut
    * donc pas le déduire lui-même.
@@ -76,6 +82,17 @@ export interface ArticlePage {
   total: number;
   page: number;
   size: number;
+}
+
+/**
+ * Un article de la une, vu de l'admin (`GET /admin/blog/featured`).
+ *
+ * `replacedBy` non-null = un article programmé prendra sa place le jour de sa parution.
+ * L'endpoint public ne le dit pas : l'admin, lui, doit voir qu'un des cinq est sur le départ
+ * plutôt que de le découvrir disparu.
+ */
+export interface AdminFeaturedItem extends Article {
+  replacedBy: { id: string; title: string; publishedAt: string | null } | null;
 }
 
 /** Compteurs du tableau de bord admin (`GET /admin/blog/stats`). */

@@ -29,6 +29,63 @@ const RELATED_POOL = 4;
 /** Nombre de cartes « À lire ensuite » affichées sous l'article. */
 const RELATED_SHOWN = 3;
 
+/**
+ * Temps de présence requis avant de compter une vue.
+ *
+ * Sans lui, un clic aussitôt regretté, un mauvais lien ou un aller-retour compteraient autant
+ * qu'une lecture. Dix secondes : le seuil qu'utilise GA4 pour déclarer une session « engagée » —
+ * assez long pour écarter les rebonds immédiats, assez court pour ne pas perdre le lecteur
+ * pressé qui parcourt l'article en diagonale.
+ *
+ * Exporté pour les tests, qui avancent l'horloge de cette valeur précise.
+ */
+export const VIEW_DWELL_MS = 10_000;
+
+/**
+ * Déduplication des vues : **une par article et par appareil**, définitivement.
+ *
+ * `localStorage` et non `sessionStorage` : le marqueur doit survivre à la fermeture de
+ * l'onglet, sinon un lecteur qui revient demain recompte une vue. Le même lecteur sur son
+ * téléphone puis sur son ordinateur comptera deux fois — c'est assumé, le navigateur n'a
+ * aucun moyen honnête de relier les deux.
+ */
+function viewedKey(slug: string): string {
+  return `moze-viewed-${slug}`;
+}
+
+/**
+ * Repli quand le stockage est refusé (navigation privée stricte, cookies bloqués). Au niveau
+ * du module, donc partagé par toutes les instances : le composant est recréé à chaque
+ * navigation, une propriété d'instance ne retiendrait rien. La déduplication ne tient alors
+ * que le temps de l'onglet — mieux que rien, et sans jamais faire échouer l'affichage.
+ */
+const viewedFallback = new Set<string>();
+
+function hasViewed(slug: string): boolean {
+  try {
+    return localStorage.getItem(viewedKey(slug)) !== null;
+  } catch {
+    return viewedFallback.has(slug);
+  }
+}
+
+function markViewed(slug: string): void {
+  try {
+    // La date sert au débogage — seule la présence de la clé compte.
+    localStorage.setItem(viewedKey(slug), new Date().toISOString());
+  } catch {
+    viewedFallback.add(slug);
+  }
+}
+
+function unmarkViewed(slug: string): void {
+  try {
+    localStorage.removeItem(viewedKey(slug));
+  } catch {
+    viewedFallback.delete(slug);
+  }
+}
+
 @Component({
     selector: 'app-blog-article',
     imports: [RouterLink, FloatingDockComponent, ArticleViewComponent, ArticleCardComponent],
@@ -71,6 +128,9 @@ export class BlogArticleComponent implements OnDestroy {
           this.loading.set(true);
           this.notFound.set(false);
           this.related.set([]);
+          // Le lecteur vient de partir : le temps de présence de l'article précédent ne court
+          // plus, sa vue ne sera pas comptée.
+          this.cancelPendingViewCount();
           return this.blog.getBySlug(requested).pipe(
             map((article) => ({ requested, article: article as Article | null })),
             catchError(() => {
@@ -97,7 +157,7 @@ export class BlogArticleComponent implements OnDestroy {
         this.article.set(a);
         this.applySeo(a);
         this.loadRelated(a);
-        this.countView(a.slug);
+        this.scheduleViewCount(a.slug);
       });
   }
 
@@ -122,39 +182,70 @@ export class BlogArticleComponent implements OnDestroy {
 
   private readonly platformId = inject(PLATFORM_ID);
 
+  /** Échéance du temps de présence en cours ; `null` quand rien n'est en attente. */
+  private viewTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Écouteur posé quand l'échéance tombe sur un onglet masqué ; `null` sinon. */
+  private viewVisibilityListener: (() => void) | null = null;
+
+  /**
+   * Arme le comptage de la vue : il n'aura lieu que si le lecteur est encore là dans
+   * `VIEW_DWELL_MS`. Partir avant — navigation interne (cf. le `switchMap`) ou fermeture de la
+   * page (`ngOnDestroy`) — annule tout : un aller-retour n'est pas une lecture.
+   */
+  private scheduleViewCount(slug: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.cancelPendingViewCount();
+    this.viewTimer = setTimeout(() => {
+      this.viewTimer = null;
+      this.countView(slug);
+    }, VIEW_DWELL_MS);
+  }
+
+  private cancelPendingViewCount(): void {
+    if (this.viewTimer !== null) {
+      clearTimeout(this.viewTimer);
+      this.viewTimer = null;
+    }
+    if (this.viewVisibilityListener) {
+      document.removeEventListener('visibilitychange', this.viewVisibilityListener);
+      this.viewVisibilityListener = null;
+    }
+  }
+
   /**
    * Signale la consultation au compteur de vues (statistique admin).
    *
    * Navigateur uniquement : pendant le rendu serveur, le « lecteur » est
    * souvent un robot — qui, lui, n'exécutera jamais ce code côté client. Une
-   * seule vue par article et par session de navigation (`sessionStorage`) :
-   * recharger la page ou y revenir dans la foulée ne gonfle pas le compteur.
+   * seule vue par article et par appareil (cf. `hasViewed`) : recharger la page,
+   * y revenir demain ou la rouvrir dans un nouvel onglet ne gonfle pas le compteur.
    */
   private countView(slug: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    const key = `moze-viewed-${slug}`;
-    try {
-      if (sessionStorage.getItem(key)) return;
-      // Posé avant l'appel : empêche un double comptage si la page est ré-affichée
-      // pendant que la requête est encore en vol.
-      sessionStorage.setItem(key, '1');
-    } catch {
-      /* stockage indisponible (navigation privée stricte) → on compte quand même */
+    // L'échéance tombe sur un onglet masqué : l'article est ouvert en arrière-plan, personne ne
+    // le lit. Le comptage attend le retour du lecteur — et reste annulable entre-temps.
+    if (document.hidden) {
+      const onVisible = () => {
+        document.removeEventListener('visibilitychange', onVisible);
+        this.viewVisibilityListener = null;
+        this.countView(slug);
+      };
+      this.viewVisibilityListener = onVisible;
+      document.addEventListener('visibilitychange', onVisible);
+      return;
     }
+
+    if (hasViewed(slug)) return;
+    // Posé avant l'appel : empêche un double comptage si la page est ré-affichée
+    // pendant que la requête est encore en vol.
+    markViewed(slug);
 
     this.blog.countView(slug).subscribe({
       // Échec silencieux côté affichage — le compteur est un sous-produit de la
       // lecture, pas une fonctionnalité de la page — mais le marqueur est retiré :
       // sans ça, une panne passagère (back redémarré, réseau coupé) empêcherait
-      // définitivement de compter cet article pour toute la session.
-      error: () => {
-        try {
-          sessionStorage.removeItem(key);
-        } catch {
-          /* même repli que ci-dessus */
-        }
-      },
+      // définitivement de compter cet article sur cet appareil.
+      error: () => unmarkViewed(slug),
     });
   }
 
@@ -164,6 +255,7 @@ export class BlogArticleComponent implements OnDestroy {
    */
   ngOnDestroy(): void {
     this.removeJsonLd();
+    this.cancelPendingViewCount();
   }
 
   private removeJsonLd(): void {

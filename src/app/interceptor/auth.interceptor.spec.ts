@@ -68,4 +68,37 @@ describe('authInterceptor', () => {
       .flush('bad', { status: 401, statusText: 'Unauthorized' });
     expect(auth.clearLocal).not.toHaveBeenCalled();
   });
+
+  /**
+   * Le compteur de vues doit voir la session — le back s'en sert pour ne pas comptabiliser
+   * l'équipe qui relit ses propres articles — sans pour autant en dépendre : la route reste
+   * publique, un lecteur anonyme n'a rien à envoyer.
+   */
+  describe('ping de vue', () => {
+    it('joint le cookie de session', () => {
+      http.post(`${base}/blog/mon-article/view`, {}).subscribe();
+
+      const req = ctrl.expectOne(`${base}/blog/mon-article/view`);
+      expect(req.request.withCredentials).toBeTrue();
+      req.flush(null, { status: 204, statusText: 'No Content' });
+    });
+
+    it('les lectures publiques, elles, restent sans cookie', () => {
+      http.get(`${base}/blog/mon-article`).subscribe();
+
+      const req = ctrl.expectOne(`${base}/blog/mon-article`);
+      expect(req.request.withCredentials).toBeFalse();
+      req.flush({});
+    });
+
+    it('un 401 n’y déclenche aucune redirection : la route est publique', () => {
+      http.post(`${base}/blog/mon-article/view`, {}).subscribe({ error: () => {} });
+      ctrl
+        .expectOne(`${base}/blog/mon-article/view`)
+        .flush('nope', { status: 401, statusText: 'Unauthorized' });
+
+      expect(auth.clearLocal).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
 });

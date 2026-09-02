@@ -31,7 +31,10 @@
       <span class="card__meta-sep" aria-hidden="true">·</span>
     }
     @if (article().publishedAt) {
-      <time class="card__date">{{ article().publishedAt | date: 'dd/MM/yyyy' }}</time>
+      <!-- Heure comprise : la publication se programme à l'heure près, la carte l'affiche. -->
+      <time class="card__date" [attr.datetime]="article().publishedAt">
+        {{ article().publishedAt | date: "dd/MM/yyyy 'à' HH:mm" }}
+      </time>
     }
   </div>
 

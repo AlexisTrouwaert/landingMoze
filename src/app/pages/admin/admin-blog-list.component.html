@@ -213,6 +213,71 @@
     </p>
   }
 
+  <!-- La vitrine du blog, lisible d'un coup d'œil : indépendante du filtre et de la
+       recherche, dans l'ordre d'affichage public. -->
+  @if (featured().length) {
+    <section class="adm-featured" aria-label="Articles à la une">
+      <h2 class="adm-featured__title">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
+          <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+        </svg>
+        À la une
+        <span class="adm-featured__count">{{ featured().length }}/{{ maxFeatured }}</span>
+      </h2>
+      <ol class="adm-featured__list">
+        @for (f of featured(); track f.id; let i = $index) {
+          <!-- Grisé : un article programmé prendra sa place à sa parution. Il reste à la une
+               d'ici là — la vitrine garde ses cinq articles au lieu de tomber à quatre. -->
+          <li class="adm-featured__item" [class.is-leaving]="f.replacedBy">
+            <span class="adm-featured__rank" aria-hidden="true">{{ i + 1 }}</span>
+            <span class="adm-featured__id">
+              <a class="adm-featured__name" [routerLink]="['/admin/blog', f.id, 'edit']" [title]="f.title">
+                {{ f.title }}
+              </a>
+              @if (f.replacedBy; as next) {
+                <span class="adm-featured__leaving">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="16" rx="2" />
+                    <path d="M8 3v4M16 3v4M3 10h18" />
+                  </svg>
+                  Remplacé par « {{ next.title }} »
+                  @if (next.publishedAt) {
+                    le {{ next.publishedAt | date: 'dd/MM/yyyy à HH:mm' }}
+                  }
+                </span>
+              }
+            </span>
+            <a
+              class="btn btn--sm btn--icon"
+              [routerLink]="['/blog', f.slug]"
+              target="_blank"
+              rel="noopener"
+              title="Voir sur le blog"
+              [attr.aria-label]="'Voir sur le blog : ' + f.title"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <path d="M15 3h6v6M10 14 21 3" />
+              </svg>
+            </a>
+            <button
+              type="button"
+              class="btn btn--sm btn--icon adm-featured__remove"
+              [disabled]="busy()"
+              title="Retirer de la une"
+              [attr.aria-label]="'Retirer de la une : ' + f.title"
+              (click)="unfeatureFromBanner(f)"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
+                <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+              </svg>
+            </button>
+          </li>
+        }
+      </ol>
+    </section>
+  }
+
   <section class="adm-list" [class.is-busy]="busy()">
     <div class="adm-list__head">
       <input
@@ -310,12 +375,20 @@
             <span class="col-status">
               <span
                 class="badge"
-                [class.badge--published]="a.status === 'PUBLISHED'"
+                [class.badge--published]="a.status === 'PUBLISHED' && !isScheduled(a)"
+                [class.badge--scheduled]="isScheduled(a)"
                 [class.badge--archived]="a.status === 'ARCHIVED'"
+                [attr.title]="
+                  isScheduled(a)
+                    ? 'Publication le ' + (a.publishedAt | date: 'dd/MM/yyyy à HH:mm')
+                    : null
+                "
               >
                 {{
                   a.status === 'PUBLISHED'
-                    ? 'Publié'
+                    ? isScheduled(a)
+                      ? 'Programmé'
+                      : 'Publié'
                     : a.status === 'ARCHIVED'
                       ? 'Archivé'
                       : 'Brouillon'
@@ -337,21 +410,24 @@
                   type="button"
                   class="btn btn--sm btn--icon row__star"
                   [class.is-on]="a.featuredAt"
-                  [disabled]="busy() || (!a.featuredAt && featuredFull())"
-                  [attr.aria-pressed]="!!a.featuredAt"
+                  [class.is-pending]="isFeaturePending(a)"
+                  [disabled]="busy()"
+                  [attr.aria-pressed]="isStarOn(a)"
                   [attr.aria-label]="
-                    (a.featuredAt ? 'Retirer de la une : ' : 'Mettre à la une : ') + a.title
+                    (isStarOn(a) ? 'Retirer de la une : ' : 'Mettre à la une : ') + a.title
                   "
                   [title]="
-                    a.featuredAt
-                      ? 'Retirer de la une'
-                      : featuredFull()
-                        ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
-                        : 'Mettre à la une'
+                    isFeaturePending(a)
+                      ? 'À la une à la parution — cliquer pour annuler'
+                      : a.featuredAt
+                        ? 'Retirer de la une'
+                        : featuredFull()
+                          ? 'La une est complète — choisir l’article à remplacer'
+                          : 'Mettre à la une'
                   "
                   (click)="toggleFeature(a)"
                 >
-                  @if (a.featuredAt) {
+                  @if (isStarOn(a)) {
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
                       <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
                     </svg>
@@ -361,6 +437,26 @@
                     </svg>
                   }
                 </button>
+              } @else {
+                <span class="row__star-slot" aria-hidden="true"></span>
+              }
+
+              <!-- Accès direct à la page publique, sans passer par le menu. Même logique de
+                   créneau vide que l'étoile : un brouillon n'a pas de page à voir. -->
+              @if (a.status === 'PUBLISHED') {
+                <a
+                  class="btn btn--sm btn--icon"
+                  [routerLink]="['/blog', a.slug]"
+                  target="_blank"
+                  rel="noopener"
+                  title="Voir sur le blog"
+                  [attr.aria-label]="'Voir sur le blog : ' + a.title"
+                >
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <path d="M15 3h6v6M10 14 21 3" />
+                  </svg>
+                </a>
               } @else {
                 <span class="row__star-slot" aria-hidden="true"></span>
               }
@@ -375,8 +471,16 @@
                   Restaurer
                 </button>
               } @else {
-                <a class="btn btn--sm row__cta" [routerLink]="['/admin/blog', a.id, 'edit']">
-                  Éditer
+                <a
+                  class="btn btn--sm btn--icon"
+                  [routerLink]="['/admin/blog', a.id, 'edit']"
+                  title="Éditer"
+                  [attr.aria-label]="'Éditer : ' + a.title"
+                >
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
                 </a>
               }
 
@@ -539,4 +643,32 @@
     (confirmed)="confirmPending()"
     (cancelled)="cancelPending()"
   />
+
+  <!-- La une est complète : l'auteur choisit l'article qui cède sa place. Mêmes styles que la
+       modale de l'éditeur (socle partagé `_admin-ui.scss`) : c'est la même décision. -->
+  @if (featureSwapFor(); as target) {
+    <div class="swap__backdrop" (click)="cancelSwap()"></div>
+    <div class="swap" role="dialog" aria-modal="true" aria-labelledby="swap-list-title">
+      <h2 id="swap-list-title" class="swap__title">
+        La une est complète ({{ featured().length }}/{{ maxFeatured }})
+      </h2>
+      <p class="swap__hint">
+        Choisissez l'article à retirer pour y mettre « {{ target.title }} » :
+      </p>
+      <ol class="swap__list">
+        @for (c of featured(); track c.id; let i = $index) {
+          <li>
+            <button type="button" class="swap__choice" (click)="swapFeature(c)">
+              <span class="swap__rank" aria-hidden="true">{{ i + 1 }}</span>
+              <span class="swap__name">{{ c.title }}</span>
+              <span class="swap__cta">Remplacer</span>
+            </button>
+          </li>
+        }
+      </ol>
+      <div class="swap__actions">
+        <button type="button" class="btn btn--sm" (click)="cancelSwap()">Annuler</button>
+      </div>
+    </div>
+  }
 </div>

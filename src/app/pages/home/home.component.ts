@@ -2,7 +2,7 @@ import {afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject,
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Router} from "@angular/router";
 import {FloatingDockComponent} from "../../components/floating-dock/floating-dock.component";
-import {NAV_GROUPS} from "../../config/nav-groups";
+import {APP_LOGIN_URL, NAV_GROUPS} from "../../config/nav-groups";
 import {ScrollTopComponent} from "../../components/scroll-top/scroll-top.component";
 import {LandingSectionComponent} from "./landing-section/landing-section.component";
 import {TarifComponent} from "./tarif/tarif.component";
@@ -64,6 +64,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /** Navigation du dock (source partagée — voir config/nav-groups). */
   readonly navGroups = NAV_GROUPS;
+
+  /** Destination du bouton « Déjà inscrit ? » du dock. */
+  readonly appLoginUrl = APP_LOGIN_URL;
 
   /** CTA du dock — conserve le comportement de l'ancien header (inscription → tunnel). */
   goToFunnel(): void {

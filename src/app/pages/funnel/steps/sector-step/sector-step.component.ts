@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
 import {FunnelService, SectorType} from "../../../../services/funnel.service";
+import { APP_LOGIN_URL } from "../../../../config/nav-groups";
 
 @Component({
     selector: 'app-sector-step',
@@ -10,6 +11,12 @@ import {FunnelService, SectorType} from "../../../../services/funnel.service";
 })
 export class SectorStepComponent {
   fs = inject(FunnelService);
+
+  /**
+   * Connexion pour ceux qui ont déjà un compte. Même constante que le bouton « Déjà
+   * inscrit ? » de la barre : les deux ne doivent pas pouvoir diverger.
+   */
+  readonly loginUrl = APP_LOGIN_URL;
 
   // Pour savoir quel bouton est survolé (null = aucun)
   hoveredSector = signal<SectorType | null>(null);

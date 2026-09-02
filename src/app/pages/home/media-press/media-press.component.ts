@@ -136,6 +136,16 @@ export class MediaPressComponent implements OnInit, OnDestroy {
 
     // ─── Presse ───
     {
+      id: 'journal-du-net',
+      category: 'Presse',
+      name: 'Journal du Net',
+      show: "L'entrepreneur solitaire, un mythe français à déconstruire",
+      date: '16/07/2026',
+      link: 'https://www.journaldunet.com/start-up/1552715-l-entrepreneur-solitaire-un-mythe-francais-a-deconstruire/',
+      logo: '/assets/images/medias/journal-du-net.png',
+      location: { x: 485, y: 255, city: 'Paris' }
+    },
+    {
       id: 'vaucluse-matin',
       category: 'Presse',
       name: 'Vaucluse Matin',

@@ -2,7 +2,10 @@
   position: fixed;
   bottom: 1.6rem;
   right: 1.6rem;
-  z-index: 900;
+  /* Sous le dock (60) : sur mobile, le tiroir du burger occupe l'écran et la flèche
+     passait par-dessus le menu. Reste bien au-dessus du contenu de la page, et les
+     modales (1000) comme le bandeau cookies (9999) continuent de la couvrir. */
+  z-index: 50;
   width: 48px;
   height: 48px;
   display: grid;

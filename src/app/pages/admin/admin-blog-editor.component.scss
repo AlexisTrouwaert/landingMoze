@@ -40,6 +40,7 @@ $bar-gap: 8px;
   margin: 0 -1.25rem;
   padding: 0.5rem 1.25rem;
   border-bottom: 1px solid transparent;
+  border-radius: 0 0 1rem 1rem;
   transition:
     border-color var(--adm-t-slow),
     box-shadow var(--adm-t-slow);
@@ -54,6 +55,7 @@ $bar-gap: 8px;
     z-index: -1;
     background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(12px) saturate(140%);
+    border-radius: 0 0 1rem 1rem;
   }
 
   // La barre ne se détache visuellement qu'une fois la page défilée.
@@ -415,6 +417,43 @@ $bar-gap: 8px;
     white-space: nowrap;
   }
 
+  // Pendant du préfixe, à l'autre bout du contrôle : même fond, même filet.
+  &__copy {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid var(--adm-line);
+    background: var(--adm-surface-alt);
+    color: var(--adm-ink-500);
+    cursor: pointer;
+    transition:
+      background var(--adm-t),
+      color var(--adm-t);
+
+    &:hover:not(:disabled) {
+      background: var(--adm-surface-hover);
+      color: var(--adm-blue);
+    }
+
+    // Pas de slug : le back en dérivera un du titre, l'adresse n'existe pas encore.
+    &:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    &.is-done {
+      color: var(--adm-green);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--adm-blue);
+      outline-offset: -2px;
+    }
+  }
 }
 
 .field .slug input {
@@ -772,5 +811,111 @@ details[open] .fold__chevron {
 
   .ed-title {
     font-size: 1.25rem !important;
+  }
+}
+
+/* Bouton « À la une » de la barre d'aperçu. */
+.ed-feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &.is-on {
+    color: var(--adm-blue);
+    border-color: var(--adm-blue);
+  }
+}
+
+/* Champ date+heure de la modale de programmation — même gabarit que les champs du formulaire. */
+.swap__when {
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink-900);
+  font: inherit;
+  font-size: 0.92rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--adm-blue);
+    box-shadow: var(--adm-ring);
+  }
+}
+
+/* -------------------------------------------------------------
+   Import d'un document — bouton, bilan, et signalement des champs
+   que l'import n'a pas su remplir.
+   ------------------------------------------------------------- */
+.ed-import {
+  /* `<label>` déguisé en bouton : c'est lui qui déclenche l'input fichier caché. */
+  cursor: pointer;
+
+  &.is-busy {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.ed-import-report {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--adm-line);
+  border-left: 3px solid var(--adm-green);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+
+  /* Des champs manquent : le bandeau prend la couleur des liserés qu'il annonce. */
+  &.has-missing {
+    border-left-color: var(--adm-red);
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.9rem;
+  }
+
+  &__missing {
+    margin-top: 0.2rem;
+    color: var(--adm-red);
+    font-size: 0.85rem;
+  }
+
+  &__note {
+    margin-top: 0.2rem;
+    color: var(--adm-ink-400);
+    font-size: 0.82rem;
+  }
+}
+
+/* Champ vide après un import : liseré rouge et fond très légèrement teinté. Volontairement
+   distinct de l'erreur de validation (`.field-error`) — ici rien n'est invalide, c'est un
+   rappel de ce qu'il reste à saisir. Le repère disparaît avec le bandeau de bilan. */
+.is-missing,
+.is-missing input,
+.is-missing textarea {
+  border-color: var(--adm-red) !important;
+  background: var(--adm-red-soft);
+}
+
+/* Le titre de section « Couverture » : pas de champ à cerner, c'est l'intitulé qui alerte. */
+.is-missing-label {
+  color: var(--adm-red);
+
+  &::after {
+    content: ' — à ajouter';
+    font-family: 'SNPRO-Regular', sans-serif;
+    font-size: 0.78rem;
   }
 }

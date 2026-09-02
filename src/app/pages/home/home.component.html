@@ -3,6 +3,8 @@
   <app-floating-dock
     [groups]="navGroups"
     [ctaLabel]="'je commence gratuitement'"
+    [loginLabel]="'Déjà inscrit ?'"
+    [loginHref]="appLoginUrl"
     (ctaClick)="goToFunnel()"
     (linkAction)="onDockAction($event)"></app-floating-dock>
   <main>

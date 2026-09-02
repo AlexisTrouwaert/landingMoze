@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 export interface DockLink { id: string; label: string; icon?: string; desc?: string; action?: string; route?: string; }
@@ -32,6 +32,13 @@ export class FloatingDockComponent implements OnDestroy {
   @Input() buttonLabel: string | null = null;
   /** Libellé du CTA (bouton primaire à droite). null = pas de CTA. */
   @Input() ctaLabel: string | null = null;
+  /**
+   * Lien « déjà inscrit » vers la connexion à l'app, posé juste avant le CTA.
+   * Les deux doivent être renseignés pour que le bouton s'affiche : sans adresse
+   * il ne mènerait nulle part, sans libellé il ne dirait rien.
+   */
+  @Input() loginLabel: string | null = null;
+  @Input() loginHref: string | null = null;
   /** Émis au clic sur le bouton custom de gauche (ex. "Retour"). */
   @Output() buttonClick = new EventEmitter<void>();
   /** Émis au clic sur le CTA de droite. */
@@ -61,6 +68,9 @@ export class FloatingDockComponent implements OnDestroy {
   private io: IntersectionObserver | null = null;
   private mo: MutationObserver | null = null;
 
+  /** Position de la page au moment du verrouillage, à rendre à la fermeture. */
+  private lockedScrollY = 0;
+
   constructor() {
     afterNextRender(() => {
       this.setupScrollSpy();
@@ -68,15 +78,66 @@ export class FloatingDockComponent implements OnDestroy {
       document.addEventListener('keydown', this.onKeydown);
       document.addEventListener('click', this.onDocClick, true);
     });
+
+    // Tiroir ouvert = page figée derrière. Un effet plutôt qu'un appel dans
+    // `toggleMobile` : le menu se ferme aussi par Échap, par un clic à côté et par
+    // chaque lien — autant de chemins qui oublieraient de déverrouiller.
+    effect(() => this.lockPageScroll(this.mobileOpen()));
   }
 
   ngOnDestroy(): void {
     this.io?.disconnect();
     this.mo?.disconnect();
+    // Quitter la page avec le menu ouvert (un lien du tiroir) ne doit pas laisser
+    // le `body` figé sur la page suivante.
+    this.lockPageScroll(false);
     if (typeof document !== 'undefined') {
       document.removeEventListener('keydown', this.onKeydown);
       document.removeEventListener('click', this.onDocClick, true);
     }
+  }
+
+  /**
+   * Fige (ou libère) le défilement de la page derrière le tiroir.
+   *
+   * `position: fixed` et non `overflow: hidden` : Safari iOS ignore le second pour le
+   * défilement tactile, et le fond continuait de glisser sous le menu. En contrepartie il
+   * faut mémoriser puis rendre la position, sinon la page ressort en haut.
+   *
+   * Le tiroir, lui, garde son défilement propre (`overflow-y: auto` côté SCSS).
+   */
+  private lockPageScroll(lock: boolean): void {
+    if (typeof document === 'undefined') return;
+    const body = document.body;
+
+    if (lock) {
+      this.lockedScrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = `-${this.lockedScrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      return;
+    }
+
+    // Ne relâche que ce qu'on a soi-même posé : sans ce test, la fermeture initiale
+    // (effet joué au démarrage) remonterait la page en haut.
+    if (body.style.position !== 'fixed') return;
+
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+
+    // Lecture qui force le recalcul de la mise en page : tant que le navigateur n'a pas
+    // rendu au document sa hauteur réelle, il croit la page haute d'un écran et ramènerait
+    // le défilement à zéro.
+    void document.documentElement.scrollHeight;
+
+    // `behavior: 'instant'` obligatoire : la page porte `scroll-behavior: smooth`, et la
+    // forme à deux arguments (`scrollTo(0, y)`) s'y soumet — le retour à la position
+    // n'aboutissait tout simplement pas. Une animation serait de toute façon fausse ici :
+    // on ne se déplace pas, on remet l'écran là où il était.
+    window.scrollTo({ top: this.lockedScrollY, behavior: 'instant' });
   }
 
   private readonly onKeydown = (e: KeyboardEvent): void => {

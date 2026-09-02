@@ -7,6 +7,14 @@ import { DockGroup } from '../components/floating-dock/floating-dock.component';
  * Les liens sans `route` ni `action` ciblent des sections de l'accueil (ancres) :
  * sur l'accueil → scroll fluide ; ailleurs → le dock redirige vers `/#id`.
  */
+/**
+ * Connexion à l'application, pour les visiteurs déjà inscrits.
+ *
+ * Moze Place, et non Moze Connect. Source unique : le bouton « Déjà inscrit ? » de la barre
+ * et le rappel de connexion du tunnel (`sector-step`) doivent mener au même endroit.
+ */
+export const APP_LOGIN_URL = 'https://place.mozeconnect.fr/authentification';
+
 export const NAV_GROUPS: DockGroup[] = [
   {
     title: 'Découvrir',

@@ -3,9 +3,11 @@
 // Une seule grille pour l'en-tête et les lignes : les colonnes ne peuvent pas
 // se désaligner. La colonne d'actions a une largeur fixe — c'est elle qui
 // garantit un bord droit net quel que soit le libellé du bouton.
-// Sa largeur = étoile (28) + action (88) + menu (28) + deux gouttières (12).
+// Sa largeur est dimensionnée pour la ligne la plus large — un article ARCHIVÉ :
+// deux créneaux vides (2×28) + « Restaurer » (~88) + menu (28) + trois gouttières (18).
+// Les lignes publiées (étoile + œil + crayon + menu, tous en icônes) tiennent largement.
 // check / vignette / article / statut / vues / modifié / actions
-$row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 156px;
+$row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 190px;
 
 .adm-page {
   max-width: 1060px;
@@ -371,6 +373,16 @@ $row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 156px;
       background: var(--adm-blue-soft);
       color: var(--adm-blue);
     }
+
+    /* Décidé mais pas encore effectif : l'article est programmé et ne rejoindra la une
+       qu'à sa parution. Contour pointillé plutôt que fond plein — l'étoile est allumée,
+       l'emplacement ne l'est pas encore. */
+    &.is-pending {
+      border-style: dashed;
+      border-color: var(--adm-blue);
+      background: transparent;
+      color: var(--adm-blue);
+    }
   }
 
   // Créneau vide des articles non épinglables : réserve la place de l'étoile
@@ -718,6 +730,139 @@ $row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 156px;
 
     &__spacer {
       display: none;
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+   Section « À la une » — la vitrine du blog, au-dessus de la liste.
+   ------------------------------------------------------------- */
+.adm-featured {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.95rem;
+
+    svg {
+      color: var(--adm-blue);
+    }
+  }
+
+  &__count {
+    color: var(--adm-ink-400);
+    font-family: 'SNPRO-Regular', sans-serif;
+    font-size: 0.8rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+
+    & + & {
+      border-top: 1px solid var(--adm-line);
+    }
+
+    /* Sur le départ : un article programmé prendra sa place le jour de sa parution.
+       Il reste bien à la une jusque-là — le gris dit « en sursis », pas « retiré ».
+       L'opacité porte sur la ligne entière, actions comprises : la demi-teinte doit se
+       lire d'un coup d'œil, pas se deviner au titre seul. Le survol rend le contraste,
+       la ligne restant pleinement utilisable. */
+    &.is-leaving {
+      opacity: 0.55;
+      transition: opacity var(--adm-t);
+
+      .adm-featured__rank {
+        background: var(--adm-surface-hover);
+        color: var(--adm-ink-400);
+      }
+
+      &:hover,
+      &:focus-within {
+        opacity: 1;
+      }
+    }
+  }
+
+  /* Colonne titre + mention de remplacement. Porte le `flex: 1` qu'avait le titre seul. */
+  &__id {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  &__leaving {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Encre foncée alors que la mention est secondaire : la ligne entière est déjà
+       atténuée par l'opacité de `.is-leaving`, un gris de départ la rendrait illisible. */
+    color: var(--adm-ink-700);
+    font-size: 0.75rem;
+
+    svg {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__rank {
+    flex: 0 0 auto;
+    width: 1.4rem;
+    height: 1.4rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--adm-blue-soft);
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.75rem;
+  }
+
+  &__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--adm-ink-900);
+    font-size: 0.9rem;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--adm-ink-700);
+      text-decoration: underline;
+    }
+  }
+
+  /* L'étoile pleine dit « épinglé » ; au survol elle annonce le retrait. */
+  &__remove {
+    color: var(--adm-blue);
+
+    &:hover:not(:disabled) {
+      color: var(--adm-ink-400);
     }
   }
 }

@@ -12,8 +12,10 @@ import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
+  AdminFeaturedItem,
   AdminStats,
   Article,
+  ArticleListItem,
   BulkAction,
   MAX_FEATURED,
 } from '../../model/article.model';
@@ -74,6 +76,13 @@ export class AdminBlogListComponent {
 
   /** Compteurs globaux : indépendants de la recherche et du filtre courant. */
   readonly stats = signal<AdminStats | null>(null);
+
+  /**
+   * Les articles « à la une », dans leur ordre d'affichage public. Section à part au-dessus de la
+   * liste : indépendante du filtre et de la recherche, c'est la vitrine — elle doit se lire d'un
+   * coup d'œil sans aller chercher les étoiles ligne à ligne.
+   */
+  readonly featured = signal<AdminFeaturedItem[]>([]);
   readonly maxFeatured = MAX_FEATURED;
   readonly featuredCount = computed(() => this.stats()?.featured ?? 0);
   readonly featuredFull = computed(() => this.featuredCount() >= this.maxFeatured);
@@ -151,6 +160,33 @@ export class AdminBlogListComponent {
       });
     this.reload();
     this.loadStats();
+    this.loadFeatured();
+  }
+
+  /**
+   * Publié avec une date encore à venir : programmé, donc masqué du public jusqu'à l'échéance.
+   * Évalué au rendu — le badge ne bascule pas tout seul à l'heure dite, un rechargement suffit.
+   */
+  isScheduled(a: Article): boolean {
+    return (
+      a.status === 'PUBLISHED' &&
+      !!a.publishedAt &&
+      new Date(a.publishedAt).getTime() > Date.now()
+    );
+  }
+
+  /**
+   * Échange « à la une » en attente : l'article est programmé et prendra la place d'un autre
+   * à sa parution. Il n'est pas encore épinglé — mais l'étoile doit déjà le dire, sinon
+   * l'auteur croit son clic perdu et recommence.
+   */
+  isFeaturePending(a: Article): boolean {
+    return !a.featuredAt && !!a.featureReplacesId;
+  }
+
+  /** Étoile « active » : déjà épinglé, ou épinglage décidé pour la parution. */
+  isStarOn(a: Article): boolean {
+    return !!a.featuredAt || !!a.featureReplacesId;
   }
 
   isSelected(id: string): boolean {
@@ -230,6 +266,18 @@ export class AdminBlogListComponent {
     });
   }
 
+  /**
+   * Rafraîchit la section « À la une ». L'endpoint admin et non le public : lui seul dit
+   * quels articles sont sur le départ, c'est-à-dire remplacés par un article programmé le
+   * jour de sa parution. La section les grise au lieu de les faire disparaître d'un coup.
+   */
+  private loadFeatured(): void {
+    this.blog.adminFeatured().subscribe({
+      next: (list) => this.featured.set(list),
+      error: () => this.featured.set([]),
+    });
+  }
+
   // --- Actions ------------------------------------------------------------
 
   /**
@@ -247,6 +295,8 @@ export class AdminBlogListComponent {
         this.clearSelection();
         this.reload();
         this.loadStats();
+        // Dépublier ou archiver un article épinglé le retire de la une : la section suit.
+        this.loadFeatured();
         if (res.missing > 0) {
           this.actionError.set(
             res.missing === 1
@@ -274,15 +324,94 @@ export class AdminBlogListComponent {
     this.run('unarchive', [a.id]);
   }
 
-  /** Épinglage : action unitaire (limite de 5, et `featuredAt` porte l'ordre). */
-  toggleFeature(a: Article): void {
+  /**
+   * Retrait direct depuis la section « À la une ». Même mécanique que `toggleFeature`, mais la
+   * section ne transporte que des items de liste publique — l'id suffit au back.
+   */
+  unfeatureFromBanner(item: ArticleListItem): void {
     if (this.busy()) return;
     this.busy.set(true);
     this.actionError.set(null);
+    this.blog.unfeature(item.id).subscribe({
+      next: (updated) => {
+        this.busy.set(false);
+        // La ligne correspondante de la liste (si affichée) perd son étoile, en place.
+        this.items.update((list) =>
+          list.map((it) => (it.id === updated.id ? updated : it)),
+        );
+        this.loadStats();
+        this.loadFeatured();
+      },
+      error: (err) => {
+        this.busy.set(false);
+        this.actionError.set(this.extractError(err));
+      },
+    });
+  }
+
+  /**
+   * L'article qu'on cherche à épingler alors que la une est pleine : la popup d'échange est
+   * ouverte, en attente du choix de celui qui cède sa place. `null` = fermée.
+   */
+  readonly featureSwapFor = signal<Article | null>(null);
+
+  /**
+   * L'auteur a désigné l'article à retirer : on libère la place, puis on épingle le nouveau.
+   *
+   * Enchaînement en deux temps plutôt qu'un appel d'échange dédié : le back n'en propose pas, et
+   * la fenêtre entre les deux est celle d'un aller-retour réseau — sans conséquence, la une
+   * n'affichant alors que quatre articles pendant un instant.
+   */
+  swapFeature(replaced: ArticleListItem): void {
+    const target = this.featureSwapFor();
+    if (!target || this.busy()) return;
+
+    this.featureSwapFor.set(null);
+    this.applyFeature(target, replaced.id);
+  }
+
+  cancelSwap(): void {
+    this.featureSwapFor.set(null);
+  }
+
+  /**
+   * Épinglage : action unitaire (limite de 5, et `featuredAt` porte l'ordre).
+   *
+   * À la limite, le bouton reste actif et ouvre la popup d'échange — un bouton mort
+   * n'expliquerait ni la limite, ni comment y remédier.
+   */
+  toggleFeature(a: Article): void {
+    if (this.busy()) return;
     this.closeMenus();
-    const op = a.featuredAt
+
+    if (!this.isStarOn(a) && this.featuredFull()) {
+      // La liste des épinglés est déjà chargée (section « À la une » au-dessus) : aucun
+      // aller-retour de plus. Si elle manquait, on laisse le back trancher plutôt que d'ouvrir
+      // une popup vide.
+      if (this.featured().length) {
+        this.actionError.set(null);
+        this.featureSwapFor.set(a);
+        return;
+      }
+    }
+
+    this.applyFeature(a);
+  }
+
+  /**
+   * Épingle ou retire. `replaces` désigne l'article qui cède sa place : un seul appel, le
+   * back libère et épingle. S'il s'agit d'un article programmé, il mémorise l'échange au
+   * lieu de l'appliquer — l'ancien reste à la une jusqu'à la parution.
+   */
+  private applyFeature(a: Article, replaces?: string): void {
+    this.busy.set(true);
+    this.actionError.set(null);
+    // Un échange en attente s'annule par le même bouton : `unfeature` efface aussi bien
+    // l'épinglage que l'intention, sans quoi re-cliquer épinglerait l'article programmé
+    // tout de suite — en gardant l'ancien, donc en dépassant la limite.
+    const op = this.isStarOn(a)
       ? this.blog.unfeature(a.id)
-      : this.blog.feature(a.id);
+      : this.blog.feature(a.id, replaces);
     op.subscribe({
       next: (updated) => {
         this.busy.set(false);
@@ -293,6 +422,7 @@ export class AdminBlogListComponent {
           list.map((it) => (it.id === updated.id ? updated : it)),
         );
         this.loadStats();
+        this.loadFeatured();
       },
       error: (err) => {
         this.busy.set(false);

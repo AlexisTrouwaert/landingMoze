@@ -21,7 +21,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const needsSession =
     req.url.startsWith(`${base}/admin`) || req.url.startsWith(`${base}/auth/`);
 
-  const request = needsSession ? req.clone({ withCredentials: true }) : req;
+  /**
+   * Le compteur de vues doit voir la session, sans en dépendre : le back s'en sert pour ne pas
+   * comptabiliser l'équipe qui relit ses propres articles. La route reste publique — un lecteur
+   * anonyme n'a simplement pas de cookie à envoyer, et n'obtiendra jamais de 401 ici. D'où la
+   * distinction avec `needsSession`, qui gouverne la redirection vers la page de connexion.
+   */
+  const sendsSessionIfAny =
+    needsSession || /\/blog\/[^/]+\/view$/.test(req.url);
+
+  const request = sendsSessionIfAny ? req.clone({ withCredentials: true }) : req;
 
   return next(request).pipe(
     catchError((err) => {

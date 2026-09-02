@@ -4,6 +4,7 @@ import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../environements/environment';
 import { PersistentCircuitBreaker } from '../common/circuit-breaker';
 import {
+  AdminFeaturedItem,
   AdminStats,
   Article,
   ArticleCard,
@@ -136,6 +137,17 @@ export class BlogService {
   }
 
   /**
+   * La une vue de l'admin : les articles épinglés, et pour chacun l'échange programmé qui pèse
+   * dessus. L'endpoint public ne transporte pas cette information — sans elle, un article sur
+   * le départ serait indistinguable des autres.
+   */
+  adminFeatured(): Observable<AdminFeaturedItem[]> {
+    return this.http.get<AdminFeaturedItem[]>(
+      `${this.base}/admin/blog/featured`,
+    );
+  }
+
+  /**
    * Applique une action à une sélection d'articles en une seule requête
    * (le back fait un `updateMany`, pas N mises à jour).
    */
@@ -179,8 +191,16 @@ export class BlogService {
     );
   }
 
-  publish(id: string): Observable<Article> {
-    return this.http.post<Article>(`${this.base}/admin/blog/${id}/publish`, {});
+  /**
+   * Publie l'article — tout de suite, ou à l'échéance donnée (ISO). Une date future le laisse
+   * masqué du public jusque-là, puis il paraît daté de cette heure (cf. back, `publish`).
+   *
+   */
+  publish(id: string, at?: string): Observable<Article> {
+    return this.http.post<Article>(
+      `${this.base}/admin/blog/${id}/publish`,
+      at ? { at } : {},
+    );
   }
 
   unpublish(id: string): Observable<Article> {
@@ -190,9 +210,18 @@ export class BlogService {
     );
   }
 
-  /** Épingle à la une (400 si déjà 5 épinglés, ou si l'article n'est pas publié). */
-  feature(id: string): Observable<Article> {
-    return this.http.post<Article>(`${this.base}/admin/blog/${id}/feature`, {});
+  /**
+   * Épingle à la une (400 si déjà 5 épinglés, ou si l'article n'est pas publié).
+   *
+   * `replaces` désigne l'article qui cède sa place. Le back choisit le moment : article déjà
+   * paru → échange immédiat ; article encore programmé → échange mémorisé et appliqué à
+   * l'échéance, l'ancien restant affiché jusque-là.
+   */
+  feature(id: string, replaces?: string): Observable<Article> {
+    return this.http.post<Article>(
+      `${this.base}/admin/blog/${id}/feature`,
+      replaces ? { replaces } : {},
+    );
   }
 
   unfeature(id: string): Observable<Article> {

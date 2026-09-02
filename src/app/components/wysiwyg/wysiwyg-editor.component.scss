@@ -7,22 +7,30 @@
 .wys-toolbar {
   /* Sticky : la barre suit le scroll → toujours accessible sur les longs articles.
      Le décalage est paramétrable (`--wys-toolbar-top`) pour que la barre se cale
-     sous une barre d'actions collante du parent — cf. l'éditeur admin. */
+     sous une barre d'actions collante du parent — cf. l'éditeur admin. On y ajoute
+     1rem : la bulle se détache du haut au lieu d'y être collée.
+     Repli en `0px` et non `0` : `calc()` refuse d'additionner un zéro sans unité. */
   position: sticky;
-  top: var(--wys-toolbar-top, 0);
+  top: calc(var(--wys-toolbar-top, 0px) + 1rem);
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem;
+  /* Bulle posée dans la zone de rédaction plutôt que bandeau collé aux bords :
+     1rem de retrait de chaque côté (d'où `100% - 2rem`), et autant en haut. Le
+     texte défile dessous et reparaît dans les gouttières — d'où le fond opaque
+     au flou plutôt qu'un simple fond translucide. */
+  width: calc(100% - 2rem);
+  margin: 1rem auto 0;
   padding: 0.5rem;
   /* Translucide + flou : le texte qui défile dessous reste deviné, la barre ne
      se lit plus comme un bloc plaqué. Repli plein juste en dessous. */
   background: rgba(241, 246, 243, 0.88);
   backdrop-filter: blur(10px) saturate(140%);
-  border-bottom: 1px solid var(--adm-line-strong, #cdd9d4);
-  border-radius: 11px 11px 0 0;
-  box-shadow: 0 4px 14px rgba(20, 87, 117, 0.05);
+  border: 1px solid var(--adm-line-strong, #cdd9d4);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(20, 87, 117, 0.10);
   transition:
     box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
     background 0.32s cubic-bezier(0.22, 1, 0.36, 1);
@@ -204,8 +212,19 @@
     ol {
       margin: 0 0 0.8rem 1.5rem;
     }
+    /* Les liens sont surlignés de bleu clair pendant la rédaction — ils se repèrent alors d'un
+       coup d'œil au milieu d'un paragraphe dense, ce que la seule couleur du texte ne permettait
+       pas. Le surlignage l'emporte sur un texte plus clair, qui aurait dégradé la lisibilité :
+       #0297d8 sur blanc est déjà à la limite du contraste recommandé.
+       Éditeur uniquement : l'article publié garde ses liens sobres. */
     a {
       color: var(--interaction-color);
+      background: rgba(2, 151, 216, 0.12);
+      border-radius: 3px;
+      padding: 0 0.15em;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
     }
     img {
       max-width: 100%;

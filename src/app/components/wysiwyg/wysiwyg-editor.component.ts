@@ -99,7 +99,10 @@ export class WysiwygEditorComponent
     ol: boolean;
     block: string;
     align: '' | 'left' | 'center' | 'right' | 'justify';
-  }>({ bold: false, italic: false, ul: false, ol: false, block: '', align: '' });
+    // `justify` d'entrée : c'est l'alignement par défaut du site (cf. les règles `p, li,
+    // blockquote` de la zone d'édition et d'article-view) — la barre doit le dire avant même
+    // le premier clic, sinon l'auteur croit son texte aligné à gauche.
+  }>({ bold: false, italic: false, ul: false, ol: false, block: '', align: 'justify' });
 
   private pendingValue = '';
   private onChange: (value: string) => void = () => {};
@@ -551,12 +554,15 @@ export class WysiwygEditorComponent
    * Les alignements explicites sont testés avant la gauche : le navigateur répond `true` à
    * `justifyLeft` pour un texte simplement laissé au fil de l'eau, et le bouton « gauche »
    * resterait allumé sur un paragraphe centré.
+   *
+   * Quand le navigateur ne se prononce pas (éditeur vide, curseur hors de tout bloc), c'est le
+   * défaut du site qui fait foi : justifié — un paragraphe sans classe `ta-*` sera rendu ainsi.
    */
   private activeAlignment(): '' | 'left' | 'center' | 'right' | 'justify' {
     if (document.queryCommandState('justifyCenter')) return 'center';
     if (document.queryCommandState('justifyRight')) return 'right';
     if (document.queryCommandState('justifyFull')) return 'justify';
-    return document.queryCommandState('justifyLeft') ? 'left' : '';
+    return document.queryCommandState('justifyLeft') ? 'left' : 'justify';
   }
 
   /**

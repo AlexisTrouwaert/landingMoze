@@ -100,18 +100,71 @@
   }
 }
 
+/* Rappel de connexion : bloc encadré plutôt qu'une ligne de texte perdue sous la liste.
+   Le fond bleu très clair le détache sans concurrencer les boutons de secteur, qui
+   restent l'action principale de l'étape. */
 .footer-link {
-  margin-top: 3rem;
-  font-size: 0.9rem;
-  color: var(--primary-color);
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(2, 151, 216, 0.28);
+  border-radius: 14px;
+  background: rgba(2, 151, 216, 0.06);
   text-align: left;
 
-  a {
+  &__text {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    padding: 0.6rem 1.1rem;
+    border: 2px solid var(--interaction-color);
+    border-radius: 50px;
+    background: #ffffff;
     color: var(--interaction-color);
-    text-decoration: underline;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
-    &:hover { text-decoration: none; }
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    svg { width: 16px; height: 16px; }
+
+    &:hover {
+      background: var(--interaction-color);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(2, 151, 216, 0.28);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--interaction-color);
+      outline-offset: 3px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-link__cta {
+    transition: none;
+    &:hover { transform: none; }
   }
 }
 
@@ -184,6 +237,11 @@
 
   .header-text, .footer-link {
     text-align: center;
+  }
+
+  /* Le bloc est en flex : `text-align` ne le centre pas, il faut centrer les éléments. */
+  .footer-link {
+    justify-content: center;
   }
 }
 
