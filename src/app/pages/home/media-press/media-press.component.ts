@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { animate, group, query, stagger, style, transition, trigger } from '@angular/animations';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
@@ -224,6 +225,9 @@ export class MediaPressComponent implements OnInit, OnDestroy {
 
   private readonly hostEl: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly metaPixel = inject(MetaPixelService);
+  /* Déclaré ici, avant `syncScrollEffect` qui s'en sert : les initialiseurs de champs
+     s'exécutent dans l'ordre d'écriture. */
+  private readonly platformId = inject(PLATFORM_ID);
 
   /**
    * Synchronise le scroll de la liste avec le média actif : à chaque changement
@@ -232,6 +236,11 @@ export class MediaPressComponent implements OnInit, OnDestroy {
   private readonly syncScrollEffect = effect(() => {
     const id = this.activeMediaId();
     if (!id) return;
+
+    /* Un `effect` s'exécute pendant la détection de changements, donc aussi au rendu serveur —
+       où `requestAnimationFrame` n'existe pas. L'effet ne fait que du DOM (positionner un
+       conteneur défilant) : il n'a rien à produire côté serveur. */
+    if (!isPlatformBrowser(this.platformId)) return;
 
     /* requestAnimationFrame plutôt que queueMicrotask : lire offsetTop /
        clientHeight pendant un microtask force un layout synchrone si le DOM
@@ -266,6 +275,22 @@ export class MediaPressComponent implements OnInit, OnDestroy {
   private isPaused = false;
 
   public ngOnInit(): void {
+    /**
+     * Jamais au rendu serveur.
+     *
+     * `setInterval` récurrent, créé dans la zone Angular : côté serveur, il empêche
+     * l'application d'atteindre l'état stable qu'attend le moteur de rendu avant de sérialiser
+     * la page. Le rendu de l'accueil ne se terminait plus — 90 s sans réponse, là où les autres
+     * pages répondent en moins de 250 ms — et le prérendu du build aurait échoué de même.
+     *
+     * Le défaut ne pouvait pas se manifester avant : cette section vivait dans un `@defer` sans
+     * trigger `hydrate`, le composant n'était donc jamais instancié côté serveur. Le passage à
+     * l'hydratation incrémentale l'a réveillé. Même origine que la garde posée dans
+     * `ScrollRevealDirective` — et c'est le motif que suit déjà `landing-section`, qui lance son
+     * propre minuteur depuis `afterNextRender`.
+     */
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.startCarousel();
   }
 

@@ -39,6 +39,12 @@ export interface SitemapArticle {
 export const STATIC_PATHS: readonly { path: string }[] = [
   { path: '/' },
   { path: '/commencer' },
+  { path: '/facturation-electronique' },
+  { path: '/tarifs' },
+  { path: '/facturation-collaborative' },
+  { path: '/services-a-la-personne' },
+  { path: '/freelance' },
+  { path: '/auto-entrepreneur' },
   { path: '/blog' },
   { path: '/cgv-cgu' },
   { path: '/mentions-legales' },
@@ -87,6 +93,36 @@ export function articleEntries(
       loc: `${siteUrl}/blog/${article.slug}`,
       lastmod: (article.updatedAt ?? article.publishedAt)?.slice(0, 10) || undefined,
     }));
+}
+
+/** Ce que `GET /events` renvoie, réduit à ce dont le sitemap a besoin. */
+export interface SitemapEvent {
+  readonly slug: string;
+  readonly updatedAt?: string | null;
+}
+
+/**
+ * Les pages évènements : la page `/evenements`, puis chaque évènement publié — à venir comme
+ * passé. Un brouillon n'y figure jamais, l'API ne le renvoie pas (spec : « invisible du site et
+ * du plan de site »).
+ *
+ * Aucune entrée s'il n'existe aucun évènement : la page `/evenements` part alors en `noindex`, la
+ * déclarer ici enverrait au moteur deux consignes contraires.
+ */
+export function eventEntries(
+  events: readonly SitemapEvent[],
+  siteUrl: string,
+): SitemapEntry[] {
+  const published = events.filter((event) => !!event.slug);
+  if (!published.length) return [];
+
+  return [
+    { loc: `${siteUrl}/evenements` },
+    ...published.map((event) => ({
+      loc: `${siteUrl}/evenements/${event.slug}`,
+      lastmod: event.updatedAt?.slice(0, 10) || undefined,
+    })),
+  ];
 }
 
 /** Sérialise les entrées en `sitemap.xml`. */

@@ -1,0 +1,495 @@
+@use '../../../styles/silo-motion' as motion;
+@use '../../../styles/silo-theme' as theme;
+
+/* =========================================
+   === HOST & VARIABLES ===
+   Direction « doux et arrondi », partagée par les six pages du silo.
+   ========================================= */
+:host {
+  --moze-green: #6BD498;
+  --sap-ink: #{theme.$encre-titre};
+  --sap-ink-soft: #{theme.$encre-corps};
+  --sap-ink-muted: #{theme.$encre-douce};
+
+  display: block;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+/* =========================================
+   === LAYOUT ===
+   ========================================= */
+.sap-page {
+  --sap-max: 900px;
+
+  padding: 6.5rem 1.5rem 0;
+  color: var(--sap-ink-soft);
+  line-height: 1.7;
+}
+
+main {
+  max-width: var(--sap-max);
+  margin: 0 auto;
+}
+
+.crumbs {
+  max-width: var(--sap-max);
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+  color: var(--sap-ink-muted);
+
+  &__link {
+    color: var(--sap-ink-muted);
+    text-decoration: none;
+
+    &:hover { color: var(--sap-ink); text-decoration: underline; }
+  }
+
+  &__sep { margin: 0 0.5rem; opacity: 0.5; }
+  &__here { color: var(--sap-ink-soft); font-weight: 600; }
+}
+
+/* =========================================
+   === HAUT DE PAGE ===
+   ========================================= */
+.sap-hero {
+  @include theme.tinted-block();
+  padding: 2.6rem 2.4rem 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  @include theme.pill();
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  line-height: 1.15;
+  font-weight: 800;
+  color: theme.$encre-titre;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.3rem;
+}
+
+.lede {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+/* =========================================
+   === CHIFFRES CLÉS ===
+   ========================================= */
+.key-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 4rem;
+}
+
+.fact {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.5rem 1.3rem;
+  text-align: center;
+
+  &__num {
+    @include theme.big-number();
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  &__label {
+    font-size: 0.86rem;
+    color: theme.$encre-douce;
+    line-height: 1.5;
+  }
+}
+
+/* =========================================
+   === SECTIONS ===
+   ========================================= */
+.sap-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.1rem;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    margin-bottom: 0.4rem;
+  }
+
+  > p { margin-bottom: 1.2rem; }
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+
+    &:hover { text-decoration: none; }
+  }
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+.highlight-green { color: #35a06a; }
+
+.note {
+  @include theme.tinted-block(theme.$tint-bleu, 18px);
+  padding: 1.1rem 1.4rem;
+  font-size: 0.93rem;
+  color: theme.$encre-corps;
+  margin-bottom: 0 !important;
+}
+
+.fineprint {
+  font-size: 0.85rem;
+  color: theme.$encre-douce;
+  margin-bottom: 0 !important;
+}
+
+/* =========================================
+   === EXEMPLE CHIFFRÉ ===
+   ========================================= */
+.example {
+  @include theme.soft-card();
+  padding: 1.6rem 1.9rem;
+  max-width: 520px;
+
+  &__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #eef4f0;
+
+    &--total {
+      border-bottom: none;
+      padding-top: 0.9rem;
+
+      .example__label { font-weight: 700; color: theme.$encre-titre; }
+
+      .example__value {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: #35a06a;
+      }
+    }
+  }
+
+  &__label {
+    font-size: 0.93rem;
+    color: theme.$encre-corps;
+  }
+
+  &__value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    white-space: nowrap;
+
+    &--green { color: #35a06a; }
+  }
+
+  &__note {
+    margin: 0.9rem 0 0;
+    font-size: 0.85rem;
+    color: theme.$encre-douce;
+    font-style: italic;
+  }
+}
+
+/* =========================================
+   === ÉTAPES ===
+   ========================================= */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+
+  &__num {
+    flex: 0 0 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: theme.$tint-pastille;
+    color: theme.$encre-verte;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  &__body p {
+    font-size: 0.94rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === ACTIVITÉS ===
+   ========================================= */
+.act-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.act-card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.3rem;
+  display: flex;
+  flex-direction: column;
+
+  /* Classé, et non ciblé par `p` : un sélecteur d'élément l'emporterait sur
+     `.act-card__flag` et imposerait `flex` à la pastille. */
+  &__desc {
+    font-size: 0.87rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+    flex: 1 1 auto;
+  }
+
+  /* Signalées, pas cachées : ces activités demandent un agrément et le lecteur
+     doit le voir avant de s'engager. */
+  &--flag { background: theme.$tint-bleu; box-shadow: none; }
+
+  &__flag {
+    margin-top: 0.85rem;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    background: #ffffff;
+    color: #1c7fa8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+  }
+}
+
+/* =========================================
+   === CONDITIONS DU SOCIÉTARIAT ===
+   ========================================= */
+.cond-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.cond-card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.4rem;
+
+  p {
+    font-size: 0.88rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+/* =========================================
+   === FAQ ===
+   ========================================= */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.faq-item {
+  @include theme.soft-card(16px);
+  @include motion.faq-transition();
+  overflow: hidden;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+
+    h3 { margin-bottom: 0; font-size: 0.98rem; }
+
+    &:hover h3 { color: var(--interaction-color); }
+  }
+
+  &[open] summary { padding-bottom: 0.6rem; }
+  &[open] .faq-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
+}
+
+/* Fermé, le chevron pointe vers le BAS — le sens qui annonce « ceci se déplie ». */
+.faq-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid theme.$encre-douce;
+  border-bottom: 2px solid theme.$encre-douce;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
+
+.faq-answer {
+  padding: 0 1.4rem 1.3rem;
+  font-size: 0.94rem;
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; }
+}
+
+/* =========================================
+   === APPEL À L'ACTION ===
+   ========================================= */
+.sap-cta {
+  @include theme.tinted-block();
+  padding: 2.8rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    color: theme.$encre-corps;
+    font-size: 0.98rem;
+    max-width: 520px;
+    margin: 0 auto 1.6rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover { transform: translateY(-2px); background: var(--interaction-color); }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* =========================================
+   === RESPONSIVE ===
+   ========================================= */
+@media (max-width: 860px) {
+  .cond-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .sap-page { padding-top: 5.5rem; }
+
+  .sap-hero { padding: 1.8rem 1.4rem 2rem; border-radius: 20px; }
+  .sap-section { margin-bottom: 3rem; }
+
+  .key-facts {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .fact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    padding: 1.1rem 1.2rem;
+
+    &__num { margin-bottom: 0; flex: 0 0 auto; }
+  }
+
+  .example { padding: 1.3rem 1.4rem; }
+
+  .sap-cta { padding: 2rem 1.3rem; }
+  .sap-cta__actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   === MOUVEMENT ===
+   ========================================= */
+.sap-hero {
+  .eyebrow { @include motion.enter(0); }
+  h1       { @include motion.enter(1); }
+  .lede    { @include motion.enter(2); }
+}
+
+/* Les trois chiffres sont au-dessus de la ligne de flottaison : ils entrent au
+   chargement plutôt qu'au défilement. */
+.fact { @include motion.enter(3); }
+
+.example,
+.step,
+.act-card,
+.cond-card,
+.note,
+.faq-item,
+.sap-cta { @include motion.reveal(); }

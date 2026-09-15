@@ -1,0 +1,432 @@
+@use '../../../styles/silo-motion' as motion;
+@use '../../../styles/silo-theme' as theme;
+
+/* =========================================
+   === HOST & VARIABLES ===
+   Direction « doux et arrondi », partagée par les six pages du silo.
+   ========================================= */
+:host {
+  --moze-green: #6BD498;
+  --ae-ink: #{theme.$encre-titre};
+  --ae-ink-soft: #{theme.$encre-corps};
+  --ae-ink-muted: #{theme.$encre-douce};
+
+  display: block;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+/* =========================================
+   === LAYOUT ===
+   ========================================= */
+.ae-page {
+  --ae-max: 880px;
+
+  padding: 6.5rem 1.5rem 0;
+  color: var(--ae-ink-soft);
+  line-height: 1.7;
+}
+
+main {
+  max-width: var(--ae-max);
+  margin: 0 auto;
+}
+
+.crumbs {
+  max-width: var(--ae-max);
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+  color: var(--ae-ink-muted);
+
+  &__link {
+    color: var(--ae-ink-muted);
+    text-decoration: none;
+
+    &:hover { color: var(--ae-ink); text-decoration: underline; }
+  }
+
+  &__sep { margin: 0 0.5rem; opacity: 0.5; }
+  &__here { color: var(--ae-ink-soft); font-weight: 600; }
+}
+
+/* =========================================
+   === HAUT DE PAGE ===
+   ========================================= */
+.ae-hero {
+  @include theme.tinted-block();
+  padding: 2.6rem 2.4rem 2.8rem;
+  margin-bottom: 3rem;
+}
+
+.eyebrow {
+  @include theme.pill();
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  line-height: 1.15;
+  font-weight: 800;
+  color: theme.$encre-titre;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.3rem;
+}
+
+.lede {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: theme.$encre-corps;
+  margin-bottom: 1.5rem;
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+/* La date de mise à jour est en évidence : sur une page de chiffres
+   réglementaires, c'est la première chose que vérifie un lecteur averti. */
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: theme.$encre-verte;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--moze-green);
+  box-shadow: 0 0 0 0 rgba(107, 212, 152, 0.7);
+  animation: ae-pulse 2.4s ease-out infinite;
+}
+
+@keyframes ae-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(107, 212, 152, 0.7); }
+  70%  { box-shadow: 0 0 0 9px rgba(107, 212, 152, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 212, 152, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
+/* =========================================
+   === SECTIONS ===
+   ========================================= */
+.ae-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.1rem;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    margin-bottom: 0.4rem;
+  }
+
+  > p { margin-bottom: 1.2rem; }
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+
+    &:hover { text-decoration: none; }
+  }
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+.highlight-green { color: #35a06a; }
+
+.note {
+  @include theme.tinted-block(theme.$tint-vert, 18px);
+  padding: 1.1rem 1.4rem;
+  font-size: 0.93rem;
+  color: theme.$encre-corps;
+  margin-bottom: 0 !important;
+}
+
+.fineprint {
+  font-size: 0.85rem;
+  color: theme.$encre-douce;
+  margin-bottom: 0 !important;
+}
+
+/* =========================================
+   === TABLEAUX DE CHIFFRES ===
+   ========================================= */
+.table-wrap {
+  @include theme.soft-table();
+  overflow-x: auto;
+  margin-bottom: 1.4rem;
+}
+
+.ae-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+
+  thead th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+    color: theme.$encre-verte;
+    padding: 0.95rem 1.2rem;
+
+    &:not(:first-child) { text-align: right; }
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: 500;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #eef4f0;
+    color: theme.$encre-corps;
+  }
+
+  tbody td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #eef4f0;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+/* Les montants sont ce qu'on vient chercher : ils portent le poids visuel,
+   le libellé reste en texte courant. */
+.ae-num {
+  font-weight: 800;
+  color: theme.$encre-titre;
+  font-size: 1.05rem;
+
+  &--soft {
+    font-weight: 600;
+    color: theme.$encre-douce;
+    font-size: 0.93rem;
+  }
+}
+
+.ae-precision {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1c7fa8;
+}
+
+/* =========================================
+   === OBLIGATIONS ===
+   ========================================= */
+.obl-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.obl-card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.4rem;
+
+  p {
+    font-size: 0.9rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === FAQ ===
+   ========================================= */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.faq-item {
+  @include theme.soft-card(16px);
+  @include motion.faq-transition();
+  overflow: hidden;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+
+    h3 { margin-bottom: 0; font-size: 0.98rem; }
+
+    &:hover h3 { color: var(--interaction-color); }
+  }
+
+  &[open] summary { padding-bottom: 0.6rem; }
+  &[open] .faq-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
+}
+
+/* Fermé, le chevron pointe vers le BAS — le sens qui annonce « ceci se déplie ». */
+.faq-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid theme.$encre-douce;
+  border-bottom: 2px solid theme.$encre-douce;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
+
+.faq-answer {
+  padding: 0 1.4rem 1.3rem;
+  font-size: 0.94rem;
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; }
+}
+
+/* =========================================
+   === APPEL À L'ACTION ===
+   ========================================= */
+.ae-cta {
+  @include theme.tinted-block();
+  padding: 2.8rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    color: theme.$encre-corps;
+    font-size: 0.98rem;
+    max-width: 500px;
+    margin: 0 auto 1.6rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover { transform: translateY(-2px); background: var(--interaction-color); }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* =========================================
+   === RESPONSIVE ===
+   ========================================= */
+@media (max-width: 760px) {
+  .obl-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .ae-page { padding-top: 5.5rem; }
+
+  .ae-hero { padding: 1.8rem 1.4rem 2rem; border-radius: 20px; }
+  .ae-section { margin-bottom: 3rem; }
+
+  .ae-cta { padding: 2rem 1.3rem; }
+  .ae-cta__actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   === MOUVEMENT ===
+   ========================================= */
+.ae-hero {
+  .eyebrow { @include motion.enter(0); }
+  h1       { @include motion.enter(1); }
+  .lede    { @include motion.enter(2); }
+  .updated { @include motion.enter(3); }
+}
+
+.table-wrap,
+.note,
+.obl-card,
+.faq-item,
+.ae-cta { @include motion.reveal(); }
+
+/* Les montants sont ce qu'on vient chercher : la ligne survolée se teinte, et
+   le chiffre passe au vert pour confirmer la lecture. */
+.ae-table tbody tr {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(107, 212, 152, 0.09);
+
+    .ae-num { color: #1a7f52; }
+  }
+}
+
+.ae-num { transition: color 0.2s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ae-table tbody tr,
+  .ae-num { transition: none; }
+}

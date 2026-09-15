@@ -1,0 +1,75 @@
+@use '../../../styles/silo-theme' as theme;
+
+.events-page {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 120px 1.25rem 5rem;
+
+  &__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 44rem;
+  }
+
+  &__surtitle {
+    @include theme.surtitle();
+    margin: 0;
+  }
+
+  &__title {
+    margin: 0;
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    line-height: 1.15;
+  }
+
+  &__lead {
+    margin: 0;
+    color: theme.$encre-corps;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__section-title {
+    margin: 0;
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.45rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.state {
+  color: theme.$encre-corps;
+
+  &--card {
+    @include theme.tinted-block();
+    padding: 2rem 1.5rem;
+    text-align: center;
+
+    p {
+      margin: 0 0 0.75rem;
+    }
+  }
+
+  &__link {
+    color: var(--primary-color, #145775);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+}

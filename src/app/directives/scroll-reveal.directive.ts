@@ -1,9 +1,11 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   Directive,
   ElementRef,
   Input,
   OnDestroy,
   OnInit,
+  PLATFORM_ID,
   inject,
   signal
 } from '@angular/core';
@@ -25,12 +27,31 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
   @Input() threshold: number = 0.1;
 
   private el  = inject(ElementRef<HTMLElement>);
+  private readonly platformId = inject(PLATFORM_ID);
   private obs!: IntersectionObserver;
 
   readonly visible     = signal(false);
   readonly activeDelay = signal(0);   // internal — effacé après reveal
 
   ngOnInit(): void {
+    /**
+     * Rien à faire au rendu serveur : ni `window`, ni `requestAnimationFrame`, ni
+     * `IntersectionObserver` n'y existent.
+     *
+     * L'absence de cette garde ne s'est vue que le jour où l'accueil est passé en hydratation
+     * incrémentale. Auparavant, les sections qui portent la directive étaient en `@defer` sans
+     * trigger `hydrate` : le serveur n'en rendait que le placeholder, `ngOnInit` n'y tournait
+     * jamais, et l'appel à `window` restait sans conséquence. Une fois les sections rendues côté
+     * serveur, il levait une exception qui laissait chaque `@for` vide — cartes de
+     * fonctionnalités, formules et questions sortaient en `<div class="cards-grid"><!--container--></div>`.
+     *
+     * On sort sans toucher à `visible()`, qui reste `false` : le HTML servi porte donc
+     * `sr-hidden` (`opacity: 0`). Le contenu est bien dans le document — c'est tout ce que
+     * demandent les robots — et l'animation de révélation se déroule normalement à
+     * l'hydratation, exactement comme avant.
+     */
+    if (!isPlatformBrowser(this.platformId)) return;
+
     // Applique le délai stagger dès l'init
     this.activeDelay.set(this.delay);
 

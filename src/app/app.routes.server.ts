@@ -42,11 +42,23 @@ export const serverRoutes: ServerRoute[] = [
   // suspens. Elle ne peut pas être prérendue : `RenderMode.Prerender` n'accepte pas de `status`.
   { path: 'home', renderMode: RenderMode.Server, status: 301 },
   { path: 'commencer', renderMode: RenderMode.Prerender },
+  // Page thématique : contenu entièrement statique, donc figé au build. Son template n'emploie
+  // volontairement aucun `@defer` — c'est ce qui met le calendrier, les sanctions et le JSON-LD
+  // `FAQPage` dans le HTML servi, y compris pour les robots qui n'exécutent pas de JavaScript.
+  { path: 'facturation-electronique', renderMode: RenderMode.Prerender },
+  { path: 'tarifs', renderMode: RenderMode.Prerender },
+  { path: 'facturation-collaborative', renderMode: RenderMode.Prerender },
+  { path: 'services-a-la-personne', renderMode: RenderMode.Prerender },
+  { path: 'freelance', renderMode: RenderMode.Prerender },
+  { path: 'auto-entrepreneur', renderMode: RenderMode.Prerender },
   { path: 'cgv-cgu', renderMode: RenderMode.Prerender },
   { path: 'mentions-legales', renderMode: RenderMode.Prerender },
   { path: 'politique-confidentialite', renderMode: RenderMode.Prerender },
   { path: 'blog', renderMode: RenderMode.Server },
   { path: 'blog/:slug', renderMode: RenderMode.Server },
+  // Même raison que le blog : contenu tiré de l'API, qui doit figurer dans le HTML servi.
+  { path: 'evenements', renderMode: RenderMode.Server },
+  { path: 'evenements/:slug', renderMode: RenderMode.Server },
   { path: 'admin', renderMode: RenderMode.Client, headers: NOINDEX },
   { path: 'admin/**', renderMode: RenderMode.Client, headers: NOINDEX },
   { path: 'desinscription', renderMode: RenderMode.Client, headers: NOINDEX },

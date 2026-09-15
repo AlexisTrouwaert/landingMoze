@@ -1,0 +1,235 @@
+<article class="event">
+  <!-- Bandeau d'état : en tête, avant tout le reste. Qui arrive sur une page reportée ou annulée
+       doit l'apprendre avant de lire la date. -->
+  @switch (event().status) {
+    @case ('POSTPONED') {
+      <div class="event__banner event__banner--warn" role="status">
+        <strong>Évènement reporté.</strong>
+        @if (event().statusReason) { {{ event().statusReason }} }
+        @if (previousDay()) {
+          <span class="event__banner-note">Il était initialement prévu le {{ previousDay() }}.</span>
+        }
+      </div>
+    }
+    @case ('CANCELLED') {
+      <div class="event__banner event__banner--alert" role="status">
+        <strong>Évènement annulé.</strong>
+        @if (event().statusReason) { {{ event().statusReason }} }
+      </div>
+    }
+    @case ('FULL') {
+      <div class="event__banner" role="status">
+        <strong>Complet.</strong> Toutes les places ont trouvé preneur.
+      </div>
+    }
+    @case ('PAST') {
+      <div class="event__banner" role="status">
+        {{ pastSentence() }}
+      </div>
+    }
+  }
+
+  <header class="event__head">
+    <p class="event__type">{{ typeLabel() }}</p>
+    <h1 class="event__title">{{ event().title }}</h1>
+    @if (event().tagline) {
+      <p class="event__tagline">{{ event().tagline }}</p>
+    }
+    @if (organizedBy(); as mention) {
+      <p class="event__organized">{{ mention }}</p>
+    }
+
+    <ul class="event__facts">
+      <li class="event__fact" [class.is-struck]="event().status === 'CANCELLED'">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M8 3v4M16 3v4M3 10h18" />
+        </svg>
+        <span>
+          @if (event().startAt) {
+            <time [attr.datetime]="event().startAt">{{ schedule() }}</time>
+          } @else {
+            {{ schedule() }}
+          }
+        </span>
+      </li>
+      @if (place(); as where) {
+        <li class="event__fact">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>{{ where }}</span>
+        </li>
+      }
+    </ul>
+
+    @if (registration(); as r) {
+      <a class="event__cta" [href]="r.url" target="_blank" rel="noopener noreferrer">{{ r.label }}</a>
+    }
+  </header>
+
+  @if (event().coverImageUrl) {
+    <!-- `alt` vide en dernier recours, et non le titre : sans description, l'image est
+         décorative, et le titre annoncé une seconde fois n'apprendrait rien de la photo. -->
+    <img
+      class="event__cover"
+      [src]="event().coverImageUrl"
+      [alt]="event().coverImageAlt ?? ''"
+    />
+  }
+
+  @if (event().content) {
+    <!-- HTML sanitizé côté back (whitelist) ET par Angular au rendu. -->
+    <div class="event__content" [innerHTML]="event().content"></div>
+  }
+
+  @if (hasOrganisation()) {
+    <section class="event__block" aria-labelledby="event-organisation-title">
+      <h2 id="event-organisation-title" class="event__section-title">Qui organise</h2>
+
+      @if (event().organizerName) {
+        <div class="event__organizer">
+          @if (event().organizerLogoUrl) {
+            <img class="event__logo" [src]="event().organizerLogoUrl" alt="" />
+          }
+          <div>
+            <p class="event__organizer-name">
+              @if (event().organizerUrl) {
+                <a [href]="event().organizerUrl" target="_blank" rel="noopener noreferrer">{{ event().organizerName }}</a>
+              } @else {
+                {{ event().organizerName }}
+              }
+            </p>
+            @if (event().organizerContact; as contact) {
+              <p class="event__muted">
+                Contact :
+                @if (contactHref(); as href) { <a [href]="href">{{ contact }}</a> } @else { {{ contact }} }
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+      @for (group of partnerGroups(); track group.label) {
+        <div class="event__partners">
+          <h3 class="event__partners-title">{{ group.label }}</h3>
+          <ul class="event__partner-list">
+            @for (partner of group.partners; track $index) {
+              <li class="event__partner">
+                @if (partner.logoUrl) {
+                  <img class="event__logo event__logo--sm" [src]="partner.logoUrl" alt="" />
+                }
+                <span>
+                  @if (partner.url) {
+                    <a [href]="partner.url" target="_blank" rel="noopener noreferrer">{{ partner.name }}</a>
+                  } @else {
+                    <strong>{{ partner.name }}</strong>
+                  }
+                  @if (partner.description) {
+                    <span class="event__muted"> — {{ partner.description }}</span>
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+  }
+
+  @if (hasPractical()) {
+    <section class="event__practical" aria-labelledby="event-practical-title">
+      <h2 id="event-practical-title" class="event__section-title">Infos pratiques</h2>
+
+      <dl class="event__infos">
+        <div class="event__info">
+          <dt>Adresse</dt>
+          <dd>
+            <address>
+              @if (event().venueName) { <strong>{{ event().venueName }}</strong><br /> }
+              @if (event().street) { {{ event().street }}<br /> }
+              {{ event().postalCode }} {{ event().city }}
+              @if (event().region) { <span class="event__muted">— {{ event().region }}</span> }
+            </address>
+          </dd>
+        </div>
+
+        @if (event().accessInfo) {
+          <div class="event__info">
+            <dt>Accès</dt>
+            <dd class="event__access">{{ event().accessInfo }}</dd>
+          </div>
+        }
+
+        <!-- Affiché en clair dans les deux cas : la spec veut qu'un champ vide se lise comme un
+             non, et le taire laisserait la personne concernée deviner. -->
+        <div class="event__info">
+          <dt>Accessibilité</dt>
+          <dd>
+            @if (event().wheelchairAccessible) {
+              Lieu accessible aux personnes à mobilité réduite.
+            } @else {
+              Accessibilité aux personnes à mobilité réduite non garantie.
+            }
+          </dd>
+        </div>
+      </dl>
+
+      @if (mapsUrl(); as url) {
+        <a class="event__map" [href]="url" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Voir sur Google Maps
+        </a>
+      }
+    </section>
+  }
+
+  <!-- En fin de page, et répétée depuis l'ouverture : peu de visiteurs remontent (spec, rubrique 09). -->
+  @if (hasRegistration()) {
+    <section class="event__registration" aria-labelledby="event-registration-title">
+      <h2 id="event-registration-title" class="event__section-title">Inscription</h2>
+
+      <dl class="event__infos">
+        @if (accessLabel() || event().priceLabel) {
+          <div class="event__info">
+            <dt>Accès</dt>
+            <dd>
+              {{ event().priceLabel || accessLabel() }}
+              @if (price(); as p) { <strong> · {{ p }}</strong> }
+            </dd>
+          </div>
+        }
+        @if (event().capacity) {
+          <div class="event__info">
+            <dt>Places</dt>
+            <dd>{{ event().capacity }} places</dd>
+          </div>
+        }
+        @if (deadline(); as d) {
+          <div class="event__info">
+            <dt>Date limite</dt>
+            <dd>Inscriptions jusqu’au {{ d }}</dd>
+          </div>
+        }
+        @if (event().registrationInfo) {
+          <div class="event__info">
+            <dt>Ensuite</dt>
+            <dd class="event__access">{{ event().registrationInfo }}</dd>
+          </div>
+        }
+      </dl>
+
+      @if (registration(); as r) {
+        <a class="event__cta" [href]="r.url" target="_blank" rel="noopener noreferrer">{{ r.label }}</a>
+      } @else if (event().status === 'CANCELLED') {
+        <p class="event__muted">Les inscriptions sont fermées : l’évènement est annulé.</p>
+      } @else if (event().status === 'PAST') {
+        <p class="event__muted">Les inscriptions sont closes.</p>
+      }
+    </section>
+  }
+</article>

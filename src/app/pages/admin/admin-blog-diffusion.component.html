@@ -1,0 +1,275 @@
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5" />
+        </svg>
+      </span>
+      <div class="adm-head__text">
+        <h1>Diffusion</h1>
+        @if (article(); as a) {
+          <p class="adm-head__sub">{{ a.title }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="adm-head__actions">
+      <a class="btn btn--ghost" routerLink="/admin/blog">Tous les articles</a>
+      @if (article(); as a) {
+        <a class="btn btn--ghost" [routerLink]="['/admin/blog', a.id, 'edit']">Modifier</a>
+      }
+    </div>
+  </header>
+
+  @if (error(); as e) {
+    <p class="adm-alert adm-alert--error" role="alert">{{ e }}</p>
+  }
+
+  @if (loading()) {
+    <p class="dif-empty">Chargement…</p>
+  } @else if (article(); as a) {
+    <!-- Ce qu'on colle en second sur LinkedIn, et qui manque toujours au moment voulu. -->
+    <section class="dif-brief adm-enter" aria-label="L'article à partager">
+      <div class="dif-brief__row">
+        <span class="dif-brief__label">Adresse</span>
+        @if (url(); as lien) {
+          <div class="dif-brief__field">
+            <code class="dif-brief__url">{{ lien }}</code>
+            <button type="button" class="btn btn--sm" (click)="copier(lien, 'Lien')">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="12" height="12" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span class="btn__label">Copier le lien</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="dif-brief__row">
+        <span class="dif-brief__label">Parution</span>
+        <span class="dif-brief__value">
+          @if (a.publishedAt) {
+            {{ enClair(a.publishedAt) }}
+          } @else {
+            <strong>Pas encore publié</strong> — l'aperçu du lien sera vide tant que
+            l'article n'est pas en ligne.
+          }
+        </span>
+      </div>
+
+      <div class="dif-brief__row dif-brief__row--top">
+        <span class="dif-brief__label">Image</span>
+        @if (a.coverImageUrl) {
+          <div class="dif-cover">
+            <img class="dif-cover__img" [src]="a.coverImageUrl" [alt]="a.coverImageAlt ?? ''" />
+            <div class="dif-cover__side">
+              @if (a.coverImageAlt) {
+                <p class="dif-cover__alt">
+                  <span class="dif-cover__alt-label">Texte alternatif</span>
+                  {{ a.coverImageAlt }}
+                </p>
+              } @else {
+                <p class="dif-warn">
+                  Aucun texte alternatif. Les réseaux le demandent, et il sert aussi aux
+                  lecteurs d'écran sur le site.
+                </p>
+              }
+              <div class="dif-cover__actions">
+                @if (a.coverImageAlt) {
+                  <button
+                    type="button"
+                    class="btn btn--sm"
+                    (click)="copier(a.coverImageAlt, 'Texte alternatif')"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="12" height="12" rx="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    <span class="btn__label">Copier le texte alternatif</span>
+                  </button>
+                }
+                <a class="btn btn--sm" [href]="a.coverImageUrl" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <path d="M15 3h6v6M10 14 21 3" />
+                  </svg>
+                  <span class="btn__label">Ouvrir l'image</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="dif-warn">
+            <strong>Aucune couverture.</strong> LinkedIn et Facebook afficheront une carte
+            sans visuel, et Instagram n'accepte pas de post sans image.
+          </p>
+        }
+      </div>
+    </section>
+
+    <!-- Les posts, dans l'ordre où l'on publie. -->
+    @if (posts().length) {
+      <div class="dif-section">
+        <h2 class="dif-section__title">Posts réseaux</h2>
+        <div
+          class="dif-progress"
+          [class.is-complete]="toutTraite()"
+          role="status"
+        >
+          <span class="dif-progress__text">
+            @if (toutTraite()) {
+              <strong>Tout est traité</strong>
+            } @else {
+              <strong>{{ restants() }} à diffuser</strong>
+            }
+            @if (diffuses()) { · {{ pluriel(diffuses(), 'diffusé') }} }
+            @if (ecartes()) { · {{ pluriel(ecartes(), 'écarté') }} }
+          </span>
+          <span class="dif-progress__bar" aria-hidden="true">
+            <span
+              class="dif-progress__fill"
+              [style.width.%]="(diffuses() / posts().length) * 100"
+            ></span>
+            <span
+              class="dif-progress__fill dif-progress__fill--skipped"
+              [style.width.%]="(ecartes() / posts().length) * 100"
+            ></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="dif-posts">
+        @for (p of posts(); track p.annex.id; let i = $index) {
+          <article
+            class="dif-card adm-enter"
+            [class.is-done]="p.annex.diffusedAt"
+            [class.is-skipped]="p.annex.skippedAt"
+            [attr.data-network]="p.network.slot"
+            [style.--d]="i * 0.04 + 's'"
+          >
+            <header class="dif-card__head">
+              <span class="dif-card__mark" aria-hidden="true">{{ p.network.label.charAt(0) }}</span>
+              <div class="dif-card__id">
+                <h3 class="dif-card__name">{{ p.network.label }}</h3>
+                <span
+                  class="dif-card__count"
+                  [class.is-over]="p.trop"
+                  [attr.aria-label]="p.texte.length + ' caractères'"
+                >
+                  {{ p.texte.length }}@if (p.network.limit) { / {{ p.network.limit }} } car.
+                </span>
+              </div>
+              @if (p.annex.diffusedAt; as quand) {
+                <span class="badge badge--published">Diffusé le {{ enBref(quand) }}</span>
+              } @else if (p.annex.skippedAt) {
+                <span class="badge" title="Choix de ne pas poster ce texte">Écarté</span>
+              } @else {
+                <span class="badge badge--warn">À diffuser</span>
+              }
+            </header>
+
+            @if (p.trop) {
+              <p class="dif-warn">
+                Trop long de {{ p.texte.length - (p.network.limit ?? 0) }} caractères —
+                {{ p.network.label }} tronquera.
+              </p>
+            }
+            @if (p.network.besoin; as besoin) {
+              <p class="dif-card__need">{{ besoin }}</p>
+            }
+
+            <!-- `readonly` plutôt qu'un bloc de texte : le contenu reste sélectionnable à la
+                 main si le presse-papiers est refusé, et défile sans pousser la carte. -->
+            <textarea
+              class="dif-card__body"
+              readonly
+              rows="8"
+              [value]="p.texte"
+              [attr.aria-label]="'Texte du post ' + p.network.label"
+            ></textarea>
+
+            <footer class="dif-card__actions">
+              @if (p.network.composerUrl) {
+                <button
+                  type="button"
+                  class="btn btn--sm btn--primary"
+                  (click)="copierEtOuvrir(p)"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <path d="M15 3h6v6M10 14 21 3" />
+                  </svg>
+                  <span class="btn__label">Copier et ouvrir {{ p.network.label }}</span>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn--sm btn--primary"
+                  (click)="copier(p.texte, 'Texte')"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="12" height="12" rx="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span class="btn__label">Copier le texte</span>
+                </button>
+              }
+
+              <!-- Trois états, deux cases : aucune cochée = à diffuser (cf. `basculer`). -->
+              <div
+                class="dif-state"
+                role="group"
+                [attr.aria-label]="'État du post ' + p.network.label"
+                [class.is-busy]="busySlot() === p.annex.slot"
+              >
+                <label class="dif-state__option dif-state__option--skipped">
+                  <input
+                    #ecarte
+                    type="checkbox"
+                    [checked]="!!p.annex.skippedAt"
+                    [disabled]="busySlot() === p.annex.slot"
+                    (change)="basculer(p, 'skipped', ecarte, diffuse)"
+                  />
+                  <span>Écarté</span>
+                </label>
+                <label class="dif-state__option dif-state__option--done">
+                  <input
+                    #diffuse
+                    type="checkbox"
+                    [checked]="!!p.annex.diffusedAt"
+                    [disabled]="busySlot() === p.annex.slot"
+                    (change)="basculer(p, 'diffused', ecarte, diffuse)"
+                  />
+                  <span>Diffusé</span>
+                </label>
+              </div>
+            </footer>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="dif-empty">
+        <p><strong>Aucun post pour cet article.</strong></p>
+        <p>
+          Les textes réseaux arrivent avec l'article, depuis
+          <a routerLink="/admin/blog/coller">Coller</a>. Un article créé à la main dans
+          l'éditeur n'en a pas.
+        </p>
+      </div>
+    }
+
+    <!-- Les notes de rédaction (idée d'image, SEO, liens internes) ne sont plus ici : elles
+         servent avant la publication, et vivent désormais dans la relecture et l'éditeur. -->
+  }
+
+  <!-- Accusé de copie. `role="status"` : annoncé sans voler le focus, puisque le geste
+       suivant est un collage dans un autre onglet. -->
+  @if (toast(); as t) {
+    <p class="dif-toast" role="status">{{ t }}</p>
+  }
+</div>

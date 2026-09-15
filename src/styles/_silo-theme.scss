@@ -1,0 +1,145 @@
+// =============================================================================
+// Langage visuel des pages du silo — direction « doux et arrondi ».
+//
+// Usage : @use '../../../styles/silo-theme' as theme;
+//
+// Parti pris retenu le 08/09/2026, après deux essais écartés (cartes blanches
+// sobres, puis blocs bleu foncé à liseré) : **aucun aplat sombre**. Des fonds
+// vert très pâle, des angles larges, des cartes blanches sans bordure posées
+// dessus, et des ombres à peine perceptibles.
+//
+// La contrainte à ne pas perdre de vue : ces pages vivent de leur indexation.
+// Tout ce qui suit reste du CSS, sans incidence sur le HTML servi.
+// =============================================================================
+
+// --- Teintes ---
+$tint-vert:   #e4f6ea;  // fond des blocs de mise en avant
+$tint-pastille: #c7ecd6; // fond des pastilles
+$tint-bleu:   #e8f3f9;  // variante, pour alterner sans jamais assombrir
+
+// --- Encres ---
+$encre-titre: #0f2e3d;
+$encre-corps: #4f6f7c;
+$encre-douce: #8fa3ad;
+$encre-verte: #14603c;
+
+// --- Angles ---
+$rayon-bloc:  26px;
+$rayon-carte: 20px;
+
+// L'ombre est volontairement presque invisible : elle sert à décoller la carte
+// du fond teinté, pas à créer du relief. Une ombre marquée trahirait le parti pris.
+$ombre-carte: 0 2px 12px rgba(20, 73, 104, 0.05);
+$ombre-survol: 0 10px 26px rgba(20, 73, 104, 0.09);
+
+// -----------------------------------------------------------------------------
+// Pastille de surtitre — le marqueur du haut de page.
+// -----------------------------------------------------------------------------
+@mixin pill() {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $encre-verte;
+  background: $tint-pastille;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+}
+
+// -----------------------------------------------------------------------------
+// Surtitre de section — même famille que la pastille, sans le fond.
+// -----------------------------------------------------------------------------
+@mixin surtitle() {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #35a06a;
+  margin-bottom: 0.5rem;
+}
+
+// -----------------------------------------------------------------------------
+// Bloc teinté — haut de page, encadrés, mises en avant.
+// -----------------------------------------------------------------------------
+@mixin tinted-block($teinte: $tint-vert, $rayon: $rayon-bloc) {
+  background: $teinte;
+  border: none;
+  border-radius: $rayon;
+
+  h1, h2, h3 { color: $encre-titre; }
+  p          { color: $encre-corps; }
+  strong     { color: $encre-titre; }
+}
+
+// -----------------------------------------------------------------------------
+// Carte blanche posée sur le fond — sans bordure, c'est l'angle et l'ombre
+// qui la détachent.
+// -----------------------------------------------------------------------------
+@mixin soft-card($rayon: $rayon-carte) {
+  background: #ffffff;
+  border: none;
+  border-radius: $rayon;
+  box-shadow: $ombre-carte;
+
+  h3     { color: $encre-titre; }
+  p      { color: $encre-corps; }
+  strong { color: $encre-titre; }
+}
+
+// -----------------------------------------------------------------------------
+// Élévation au survol — dans le même registre feutré.
+// -----------------------------------------------------------------------------
+@mixin soft-lift($y: -4px) {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY($y);
+    box-shadow: $ombre-survol;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover { transform: none; }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tableau : carte blanche arrondie, en-tête teinté, séparateurs en cheveu.
+// Aucune bordure extérieure — le tableau est une carte comme les autres.
+// -----------------------------------------------------------------------------
+@mixin soft-table($teinte: $tint-vert) {
+  background: #ffffff;
+  border: none;
+  border-radius: $rayon-carte;
+  box-shadow: $ombre-carte;
+  overflow: hidden;
+
+  thead {
+    background: $teinte;
+
+    th {
+      color: $encre-verte;
+      border-bottom: none;
+    }
+  }
+
+  tbody th,
+  tbody td { border-bottom: 1px solid #eef4f0; }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+// -----------------------------------------------------------------------------
+// Chiffre mis en avant.
+// -----------------------------------------------------------------------------
+@mixin big-number() {
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: #144968;
+  letter-spacing: -0.02em;
+}

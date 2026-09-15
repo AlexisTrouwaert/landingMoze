@@ -1,0 +1,59 @@
+.event-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 120px 1.25rem 5rem;
+}
+
+.state {
+  padding: 4rem 1rem;
+  color: #4a5b63;
+  text-align: center;
+
+  &__title {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    font-family: 'SNPRO-Bold', sans-serif;
+  }
+
+  &__btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.75rem;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: #fff;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    text-decoration: none;
+  }
+}
+
+/* Fil d'Ariane — même dessin que celui des articles. */
+.crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  color: #4a5b63;
+  font-size: 0.85rem;
+
+  &__link {
+    color: var(--interaction-color, #1d7bb8);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__sep {
+    color: #9ab0b9;
+  }
+
+  &__here {
+    max-width: 28ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

@@ -1,8 +1,14 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
 
 export interface DockLink { id: string; label: string; icon?: string; desc?: string; action?: string; route?: string; }
 export interface DockGroup { title?: string; links: DockLink[]; }
+
+/** Chemin seul : ni fragment, ni paramètres — `/blog?p=2#haut` → `/blog`. */
+function pathOnly(url: string): string {
+  return url.split('#')[0].split('?')[0];
+}
 
 /**
  * Barre de navigation horizontale **flottante** (dock), réutilisable.
@@ -54,6 +60,8 @@ export class FloatingDockComponent implements OnDestroy {
   readonly openGroup = signal<number | null>(null);
   /** Section visible (scroll-spy). */
   readonly activeId = signal<string>('');
+  /** Page ouverte, pour les liens qui en désignent une (`route`). */
+  private readonly currentPath = signal<string>('');
   /** Menu mobile (burger) ouvert ? */
   readonly mobileOpen = signal<boolean>(false);
 
@@ -72,6 +80,15 @@ export class FloatingDockComponent implements OnDestroy {
   private lockedScrollY = 0;
 
   constructor() {
+    // Page ouverte, posée avant tout événement : le composant naît pendant l'activation de
+    // la route, donc après le `NavigationEnd` qui l'a amenée. Sans cette valeur initiale,
+    // une page atteinte directement — ou prérendue — n'aurait rien de coché tant qu'on n'a
+    // pas navigué une fois.
+    this.currentPath.set(pathOnly(this.router.url));
+    this.router.events.pipe(takeUntilDestroyed()).subscribe(evenement => {
+      if (evenement instanceof NavigationEnd) this.currentPath.set(pathOnly(evenement.urlAfterRedirects));
+    });
+
     afterNextRender(() => {
       this.setupScrollSpy();
       this.scrollToHashOnLoad();
@@ -169,9 +186,28 @@ export class FloatingDockComponent implements OnDestroy {
     this.ctaClick.emit();
   }
 
-  /** Un lien du groupe correspond-il à la section visible ? (surligne le déroulant) */
+  /**
+   * Ce lien désigne-t-il l'endroit où l'on se trouve ?
+   *
+   * Deux natures de liens, deux réponses. Un lien à `route` ouvre une page : il est actif
+   * quand cette page est ouverte, et le préfixe compte — une sous-page garde sa section
+   * cochée. Un lien d'ancre désigne une section de l'accueil : le scroll-spy tranche.
+   *
+   * Avant, seul le scroll-spy comptait. Les pages du silo n'étaient donc jamais signalées —
+   * « Solutions » restait éteint sur ses propres pages — pendant que « FAQ » s'allumait à
+   * leur place, par simple homonymie d'ancre.
+   */
+  isActive(link: DockLink): boolean {
+    if (link.route) {
+      const chemin = this.currentPath();
+      return chemin === link.route || chemin.startsWith(link.route + '/');
+    }
+    return this.activeId() === link.id;
+  }
+
+  /** Un lien du groupe est-il actif ? (surligne le déroulant) */
   groupActive(group: DockGroup): boolean {
-    return group.links.some(l => l.id === this.activeId());
+    return group.links.some(l => this.isActive(l));
   }
 
   private allIds(): string[] {
@@ -220,6 +256,19 @@ export class FloatingDockComponent implements OnDestroy {
     if (hash && this.allIds().includes(hash)) setTimeout(() => this.scrollToId(hash), 60);
   }
 
+  /**
+   * L'élément à surveiller pour cette ancre, ou `null` s'il n'y en a pas ici.
+   *
+   * `.scroll-anchor` n'est pas qu'une règle de style : c'est la marque que l'accueil pose sur
+   * les sections que le dock pilote. Sans ce filtre, tout `id` homonyme ailleurs sur le site
+   * prenait la main — le `<h2 id="faq">` que porte chacune des six pages du silo allumait
+   * l'onglet « FAQ » de la barre, qui restait coché tout le reste de la page.
+   */
+  private spiedSection(id: string): HTMLElement | null {
+    const el = document.getElementById(id);
+    return el?.classList.contains('scroll-anchor') ? el : null;
+  }
+
   private setupScrollSpy(): void {
     if (typeof IntersectionObserver === 'undefined' || this.allIds().length === 0) return;
 
@@ -235,7 +284,7 @@ export class FloatingDockComponent implements OnDestroy {
     const observeAll = (): void => {
       let allFound = true;
       for (const id of this.allIds()) {
-        const el = document.getElementById(id);
+        const el = this.spiedSection(id);
         if (el) this.io!.observe(el);
         else allFound = false;
       }

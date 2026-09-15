@@ -1,0 +1,213 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="fc-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Facturation collaborative</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="fc-hero">
+      <p class="eyebrow">Unique en France</p>
+      <h1>Facturation collaborative&nbsp;: facturer à plusieurs sur un même projet</h1>
+
+      <!-- La réponse directe en tête : c'est ce qu'extraient les moteurs, et à peu près tout ce
+           que lisent les assistants de réponse. -->
+      <p class="lede">
+        Plusieurs indépendants travaillent sur un même projet. Le client veut
+        <strong>un seul devis et une seule facture</strong>. Aucun d'entre vous ne veut porter la
+        responsabilité du travail des autres, ni avancer leur rémunération. La facturation
+        collaborative résout exactement ce problème&nbsp;: une facture globale, un bordereau qui
+        détaille la part de chacun, et des responsabilités qui restent séparées.
+      </p>
+
+      <a class="video-link" [href]="videoUrl" target="_blank" rel="noopener"
+         (click)="onVideoClick()">
+        <span class="video-link__icon" aria-hidden="true">▶</span>
+        Voir la vidéo explicative
+      </a>
+    </header>
+
+    <section class="fc-section">
+      <p class="surtitle">Le comparatif</p>
+      <h2 id="comparaison">Les trois façons de facturer <span class="highlight-green">à plusieurs</span></h2>
+      <p>
+        Avant Moze, un projet mené à plusieurs se facturait de deux manières, et chacune faisait
+        payer quelqu'un&nbsp;: le donneur d'ordre en risque, ou le client en complexité.
+      </p>
+
+      <div class="table-wrap">
+        <table class="cmp-table">
+          <caption class="sr-only">Comparaison des façons de facturer un projet à plusieurs</caption>
+          <thead>
+            <tr>
+              <th scope="col">Approche</th>
+              <th scope="col">Ce que reçoit le client</th>
+              <th scope="col">Qui répond des manquements</th>
+              <th scope="col">Qui avance l'argent</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (approche of approches; track approche.nom) {
+              <tr [class.is-moze]="approche.estMoze">
+                <th scope="row">{{ approche.nom }}</th>
+                <td>{{ approche.recu }}</td>
+                <td>{{ approche.responsabilite }}</td>
+                <td>{{ approche.tresorerie }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le déroulé</p>
+      <h2 id="fonctionnement">Comment ça marche, <span class="highlight-green">concrètement</span></h2>
+      <ol class="steps">
+        @for (etape of etapes; track etape.titre; let i = $index) {
+          <li class="step">
+            <span class="step__num" aria-hidden="true">{{ i + 1 }}</span>
+            <div class="step__body">
+              <h3>{{ etape.titre }}</h3>
+              <p>{{ etape.texte }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- Le cadre juridique est ce qui distingue la page d'une plaquette : c'est la première
+         objection de tout indépendant à qui l'on propose de facturer avec d'autres. -->
+    <section class="fc-section">
+      <p class="surtitle">Le montage</p>
+      <h2 id="cadre">Le cadre juridique&nbsp;: un groupement, <span class="highlight-green">sans solidarité</span></h2>
+      <p>
+        Collaborer sur une facture ne vous engage pas dans une structure. Le montage est un
+        <strong>groupement momentané d'entreprises (GME) de fait</strong>&nbsp;: sans création de
+        société, sans personnalité morale, et — le point décisif —
+        <strong>sans solidarité entre les parties</strong>.
+      </p>
+
+      <div class="resp-block">
+        <h3>Chaque intervenant demeure seul responsable de&nbsp;:</h3>
+        <ul class="check-list">
+          @for (item of responsabilites; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+        <p class="resp-block__note">
+          Aucun intervenant ne peut être tenu responsable des manquements d'un autre membre du
+          groupement. Un contrat de partenariat distinct reste possible, sans être nécessaire pour
+          utiliser la fonctionnalité.
+        </p>
+      </div>
+
+      <p class="fineprint">
+        Ce cadre est celui décrit à la section 11.5 de nos
+        <a routerLink="/cgv-cgu">conditions générales</a>, qui font foi.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">La pièce contractuelle</p>
+      <h2 id="bordereau">Le <span class="highlight-green">bordereau</span> récapitulatif</h2>
+      <p>
+        C'est la pièce centrale du dispositif, et le document contractuel de référence. Il reprend,
+        pour chaque intervenant&nbsp;:
+      </p>
+      <div class="doc-grid">
+        <div class="doc-card">
+          <h3>Son identité</h3>
+          <p>L'entreprise ou le micro-entrepreneur qui réalise la prestation.</p>
+        </div>
+        <div class="doc-card">
+          <h3>La nature de sa prestation</h3>
+          <p>Ce qu'il a effectivement réalisé sur le projet.</p>
+        </div>
+        <div class="doc-card">
+          <h3>Le montant correspondant</h3>
+          <p>Sa part, qu'il déclare et dont il garantit l'exactitude.</p>
+        </div>
+      </div>
+      <p>
+        Sa <strong>validation électronique par chaque intervenant vaut consentement
+        contractuel</strong>&nbsp;: personne n'est engagé sur des lignes qu'il n'a pas acceptées.
+        Chacun retrouve ensuite, sur son compte, les devis et factures de la transaction à laquelle
+        il a participé.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Les paiements</p>
+      <h2 id="paiement">Qui encaisse, <span class="highlight-green">et qui répartit</span></h2>
+      <p>
+        Ni le mandataire, ni Moze. Les sommes sont encaissées et ventilées par
+        <strong>Stripe Connect</strong>, prestataire de services de paiement agréé, conformément
+        aux montants inscrits au bordereau. Moze n'intervient qu'en <strong>tiers technique</strong>
+        et ne conserve à aucun moment les fonds pour compte de tiers.
+      </p>
+      <p>
+        Conséquence pratique&nbsp;: personne n'avance la rémunération d'un autre, et personne n'a
+        besoin d'une trésorerie pour mener un projet collectif.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le prix</p>
+      <h2 id="prix">Ce que ça <span class="highlight-green">coûte</span></h2>
+      <p>
+        La facturation collaborative fait partie de l'offre <strong>Indép +</strong>, à 9,90 € HT
+        par mois. Les factures qui y ont recours — comme celles qui passent par l'apport d'affaires
+        — supportent <strong>3,9 % HT</strong> de frais administratifs sur leur montant total.
+        <a routerLink="/tarifs">Voir le détail des tarifs</a>.
+      </p>
+      <p>
+        Vos factures collaboratives sont générées au format Factur-X, conforme à la réforme de la
+        <a routerLink="/facturation-electronique">facturation électronique</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="fc-cta">
+      <h2>Votre prochain projet à plusieurs</h2>
+      <p>
+        Rejoignez le réseau gratuitement, trouvez vos co-traitants et facturez ensemble sans
+        prendre le risque des autres.
+      </p>
+      <div class="fc-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('collaborative_cta_final')">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

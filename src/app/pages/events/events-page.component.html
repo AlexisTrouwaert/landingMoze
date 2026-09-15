@@ -1,0 +1,48 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [hideLinkIds]="['evenements']"
+  [ctaLabel]="'je commence gratuitement'"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="events-page">
+  <header class="events-page__head">
+    <p class="events-page__surtitle">Sur le terrain</p>
+    <h1 class="events-page__title">Les évènements Moze</h1>
+    <p class="events-page__lead">
+      Afterworks, ateliers, rencontres : des occasions de croiser d’autres indépendants, près de chez toi.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else if (failed()) {
+    <p class="state">Impossible d’afficher les évènements pour le moment. Réessaie dans quelques instants.</p>
+  } @else {
+    <section class="events-page__section" aria-labelledby="upcoming-title">
+      <h2 id="upcoming-title" class="events-page__section-title">
+        {{ upcoming().length > 1 ? 'Prochains évènements' : 'Prochain évènement' }}
+      </h2>
+      @for (event of upcoming(); track event.id) {
+        <!-- Un évènement annulé reste listé jusqu'à sa date, mais sans la grande carte : il n'est plus une annonce. -->
+        <app-event-card [event]="event" [featured]="event.status !== 'CANCELLED'" />
+      } @empty {
+        <div class="state state--card">
+          <p>Le prochain évènement sera annoncé ici.</p>
+          <a class="state__link" routerLink="/blog">En attendant, lire le blog</a>
+        </div>
+      }
+    </section>
+
+    @if (past().length) {
+      <section class="events-page__section" aria-labelledby="past-title">
+        <h2 id="past-title" class="events-page__section-title">Ils ont eu lieu</h2>
+        <div class="events-page__grid">
+          @for (event of past(); track event.id) {
+            <app-event-card [event]="event" />
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

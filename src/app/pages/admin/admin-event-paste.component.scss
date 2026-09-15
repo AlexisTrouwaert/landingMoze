@@ -1,0 +1,17 @@
+// Complète `admin-blog-paste.component.scss`, chargée avant celle-ci (cf. `styleUrls`).
+@use './admin-ui' as *;
+
+// Le message d'échec énumère une ligne par évènement : les retours à la ligne comptent.
+.ev-paste-error {
+  margin-top: 1rem;
+  white-space: pre-line;
+}
+
+.ev-paste__type {
+  margin: 0 0 0.25rem;
+  color: var(--adm-green);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

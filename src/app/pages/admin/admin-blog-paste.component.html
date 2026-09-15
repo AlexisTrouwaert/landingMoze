@@ -1,0 +1,225 @@
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="3" width="8" height="4" rx="1" />
+          <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2" />
+          <path d="M9 13h6M9 17h4" />
+        </svg>
+      </span>
+      <div>
+        <h1>Coller un article</h1>
+        <p class="adm-head__sub">
+          Le texte rédigé par l'IA, déposé ici. Rien ne sort de votre session.
+        </p>
+      </div>
+    </div>
+
+    <div class="adm-head__actions">
+      <a class="btn btn--ghost" routerLink="/admin/blog">Tous les articles</a>
+      <a class="btn btn--ghost" routerLink="/admin/blog/relecture">Relecture</a>
+    </div>
+  </header>
+
+  @if (error(); as e) {
+    <p class="adm-alert adm-alert--error" role="alert">{{ e }}</p>
+  }
+
+  <div class="pst">
+    <section class="pst__saisie">
+      <div class="pst__barre">
+        <label class="rev-field__label" for="pst-texte">Texte collé</label>
+        <button type="button" class="pst__aide" (click)="aide.set(!aide())">
+          {{ aide() ? 'Masquer le prompt' : 'Le prompt à donner à l’IA' }}
+        </button>
+      </div>
+
+      @if (aide()) {
+        <pre class="pst__format" #gabarit>Tu rédiges pour le blog Moze. Quand je te donnerai un sujet, réponds uniquement
+dans le format ci-dessous : pas d'introduction, pas de commentaire, pas de bloc
+de code autour.
+
+Un article, c'est un en-tête « clé: valeur », une ligne « --- », puis le corps
+en HTML. Pour en livrer plusieurs d'un coup, répète ce bloc en séparant chacun
+par une ligne ne contenant que « === ».
+
+titre: seul champ obligatoire — 200 caractères maximum
+slug: adresse de l'article, 120 max ; omis, il est dérivé du titre
+extrait: résumé affiché dans la liste des articles, 500 max
+tags: séparés par des virgules, 50 caractères chacun
+metaTitle: titre pour les moteurs de recherche, 200 max
+metaDescription: description pour les moteurs, 500 max
+date: ISO avec décalage horaire — 2026-09-14T08:00:00+02:00 en été, +01:00 en
+  hiver. Sans décalage, l'heure serait lue comme de l'UTC. Une date déjà passée
+  est refusée.
+serie: nom de la série éditoriale, si l'article appartient à une suite
+texte alternatif: description de l'image de couverture
+alaune: oui ou non
+---
+Le corps de l'article, en HTML, limité à ces balises :
+h2 h3 p strong em ul ol li a img blockquote br hr
+
+Pas de &lt;h1&gt; : la page en rend déjà un à partir du titre. Pas de &lt;div&gt;,
+&lt;table&gt;, &lt;span&gt;, ni d'attribut style — tout cela est retiré en silence à
+l'enregistrement. Pour aligner un p, h2, h3, li ou blockquote, pose une classe
+ta-left, ta-center, ta-right ou ta-justify.
+
+--- linkedin
+Une ligne « --- » suivie d'un nom ouvre une annexe : elle n'est pas publiée,
+elle attend qu'un humain la copie ailleurs. Elles se placent après le corps.
+
+Termine chaque article par ses quatre publications — une par réseau, rédigées
+en entier — puis par son idée d'image. Ces cinq annexes sont obligatoires : un
+article livré sans elles est incomplet.
+
+Quatre réseaux, chacun son ton — n'écris pas quatre fois le même texte :
+  mozeplace    — la communauté Moze, ton de coulisses, on parle à des habitués
+  linkedin     — le plus long, un raisonnement qui tient debout sans l'article
+  instagram    — court et aéré, une idée par ligne, les hashtags à la fin
+  facebook     — entre les deux, plus familier que LinkedIn, et plus développé
+                 qu'Instagram
+
+N'écris jamais l'adresse de l'article dans les posts, ni « moze.fr/blog » : elle
+est ajoutée d'elle-même à la fin de chaque post au moment de la copie. Pour la
+placer ailleurs dans le texte, écris &#123;lien&#125; à cet endroit. Instagram ne
+reçoit pas de lien : ses légendes ne les rendent pas cliquables.
+
+Facultatives, mais utiles quand le sujet s'y prête : mot-clé principal,
+justification du mot-clé, requêtes secondaires, vérification de
+cannibalisation, liens internes.
+
+===
+
+titre: Le deuxième article commence après la ligne de ===
+---
+&lt;p&gt;Son corps, et ses annexes s'il en a.&lt;/p&gt;
+
+Ne rédige rien pour l'instant. Si tout est clair, réponds seulement
+« J'ai compris », et attends que je te donne le sujet.</pre>
+        <!-- Pas de `?? ''` sur `textContent` : le compilateur sait qu'il n'est jamais nul sur
+             un élément référencé dans le gabarit, et signale le repli comme superflu. -->
+        <button
+          type="button"
+          class="btn btn--primary pst__copier"
+          [class.pst__copier--ok]="copie() === 'ok'"
+          [class.pst__copier--ko]="copie() === 'ko'"
+          (click)="copier(gabarit.textContent)"
+          aria-live="polite"
+        >
+          <!-- Deux svg complets plutôt qu'un @if à l'intérieur d'un seul : le compilateur
+               tient l'espace de noms SVG par la hiérarchie des éléments, et on ne l'expose
+               pas à un bloc de contrôle placé entre le svg et ses enfants. -->
+          @if (copie() === 'ok') {
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          }
+          @switch (copie()) {
+            @case ('ok') { Copié }
+            @case ('ko') { Copie refusée — sélectionnez le texte }
+            @default { Copier le prompt }
+          }
+        </button>
+        <p class="pst__note">
+          Copiez ce texte dans votre conversation avec l'IA, ajoutez-y votre sujet, puis
+          collez sa réponse ci-dessous. Elle décrit le format en entier : c'est aussi la
+          référence si vous écrivez un article à la main.
+        </p>
+      }
+
+      <textarea
+        id="pst-texte"
+        class="pst__zone"
+        [value]="texte()"
+        (input)="onInput($event)"
+        placeholder="Collez ici ce que l'IA a rédigé…"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="pst__actions">
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="!peutCreer() || creating()"
+          (click)="creer()"
+        >
+          @if (creating()) {
+            Création…
+          } @else if (lu()?.articles?.length; as n) {
+            Créer {{ n }} brouillon{{ n > 1 ? 's' : '' }}
+          } @else {
+            Créer le brouillon
+          }
+        </button>
+        @if (texte()) {
+          <button type="button" class="btn btn--ghost" (click)="vider()">Vider</button>
+        }
+      </div>
+    </section>
+
+    <!-- Ce qui a été compris, avant de créer quoi que ce soit. -->
+    <section class="pst__lu">
+      @if (lu(); as r) {
+        @if (r.errors.length) {
+          <div class="pst__erreurs">
+            <p class="pst__erreurs-titre">
+              {{ r.errors.length }} chose{{ r.errors.length > 1 ? 's' : '' }} à corriger
+            </p>
+            <ul>
+              @for (e of r.errors; track e) { <li>{{ e }}</li> }
+            </ul>
+          </div>
+        }
+
+        @for (a of r.articles; track a.input.title) {
+          <article class="pst__carte">
+            <h2 class="pst__titre">{{ a.input.title }}</h2>
+            @if (a.input.slug) {
+              <p class="pst__slug">/blog/{{ a.input.slug }}</p>
+            }
+            @if (a.input.excerpt) {
+              <p class="pst__extrait">{{ a.input.excerpt }}</p>
+            }
+
+            <dl class="pst__meta">
+              @if (a.proposedPublishAt) {
+                <div>
+                  <dt>Parution proposée</dt>
+                  <dd>{{ enClair(a.proposedPublishAt) }}</dd>
+                </div>
+              }
+              @if (a.input.tags?.length) {
+                <div>
+                  <dt>Tags</dt>
+                  <dd>{{ a.input.tags?.join(', ') }}</dd>
+                </div>
+              }
+              @if (a.proposedFeatured) {
+                <div>
+                  <dt>À la une</dt>
+                  <dd>proposé</dd>
+                </div>
+              }
+            </dl>
+
+            @if (a.warnings.length) {
+              <ul class="pst__avertissements">
+                @for (w of a.warnings; track w) { <li>{{ w }}</li> }
+              </ul>
+            }
+          </article>
+        }
+      } @else {
+        <p class="pst__vide">
+          Ce qui est compris s'affichera ici, avant toute création.
+        </p>
+      }
+    </section>
+  </div>
+</div>

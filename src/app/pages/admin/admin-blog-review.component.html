@@ -1,0 +1,409 @@
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
+          <circle cx="12" cy="12" r="3.5" />
+        </svg>
+      </span>
+      <div>
+        <h1>Relecture</h1>
+        <p class="adm-head__sub">
+          @if (queue().length) {
+            {{ queue().length }} brouillon{{ queue().length > 1 ? 's' : '' }} proposé{{ queue().length > 1 ? 's' : '' }} par l'assistant
+          } @else {
+            Aucun brouillon en attente
+          }
+        </p>
+      </div>
+    </div>
+
+    <div class="adm-head__actions">
+      <a class="btn btn--ghost" routerLink="/admin/blog">Tous les articles</a>
+      <button type="button" class="btn btn--ghost" (click)="load()" [disabled]="loading()">
+        Actualiser
+      </button>
+    </div>
+  </header>
+
+  @if (error(); as e) {
+    <p class="adm-alert adm-alert--error" role="alert">{{ e }}</p>
+  }
+
+  @if (report(); as r) {
+    <div class="adm-alert" [class.adm-alert--error]="r.errors.length" role="status">
+      @if (r.ok) {
+        <strong>{{ r.ok }} article{{ r.ok > 1 ? 's' : '' }} mis en ligne.</strong>
+      }
+      @if (r.partiels.length) {
+        <p>En ligne, mais pas à la une :</p>
+        <ul class="rev-report">
+          @for (msg of r.partiels; track msg) { <li>{{ msg }}</li> }
+        </ul>
+      }
+      @if (r.errors.length) {
+        <p>Échecs — ces articles n'ont pas été publiés :</p>
+        <ul class="rev-report">
+          @for (msg of r.errors; track msg) { <li>{{ msg }}</li> }
+        </ul>
+      }
+      <button type="button" class="btn btn--sm btn--ghost" (click)="dismissReport()">
+        Fermer
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="rev-empty">Chargement…</p>
+  } @else if (!queue().length) {
+    <div class="rev-empty">
+      <p><strong>Rien à relire.</strong></p>
+      <p>
+        Les brouillons créés par l'assistant apparaîtront ici. Demandez-lui un article depuis
+        Claude, puis actualisez.
+      </p>
+    </div>
+  } @else {
+    <div class="rev">
+      <!-- Volet gauche : la file. La sélection remplace la modale. -->
+      <ul class="rev-queue" role="list">
+        @for (a of queue(); track a.id) {
+          <li>
+            <button
+              type="button"
+              class="rev-queue__item"
+              [class.is-selected]="a.id === selectedId()"
+              (click)="select(a.id)"
+            >
+              <span class="rev-queue__title">{{ a.title }}</span>
+              <span class="rev-queue__meta">
+                @if (a.proposedPublishAt) {
+                  {{ enBref(a.proposedPublishAt) }}
+                } @else {
+                  <span class="rev-warn">date manquante</span>
+                }
+              </span>
+              <span class="rev-queue__flags">
+                @if (!a.coverImageUrl) { <span class="badge badge--warn">sans image</span> }
+                @if (a.proposedFeatured) {
+                  <!-- Repéré dès la liste : sans cela, le manque de place ne se découvre
+                       qu'en ouvrant l'article un par un. -->
+                  @if (besoinDeRemplacant(a.id)) {
+                    <span class="badge badge--warn">à la une · sans place</span>
+                  } @else {
+                    <span class="badge">à la une</span>
+                  }
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+
+      <!-- Volet droit : tout ce qui aurait été une modale. -->
+      @if (selected(); as a) {
+        <section class="rev-panel" [class.is-busy]="busyId() === a.id">
+          <div class="rev-titled">
+            <h2 class="rev-panel__title">{{ a.title }}</h2>
+            <button type="button" class="rev-flag" (click)="flagField('title')">
+              Signaler le titre
+            </button>
+          </div>
+          <div class="rev-titled">
+            <p class="rev-panel__slug">/blog/{{ a.slug }}</p>
+            <button type="button" class="rev-flag" (click)="flagField('slug')">
+              Signaler l'adresse
+            </button>
+          </div>
+
+          @if (a.excerpt) {
+            <div class="rev-field">
+              <span class="rev-field__label">Extrait</span>
+              <p class="rev-excerpt">{{ a.excerpt }}</p>
+              <button type="button" class="rev-flag" (click)="flagField('excerpt')">
+                Signaler l'extrait
+              </button>
+            </div>
+          }
+
+          <div class="rev-field">
+            <span class="rev-field__label">Couverture</span>
+            <div class="rev-cover">
+              @if (a.coverImageUrl) {
+                <img class="rev-cover__img" [src]="a.coverImageUrl" alt="" />
+              } @else {
+                <p class="rev-cover__none">
+                  Aucune image. Sans couverture, l'article partagé sur les réseaux sortirait
+                  sans visuel.
+                </p>
+              }
+              <label class="btn btn--sm">
+                {{ a.coverImageUrl ? 'Remplacer' : 'Ajouter une image' }}
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="rev-cover__input"
+                  (change)="onCoverPicked($event, a)"
+                />
+              </label>
+            </div>
+            <!-- Le brief du visuel, sous le bouton qui l'attend : déplié d'emblée. -->
+            <app-editorial-notes
+              class="rev-notes"
+              [annexes]="notes()"
+              groupe="image"
+              [ouvertes]="true"
+            />
+          </div>
+
+          <!-- Mot-clé, justification, cannibalisation : à confronter au titre et à l'adresse
+               ci-dessus, avant de valider. -->
+          @if (aNotesSeo()) {
+            <div class="rev-field">
+              <span class="rev-field__label">Référencement</span>
+              <app-editorial-notes [annexes]="notes()" groupe="seo" />
+            </div>
+          }
+
+          <div class="rev-field">
+            <label class="rev-field__label" [attr.for]="'rev-date-' + a.id">
+              Parution proposée
+            </label>
+            <input
+              [id]="'rev-date-' + a.id"
+              type="datetime-local"
+              class="rev-input"
+              [value]="dateValue(a)"
+              (change)="onDateChanged($event, a)"
+            />
+            @if (a.proposedPublishAt) {
+              <p class="rev-field__hint">{{ enClair(a.proposedPublishAt) }}</p>
+            }
+          </div>
+
+          <div class="rev-field">
+            <span class="rev-field__label">À la une</span>
+            <button
+              type="button"
+              class="rev-star"
+              [class.is-on]="a.proposedFeatured"
+              (click)="toggleFeatured(a)"
+              [attr.aria-pressed]="a.proposedFeatured"
+            >
+              <span aria-hidden="true">{{ a.proposedFeatured ? '★' : '☆' }}</span>
+              {{ a.proposedFeatured ? 'Proposé pour la une' : 'Proposer pour la une' }}
+            </button>
+
+            <!-- Plus de place : le choix se fait ici, en ligne. Pas de modale — rien n'est
+                 appliqué avant la parution (échange différé côté back).
+                 `besoinDeRemplacant` couvre le cas où la une n'est pas encore pleine mais le
+                 sera une fois le lot passé : sans lui, l'interface de choix se cachait
+                 exactement quand elle devenait nécessaire. -->
+            @if (a.proposedFeatured && (featuredFull() || besoinDeRemplacant(a.id))) {
+              <p class="rev-field__hint">
+                @if (!a.proposedPublishAt) {
+                  @if (featuredFull()) {
+                    La une est complète ({{ featuredList().length }}/{{ maxFeatured }}).
+                  } @else {
+                    Les articles de ce lot rempliront la une avant celui-ci
+                    ({{ featuredList().length }}/{{ maxFeatured }} aujourd'hui).
+                  }
+                  <strong>Renseignez d'abord la date de parution</strong> pour voir la une telle
+                  qu'elle sera à ce moment-là.
+                } @else if (projectionAhead()) {
+                  La une <strong>au {{ enClair(a.proposedPublishAt) }}</strong>, échanges déjà
+                  programmés compris. Choisissez l'article qui cédera sa place :
+                } @else if (featuredFull()) {
+                  La une est complète ({{ featuredList().length }}/{{ maxFeatured }}).
+                  Choisissez l'article qui cédera sa place à la parution :
+                } @else {
+                  Les articles de ce lot rempliront la une avant celui-ci
+                  ({{ featuredList().length }}/{{ maxFeatured }} aujourd'hui).
+                  Choisissez l'article qui cédera sa place à la parution :
+                }
+              </p>
+              <app-featured-slots
+                [slots]="projected()"
+                [replacedId]="replacementFor(a.id) ?? null"
+                [claimed]="claimedTitles()"
+                (chosen)="chooseReplacement(a.id, $event.id)"
+              />
+            }
+          </div>
+
+          <div class="rev-field">
+            <span class="rev-field__label">Relecture</span>
+            <p class="rev-field__hint">
+              Sélectionnez un passage dans le texte, puis signalez-le : l'assistant ne reprendra
+              que ce qui est marqué.
+            </p>
+            <!-- Le corps de l'article, sobrement. C'est dans ce texte que se fait la
+                 sélection d'un passage à signaler. -->
+            <div class="rev-preview" #previewBox [innerHTML]="a.content"></div>
+            <div class="rev-preview__actions">
+              <button type="button" class="rev-flag" (click)="flagSelection()">
+                Signaler le passage sélectionné
+              </button>
+              <a class="btn btn--sm btn--ghost" [routerLink]="['/admin/blog', a.id, 'edit']">
+                Ouvrir dans l'éditeur
+              </a>
+            </div>
+            <!-- Liens internes et blocs non reconnus : à vérifier en relisant le texte. -->
+            @if (aNotesAutres()) {
+              <app-editorial-notes class="rev-notes" [annexes]="notes()" groupe="autres" />
+            }
+          </div>
+
+          <!-- Saisie d'un signalement : en ligne, comme tout le reste de cet écran. -->
+          @if (draft(); as d) {
+            <div class="rev-draft" #draftBox>
+              <p class="rev-draft__target">
+                <strong>{{ label(d.field) }}</strong>
+                @if (d.quote) {
+                  <span class="rev-draft__quote">« {{ d.quote }} »</span>
+                }
+              </p>
+              <input
+                type="text"
+                class="rev-input rev-draft__note"
+                placeholder="Ce qui ne va pas, ou ce que vous attendez (facultatif)"
+                [value]="draftNote()"
+                (input)="draftNote.set($any($event.target).value)"
+                (keydown.enter)="submitDraft()"
+              />
+              <div class="rev-draft__actions">
+                <button type="button" class="btn btn--sm" (click)="submitDraft()">
+                  Signaler
+                </button>
+                <button type="button" class="btn btn--sm btn--ghost" (click)="cancelDraft()">
+                  Annuler
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (openFlags().length) {
+            <div class="rev-field">
+              <span class="rev-field__label">
+                Retouches demandées ({{ openFlags().length }})
+              </span>
+              <ul class="rev-flags" role="list">
+                @for (f of openFlags(); track f.id) {
+                  <li class="rev-flags__item" [class.is-orphan]="f.orphaned">
+                    <div>
+                      <p class="rev-flags__what">
+                        {{ label(f.field) }}
+                        @if (f.orphaned) {
+                          <span class="badge badge--warn">texte disparu</span>
+                        }
+                      </p>
+                      @if (f.quote) {
+                        <p class="rev-flags__quote">« {{ f.quote }} »</p>
+                      }
+                      @if (editingId() === f.id) {
+                        <div class="rev-flags__edit">
+                          <input
+                            type="text"
+                            class="rev-input"
+                            placeholder="Ce qui ne va pas, ou ce que vous attendez"
+                            [value]="editingNote()"
+                            (input)="editingNote.set($any($event.target).value)"
+                            (keydown.enter)="saveEdit(f)"
+                            (keydown.escape)="cancelEdit()"
+                          />
+                          <button type="button" class="btn btn--sm" (click)="saveEdit(f)">
+                            Enregistrer
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn--sm btn--ghost"
+                            (click)="cancelEdit()"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      } @else if (f.note) {
+                        <p class="rev-flags__note">{{ f.note }}</p>
+                      }
+                    </div>
+                    <div class="rev-flags__tools">
+                      @if (editingId() !== f.id) {
+                        <button
+                          type="button"
+                          class="rev-flags__tool"
+                          (click)="startEdit(f)"
+                          aria-label="Modifier la demande"
+                          title="Modifier la demande"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="15"
+                            height="15"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        class="rev-flags__tool rev-flags__tool--del"
+                        (click)="removeFlag(f)"
+                        aria-label="Retirer ce signalement"
+                        title="Retirer ce signalement"
+                      >
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                  </li>
+                }
+              </ul>
+              <p class="rev-field__hint">
+                Demandez ensuite à Claude de reprendre les retouches signalées.
+              </p>
+            </div>
+          }
+        </section>
+      }
+    </div>
+
+    <footer class="rev-foot">
+      @if (blockers().length) {
+        <p class="rev-foot__blockers">
+          Impossible de mettre en ligne : {{ blockers().join(' · ') }}.
+          <!-- Nommer le blocage sans y mener obligerait à ouvrir les articles un par un. -->
+          <button type="button" class="rev-foot__goto" (click)="allerAuBlocage()">
+            Corriger
+          </button>
+        </p>
+      }
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!canPublish() || publishing()"
+        (click)="askPublish()"
+      >
+        {{ publishing() ? 'Mise en ligne…' : 'Programmer les ' + queue().length + ' articles' }}
+      </button>
+    </footer>
+  }
+</div>
+
+<app-confirm-dialog
+  [open]="confirming()"
+  title="Mettre en ligne"
+  [message]="
+    'Les ' + queue().length + ' articles seront publiés à leur date proposée. ' +
+    'C\'est la seule action irréversible de cet écran.'
+  "
+  confirmLabel="Programmer"
+  (confirmed)="publishAll()"
+  (cancelled)="confirming.set(false)"
+/>

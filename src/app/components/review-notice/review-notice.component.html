@@ -1,0 +1,29 @@
+@if (arrived(); as n) {
+  <aside class="rn" role="status" aria-live="polite">
+    <p class="rn__text">
+      <strong>{{ n }}</strong>
+      {{ n > 1 ? 'nouveaux brouillons' : 'nouveau brouillon' }} à relire.
+    </p>
+
+    <div class="rn__actions">
+      <a class="rn__go" routerLink="/admin/blog/relecture" (click)="dismiss()">
+        Voir
+      </a>
+      @if (canAsk()) {
+        <button type="button" class="rn__ask" (click)="enableSystem()">
+          M'avertir la prochaine fois
+        </button>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="rn__close"
+      (click)="dismiss()"
+      aria-label="Fermer"
+      title="Fermer"
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  </aside>
+}

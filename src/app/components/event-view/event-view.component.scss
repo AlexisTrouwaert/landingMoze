@@ -1,0 +1,335 @@
+@use '../../../styles/rich-content' as rich;
+@use '../../../styles/silo-theme' as theme;
+
+.event {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+
+  // -------------------------------------------------------------
+  // Bandeau d'état — teinté, jamais d'aplat sombre (direction « doux et arrondi »).
+  // -------------------------------------------------------------
+  &__banner {
+    @include theme.tinted-block(theme.$tint-bleu, theme.$rayon-carte);
+    padding: 1rem 1.25rem;
+    color: theme.$encre-titre;
+    line-height: 1.55;
+
+    strong {
+      color: theme.$encre-titre;
+    }
+
+    &--warn {
+      background: #fdf3e1;
+    }
+
+    &--alert {
+      background: #fdecea;
+    }
+  }
+
+  &__banner-note {
+    display: block;
+    margin-top: 0.25rem;
+    color: theme.$encre-corps;
+    font-size: 0.92rem;
+  }
+
+  // -------------------------------------------------------------
+  // Ouverture
+  // -------------------------------------------------------------
+  &__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  &__type {
+    @include theme.pill();
+    margin: 0;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--primary-color);
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1.2;
+  }
+
+  &__tagline {
+    margin: 0;
+    color: theme.$encre-corps;
+    font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+    line-height: 1.5;
+  }
+
+  // Mention d'organisation : en évidence pour un évènement relayé (spec, section 04).
+  &__organized {
+    margin: 0;
+    color: theme.$encre-verte;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: #35a06a;
+    color: #fff;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    text-decoration: none;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      background: theme.$encre-verte;
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(53, 160, 106, 0.35);
+      outline-offset: 2px;
+    }
+  }
+
+  &__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__fact {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+
+    svg {
+      flex: 0 0 auto;
+      margin-top: 0.15rem;
+      color: #35a06a;
+    }
+
+    // Date d'un évènement annulé : barrée, pour qu'on ne la note pas en passant.
+    &.is-struck span {
+      text-decoration: line-through;
+      color: theme.$encre-douce;
+    }
+  }
+
+  &__cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: theme.$rayon-carte;
+    object-fit: cover;
+  }
+
+  &__content {
+    color: #2c3a40;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+    min-width: 0;
+
+    @include rich.injected-html;
+
+    // Les marges du premier et du dernier bloc s'ajouteraient à l'écart de la colonne : un
+    // intertitre en tête décollait le texte de l'image, un paragraphe final éloignait la suite.
+    ::ng-deep > :first-child {
+      margin-top: 0;
+    }
+
+    ::ng-deep > :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Qui organise
+  // -------------------------------------------------------------
+  &__block {
+    @include theme.soft-card();
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+
+    a {
+      color: var(--primary-color, #145775);
+    }
+  }
+
+  &__organizer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__organizer-name {
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.15rem;
+
+    // Le style global des liens ramènerait le nom à la taille et à la graisse du texte courant.
+    a {
+      font: inherit;
+    }
+  }
+
+  &__logo {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: #fff;
+    object-fit: contain;
+
+    &--sm {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+  }
+
+  &__partners {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__partners-title {
+    @include theme.surtitle();
+    margin: 0;
+  }
+
+  &__partner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__partner {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: theme.$encre-titre;
+    line-height: 1.45;
+  }
+
+  // -------------------------------------------------------------
+  // Inscription — même famille que les infos pratiques, en bleu pour les distinguer.
+  // -------------------------------------------------------------
+  &__registration {
+    @include theme.tinted-block(theme.$tint-bleu);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+
+    .event__cta {
+      margin-top: 0;
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Infos pratiques
+  // -------------------------------------------------------------
+  &__practical {
+    @include theme.tinted-block();
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  &__section-title {
+    margin: 0;
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.35rem;
+  }
+
+  &__infos {
+    display: grid;
+    gap: 0.9rem;
+    width: 100%;
+    margin: 0;
+  }
+
+  &__info {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 0.25rem 1rem;
+
+    dt {
+      color: theme.$encre-verte;
+      font-family: 'SNPRO-SemiBold', sans-serif;
+    }
+
+    dd {
+      margin: 0;
+      color: theme.$encre-titre;
+      line-height: 1.55;
+    }
+
+    address {
+      font-style: normal;
+    }
+
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Le texte d'accès est saisi en plusieurs lignes : on garde ses retours à la ligne.
+  &__access {
+    white-space: pre-line;
+  }
+
+  &__muted {
+    color: theme.$encre-corps;
+  }
+
+  &__map {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    background: var(--primary-color, #145775);
+    color: #fff;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    text-decoration: none;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      background: var(--interaction-color, #0297d8);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(2, 151, 216, 0.35);
+      outline-offset: 2px;
+    }
+  }
+}

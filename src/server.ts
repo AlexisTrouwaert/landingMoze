@@ -10,7 +10,9 @@ import { environment } from './environements/environment';
 import {
   articleEntries,
   buildSitemap,
+  eventEntries,
   SitemapArticle,
+  SitemapEvent,
   staticEntries,
 } from './sitemap';
 
@@ -131,6 +133,24 @@ async function fetchArticles(): Promise<SitemapArticle[]> {
   return collected;
 }
 
+/**
+ * Les évènements publiés, à venir et passés. Lève si l'API ne répond pas.
+ *
+ * Appel distinct des articles, et échec distinct : une API d'évènements indisponible ne doit pas
+ * priver le sitemap des articles, ni l'inverse.
+ */
+async function fetchEvents(): Promise<SitemapEvent[]> {
+  const response = await fetch(`${environment.blogApiUrl}/events`, {
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok) throw new Error(`API évènements: ${response.status}`);
+  const { upcoming = [], past = [] } = (await response.json()) as {
+    upcoming?: SitemapEvent[];
+    past?: SitemapEvent[];
+  };
+  return [...upcoming, ...past];
+}
+
 app.get('/sitemap.xml', async (_req, res) => {
   const now = Date.now();
   if (sitemapCache && sitemapCache.expiresAt > now) {
@@ -139,6 +159,14 @@ app.get('/sitemap.xml', async (_req, res) => {
   }
 
   const entries = staticEntries(environment.siteUrl);
+
+  // Les évènements d'abord, et sans bloquer : leur absence dégrade le fichier sans le rendre
+  // faux, elle ne justifie donc pas de le servir sans cache comme le fait l'échec des articles.
+  try {
+    entries.push(...eventEntries(await fetchEvents(), environment.siteUrl));
+  } catch (error) {
+    console.error('sitemap.xml : évènements indisponibles', error);
+  }
 
   try {
     const articles = await fetchArticles();

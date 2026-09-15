@@ -29,6 +29,11 @@ describe('serverRoutes', () => {
     expect(find('blog/:slug')?.renderMode).toBe(RenderMode.Server);
   });
 
+  it('les pages évènements sont rendues à la demande (sinon le joker les servirait en 404)', () => {
+    expect(find('evenements')?.renderMode).toBe(RenderMode.Server);
+    expect(find('evenements/:slug')?.renderMode).toBe(RenderMode.Server);
+  });
+
   it('l’admin et la désinscription restent en rendu client', () => {
     expect(find('admin')?.renderMode).toBe(RenderMode.Client);
     expect(find('admin/**')?.renderMode).toBe(RenderMode.Client);

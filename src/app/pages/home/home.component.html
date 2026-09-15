@@ -10,35 +10,50 @@
   <main>
     <app-landing-section id="main-content"></app-landing-section>
 
-    @defer (on idle) {
+    <!--
+      `hydrate on idle` en plus de `on idle` : les deux triggers ne jouent pas au même moment.
+
+      `on idle` commande le rendu **client** — il reste utile quand la page est atteinte par
+      navigation interne, sans passer par le serveur. `hydrate on idle` commande l'hydratation
+      de ce que le **serveur** a déjà rendu.
+
+      Sans le second, le serveur ne produisait que le placeholder de chaque bloc : le HTML servi
+      de l'accueil se limitait à 235 mots visibles, sans tarifs, sans FAQ, sans le JSON-LD
+      `FAQPage` que pose `faq.component.ts`. Tout n'apparaissait qu'une fois le JavaScript
+      exécuté — ce que les crawlers IA ne font pas.
+
+      Le compromis initial est préservé : le contenu part dans le document, mais les chunks ne
+      sont téléchargés et hydratés qu'au repos du navigateur.
+    -->
+    @defer (on idle; hydrate on idle) {
       <app-activity-steps id="etapes" class="scroll-anchor"></app-activity-steps>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-tool id="outils" class="scroll-anchor"></app-tool>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-media-press id="presse" class="scroll-anchor"></app-media-press>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-customer-reviews id="avis" class="scroll-anchor"></app-customer-reviews>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-tarif id="offres" class="scroll-anchor"></app-tarif>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-faq id="faq" class="scroll-anchor"></app-faq>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-download-apps id="app" class="scroll-anchor"></app-download-apps>
     }
 
-    @defer (on idle) {
+    @defer (on idle; hydrate on idle) {
       <app-email id="newsletter" class="scroll-anchor"></app-email>
     }
   </main>
@@ -47,7 +62,7 @@
 <!--    <app-follow-us></app-follow-us>-->
 <!--  }-->
 
-  @defer (on idle) {
+  @defer (on idle; hydrate on idle) {
     <app-footer></app-footer>
   }
 

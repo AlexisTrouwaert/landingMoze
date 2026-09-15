@@ -1,0 +1,755 @@
+<form class="ed" [formGroup]="form" (ngSubmit)="save()">
+  <header class="ed-bar">
+    <button
+      type="button"
+      class="btn btn--sm btn--icon btn--ghost"
+      (click)="cancel()"
+      title="Retour à la liste"
+      aria-label="Retour à la liste"
+    >
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <div class="ed-bar__id">
+      <h1 class="ed-bar__title">
+        <span class="ed-bar__name">
+          {{ form.controls.title.value || (isEdit() ? 'Sans titre' : 'Nouvel évènement') }}
+        </span>
+        <span
+          class="badge"
+          [class.badge--published]="effectiveStatus() === 'PUBLISHED' || effectiveStatus() === 'FULL'"
+          [class.badge--warn]="effectiveStatus() === 'POSTPONED' || effectiveStatus() === 'CANCELLED'"
+        >
+          {{ statusLabel() }}
+        </span>
+      </h1>
+      <p class="ed-bar__hint">
+        @if (saved(); as message) {
+          {{ message }}
+        } @else if (dirty()) {
+          <span class="ed-bar__dot" aria-hidden="true"></span> Modifications non enregistrées
+        } @else if (isEdit()) {
+          Aucune modification en cours
+        }
+      </p>
+    </div>
+
+    <div class="ed-bar__actions">
+      <!-- Import d'un document Word, comme pour les articles : pré-remplit ce qu'il contient.
+           Réservé aux brouillons — écraser d'un clic la page d'un évènement annoncé serait trop
+           facile. -->
+      @if (isDraft()) {
+        <label class="btn btn--sm ed-import" [class.is-busy]="importing()">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M7 10l5 5 5-5M12 15V3" />
+          </svg>
+          <span class="btn__label">{{ importing() ? 'Lecture…' : 'Importer…' }}</span>
+          <input
+            type="file"
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            hidden
+            [disabled]="importing()"
+            (change)="onImportSelected($event)"
+          />
+        </label>
+      }
+
+      <button
+        type="button"
+        class="btn btn--sm btn--icon btn--ghost"
+        [class.is-open]="showPreview()"
+        [attr.aria-pressed]="showPreview()"
+        (click)="showPreview.set(!showPreview())"
+        title="Afficher l’aperçu"
+        aria-label="Afficher l’aperçu"
+      >
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
+
+      @if (isDraft()) {
+        <button type="submit" class="btn btn--sm" [disabled]="saving() || loading()">
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+        <button type="button" class="btn btn--sm btn--primary" [disabled]="saving() || loading()" (click)="publish()">
+          Publier
+        </button>
+      } @else {
+        <button type="submit" class="btn btn--sm btn--primary" [disabled]="saving() || loading()">
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (error(); as msg) {
+    <p class="adm-alert ed-alert" role="alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      {{ msg }}
+    </p>
+  }
+
+  <!-- Bilan d'import : ce qui a été lu, et ce qui a été laissé de côté. Ce qui manque encore pour
+       publier s'affiche, lui, en direct dans la carte « Publication ». -->
+  @if (importReport(); as report) {
+    <div class="ed-import-report" [class.has-missing]="report.issues.length" role="status">
+      <div class="ed-import-report__body">
+        <p class="ed-import-report__title">
+          Import terminé — {{ report.filled.length }}
+          {{ report.filled.length > 1 ? 'champs remplis' : 'champ rempli' }}
+        </p>
+        @if (report.filled.length) {
+          <p class="ed-import-report__note">{{ report.filled.join(', ') }}</p>
+        }
+        @if (report.issues.length) {
+          <p class="ed-import-report__missing">À vérifier :</p>
+          <ul class="ev-import-issues">
+            @for (issue of report.issues; track issue) { <li>{{ issue }}</li> }
+          </ul>
+        }
+        @if (report.images) {
+          <p class="ed-import-report__note">
+            Le document contient des images : elles ne sont pas importées, ajoutez l'image depuis la
+            carte « Image ».
+          </p>
+        }
+      </div>
+      <button
+        type="button"
+        class="btn btn--sm btn--ghost btn--icon"
+        title="Masquer le bilan d'import"
+        (click)="dismissImportReport()"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="ed-loading">Chargement de l’évènement…</p>
+  } @else {
+    <div class="ed-grid">
+      <!-- Colonne de rédaction : l'ouverture de la page, puis son corps. -->
+      <div class="ed-main">
+        <section class="card">
+          <label class="field">
+            <span class="sr-only">Titre de l’évènement</span>
+            <input
+              class="ed-title"
+              type="text"
+              formControlName="title"
+              maxlength="90"
+              placeholder="Titre de l’évènement"
+            />
+          </label>
+          @if (form.controls.title.touched && form.controls.title.invalid) {
+            <small class="field-error">Le titre est obligatoire (90 caractères max).</small>
+          }
+          <p class="hint">Le nom de l’évènement, pas celui du lieu.</p>
+
+          <span class="card__sep"></span>
+
+          <label class="field">
+            <span class="field__head">
+              <span class="field__label">Accroche</span>
+              <span class="counter" [class.counter--warn]="form.controls.tagline.value.length > 125">
+                {{ form.controls.tagline.value.length }}/140
+              </span>
+            </span>
+            <input
+              type="text"
+              formControlName="tagline"
+              maxlength="140"
+              placeholder="Une phrase : la promesse, pas la description"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field__head">
+              <span class="field__label">Résumé <small>— vignettes du listing et partages</small></span>
+              <span class="counter" [class.counter--warn]="form.controls.summary.value.length > 370">
+                {{ form.controls.summary.value.length }}/400
+              </span>
+            </span>
+            <textarea formControlName="summary" rows="3" maxlength="400"></textarea>
+          </label>
+        </section>
+
+        <section class="card card--flush">
+          <app-wysiwyg-editor formControlName="content"></app-wysiwyg-editor>
+        </section>
+
+        <!-- Qui organise (spec, rubrique 07 et section 04) -->
+        <section class="card">
+          <h2 class="card__title">Organisation</h2>
+
+          <div class="field">
+            <span class="field__label">Rôle de Moze</span>
+            <div class="adm-seg adm-seg--fill" role="group" aria-label="Rôle de Moze">
+              @for (r of rolesMoze; track r.value) {
+                <button
+                  type="button"
+                  class="adm-seg__btn"
+                  [class.is-active]="form.controls.roleMoze.value === r.value"
+                  [attr.aria-pressed]="form.controls.roleMoze.value === r.value"
+                  (click)="setRoleMoze(r.value)"
+                >
+                  {{ r.label }}
+                </button>
+              }
+            </div>
+            <p class="hint">{{ roleHint() }}</p>
+          </div>
+
+          <div class="ev-row">
+            <label class="field">
+              <span class="field__label">Organisateur <small>— Moze n’est pas toujours la valeur</small></span>
+              <input type="text" formControlName="organizerName" maxlength="150" />
+            </label>
+            <label class="field">
+              <span class="field__label">
+                Site
+                @if (form.controls.roleMoze.value === 'relais') { <small>— exigé pour un relais</small> }
+              </span>
+              <input type="url" formControlName="organizerUrl" maxlength="500" placeholder="https://…" />
+            </label>
+          </div>
+          @if (form.controls.organizerUrl.invalid) {
+            <small class="field-error">Adresse complète attendue, commençant par https://</small>
+          }
+
+          <div class="ev-row">
+            <label class="field">
+              <span class="field__label">Contact public <small>— e-mail ou téléphone</small></span>
+              <input type="text" formControlName="organizerContact" maxlength="200" />
+            </label>
+            <div class="field ev-logo">
+              <span class="field__label">Logo</span>
+              <span class="ev-logo__row">
+                @if (form.controls.organizerLogoUrl.value) {
+                  <img class="ev-logo__img" [src]="form.controls.organizerLogoUrl.value" alt="" />
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="form.controls.organizerLogoUrl.setValue(''); form.markAsDirty(); dirty.set(true)">Retirer</button>
+                } @else {
+                  <label class="btn btn--sm">
+                    {{ uploading() ? 'Envoi…' : 'Ajouter' }}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onLogoSelected($event)" />
+                  </label>
+                }
+              </span>
+            </div>
+          </div>
+
+          <span class="card__sep"></span>
+
+          <div class="ev-partners" formArrayName="partners">
+            <div class="field__head">
+              <span class="field__label">Partenaires et intervenants</span>
+              <button type="button" class="btn btn--sm" (click)="addPartner()">Ajouter</button>
+            </div>
+            @for (partner of form.controls.partners.controls; track partner; let i = $index; let last = $last) {
+              <div class="ev-partner" [formGroupName]="i">
+                <div class="ev-row">
+                  <label class="field ev-row__role">
+                    <span class="field__label">Rôle</span>
+                    <select formControlName="role">
+                      @for (r of partnerRoles; track r.value) {
+                        <option [value]="r.value">{{ r.label }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span class="field__label">Nom</span>
+                    <input type="text" formControlName="name" maxlength="150" />
+                  </label>
+                </div>
+                <div class="ev-row">
+                  <label class="field">
+                    <span class="field__label">
+                      {{ partner.controls.role.value === 'intervenant' ? 'Fonction ou sujet' : 'Précision' }}
+                    </span>
+                    <input type="text" formControlName="description" maxlength="200" />
+                  </label>
+                  <label class="field">
+                    <span class="field__label">Site</span>
+                    <input type="url" formControlName="url" maxlength="500" placeholder="https://…" />
+                  </label>
+                </div>
+                <div class="ev-partner__tools">
+                  @if (partner.controls.logoUrl.value) {
+                    <img class="ev-logo__img ev-logo__img--sm" [src]="partner.controls.logoUrl.value" alt="" />
+                    <button type="button" class="btn btn--sm btn--ghost" (click)="partner.controls.logoUrl.setValue(''); form.markAsDirty(); dirty.set(true)">Retirer le logo</button>
+                  } @else {
+                    <label class="btn btn--sm btn--ghost">
+                      Logo…
+                      <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onLogoSelected($event, i)" />
+                    </label>
+                  }
+                  <span class="ev-partner__spacer"></span>
+                  <button type="button" class="btn btn--sm btn--icon btn--ghost" [disabled]="i === 0" (click)="movePartner(i, -1)" title="Monter" aria-label="Monter">↑</button>
+                  <button type="button" class="btn btn--sm btn--icon btn--ghost" [disabled]="last" (click)="movePartner(i, 1)" title="Descendre" aria-label="Descendre">↓</button>
+                  <button type="button" class="btn btn--sm btn--danger" (click)="removePartner(i)">Retirer</button>
+                </div>
+                @if (partner.invalid && partner.touched) {
+                  <small class="field-error">Nom obligatoire ; site en adresse complète (https://…).</small>
+                }
+              </div>
+            } @empty {
+              <p class="hint">Lieu d’accueil, soutiens, médias, communautés invitées, intervenants.</p>
+            }
+          </div>
+        </section>
+
+        <!-- Inscription (spec, rubrique 09) -->
+        <section class="card">
+          <h2 class="card__title">Accès et inscription</h2>
+
+          <div class="ev-row">
+            <label class="field">
+              <span class="field__label">Accès</span>
+              <select formControlName="access">
+                <option value="">— Choisir —</option>
+                @for (a of accessOptions; track a.value) {
+                  <option [value]="a.value">{{ a.label }}</option>
+                }
+              </select>
+            </label>
+            @if (form.controls.access.value === 'payant') {
+              <label class="field ev-row__short">
+                <span class="field__label">Prix (€)</span>
+                <input type="text" formControlName="price" inputmode="decimal" placeholder="15" />
+              </label>
+            }
+          </div>
+          @if (form.controls.access.value === 'sur-invitation') {
+            <p class="hint">Un évènement sur invitation n’a pas de balisage Google : il n’est pas référencé comme évènement.</p>
+          }
+
+          <label class="field">
+            <span class="field__label">Mention tarifaire <small>— telle qu’affichée ; jamais « gratuit »</small></span>
+            <input type="text" formControlName="priceLabel" maxlength="120" placeholder="Entrée libre, sur inscription" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">
+              Billetterie
+              @if (form.controls.roleMoze.value === 'partenaire' || form.controls.roleMoze.value === 'relais') {
+                <small>— celle de l’organisateur : Moze ne prend pas les inscriptions d’un évènement qu’il n’organise pas</small>
+              }
+            </span>
+            <input type="url" formControlName="registrationUrl" maxlength="1000" placeholder="https://www.billetweb.fr/…" />
+          </label>
+          @if (form.controls.registrationUrl.invalid) {
+            <small class="field-error">Adresse complète attendue, commençant par https://</small>
+          }
+
+          <div class="ev-row">
+            <label class="field">
+              <span class="field__label">Jauge <small>— capacité réelle du lieu</small></span>
+              <input type="text" formControlName="capacity" inputmode="numeric" placeholder="90" />
+            </label>
+            <label class="field">
+              <span class="field__label">Objectif d’inscrits <small>— interne</small></span>
+              <input type="text" formControlName="registrationGoal" inputmode="numeric" placeholder="130" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="field__label">Date limite d’inscription <small>— heure de Paris</small></span>
+            <input type="datetime-local" formControlName="registrationDeadline" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Après l’inscription <small>— ce qu’on reçoit</small></span>
+            <textarea formControlName="registrationInfo" rows="2" maxlength="600" placeholder="Un e-mail de confirmation, puis un rappel la veille avec le plan d’accès."></textarea>
+          </label>
+        </section>
+      </div>
+
+      <!-- Colonne des réglages -->
+      <aside class="ed-side">
+        <!-- Publication et cycle de vie -->
+        <section class="card">
+          <h2 class="card__title">Publication</h2>
+
+          <label class="field">
+            <span class="field__label">Adresse de l'évènement</span>
+            <span class="slug">
+              <span class="slug__prefix">/evenements/</span>
+              <input
+                type="text"
+                formControlName="slug"
+                maxlength="120"
+                placeholder="générée depuis le type, le titre et la date"
+              />
+              <!-- Copie l'adresse AVEC le domaine : c'est celle-là qu'on colle dans un
+                   message, pas le slug seul. Un bouton dans un label n'en déclenche pas
+                   l'activation (contenu interactif), le champ ne prend donc pas le focus. -->
+              <button
+                type="button"
+                class="slug__copy"
+                [class.is-done]="urlCopied()"
+                [disabled]="!publicUrl()"
+                [title]="
+                  publicUrl()
+                    ? 'Copier ' + publicUrl()
+                    : 'Renseignez l’adresse pour pouvoir la copier'
+                "
+                [attr.aria-label]="urlCopied() ? 'Adresse copiée' : 'Copier l’adresse complète'"
+                (click)="copyPublicUrl()"
+              >
+                @if (urlCopied()) {
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="12" height="12" rx="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                }
+              </button>
+            </span>
+          </label>
+          <!-- Ce que l'article n'a pas à dire : l'adresse d'un évènement se calcule tant qu'on n'y
+               touche pas, et celle d'un évènement déjà en ligne a pu circuler. -->
+          @if (slugWillMove() || slugManual() || !publishedAt() || !isDraft()) {
+            <p class="hint">
+              @if (slugWillMove()) {
+                L’ancienne adresse redirigera vers la nouvelle.
+              } @else if (slugManual()) {
+                Saisie à la main. Videz le champ pour revenir à l’adresse calculée.
+              } @else if (!publishedAt()) {
+                Suit le type, le titre et la date tant que vous ne la modifiez pas.
+              }
+              @if (!isDraft() && slug(); as current) {
+                <a class="hint__link" [routerLink]="['/evenements', current]" target="_blank" rel="noopener">Voir la page</a>
+              }
+            </p>
+          }
+
+          @for (message of forbidden(); track message) {
+            <p class="ev-check ev-check--block">{{ message }}</p>
+          }
+          @if (warnings(); as list) {
+            @if (list.length) {
+              <div class="ev-check ev-check--warn">
+                <p class="ev-check__title">
+                  À vérifier <span class="ev-check__tag">non bloquant</span>
+                </p>
+                <!-- Sujet à gauche, action à droite ; l'explication au survol. Un sujet répété
+                     (plusieurs mots hors charte) ne s'écrit qu'une fois. -->
+                <ul class="ev-warn">
+                  @for (w of list; track w.topic + w.fix; let i = $index) {
+                    <li class="ev-warn__item" [attr.title]="w.why ?? null">
+                      <span class="ev-warn__topic">{{ i > 0 && list[i - 1].topic === w.topic ? '' : w.topic }}</span>
+                      <span class="ev-warn__fix">{{ w.fix }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          }
+
+          @if (isDraft()) {
+            @if (missing().length) {
+              <div class="ev-check">
+                <p class="ev-check__title">Pour publier, il manque :</p>
+                <ul class="ev-check__list">
+                  @for (item of missing(); track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </div>
+            } @else if (!forbidden().length) {
+              <p class="ev-check ev-check--ok">Tout ce qu’il faut pour publier est renseigné.</p>
+            }
+          } @else {
+            @if (effectiveStatus() === 'POSTPONED') {
+              <p class="hint">
+                Reporté{{ statusReason() ? ' : ' + statusReason() : '' }}
+                @if (previousDay()) { <br />Date d’origine : {{ previousDay() }}. }
+              </p>
+            }
+            @if (effectiveStatus() === 'CANCELLED') {
+              <p class="hint">Annulé{{ statusReason() ? ' : ' + statusReason() : '' }}</p>
+            }
+            @if (effectiveStatus() === 'PAST') {
+              <p class="hint">Passé : il figure dans les archives de la page évènements.</p>
+            }
+
+            @if (canChangeCourse()) {
+              <div class="ev-actions">
+                @if (effectiveStatus() === 'FULL') {
+                  <button type="button" class="btn btn--sm" [disabled]="saving()" (click)="markFull(false)">Rouvrir</button>
+                } @else if (effectiveStatus() === 'PUBLISHED') {
+                  <button type="button" class="btn btn--sm" [disabled]="saving()" (click)="markFull(true)">Marquer complet</button>
+                }
+                <button type="button" class="btn btn--sm" [class.is-open]="panel() === 'postpone'" [disabled]="saving()" (click)="openPanel('postpone')">Reporter…</button>
+                <button type="button" class="btn btn--sm btn--danger" [class.is-open]="panel() === 'cancel'" [disabled]="saving()" (click)="openPanel('cancel')">Annuler…</button>
+              </div>
+            }
+
+            @if (panel() === 'postpone') {
+              <div class="ev-panel" [formGroup]="postponeForm">
+                <p class="ev-panel__title">Reporter l’évènement</p>
+                <p class="hint">La date d’origine reste affichée sur la page, avec le motif.</p>
+                <label class="field">
+                  <span class="field__label">Nouveau début <small>— heure de Paris</small></span>
+                  <input type="datetime-local" formControlName="start" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Nouvelle fin</span>
+                  <input type="datetime-local" formControlName="end" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Motif <small>— affiché tel quel</small></span>
+                  <textarea formControlName="reason" rows="2" maxlength="300"></textarea>
+                </label>
+                @if (postponeForm.touched && postponeForm.invalid) {
+                  <small class="field-error">Les deux dates et le motif sont obligatoires.</small>
+                }
+                <div class="ev-panel__actions">
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="panel.set(null)">Fermer</button>
+                  <button type="button" class="btn btn--sm btn--primary" [disabled]="saving()" (click)="confirmPostpone()">Confirmer le report</button>
+                </div>
+              </div>
+            }
+
+            @if (panel() === 'cancel') {
+              <div class="ev-panel ev-panel--danger" [formGroup]="cancelForm">
+                <p class="ev-panel__title">Annuler l’évènement</p>
+                <p class="hint">La page reste en ligne, avec un bandeau et le motif.</p>
+                <label class="field">
+                  <span class="field__label">Motif <small>— affiché tel quel</small></span>
+                  <textarea formControlName="reason" rows="2" maxlength="300"></textarea>
+                </label>
+                @if (cancelForm.touched && cancelForm.invalid) {
+                  <small class="field-error">Le motif est obligatoire.</small>
+                }
+                <div class="ev-panel__actions">
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="panel.set(null)">Fermer</button>
+                  <button type="button" class="btn btn--sm btn--danger" [disabled]="saving()" (click)="confirmCancel()">Confirmer l’annulation</button>
+                </div>
+              </div>
+            }
+
+            <button type="button" class="ev-link" [disabled]="saving()" (click)="unpublishOpen.set(true)">
+              Repasser en brouillon
+            </button>
+          }
+        </section>
+
+        <!-- Type et dates -->
+        <section class="card">
+          <h2 class="card__title">Type et date</h2>
+          <label class="field">
+            <span class="field__label">Type</span>
+            <select formControlName="type">
+              <option value="">— Choisir —</option>
+              @for (t of types; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </label>
+          @if (form.controls.type.value === 'autre') {
+            <label class="field">
+              <span class="field__head">
+                <span class="field__label">Nom du type <small>— affiché au-dessus du titre</small></span>
+                <span class="counter" [class.counter--warn]="form.controls.typeLabel.value.length > typeLabelMax - 5">
+                  {{ form.controls.typeLabel.value.length }}/{{ typeLabelMax }}
+                </span>
+              </span>
+              <input
+                type="text"
+                formControlName="typeLabel"
+                [attr.maxlength]="typeLabelMax"
+                placeholder="Soirée jeux, visite d’entreprise…"
+              />
+            </label>
+          }
+          <label class="field">
+            <span class="field__label">Début <small>— heure de Paris</small></span>
+            <input type="datetime-local" formControlName="start" />
+          </label>
+          @if (!isDraft()) {
+            <p class="hint">Pour changer la date d’un évènement publié, reportez-le.</p>
+          }
+          <label class="field">
+            <span class="field__label">Fin</span>
+            <input type="datetime-local" formControlName="end" />
+          </label>
+        </section>
+
+        <!-- Lieu -->
+        <section class="card">
+          <h2 class="card__title">Lieu</h2>
+          <div class="adm-seg adm-seg--fill" role="group" aria-label="Mode de participation">
+            @for (m of modes; track m.value) {
+              <button
+                type="button"
+                class="adm-seg__btn"
+                [class.is-active]="form.controls.mode.value === m.value"
+                [attr.aria-pressed]="form.controls.mode.value === m.value"
+                (click)="setMode(m.value)"
+              >
+                {{ m.label }}
+              </button>
+            }
+          </div>
+
+          @if (isOnline()) {
+            <p class="hint">Un évènement entièrement en ligne n’a pas d’adresse, ni d’infos pratiques.</p>
+          } @else {
+            <label class="field">
+              <span class="field__label">Nom du lieu</span>
+              <input type="text" formControlName="venueName" maxlength="150" placeholder="Le 9 — Living Lab d’Agroparc" />
+            </label>
+            <label class="field">
+              <span class="field__label">Rue <small>— exigée par Google</small></span>
+              <input type="text" formControlName="street" maxlength="200" />
+            </label>
+            <div class="ev-row">
+              <label class="field ev-row__short">
+                <span class="field__label">Code postal</span>
+                <input type="text" formControlName="postalCode" maxlength="20" inputmode="numeric" />
+              </label>
+              <label class="field">
+                <span class="field__label">Ville</span>
+                <input type="text" formControlName="city" maxlength="100" />
+              </label>
+            </div>
+            <div class="ev-row">
+              <label class="field">
+                <span class="field__label">Région</span>
+                <input type="text" formControlName="region" maxlength="100" placeholder="Vaucluse" />
+              </label>
+              <label class="field ev-row__short">
+                <span class="field__label">Pays</span>
+                <input type="text" formControlName="country" maxlength="2" placeholder="FR" />
+              </label>
+            </div>
+            @if (form.controls.country.invalid) {
+              <small class="field-error">Le pays s’écrit en code à deux lettres : FR, BE, CH…</small>
+            }
+            <label class="field">
+              <span class="field__label">Accès <small>— parking, transports, repères</small></span>
+              <textarea formControlName="accessInfo" rows="3" maxlength="1000"></textarea>
+            </label>
+            <label class="ev-checkbox">
+              <input type="checkbox" class="adm-check" formControlName="wheelchairAccessible" />
+              Lieu accessible aux personnes à mobilité réduite
+            </label>
+
+            <label class="field">
+              <span class="field__label">Lien Google Maps <small>— facultatif</small></span>
+              <input
+                type="url"
+                formControlName="mapUrl"
+                placeholder="https://maps.app.goo.gl/…"
+                [attr.aria-invalid]="form.controls.mapUrl.invalid"
+              />
+            </label>
+            @if (form.controls.mapUrl.invalid && (form.controls.mapUrl.touched || form.controls.mapUrl.dirty)) {
+              <small class="field-error">
+                Collez un lien Google Maps : bouton « Partager » de Maps, ou l’adresse de la page.
+              </small>
+            } @else {
+              <p class="hint">
+                Sans lien, le bouton « Voir sur Google Maps » cherche l’adresse.
+                @if (form.controls.mapUrl.value && form.controls.mapUrl.valid) {
+                  <a class="hint__link" [href]="form.controls.mapUrl.value" target="_blank" rel="noopener noreferrer">Tester le lien</a>
+                }
+              </p>
+            }
+          }
+        </section>
+
+        <!-- Image -->
+        <section class="card">
+          <h2 class="card__title">Image</h2>
+
+          @if (form.controls.coverImageUrl.value) {
+            <div class="cover">
+              <img class="cover__img" [src]="form.controls.coverImageUrl.value" alt="Aperçu de l’image" (load)="onCoverLoaded($event)" />
+              <span class="cover__actions">
+                <label class="btn btn--sm cover__replace">
+                  {{ uploading() ? 'Envoi…' : 'Remplacer' }}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onCoverSelected($event)" />
+                </label>
+                <button type="button" class="btn btn--sm btn--danger" (click)="removeCover()">Retirer</button>
+              </span>
+            </div>
+
+            <label class="field">
+              <span class="field__label">
+                Texte alternatif <small>— décrivez l’image</small>
+              </span>
+              <input
+                type="text"
+                formControlName="coverImageAlt"
+                maxlength="300"
+                placeholder="Des indépendants échangent autour d’un buffet"
+              />
+            </label>
+          } @else {
+            <label class="dropzone" [class.is-busy]="uploading()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="8.5" cy="9.5" r="1.5" />
+                <path d="m4 17 5-5 4 4 2-2 5 5" />
+              </svg>
+              <span class="dropzone__label">
+                {{ uploading() ? 'Envoi en cours…' : 'Ajouter une image' }}
+              </span>
+              <span class="dropzone__hint">JPG, PNG ou WebP · 5 Mo max · 1920 px de large au moins</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onCoverSelected($event)" />
+            </label>
+          }
+        </section>
+      </aside>
+    </div>
+
+    @if (showPreview()) {
+      <section class="card ed-preview" aria-label="Aperçu de l’évènement">
+        <header class="ed-preview__bar">
+          <span class="card__title">Aperçu</span>
+          <span class="hint">Tel qu’il apparaîtra sur sa page</span>
+        </header>
+        <div class="ed-preview__surface">
+          <div class="ed-preview__page">
+            <app-event-view [event]="previewEvent()" />
+          </div>
+        </div>
+      </section>
+    }
+  }
+</form>
+
+<app-confirm-dialog
+  [open]="unpublishOpen()"
+  title="Repasser en brouillon ?"
+  [message]="unpublishMessage"
+  confirmLabel="Repasser en brouillon"
+  [danger]="true"
+  (confirmed)="confirmUnpublish()"
+  (cancelled)="unpublishOpen.set(false)"
+/>
+
+<app-confirm-dialog
+  [open]="leaveOpen()"
+  title="Quitter sans enregistrer ?"
+  [message]="leaveMessage"
+  confirmLabel="Quitter"
+  [danger]="true"
+  (confirmed)="confirmLeave()"
+  (cancelled)="leaveOpen.set(false)"
+/>

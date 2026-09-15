@@ -125,6 +125,9 @@
 .dd-panel.is-open .dd-link:nth-child(3) { transition-delay: 0.13s; }
 .dd-panel.is-open .dd-link:nth-child(4) { transition-delay: 0.17s; }
 .dd-panel.is-open .dd-link:nth-child(5) { transition-delay: 0.21s; }
+/* « Découvrir » compte six entrées depuis la scission du menu : sans cette ligne, la
+   dernière apparaissait sans délai et cassait la cascade. */
+.dd-panel.is-open .dd-link:nth-child(6) { transition-delay: 0.25s; }
 
 .dd-ic {
   width: 38px;
@@ -448,12 +451,24 @@
   &:focus-visible { outline: 3px solid var(--interaction-color); outline-offset: 3px; }
 }
 
-/* Tablette (761–950px) : la barre porte encore la nav ET les deux boutons, et la
-   place manque — mesuré à 762px, le contenu déborde de la pilule (c'était déjà le
-   cas avant l'ajout de « Déjà inscrit ? », de 9px). Tout se resserre d'un cran et
-   le bouton de connexion se réduit à son icône ; son nom accessible est porté par
-   `aria-label`. Doit rester AVANT la règle 760px, qui reprend la main sur mobile. */
-@media (max-width: 950px) {
+/* Tablette et petit portable (981–1280px) : la barre porte encore la nav ET les deux
+   boutons, et la place manque. Tout se resserre d'un cran et le bouton de connexion se
+   réduit à son icône ; son nom accessible est porté par `aria-label`. Doit rester AVANT
+   la règle 980px, qui reprend la main sur mobile.
+
+   Seuil relevé de 950 à 1150px le 08/09/2026, à la scission du menu en deux déroulants.
+   « Solutions » et « Tarifs » ont allongé la barre d'environ 170px : en mode plein elle
+   réclame désormais 1117px, si bien qu'entre 950 et 1117px le CTA sortait de la pilule
+   et se retrouvait tronqué (mesuré : 85px de débordement à 1000px). Le mode resserré,
+   lui, ne demande que 915px — le relèvement suffit donc, sans toucher au contenu de la
+   barre. Toute nouvelle entrée dans la barre impose de refaire cette mesure.
+
+   Relevé de 1150 à 1280px le 14/09/2026, à l'ajout du lien « Évènements » (115px en mode
+   plein, 96px resserré). Mesuré sur /tarifs, barre complète (connexion + CTA) : la pilule
+   réclame 1177px en mode plein, et elle mesure la largeur de fenêtre moins 79px — il faut donc
+   1256px de fenêtre. À 1151px, le CTA débordait de 110px. 1280 laisse une vingtaine de pixels
+   de marge pour les écarts de rendu de police. */
+@media (max-width: 1280px) {
   .dock { padding: 0.55rem 0.55rem 0.55rem 0.8rem; gap: 0.35rem; }
   .dock-logo img { height: 26px; }
   .dock-nav { margin-left: 0.15rem; gap: 0; }
@@ -469,8 +484,18 @@
   }
 }
 
-/* Mobile : la nav horizontale et le CTA de barre laissent place au burger + drawer */
-@media (max-width: 760px) {
+/* Mobile : la nav horizontale et le CTA de barre laissent place au burger + drawer.
+
+   Seuil relevé de 760 à 860px le 08/09/2026. Même en mode resserré, la barre réclame
+   environ 811px : elle débordait donc entre 761 et 810px — mesuré à 31px de trop à
+   780px. Le défaut préexistait (le commentaire ci-dessus le notait déjà, à 9px près en
+   762px), la scission du menu l'a simplement rendu visible. Sous 860px, le burger
+   reprend la main et la question ne se pose plus.
+
+   Relevé de 860 à 980px le 14/09/2026, avec le lien « Évènements » : en mode resserré la
+   pilule réclame désormais 881px, soit 960px de fenêtre — à 861px elle débordait de 103px
+   (et déjà de 7px sans le lien). 980 garde une vingtaine de pixels de marge. */
+@media (max-width: 980px) {
   :host { padding: 0 1rem; }
   .dock { padding: 0.5rem 0.6rem 0.5rem 0.9rem; gap: 0.3rem; }
   .dock-logo img { height: 26px; }

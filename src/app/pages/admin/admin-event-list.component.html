@@ -1,0 +1,233 @@
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M8 3v4M16 3v4M3 10h18" />
+        </svg>
+      </span>
+      <div>
+        <h1>Évènements</h1>
+        @if (!loading()) {
+          <p class="adm-head__sub">
+            {{ items().length }} évènement{{ items().length > 1 ? 's' : '' }} ·
+            {{ activeCount() }}/{{ maxActive }} en ligne
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="adm-head__actions">
+      <a class="btn btn--ghost" routerLink="/admin/blog">Articles</a>
+      <a class="btn btn--ghost" routerLink="/admin/evenements/coller">Coller</a>
+      <a
+        class="btn btn--icon btn--ghost"
+        routerLink="/evenements"
+        target="_blank"
+        rel="noopener"
+        title="Voir la page évènements"
+        aria-label="Voir la page évènements"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <path d="M15 3h6v6M10 14 21 3" />
+        </svg>
+      </a>
+      <a
+        class="btn btn--icon btn--ghost"
+        routerLink="/admin/compte"
+        title="Mon compte"
+        aria-label="Mon compte"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </a>
+      <button
+        type="button"
+        class="btn btn--icon btn--ghost btn--danger-hover"
+        (click)="logout()"
+        title="Déconnexion"
+        aria-label="Déconnexion"
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="m16 17 5-5-5-5M21 12H9" />
+        </svg>
+      </button>
+      <a class="btn btn--primary" routerLink="/admin/evenements/new">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        <span class="btn__label">Nouvel évènement</span>
+      </a>
+    </div>
+  </header>
+
+  <p class="ev-rule">
+    @if (maxActive === 1) {
+      Un seul évènement est en ligne à la fois. Pour en publier un autre, annulez l’actuel ou attendez qu’il soit passé.
+    } @else {
+      {{ maxActive }} évènements au plus sont en ligne à la fois.
+    }
+    Une page publiée ne disparaît pas : elle devient complète, reportée, annulée ou passée.
+  </p>
+
+  @if (loadError()) {
+    <p class="adm-alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      Le chargement a échoué.
+      <button type="button" (click)="reload()">Réessayer</button>
+    </p>
+  }
+
+  @if (actionError(); as msg) {
+    <p class="adm-alert">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+      </svg>
+      {{ msg }}
+    </p>
+  }
+
+  <section class="adm-list">
+    @if (loading()) {
+      <p class="adm-list__state">Chargement des évènements…</p>
+    } @else if (!loadError() && items().length === 0) {
+      <div class="adm-empty">
+        <span class="adm-empty__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M8 3v4M16 3v4M3 10h18" />
+          </svg>
+        </span>
+        <p class="adm-empty__title">Aucun évènement</p>
+        <p class="adm-empty__hint">Créez le premier : il reste en brouillon, invisible du site, tant que vous ne l’avez pas publié.</p>
+        <a class="btn btn--primary" routerLink="/admin/evenements/new">Nouvel évènement</a>
+      </div>
+    } @else {
+      @for (event of items(); track event.id) {
+        <div class="row" [class.row--busy]="busyId() === event.id">
+          <span class="row__thumb" aria-hidden="true">
+            @if (event.coverImageUrl) {
+              <img [src]="event.coverImageUrl" alt="" loading="lazy" />
+            } @else {
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M8 3v4M16 3v4M3 10h18" />
+              </svg>
+            }
+          </span>
+
+          <span class="row__main">
+            <a class="row__title" [routerLink]="['/admin/evenements', event.id, 'edit']" [title]="event.title">
+              {{ event.title }}
+            </a>
+            <span class="row__meta">
+              {{ typeLabel(event) }} · {{ schedule(event) }}
+              @if (event.mode === 'en-ligne') { · en ligne }
+              @else if (event.city) { · {{ event.city }} }
+            </span>
+          </span>
+
+          <span
+            class="badge"
+            [class.badge--published]="badgeTone(event) === 'ok'"
+            [class.badge--warn]="badgeTone(event) === 'warn'"
+          >
+            {{ statusLabels[event.effectiveStatus] }}
+          </span>
+
+          <span class="row__actions">
+            @if (event.status === 'DRAFT') {
+              <button
+                type="button"
+                class="btn btn--sm btn--primary row__cta"
+                [disabled]="busyId() !== null"
+                (click)="publish(event)"
+              >
+                Publier
+              </button>
+            } @else {
+              <a
+                class="btn btn--sm row__cta"
+                [routerLink]="['/evenements', event.slug]"
+                target="_blank"
+                rel="noopener"
+              >
+                Voir
+              </a>
+            }
+            <a
+              class="btn btn--sm btn--icon"
+              [routerLink]="['/admin/evenements', event.id, 'edit']"
+              title="Modifier"
+              [attr.aria-label]="'Modifier : ' + event.title"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </a>
+
+            <span class="row__more">
+              <button
+                type="button"
+                class="btn btn--sm btn--icon btn--ghost"
+                [class.is-open]="openMenu() === event.id"
+                (click)="toggleMenu(event.id)"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="openMenu() === event.id"
+                [attr.aria-label]="'Autres actions pour ' + event.title"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-hidden="true">
+                  <circle cx="5" cy="12" r="1.6" />
+                  <circle cx="12" cy="12" r="1.6" />
+                  <circle cx="19" cy="12" r="1.6" />
+                </svg>
+              </button>
+
+              @if (openMenu() === event.id) {
+                <span class="adm-menu__backdrop" (click)="openMenu.set(null)"></span>
+                <span class="adm-menu" role="menu">
+                  @if (event.status === 'DRAFT') {
+                    <button type="button" role="menuitem" class="adm-menu__item adm-menu__item--danger" (click)="ask('delete', event)">
+                      Supprimer le brouillon
+                    </button>
+                  } @else {
+                    @if (event.effectiveStatus === 'PUBLISHED') {
+                      <button type="button" role="menuitem" class="adm-menu__item" (click)="markFull(event, true)">Marquer complet</button>
+                    }
+                    @if (event.effectiveStatus === 'FULL') {
+                      <button type="button" role="menuitem" class="adm-menu__item" (click)="markFull(event, false)">Rouvrir</button>
+                    }
+                    @if (canChangeCourse(event)) {
+                      <button type="button" role="menuitem" class="adm-menu__item" (click)="openLifecycle(event, 'postpone')">Reporter…</button>
+                      <button type="button" role="menuitem" class="adm-menu__item adm-menu__item--danger" (click)="openLifecycle(event, 'cancel')">Annuler…</button>
+                      <span class="adm-menu__sep"></span>
+                    }
+                    <button type="button" role="menuitem" class="adm-menu__item" (click)="ask('unpublish', event)">Repasser en brouillon</button>
+                  }
+                </span>
+              }
+            </span>
+          </span>
+        </div>
+      }
+    }
+  </section>
+</div>
+
+<app-confirm-dialog
+  [open]="pending() !== null"
+  [title]="confirmTitle()"
+  [message]="confirmMessage()"
+  [confirmLabel]="pending()?.kind === 'delete' ? 'Supprimer' : 'Repasser en brouillon'"
+  [danger]="true"
+  (confirmed)="onConfirm()"
+  (cancelled)="pending.set(null)"
+/>

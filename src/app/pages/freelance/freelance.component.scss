@@ -1,0 +1,396 @@
+@use '../../../styles/silo-motion' as motion;
+@use '../../../styles/silo-theme' as theme;
+
+/* =========================================
+   === HOST & VARIABLES ===
+   Direction « doux et arrondi », partagée par les six pages du silo.
+   ========================================= */
+:host {
+  --moze-green: #6BD498;
+  --fl-ink: #{theme.$encre-titre};
+  --fl-ink-soft: #{theme.$encre-corps};
+  --fl-ink-muted: #{theme.$encre-douce};
+
+  display: block;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+/* =========================================
+   === LAYOUT ===
+   ========================================= */
+.fl-page {
+  --fl-max: 860px;
+
+  padding: 6.5rem 1.5rem 0;
+  color: var(--fl-ink-soft);
+  line-height: 1.7;
+}
+
+main {
+  max-width: var(--fl-max);
+  margin: 0 auto;
+}
+
+.crumbs {
+  max-width: var(--fl-max);
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+  color: var(--fl-ink-muted);
+
+  &__link {
+    color: var(--fl-ink-muted);
+    text-decoration: none;
+
+    &:hover { color: var(--fl-ink); text-decoration: underline; }
+  }
+
+  &__sep { margin: 0 0.5rem; opacity: 0.5; }
+  &__here { color: var(--fl-ink-soft); font-weight: 600; }
+}
+
+/* =========================================
+   === HAUT DE PAGE ===
+   ========================================= */
+.fl-hero {
+  @include theme.tinted-block();
+  padding: 2.6rem 2.4rem 2.8rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  @include theme.pill();
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  line-height: 1.15;
+  font-weight: 800;
+  color: theme.$encre-titre;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.3rem;
+}
+
+.lede {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: theme.$encre-corps;
+}
+
+/* =========================================
+   === SOMMAIRE ===
+   Sur une page-carrefour, il vaut le déroulé linéaire : le lecteur arrive avec
+   un problème précis, pas pour tout lire.
+   ========================================= */
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 3.5rem;
+
+  &__item {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: theme.$encre-verte;
+    text-decoration: none;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 0.5rem 1.05rem;
+    box-shadow: theme.$ombre-carte;
+    transition: transform 0.15s ease;
+
+    &:hover { transform: translateY(-2px); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc__item { transition: none; }
+  .toc__item:hover { transform: none; }
+}
+
+/* =========================================
+   === THÈMES ===
+   ========================================= */
+.fl-theme {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.4rem, 3.1vw, 1.9rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1rem;
+  }
+
+  /* Le problème est posé avant la réponse, et se lit différemment : c'est la
+     phrase dans laquelle le lecteur doit se reconnaître. */
+  &__probleme {
+    font-size: 1.03rem;
+    color: theme.$encre-titre;
+    margin-bottom: 0.9rem;
+  }
+
+  &__reponse {
+    font-size: 0.96rem;
+    color: theme.$encre-corps;
+    margin-bottom: 1.3rem;
+  }
+}
+
+.highlight-green { color: #35a06a; }
+
+/* =========================================
+   === RESSOURCES ===
+   ========================================= */
+.res-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.res {
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 0.85rem 1.1rem;
+    text-decoration: none;
+    color: theme.$encre-titre;
+    box-shadow: theme.$ombre-carte;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: theme.$ombre-survol;
+
+      .res__arrow { opacity: 1; }
+    }
+  }
+
+  /* Distinguer article et page : le lecteur sait s'il part vers une lecture ou
+     vers une réponse complète, avant de cliquer. */
+  &__tag {
+    flex: 0 0 auto;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.24rem 0.6rem;
+    border-radius: 999px;
+    background: #eef4f0;
+    color: theme.$encre-douce;
+
+    &--page {
+      background: theme.$tint-pastille;
+      color: theme.$encre-verte;
+    }
+  }
+
+  &__label {
+    flex: 1 1 auto;
+    font-size: 0.93rem;
+    font-weight: 600;
+  }
+
+  &__arrow {
+    flex: 0 0 auto;
+    color: #35a06a;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .res__link, .res__arrow { transition: none; }
+  .res__link:hover { transform: none; }
+}
+
+/* =========================================
+   === SECTION GÉNÉRIQUE (FAQ) ===
+   ========================================= */
+.fl-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.4rem, 3.1vw, 1.9rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.1rem;
+  }
+}
+
+/* =========================================
+   === FAQ ===
+   ========================================= */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.faq-item {
+  @include theme.soft-card(16px);
+  @include motion.faq-transition();
+  overflow: hidden;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+
+    h3 {
+      margin-bottom: 0;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: theme.$encre-titre;
+    }
+
+    &:hover h3 { color: var(--interaction-color); }
+  }
+
+  &[open] summary { padding-bottom: 0.6rem; }
+  &[open] .faq-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
+}
+
+/* Fermé, le chevron pointe vers le BAS — le sens qui annonce « ceci se déplie ». */
+.faq-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid theme.$encre-douce;
+  border-bottom: 2px solid theme.$encre-douce;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
+
+.faq-answer {
+  padding: 0 1.4rem 1.3rem;
+  font-size: 0.94rem;
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; }
+}
+
+/* =========================================
+   === APPEL À L'ACTION ===
+   ========================================= */
+.fl-cta {
+  @include theme.tinted-block();
+  padding: 2.8rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    color: theme.$encre-corps;
+    font-size: 0.98rem;
+    max-width: 500px;
+    margin: 0 auto 1.6rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover { transform: translateY(-2px); background: var(--interaction-color); }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* =========================================
+   === RESPONSIVE ===
+   ========================================= */
+@media (max-width: 600px) {
+  .fl-page { padding-top: 5.5rem; }
+
+  .fl-hero { padding: 1.8rem 1.4rem 2rem; border-radius: 20px; }
+  .toc { margin-bottom: 2.5rem; }
+  .fl-theme { margin-bottom: 3rem; }
+
+  .res__link { flex-wrap: wrap; gap: 0.5rem 0.7rem; }
+  .res__label { flex: 1 1 100%; }
+  .res__arrow { display: none; }
+
+  .fl-cta { padding: 2rem 1.3rem; }
+  .fl-cta__actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   === MOUVEMENT ===
+   ========================================= */
+.fl-hero {
+  .eyebrow { @include motion.enter(0); }
+  h1       { @include motion.enter(1); }
+  .lede    { @include motion.enter(2); }
+}
+
+/* Le sommaire entre avec le haut de page : c'est lui qui oriente le lecteur
+   arrivé avec un problème précis. */
+.toc { @include motion.enter(3); }
+
+.fl-theme__probleme,
+.res,
+.faq-item,
+.fl-cta { @include motion.reveal(18px); }

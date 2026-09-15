@@ -1,0 +1,238 @@
+@use './admin-ui' as *;
+
+// vignette / évènement / statut / actions
+$row-grid: 40px minmax(0, 1fr) 80px auto;
+
+.adm-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 6rem;
+  color: var(--adm-ink-900);
+}
+
+// -------------------------------------------------------------
+// En-tête — même gabarit que la liste des articles
+// -------------------------------------------------------------
+.adm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--adm-line);
+
+  &__id {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  &__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-ink-700);
+    color: #fff;
+  }
+
+  h1 {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    margin-top: 0.1rem;
+    color: var(--adm-ink-400);
+    font-size: 0.82rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
+
+// La règle du « un seul en ligne » dite une fois, là où l'on décide de publier.
+.ev-rule {
+  margin: 1rem 0 0;
+  color: var(--adm-ink-500);
+  font-size: 0.86rem;
+}
+
+.adm-alert {
+  margin-top: 0.9rem;
+}
+
+// -------------------------------------------------------------
+// Liste
+// -------------------------------------------------------------
+.adm-list {
+  margin-top: 0.9rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+
+  &__state {
+    padding: 2rem 1rem;
+    color: var(--adm-ink-400);
+    font-size: 0.88rem;
+    text-align: center;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: $row-grid;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 0.6rem 0.95rem;
+  border-bottom: 1px solid var(--adm-line);
+  transition:
+    background var(--adm-t),
+    opacity var(--adm-t);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--adm-surface-alt);
+  }
+
+  &--busy {
+    opacity: 0.6;
+  }
+
+  &__thumb {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-surface-hover);
+    color: var(--adm-ink-300);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__title {
+    overflow: hidden;
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.92rem;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--adm-blue);
+    }
+  }
+
+  &__meta {
+    overflow: hidden;
+    color: var(--adm-ink-400);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+
+  // « Publier » et « Voir » dans la même boîte : les icônes restent alignées d'une ligne
+  // à l'autre.
+  &__cta {
+    width: 84px;
+  }
+
+  &__more {
+    position: relative;
+    display: inline-flex;
+
+    .is-open {
+      background: var(--adm-surface-hover);
+    }
+
+    .adm-menu {
+      top: calc(100% + 4px);
+      right: 0;
+    }
+  }
+
+  // Mobile : la ligne devient une carte, actions en dessous.
+  @media (max-width: 640px) {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+
+    &__actions {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Liste vide
+// -------------------------------------------------------------
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.4rem;
+    border-radius: 50%;
+    background: var(--adm-surface-hover);
+    color: var(--adm-ink-300);
+  }
+
+  &__title {
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.95rem;
+  }
+
+  &__hint {
+    max-width: 38ch;
+    color: var(--adm-ink-400);
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    margin-top: 0.8rem;
+  }
+}

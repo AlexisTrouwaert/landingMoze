@@ -1,0 +1,188 @@
+// Les jetons `--adm-*` sont posés sur l'hôte des pages d'administration (cf. `_admin-ui.scss`)
+// et descendent par héritage jusqu'ici : ce composant ne vit qu'à l'intérieur de l'admin, il
+// n'a donc pas à les redéclarer.
+
+:host {
+  display: block;
+}
+
+.slots {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &__row {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    border: 1px solid var(--adm-line);
+    border-radius: 9px;
+    background: var(--adm-surface);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+
+    &:hover {
+      background: var(--adm-surface-hover);
+      border-color: var(--adm-line-strong);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+
+    // Quatre états, quatre signaux qui ne se confondent pas : une icône, une couleur, un
+    // liseré. Le texte seul ne se voyait pas.
+
+    // En place aujourd'hui : neutre, c'est l'état de repos.
+    &.is-current .slots__icon {
+      background: var(--adm-blue-soft);
+      color: var(--adm-ink-700);
+    }
+
+    // Arrivant : ambre, liseré marqué. Il n'est pas encore là, et ça doit se voir.
+    &.is-arriving {
+      border-left: 3px solid var(--adm-amber);
+
+      .slots__icon {
+        background: var(--adm-amber-soft);
+        color: var(--adm-amber);
+      }
+      .slots__state {
+        color: var(--adm-amber);
+        font-weight: 600;
+      }
+    }
+
+    // Sortant : rouge plein. C'est la conséquence du clic, elle prime sur tout le reste.
+    &.is-leaving {
+      border-color: var(--adm-red);
+      border-left: 3px solid var(--adm-red);
+      background: var(--adm-red-soft);
+
+      .slots__title {
+        color: var(--adm-red);
+        text-decoration: line-through;
+      }
+      .slots__icon {
+        background: var(--adm-red);
+        color: #fff;
+      }
+      .slots__state {
+        color: var(--adm-red);
+        font-weight: 600;
+      }
+    }
+
+    // Retenu par un autre article du lot : grisé et inerte plutôt que masqué. Voir la place
+    // occupée, et par qui, vaut mieux qu'une liste qui rétrécit sans explication.
+    &.is-taken {
+      background: var(--adm-surface-alt);
+      border-left: 3px solid var(--adm-line-strong);
+      cursor: not-allowed;
+
+      .slots__title {
+        color: var(--adm-ink-300);
+        text-decoration: line-through;
+      }
+      .slots__icon {
+        background: var(--adm-surface-hover);
+        color: var(--adm-ink-300);
+      }
+      .slots__state {
+        color: var(--adm-ink-400);
+        font-style: italic;
+      }
+
+      &:hover {
+        background: var(--adm-surface-alt);
+        border-color: var(--adm-line);
+        border-left-color: var(--adm-line-strong);
+      }
+    }
+
+    // Le bouton devient plein au survol de la LIGNE, pas du bouton : c'est la ligne entière
+    // qui est cliquable, et l'action doit s'allumer avec elle plutôt qu'attendre le curseur.
+    &:hover .slots__cta,
+    &:focus-visible .slots__cta {
+      background: var(--adm-blue);
+      color: #fff;
+    }
+
+    &.is-taken:hover .slots__cta {
+      background: var(--adm-surface-hover);
+      color: var(--adm-ink-300);
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-top: 0.05rem;
+    border-radius: 50%;
+    background: var(--adm-surface-hover);
+    color: var(--adm-ink-500);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  &__state {
+    font-size: 0.75rem;
+    color: var(--adm-ink-400);
+  }
+
+  // Place déjà promise à un article programmé : ton d'alerte, parce que la reprendre aurait
+  // une conséquence — annuler l'échange prévu.
+  &__warn {
+    color: var(--adm-amber);
+    font-weight: 600;
+  }
+
+  // Pastille au repos, bouton plein au survol de la ligne. Les dimensions ne changent pas
+  // d'un état à l'autre : seules les couleurs bougent, la liste ne tressaute donc pas.
+  &__cta {
+    flex: 0 0 auto;
+    align-self: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--adm-pill);
+    background: var(--adm-blue-soft);
+    color: var(--adm-blue);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slots__row,
+  .slots__cta {
+    transition: none;
+  }
+}

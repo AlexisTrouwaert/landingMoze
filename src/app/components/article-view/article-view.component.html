@@ -21,7 +21,16 @@
        dans les deux cas, d'où le gabarit partagé plutôt qu'une copie. -->
   @if (article().coverImageUrl) {
     <div [class]="'article__body article__body--' + article().coverPosition">
-      <img class="article__cover" [src]="article().coverImageUrl" [alt]="article().title" />
+      <!--
+        `alt` vide en dernier recours, et non le titre. Une couverture sans description est
+        une image **décorative** : un `alt` vide la fait sauter au lecteur d'écran, là où le
+        titre la lui ferait annoncer une seconde fois sans rien apprendre de la photo.
+      -->
+      <img
+        class="article__cover"
+        [src]="article().coverImageUrl"
+        [alt]="article().coverImageAlt ?? ''"
+      />
       <ng-container *ngTemplateOutlet="body"></ng-container>
     </div>
   } @else {

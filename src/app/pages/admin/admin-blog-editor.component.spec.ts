@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { AdminBlogEditorComponent } from './admin-blog-editor.component';
-import { Article, ArticleListItem } from '../../model/article.model';
+import { AdminFeaturedItem, Article } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 
 describe('AdminBlogEditorComponent', () => {
@@ -21,7 +21,7 @@ describe('AdminBlogEditorComponent', () => {
       'renameTag',
       'deleteTag',
       'upload',
-      'featured',
+      'adminFeatured',
       'feature',
       'unfeature',
     ]);
@@ -161,21 +161,38 @@ describe('AdminBlogEditorComponent', () => {
       component.featuredAt.set(featuredAt);
     }
 
-    const item = (id: string): ArticleListItem => ({
+    /**
+     * Un article de la une, tel que le renvoie l'endpoint admin. `succession: []` est le
+     * cas courant — aucun échange programmé dessus — et suffit à ces essais : ils portent
+     * sur le choix du sortant, pas sur la projection.
+     */
+    const item = (id: string): AdminFeaturedItem => ({
       id,
       slug: id,
       title: `Titre ${id}`,
       excerpt: '',
+      content: '',
       coverImageUrl: null,
+      coverImageAlt: null,
+      coverPosition: 'top',
+      series: null,
       author: '',
-      publishedAt: null,
+      status: 'PUBLISHED',
+      metaTitle: null,
+      metaDescription: null,
+      createdAt: '2026-08-01T00:00:00Z',
+      updatedAt: '2026-08-01T00:00:00Z',
+      publishedAt: '2026-08-01T00:00:00Z',
+      featuredAt: '2026-08-01T00:00:00Z',
       tags: [],
+      replacedBy: null,
+      succession: [],
     });
 
     it('sur un brouillon : enregistre une INTENTION, sans jamais épingler tout de suite', () => {
       component.id.set('a1');
       component.status.set('DRAFT');
-      blog.featured.and.returnValue(of([]));
+      blog.adminFeatured.and.returnValue(of([]));
 
       component.toggleFeature();
 
@@ -186,7 +203,7 @@ describe('AdminBlogEditorComponent', () => {
 
     it('épingle directement quand la une a de la place', () => {
       openPublished();
-      blog.featured.and.returnValue(of([item('u1')]));
+      blog.adminFeatured.and.returnValue(of([item('u1')]));
       blog.feature.and.returnValue(of({ featuredAt: '2026-08-26T00:00:00Z' } as Article));
 
       component.toggleFeature();
@@ -199,7 +216,7 @@ describe('AdminBlogEditorComponent', () => {
     it('à 5/5 : propose l’échange au lieu d’épingler', () => {
       openPublished();
       const cinq = ['u1', 'u2', 'u3', 'u4', 'u5'].map(item);
-      blog.featured.and.returnValue(of(cinq));
+      blog.adminFeatured.and.returnValue(of(cinq));
 
       component.toggleFeature();
 
@@ -212,7 +229,7 @@ describe('AdminBlogEditorComponent', () => {
       component.featureSwapChoices.set(['u1', 'u2'].map(item));
       blog.feature.and.returnValue(of({ featuredAt: '2026-08-26T00:00:00Z' } as Article));
 
-      component.swapFeature(item('u2'));
+      component.swapFeature('u2');
 
       // Deux appels laissaient une fenêtre où la une n'avait que quatre articles ;
       // surtout, c'est le back qui doit décider si l'échange attend la parution.
@@ -234,7 +251,7 @@ describe('AdminBlogEditorComponent', () => {
 
     describe('intention sur un article pas encore publié', () => {
       it('enregistre l’intention quand la une a de la place — sans rien épingler', () => {
-        blog.featured.and.returnValue(of([item('u1')]));
+        blog.adminFeatured.and.returnValue(of([item('u1')]));
 
         component.toggleFeature();
 
@@ -248,20 +265,20 @@ describe('AdminBlogEditorComponent', () => {
         component.toggleFeature();
 
         expect(component.pendingFeature()).toBeFalse();
-        expect(blog.featured).not.toHaveBeenCalled();
+        expect(blog.adminFeatured).not.toHaveBeenCalled();
       });
 
       it('à 5/5 : la popup s’ouvre, le choix est mémorisé — l’échange attendra la mise en ligne', () => {
         const cinq = ['u1', 'u2', 'u3', 'u4', 'u5'].map(item);
-        blog.featured.and.returnValue(of(cinq));
+        blog.adminFeatured.and.returnValue(of(cinq));
 
         component.toggleFeature();
         expect(component.featureSwapChoices()?.length).toBe(5);
 
-        component.swapFeature(item('u3'));
+        component.swapFeature('u3');
 
         expect(component.pendingFeature()).toBeTrue();
-        expect(component.pendingSwap()?.id).toBe('u3');
+        expect(component.pendingSwap()).toBe('u3');
         expect(component.featureSwapChoices()).toBeNull();
         // Rien ne part maintenant : l'échange a lieu à la publication.
         expect(blog.unfeature).not.toHaveBeenCalled();
@@ -271,7 +288,7 @@ describe('AdminBlogEditorComponent', () => {
       it('à la publication, l’intention part avec l’article à remplacer', () => {
         const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
         component.pendingFeature.set(true);
-        component.pendingSwap.set(item('u3'));
+        component.pendingSwap.set('u3');
         blog.feature.and.returnValue(of({ featuredAt: '2026-08-26T00:00:00Z' } as Article));
 
         (

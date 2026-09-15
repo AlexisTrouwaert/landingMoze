@@ -1,0 +1,654 @@
+@use '../../../styles/silo-motion' as motion;
+@use '../../../styles/silo-theme' as theme;
+
+/* =========================================
+   === HOST & VARIABLES ===
+   Direction « doux et arrondi » : aucun aplat sombre, des fonds vert très pâle
+   et des cartes blanches sans bordure.
+   ========================================= */
+:host {
+  --moze-green: #6BD498;
+  --moze-dark-blue: #144968;
+  --moze-light-blue: #00AEEF;
+
+  --fe-ink: #{theme.$encre-titre};
+  --fe-ink-soft: #{theme.$encre-corps};
+  --fe-ink-muted: #{theme.$encre-douce};
+  --fe-tint: #{theme.$tint-vert};
+
+  display: block;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+/* =========================================
+   === LAYOUT ===
+   ========================================= */
+.fe-page {
+  --fe-max: 860px;
+
+  padding: 6.5rem 1.5rem 0;
+  color: var(--fe-ink-soft);
+  line-height: 1.7;
+}
+
+main {
+  max-width: var(--fe-max);
+  margin: 0 auto;
+}
+
+.crumbs {
+  max-width: var(--fe-max);
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+  color: var(--fe-ink-muted);
+
+  &__link {
+    color: var(--fe-ink-muted);
+    text-decoration: none;
+
+    &:hover { color: var(--fe-ink); text-decoration: underline; }
+  }
+
+  &__sep { margin: 0 0.5rem; opacity: 0.5; }
+  &__here { color: var(--fe-ink-soft); font-weight: 600; }
+}
+
+/* =========================================
+   === HAUT DE PAGE — bloc teinté
+   ========================================= */
+.fe-hero {
+  @include theme.tinted-block();
+  padding: 2.6rem 2.4rem 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  @include theme.pill();
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.14;
+  font-weight: 800;
+  color: theme.$encre-titre;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.2rem;
+
+  .h1-years {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    font-weight: 600;
+    color: theme.$encre-corps;
+    letter-spacing: 0;
+  }
+}
+
+.lede {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: theme.$encre-corps;
+  margin-bottom: 1.4rem;
+  max-width: 44rem;
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: theme.$encre-verte;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--moze-green);
+  box-shadow: 0 0 0 0 rgba(107, 212, 152, 0.7);
+  animation: fe-pulse 2.4s ease-out infinite;
+}
+
+@keyframes fe-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(107, 212, 152, 0.7); }
+  70%  { box-shadow: 0 0 0 9px rgba(107, 212, 152, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 212, 152, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
+/* =========================================
+   === L'ESSENTIEL (3 chiffres) ===
+   ========================================= */
+.key-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 4rem;
+}
+
+.fact {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.5rem 1.3rem;
+  text-align: center;
+
+  &__num {
+    @include theme.big-number();
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  &__label {
+    font-size: 0.87rem;
+    color: theme.$encre-douce;
+    line-height: 1.5;
+  }
+}
+
+/* =========================================
+   === SECTIONS ===
+   Le surtitre remplace le filet vert : dans cette direction, rien ne borde.
+   ========================================= */
+.fe-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.1rem;
+  }
+
+  h3 {
+    font-size: 1.03rem;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    margin-bottom: 0.4rem;
+  }
+
+  p { margin-bottom: 1.1rem; }
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+
+    &:hover { text-decoration: none; }
+  }
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+
+  abbr { text-decoration: underline dotted; cursor: help; }
+}
+
+/* Mot-clé mis en valeur dans un titre. */
+.highlight-green { color: #35a06a; }
+
+.note {
+  @include theme.tinted-block(theme.$tint-bleu, 18px);
+  padding: 1.1rem 1.4rem;
+  font-size: 0.95rem;
+  margin-bottom: 0 !important;
+  color: theme.$encre-corps;
+}
+
+/* =========================================
+   === TABLEAUX ===
+   Le tableau défile dans son propre conteneur : sur mobile, c'est lui qui
+   scrolle horizontalement, jamais la page.
+   ========================================= */
+.table-wrap {
+  @include theme.soft-table();
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.cal-table {
+  width: 100%;
+  min-width: 540px;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+
+  th {
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.95rem 1.2rem;
+  }
+
+  thead th { color: theme.$encre-verte; }
+
+  td {
+    padding: 1.05rem 1.2rem;
+    vertical-align: top;
+    border-bottom: 1px solid #eef4f0;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tr.is-live { background: rgba(107, 212, 152, 0.07); }
+}
+
+.cal-date {
+  font-weight: 700;
+  color: theme.$encre-titre;
+  white-space: nowrap;
+}
+
+.pill {
+  display: block;
+  width: fit-content;
+  margin-top: 0.4rem;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+
+  &--live { background: theme.$tint-pastille; color: theme.$encre-verte; }
+  &--soon { background: #eef1f3; color: theme.$encre-douce; }
+}
+
+/* =========================================
+   === LISTES À COCHES ===
+   ========================================= */
+.check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.1rem;
+
+  li {
+    position: relative;
+    padding-left: 1.9rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.45em;
+      width: 12px;
+      height: 7px;
+      border-left: 2.5px solid #35a06a;
+      border-bottom: 2.5px solid #35a06a;
+      transform: rotate(-45deg);
+    }
+  }
+
+  &--tight { gap: 0.7rem; font-size: 0.95rem; }
+}
+
+/* =========================================
+   === FORMATS ===
+   ========================================= */
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+}
+
+.format-card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+
+  h3 { margin-bottom: 0.5rem; }
+
+  p {
+    font-size: 0.9rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+    flex: 1 1 auto;
+  }
+
+  /* La carte recommandée est teintée plutôt que bordée : on ne trace rien. */
+  &--highlight { background: theme.$tint-vert; box-shadow: none; }
+}
+
+.format-tag {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+/* =========================================
+   === CE QUE LIT UNE MACHINE ===
+   Deux cartes côte à côte : le PDF, puis les champs nommés. La démonstration
+   porte la notion de « fichier structuré » bien mieux que sa définition.
+   ========================================= */
+.lecture {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  align-items: start;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.lecture__cas {
+  @include theme.soft-card();
+  padding: 1.4rem;
+
+  /* Intitulés en capitales fines : ce sont des étiquettes de colonne, pas des
+     titres à lire. Écrits en `h3` pour rester dans le plan du document. */
+  h3 {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: theme.$encre-douce;
+    margin-bottom: 0.9rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+
+  /* Le cas « structuré » est teinté, comme la carte Factur-X plus bas : c'est
+     celui qui montre la bonne réponse. */
+  &--structure {
+    background: theme.$tint-vert;
+    box-shadow: none;
+
+    h3 { color: theme.$encre-verte; }
+  }
+}
+
+/* Les champs nommés — l'illustration elle-même, pas un ornement. */
+.champs {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.3rem 0.95rem;
+  margin-bottom: 0.95rem;
+  font-size: 0.87rem;
+}
+
+.champs__ligne {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eef4f0;
+
+  &:last-child { border-bottom: none; }
+
+  dt { color: theme.$encre-douce; }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    /* Chiffres à chasse fixe : les montants s'alignent au lieu de danser. */
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* =========================================
+   === ÉTAPES ===
+   ========================================= */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+
+  &__num {
+    flex: 0 0 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: theme.$tint-pastille;
+    color: theme.$encre-verte;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  &__body p {
+    font-size: 0.95rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === BLOC MOZE ===
+   ========================================= */
+.moze-block {
+  @include theme.tinted-block();
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 1.8rem;
+  padding: 2rem;
+
+  &__col p {
+    font-size: 0.95rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === FAQ ===
+   ========================================= */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.faq-item {
+  @include theme.soft-card(16px);
+  @include motion.faq-transition();
+  overflow: hidden;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+
+    h3 { margin-bottom: 0; font-size: 1rem; }
+
+    &:hover h3 { color: var(--interaction-color); }
+  }
+
+  &[open] summary { padding-bottom: 0.6rem; }
+  &[open] .faq-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
+}
+
+/* Fermé, le chevron pointe vers le BAS — le sens qui annonce « ceci se déplie ». */
+.faq-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid theme.$encre-douce;
+  border-bottom: 2px solid theme.$encre-douce;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
+
+.faq-answer {
+  padding: 0 1.4rem 1.3rem;
+  font-size: 0.94rem;
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; }
+}
+
+/* =========================================
+   === APPEL À L'ACTION ===
+   Teinté lui aussi : la direction ne comporte aucun aplat sombre.
+   ========================================= */
+.fe-cta {
+  @include theme.tinted-block();
+  padding: 2.8rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    color: theme.$encre-corps;
+    font-size: 0.98rem;
+    max-width: 480px;
+    margin: 0 auto 1.6rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover { transform: translateY(-2px); background: var(--interaction-color); }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* =========================================
+   === RESPONSIVE ===
+   ========================================= */
+@media (max-width: 780px) {
+  .moze-block { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .fe-page { padding-top: 5.5rem; }
+
+  .fe-hero { padding: 1.8rem 1.4rem 2rem; border-radius: 20px; }
+
+  .key-facts {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .fact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    padding: 1.1rem 1.2rem;
+
+    &__num { margin-bottom: 0; flex: 0 0 auto; }
+  }
+
+  .fe-section { margin-bottom: 3rem; }
+  .moze-block { padding: 1.5rem; }
+  .fe-cta { padding: 2rem 1.3rem; }
+  .fe-cta__actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   === MOUVEMENT ===
+   ========================================= */
+.fe-hero {
+  .eyebrow  { @include motion.enter(0); }
+  h1        { @include motion.enter(1); }
+  .lede     { @include motion.enter(2); }
+  .updated  { @include motion.enter(3); }
+}
+
+.fact { @include motion.enter(4); }
+
+.table-wrap,
+.format-card,
+.lecture__cas,
+.note,
+.step,
+.moze-block,
+.faq-item,
+.fe-cta { @include motion.reveal(); }
+
+.cal-table tbody tr {
+  transition: background-color 0.2s ease;
+
+  &:hover { background: rgba(107, 212, 152, 0.09); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-table tbody tr { transition: none; }
+}

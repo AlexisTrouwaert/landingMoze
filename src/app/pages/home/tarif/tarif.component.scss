@@ -383,6 +383,20 @@
     margin: 0;
   }
 
+  /* Lien vers /tarifs : discret, il ne doit pas concurrencer le CTA principal —
+     c'est une sortie pour qui hésite encore, pas l'action attendue. */
+  .detail-link {
+    color: var(--moze-dark-blue);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+
+    &:hover { opacity: 1; }
+  }
+
   .btn-main-cta {
     background-color: var(--moze-green);
     color: var(--moze-dark-blue);

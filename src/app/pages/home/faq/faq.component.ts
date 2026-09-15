@@ -127,18 +127,18 @@ export class FaqComponent implements OnDestroy {
     },
     {
       title: 'FACTURATION ELECTRONIQUE',
-      answer: `Moze Connect intègre le format <span>Factur-X</span>, conforme aux exigences de la facturation électronique en France. Toutes tes factures sont ainsi générées dans un format structuré et reconnu par l'administration. Pour garantir une transmission sécurisée et conforme, Moze est adossé à une <span>Plateforme Agréée (Super PDP) certifiée</span>, immatriculée par l'État. Tu factures simplement, Moze s'occupe de la conformité.`
+      answer: `Moze Connect intègre le format <span>Factur-X</span>, conforme aux exigences de la facturation électronique en France. Toutes tes factures sont ainsi générées dans un format structuré et reconnu par l'administration. Pour garantir une transmission sécurisée et conforme, Moze est adossé à une <span>Plateforme Agréée (Super PDP) certifiée</span>, immatriculée par l'État. Tu factures simplement, Moze s'occupe de la conformité.<br><a href="/facturation-electronique">Comprendre la réforme et son calendrier 2026-2027</a>.`
     }
   ];
 
   readonly rightQuestions: FaqItem[] = [
     {
       title: 'LA FACTURATION COLLABORATIVE',
-      answer: `Crée une facture <span>à plusieurs</span> en quelques clics et répartis <span>automatiquement</span> les montants entre chaque intervenant. <span>Centralise</span> les informations, <span>sécurise</span> la répartition et garde une vision <span>claire</span> de chaque mission collaborative.<br>Chaque co-facturant reste indépendant et pleinement responsable de sa mission, sans engager les autres. <a href="https://www.youtube.com/watch?v=GIayqf7tRGk" target="_blank">Voir la vidéo explicative sur la facturation collaborative</a>.`
+      answer: `Crée une facture <span>à plusieurs</span> en quelques clics et répartis <span>automatiquement</span> les montants entre chaque intervenant. <span>Centralise</span> les informations, <span>sécurise</span> la répartition et garde une vision <span>claire</span> de chaque mission collaborative.<br>Chaque co-facturant reste indépendant et pleinement responsable de sa mission, sans engager les autres. <a href="/facturation-collaborative">Comment ça marche&nbsp;: bordereau, responsabilités et répartition</a> — ou <a href="https://www.youtube.com/watch?v=GIayqf7tRGk" target="_blank">voir la vidéo explicative</a>.`
     },
     {
       title: 'COOPÉRATIVE ET SAP',
-      answer: `Propose des prestations éligibles au <span>crédit d'impôt</span> grâce à la <span>coopérative</span> et au numéro SAP. <span>Développe</span> ton offre, <span>sécurise</span> ton cadre administratif et ouvre de nouvelles <span>opportunités</span> auprès des clients particuliers.`
+      answer: `Propose des prestations éligibles au <span>crédit d'impôt</span> grâce à la <span>coopérative</span> et au numéro SAP. <span>Développe</span> ton offre, <span>sécurise</span> ton cadre administratif et ouvre de nouvelles <span>opportunités</span> auprès des clients particuliers.<br><a href="/services-a-la-personne">Comment ça marche, ce que ça coûte et ce que ça implique</a>.`
     },
     {
       title: 'COMPTABILITÉ',
@@ -162,7 +162,7 @@ export class FaqComponent implements OnDestroy {
     },
     {
       title: 'Quel est le prix du service ?',
-      answer: `Le <span>freemium</span> est gratuit&nbsp;:<ul><li>réseau social des indépendants&nbsp;;</li><li>échanges avec la communauté&nbsp;;</li><li>veille légale et réglementaire.</li></ul>Les fonctionnalités complètes sont à <span>9,90&nbsp;€ HT / mois</span> — <a href="#offres">voir le détail des offres</a>.<br>Seuls les paiements qui transitent par <span>Stripe</span> (compte séquestre) ajoutent <span>3,9&nbsp;% HT</span> de frais de transaction.`
+      answer: `Le <span>freemium</span> est gratuit&nbsp;:<ul><li>réseau social des indépendants&nbsp;;</li><li>échanges avec la communauté&nbsp;;</li><li>veille légale et réglementaire.</li></ul>Les fonctionnalités complètes sont à <span>9,90&nbsp;€ HT / mois</span> — <a href="#offres">voir le détail des offres</a>.<br>Les factures qui passent par l'<span>apport d'affaires</span> ou la <span>facturation collaborative</span> supportent <span>3,9&nbsp;% HT</span> de frais administratifs sur leur montant total — <a href="/tarifs">voir le détail des tarifs</a>.`
     }
   ];
 }

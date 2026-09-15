@@ -1,3 +1,5 @@
+@use '../../../styles/rich-content' as rich;
+
 .article {
   &__back {
     color: var(--interaction-color);
@@ -110,74 +112,7 @@
       margin: 1.6rem 0;
     }
 
-    // Le contenu vient de [innerHTML] : pas d'attribut d'encapsulation Angular
-    // → on cible les balises injectées via ::ng-deep (scopé à ce conteneur).
-    ::ng-deep {
-      h2 {
-        color: var(--primary-color);
-        font-family: 'SNPRO-SemiBold', sans-serif;
-        font-size: 1.6rem;
-        margin: 2rem 0 0.75rem;
-      }
-
-      h3 {
-        color: var(--primary-color);
-        font-family: 'SNPRO-SemiBold', sans-serif;
-        font-size: 1.3rem;
-        margin: 1.5rem 0 0.5rem;
-      }
-
-      p {
-        margin: 0 0 1.1rem;
-      }
-
-      ul,
-      ol {
-        margin: 0 0 1.1rem 1.5rem;
-      }
-
-      li {
-        margin-bottom: 0.4rem;
-      }
-
-      a {
-        color: var(--interaction-color);
-      }
-
-      // Justifié par défaut : le corps de texte l'est sans que l'auteur n'ait rien à demander,
-      // texte collé compris. Les classes `ta-*` ci-dessous — l'alignement choisi dans la barre —
-      // l'emportent (spécificité supérieure). Les titres, eux, restent à gauche : un titre
-      // justifié sur deux lignes creuse des espaces disgracieux.
-      p, li, blockquote { text-align: justify; }
-
-      // Alignement posé par la barre d'outils de l'éditeur. Par classe et non par
-      // `style="text-align:…"` : le sanitizer d'Angular retire les attributs `style` du
-      // `[innerHTML]`, l'alignement n'aurait pas survécu à l'affichage.
-      .ta-left { text-align: left; }
-      .ta-center { text-align: center; }
-      .ta-right { text-align: right; }
-      .ta-justify { text-align: justify; }
-
-      img {
-        max-width: 100%;
-        border-radius: 12px;
-        margin: 1.25rem 0;
-      }
-
-      blockquote {
-        border-left: 4px solid var(--accent-color);
-        background: #eef9ef;
-        padding: 0.9rem 1.25rem;
-        border-radius: 0 10px 10px 0;
-        margin: 1.5rem 0;
-        color: #36474e;
-      }
-
-      hr {
-        border: none;
-        border-top: 1px solid #dce6e2;
-        margin: 2rem 0;
-      }
-    }
+    // Typographie du HTML injecté : partagée avec la page évènement.
+    @include rich.injected-html;
   }
 }

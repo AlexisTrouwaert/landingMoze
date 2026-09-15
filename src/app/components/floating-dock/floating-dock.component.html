@@ -8,6 +8,14 @@
       <symbol id="di-offres" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
       <symbol id="di-support" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><line x1="4.93" y1="4.93" x2="9.59" y2="9.59"/><line x1="14.41" y1="14.41" x2="19.07" y2="19.07"/><line x1="14.41" y1="9.59" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.59" y2="14.41"/></symbol>
       <symbol id="di-app" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></symbol>
+      <!-- Icônes du déroulant « Solutions ». Chaque page dédiée a la sienne : un même
+           pictogramme répété cinq fois ne dit rien de ce qui distingue les pages.
+           Tracé au trait uniquement — le `<svg>` porteur impose `fill="none"`. -->
+      <symbol id="di-collaboratif" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16.5 5.4a3.2 3.2 0 0 1 0 5.2"/><path d="M17.8 14.6A6 6 0 0 1 21 20"/></symbol>
+      <symbol id="di-facture" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><line x1="8.5" y1="13" x2="14" y2="13"/><line x1="8.5" y1="16.5" x2="12" y2="16.5"/></symbol>
+      <symbol id="di-domicile" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9.5 21v-6h5v6"/></symbol>
+      <symbol id="di-freelance" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.2A2.2 2.2 0 0 1 11.2 3h1.6A2.2 2.2 0 0 1 15 5.2V7"/><line x1="3" y1="12.5" x2="21" y2="12.5"/></symbol>
+      <symbol id="di-taux" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="7.6" cy="7.6" r="2.6"/><circle cx="16.4" cy="16.4" r="2.6"/></symbol>
     </defs>
   </svg>
 }
@@ -43,7 +51,7 @@
             <div class="dd-panel" [class.is-open]="openGroup() === gi">
               @for (link of group.links; track link.id) {
                 <a class="dd-link"
-                   [class.is-active]="activeId() === link.id"
+                   [class.is-active]="isActive(link)"
                    [attr.href]="link.route ?? ('#' + link.id)"
                    (click)="navigate($event, link)">
                   @if (link.icon) {
@@ -62,7 +70,7 @@
         } @else {
           @for (link of group.links; track link.id) {
             <a class="dock-item"
-               [class.is-active]="activeId() === link.id"
+               [class.is-active]="isActive(link)"
                [attr.href]="link.route ?? ('#' + link.id)"
                (click)="navigate($event, link)">
               {{ link.label }}
@@ -136,7 +144,7 @@
           @if (group.title) { <p class="dock-m-title">{{ group.title }}</p> }
           @for (link of group.links; track link.id) {
             <a class="dock-m-link"
-               [class.is-active]="activeId() === link.id"
+               [class.is-active]="isActive(link)"
                [attr.href]="link.route ?? ('#' + link.id)"
                (click)="navigate($event, link)">
               @if (link.icon) {

@@ -1,0 +1,95 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="fl-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Freelance</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="fl-hero">
+      <p class="eyebrow">Guide</p>
+      <h1>Freelance&nbsp;: gérer son activité au quotidien</h1>
+      <p class="lede">
+        Ce qui occupe vraiment un indépendant, ce n'est pas son métier — c'est tout ce qu'il y a
+        autour. Se faire payer, trouver la mission suivante, refuser celle de trop, rester en
+        règle sans y penser, et tenir dans la durée. Voici comment nous voyons chacun de ces
+        sujets, et ce que nous avons écrit dessus.
+      </p>
+    </header>
+
+    <!-- Sommaire : sur une page-carrefour, il vaut le déroulé linéaire — le lecteur vient avec
+         un problème précis, pas pour tout lire. -->
+    <nav class="toc" aria-label="Les sujets traités">
+      @for (theme of themes; track theme.id) {
+        <a class="toc__item" [href]="'#' + theme.id">{{ theme.titre }}</a>
+      }
+    </nav>
+
+    @for (theme of themesAffiches; track theme.id) {
+      <section class="fl-theme" [id]="theme.id">
+        <p class="surtitle">{{ theme.surtitre }}</p>
+        <h2>{{ theme.avant }}<span class="highlight-green">{{ theme.accent }}</span>{{ theme.apres }}</h2>
+
+        <p class="fl-theme__probleme">{{ theme.probleme }}</p>
+        <p class="fl-theme__reponse">{{ theme.reponse }}</p>
+
+        <ul class="res-list">
+          @for (res of theme.ressources; track res.route) {
+            <li class="res">
+              <a [routerLink]="res.route" class="res__link">
+                <span class="res__tag" [class.res__tag--page]="res.estPage">
+                  {{ res.estPage ? 'Page' : 'Article' }}
+                </span>
+                <span class="res__label">{{ res.libelle }}</span>
+                <span class="res__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="fl-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="fl-cta">
+      <h2>Le réseau est gratuit</h2>
+      <p>
+        Rejoignez une communauté d'indépendants qui traversent les mêmes choses. La facturation
+        s'ajoute le jour où vous en avez besoin.
+      </p>
+      <div class="fl-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('freelance_cta_final')">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/blog">Lire le blog</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

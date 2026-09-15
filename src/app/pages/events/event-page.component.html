@@ -1,0 +1,23 @@
+<app-floating-dock [buttonLabel]="'Évènements'" (buttonClick)="goEvents()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="event-page">
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else if (notFound()) {
+    <div class="state">
+      <h1 class="state__title">Évènement introuvable</h1>
+      <p>Cette adresse ne correspond à aucun évènement publié.</p>
+      <a class="state__btn" routerLink="/evenements">Voir les évènements</a>
+    </div>
+  } @else if (event(); as e) {
+    <nav class="crumbs" aria-label="Fil d’Ariane">
+      <a class="crumbs__link" routerLink="/">Accueil</a>
+      <span class="crumbs__sep" aria-hidden="true">›</span>
+      <a class="crumbs__link" routerLink="/evenements">Évènements</a>
+      <span class="crumbs__sep" aria-hidden="true">›</span>
+      <span class="crumbs__here" aria-current="page">{{ e.title }}</span>
+    </nav>
+
+    <app-event-view [event]="e" />
+  }
+</div>

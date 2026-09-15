@@ -1,0 +1,264 @@
+@use './admin-ui' as *;
+
+.adm-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 6rem;
+  color: var(--adm-ink-900);
+}
+
+.adm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--adm-line);
+
+  &__id {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  &__mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--adm-blue-soft);
+    color: var(--adm-ink-700);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.82rem;
+    color: var(--adm-ink-500);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+// Deux volets : ce qu'on colle, et ce qui en a été compris. La relecture de l'un par
+// l'autre est le geste central de l'écran — les empiler les éloignerait.
+.pst {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1.5rem;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: 1fr;
+  }
+
+  &__barre {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__aide {
+    border: 0;
+    background: transparent;
+    color: var(--adm-blue);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &__format {
+    margin: 0 0 0.6rem;
+    padding: 0.8rem 0.9rem;
+    background: var(--adm-ink-900);
+    color: #e6f4fb;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  // Sous le bloc et non par-dessus : la première ligne du prompt est de la prose pleine
+  // largeur, qu'un bouton flottant en coin viendrait recouvrir.
+  //
+  // Plein plutôt que fantôme : c'est le seul geste de cet encart, et un bouton discret sous
+  // cinquante lignes de prompt ne se voit pas. Il hérite de `.btn--primary` et n'ajoute que
+  // sa hauteur réduite et ses couleurs d'état.
+  &__copier {
+    --h: var(--adm-h-sm);
+
+    margin: 0 0 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  // La couleur double le mot, elle ne le remplace pas : « Copié » reste lisible sans elle.
+  // Le survol est neutralisé, sinon `.btn--primary:hover` repasse au bleu pendant les deux
+  // secondes du retour et efface le signal.
+  &__copier--ok,
+  &__copier--ok:hover:not(:disabled) {
+    background: var(--adm-green);
+    border-color: var(--adm-green);
+    color: #fff;
+  }
+
+  &__copier--ko,
+  &__copier--ko:hover:not(:disabled) {
+    background: var(--adm-red);
+    border-color: var(--adm-red);
+    color: #fff;
+  }
+
+  &__note {
+    margin: 0 0 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--adm-ink-500);
+
+    code {
+      padding: 0.05rem 0.3rem;
+      background: var(--adm-surface-hover);
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+  }
+
+  &__zone {
+    width: 100%;
+    min-height: 420px;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 10px;
+    background: var(--adm-surface);
+    color: inherit;
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    resize: vertical;
+
+    &:focus {
+      outline: 2px solid var(--adm-blue);
+      outline-offset: 1px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+
+  &__lu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  &__vide {
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--adm-ink-400);
+    background: var(--adm-surface);
+    border: 1px dashed var(--adm-line-strong);
+    border-radius: 12px;
+  }
+
+  // Ce qui empêche de créer. Rouge, en tête, et nommé ligne par ligne : une erreur de
+  // format se corrige dans le texte collé, encore faut-il savoir laquelle.
+  &__erreurs {
+    padding: 0.9rem 1.1rem;
+    background: #fdecea;
+    border: 1px solid var(--adm-red);
+    border-radius: 10px;
+    color: var(--adm-red);
+
+    ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1.1rem;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+  }
+
+  &__erreurs-titre {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  &__carte {
+    padding: 1rem 1.1rem;
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-line);
+    border-left: 3px solid var(--adm-green);
+    border-radius: 10px;
+  }
+
+  &__titre {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  &__slug {
+    margin: 0.2rem 0 0;
+    font-size: 0.78rem;
+    color: var(--adm-ink-400);
+  }
+
+  &__extrait {
+    margin: 0.6rem 0 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--adm-ink-700);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
+    margin: 0.8rem 0 0;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    dt {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--adm-ink-400);
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.82rem;
+    }
+  }
+
+  // Ce qui n'empêche pas de créer mais mérite un regard.
+  &__avertissements {
+    margin: 0.7rem 0 0;
+    padding-left: 1.1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--adm-amber);
+  }
+}

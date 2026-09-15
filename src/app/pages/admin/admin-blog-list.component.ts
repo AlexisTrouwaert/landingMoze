@@ -11,6 +11,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { FeaturedSlotsComponent } from '../../components/featured-slots/featured-slots.component';
+import { POST_SLOTS } from '../../common/social-networks';
 import {
   AdminFeaturedItem,
   AdminStats,
@@ -19,8 +21,15 @@ import {
   BulkAction,
   MAX_FEATURED,
 } from '../../model/article.model';
+import {
+  projectFeatured,
+  projectionAhead,
+  projectionPending,
+  projectionTarget,
+} from '../../common/featured-projection';
 import { AuthService } from '../../services/auth.service';
 import { BlogService } from '../../services/blog.service';
+import { ReviewNotifierService } from '../../services/review-notifier.service';
 
 type StatusFilter = 'active' | 'all' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -38,7 +47,13 @@ interface PendingAction {
 
 @Component({
   selector: 'app-admin-blog-list',
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [
+    DatePipe,
+    RouterLink,
+    ReactiveFormsModule,
+    ConfirmDialogComponent,
+    FeaturedSlotsComponent,
+  ],
   templateUrl: './admin-blog-list.component.html',
   styleUrl: './admin-blog-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,6 +98,14 @@ export class AdminBlogListComponent {
    * coup d'œil sans aller chercher les étoiles ligne à ligne.
    */
   readonly featured = signal<AdminFeaturedItem[]>([]);
+
+  /**
+   * Brouillons de l'assistant en attente de relecture.
+   *
+   * Lu sur le service plutôt que rechargé ici : c'est lui qui interroge en boucle, le badge
+   * se met donc à jour tout seul sans qu'on duplique la requête à chaque montage.
+   */
+  readonly pendingReview = inject(ReviewNotifierService).count;
   readonly maxFeatured = MAX_FEATURED;
   readonly featuredCount = computed(() => this.stats()?.featured ?? 0);
   readonly featuredFull = computed(() => this.featuredCount() >= this.maxFeatured);
@@ -189,6 +212,44 @@ export class AdminBlogListComponent {
     return !!a.featuredAt || !!a.featureReplacesId;
   }
 
+  // --- Diffusion ------------------------------------------------------------
+
+  /**
+   * Les posts de cet article, et combien sont traités.
+   *
+   * « Traité » = diffusé **ou écarté** : un réseau qu'on a choisi de ne pas utiliser n'est plus
+   * du travail en attente, et le compteur doit pouvoir tomber à zéro.
+   *
+   * La liste ne transporte que `slot` et les deux dates (cf. `LIST_INCLUDE` côté back) : de quoi
+   * compter, pas de quoi lire. Le tri entre « post » et « note de rédaction » se fait ici,
+   * parce que c'est le front qui sait quels réseaux existent.
+   */
+  diffusion(a: Article): { total: number; faits: number } | null {
+    const posts = (a.annexes ?? []).filter((x) => POST_SLOTS.includes(x.slot));
+    if (!posts.length) return null;
+    return {
+      total: posts.length,
+      faits: posts.filter((x) => x.diffusedAt || x.skippedAt).length,
+    };
+  }
+
+  /**
+   * Reste-t-il des posts à envoyer ?
+   *
+   * Seulement sur un article **publié** : proposer de diffuser un brouillon inviterait à
+   * partager un lien qui renvoie sur une page absente.
+   */
+  aDiffuser(a: Article): boolean {
+    if (a.status !== 'PUBLISHED') return false;
+    const d = this.diffusion(a);
+    return !!d && d.faits < d.total;
+  }
+
+  /** Combien d'articles publiés attendent encore d'être diffusés. */
+  readonly aDiffuserCount = computed(
+    () => this.items().filter((a) => this.aDiffuser(a)).length,
+  );
+
   isSelected(id: string): boolean {
     return this.selection().has(id);
   }
@@ -278,6 +339,7 @@ export class AdminBlogListComponent {
     });
   }
 
+
   // --- Actions ------------------------------------------------------------
 
   /**
@@ -356,18 +418,78 @@ export class AdminBlogListComponent {
   readonly featureSwapFor = signal<Article | null>(null);
 
   /**
+   * La une **telle qu'elle sera** quand l'article visé prendra sa place.
+   *
+   * Un article programmé n'entre à la une qu'à sa parution : d'ici là, les échanges déjà
+   * décidés auront joué. Proposer de remplacer un occupant qui sera parti d'ici là ferait
+   * choisir sur un état périmé — et l'échange, différé côté back, viserait un article qui
+   * n'occupe plus rien.
+   */
+  readonly swapSlots = computed(() =>
+    projectFeatured(
+      this.featured(),
+      projectionTarget(this.featureSwapFor()?.publishedAt),
+    ),
+  );
+
+  /** Vrai si cette projection diffère de la une d'aujourd'hui — donc s'il y a lieu de le dire. */
+  readonly swapAhead = computed(() => projectionAhead(this.swapSlots()));
+
+  /**
+   * Vrai si des échanges sont déjà décidés sur la une, quelle que soit la date visée.
+   *
+   * Utile même pour un article qui paraît aujourd'hui : la place qu'on lui donne peut être
+   * promise à un autre la semaine prochaine, et l'échange se ferait alors dans son dos.
+   */
+  readonly swapPending = computed(() => projectionPending(this.swapSlots()));
+
+
+  /**
+   * Date en toutes lettres — le jour de la semaine compris, qui n'est pas decoratif : c'est
+   * lui qui fait voir qu'un « lundi » a ete resolu sur la mauvaise semaine.
+   *
+   * `Intl` et non le pipe `date` : l'application n'enregistre aucune donnee de locale, et
+   * `| date: ... : 'fr'` leve NG0701 en interrompant le rendu de la vue.
+   */
+  private readonly longue = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  enClair(iso: string): string {
+    return this.longue.format(new Date(iso));
+  }
+
+  /** Date d'arrivée en version brève — « 8 sept. » — pour les étiquettes de la une. */
+  private readonly jour = new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+  });
+
+  enJour(iso: string): string {
+    return this.jour.format(new Date(iso));
+  }
+
+  /**
    * L'auteur a désigné l'article à retirer : on libère la place, puis on épingle le nouveau.
    *
    * Enchaînement en deux temps plutôt qu'un appel d'échange dédié : le back n'en propose pas, et
    * la fenêtre entre les deux est celle d'un aller-retour réseau — sans conséquence, la une
    * n'affichant alors que quatre articles pendant un instant.
+   *
+   * Reçoit l'identifiant de l'**emplacement** et non celui de l'occupant projeté : c'est
+   * l'article épinglé aujourd'hui que le back sait retirer.
    */
-  swapFeature(replaced: ArticleListItem): void {
+  swapFeature(slotId: string): void {
     const target = this.featureSwapFor();
     if (!target || this.busy()) return;
 
     this.featureSwapFor.set(null);
-    this.applyFeature(target, replaced.id);
+    this.applyFeature(target, slotId);
   }
 
   cancelSwap(): void {

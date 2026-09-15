@@ -1,0 +1,602 @@
+@use './admin-ui' as *;
+
+// Cadre et en-tête : les mêmes que la relecture et le collage, les deux autres écrans outils
+// d'un article. Chaque page admin déclare les siens — sans eux, celle-ci s'étalait sur toute
+// la largeur, collée au bord gauche.
+.adm-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 6rem;
+  color: var(--adm-ink-900);
+}
+
+.adm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--adm-line);
+
+  &__id {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  &__text {
+    min-width: 0;
+  }
+
+  &__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--adm-blue-soft);
+    color: var(--adm-ink-700);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.82rem;
+    color: var(--adm-ink-500);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+.adm-alert {
+  margin-top: 1.25rem;
+}
+
+// -------------------------------------------------------------
+// Le récapitulatif : ce qu'on colle en second, et ce qui manque toujours au bon moment.
+// -------------------------------------------------------------
+.dif-brief {
+  margin-top: 1.5rem;
+  padding: 0.35rem 1.25rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.8rem 0;
+
+    & + & {
+      border-top: 1px solid var(--adm-line);
+    }
+
+    &--top {
+      align-items: flex-start;
+
+      .dif-brief__label {
+        padding-top: 0.2rem;
+      }
+    }
+  }
+
+  &__label {
+    flex: 0 0 6.5rem;
+    color: var(--adm-ink-400);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__value {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.88rem;
+    color: var(--adm-ink-700);
+  }
+
+  // Champ et bouton soudés : on lit l'adresse et on la copie au même endroit.
+  &__field {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  &__url {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: var(--adm-h-sm);
+    display: flex;
+    align-items: center;
+    padding: 0 0.7rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-surface-alt);
+    color: var(--adm-ink-700);
+    font-size: 0.8rem;
+    scrollbar-width: none;
+  }
+}
+
+.dif-cover {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+
+  &__img {
+    flex: 0 0 auto;
+    width: 148px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: var(--adm-radius-sm);
+    border: 1px solid var(--adm-line);
+    background: var(--adm-surface-alt);
+  }
+
+  &__side {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  &__alt {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--adm-ink-700);
+  }
+
+  &__alt-label {
+    display: block;
+    margin-bottom: 0.1rem;
+    color: var(--adm-ink-400);
+    font-size: 0.74rem;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
+
+// Ce qui manque et se paiera au partage. Même ambre que « à traiter » ailleurs dans l'admin.
+.dif-warn {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-amber-soft);
+  color: var(--adm-amber);
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+// -------------------------------------------------------------
+// Titre de section, avec la progression alignée à droite.
+// -------------------------------------------------------------
+.dif-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 2rem 0 0.8rem;
+
+  &__title {
+    margin: 0;
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 1rem;
+  }
+}
+
+.dif-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--adm-ink-500);
+  font-size: 0.82rem;
+
+  strong {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-weight: normal;
+  }
+
+  // Deux segments bout à bout : le bleu pour ce qui est parti, le gris pour ce qu'on a écarté.
+  // Les deux comptent comme traités ; seule leur couleur les distingue.
+  &__bar {
+    display: flex;
+    width: 120px;
+    height: 6px;
+    border-radius: var(--adm-pill);
+    background: var(--adm-line);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    flex: 0 0 auto;
+    height: 100%;
+    background: var(--adm-blue);
+    transition: width var(--adm-t-slow);
+
+    &--skipped {
+      background: var(--adm-ink-300);
+    }
+  }
+
+  &.is-complete {
+    strong {
+      color: var(--adm-green);
+    }
+
+    .dif-progress__fill:not(.dif-progress__fill--skipped) {
+      background: var(--adm-green);
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Les posts.
+//
+// Deux colonnes dès qu'il y a la place : les quatre posts se comparent d'un coup d'œil, et
+// l'on voit tout de suite lequel est trop long. La borne est haute à dessein : à 22rem un
+// écran large tiendrait trois colonnes, et le quatrième post resterait seul sur sa rangée.
+// `min(…, 100%)` : sans lui, la piste de 27rem déborderait d'un téléphone.
+// -------------------------------------------------------------
+.dif-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(27rem, 100%), 1fr));
+  gap: 1rem;
+}
+
+.dif-card {
+  // Couleur du réseau, pour sa pastille. Retenue à dessein : l'écran reste celui de l'admin,
+  // la teinte sert seulement à trouver sa carte d'un coup d'œil.
+  --net: var(--adm-ink-700);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem 1.05rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+  transition:
+    border-color var(--adm-t),
+    background var(--adm-t);
+
+  &[data-network='linkedin'] {
+    --net: #0a66c2;
+  }
+
+  &[data-network='instagram'] {
+    --net: #c13584;
+  }
+
+  &[data-network='facebook'] {
+    --net: #1877f2;
+  }
+
+  // Déjà parti : carte en retrait. Ce qui reste à faire doit ressortir, pas ce qui est fait.
+  &.is-done {
+    border-color: var(--adm-green-soft);
+    background: var(--adm-surface-alt);
+
+    .dif-card__body {
+      color: var(--adm-ink-500);
+    }
+  }
+
+  // Écarté : plus en retrait encore, bordure en pointillés. Le texte reste lisible et copiable —
+  // on peut changer d'avis.
+  &.is-skipped {
+    border-style: dashed;
+    border-color: var(--adm-line-strong);
+    background: var(--adm-surface-alt);
+    box-shadow: none;
+
+    .dif-card__mark {
+      filter: grayscale(1);
+      opacity: 0.7;
+    }
+
+    .dif-card__body {
+      color: var(--adm-ink-400);
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  &__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--net) 12%, #fff);
+    color: var(--net);
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  &__id {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
+
+  &__name {
+    margin: 0;
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  &__count {
+    color: var(--adm-ink-400);
+    font-size: 0.74rem;
+    font-variant-numeric: tabular-nums;
+
+    &.is-over {
+      color: var(--adm-red);
+      font-family: 'SNPRO-SemiBold', sans-serif;
+    }
+  }
+
+  &__need {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--adm-ink-500);
+    font-size: 0.8rem;
+    line-height: 1.45;
+
+    // Repère discret : une consigne, pas une alerte.
+    &::before {
+      content: '';
+      flex: 0 0 auto;
+      width: 3px;
+      margin: 0.15rem 0;
+      border-radius: var(--adm-pill);
+      background: var(--adm-line-strong);
+    }
+  }
+
+  // Le texte occupe la hauteur libre : les cartes d'une même rangée ont la même taille (grille),
+  // et leurs boutons s'alignent même quand une consigne en rallonge une.
+  &__body {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 12rem;
+    resize: vertical;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-surface-alt);
+    color: var(--adm-ink-900);
+    font: inherit;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+    scrollbar-color: var(--adm-line-strong) transparent;
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--adm-blue);
+      box-shadow: var(--adm-ring);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.9rem;
+    padding-top: 0.15rem;
+  }
+}
+
+// L'état du post : à droite, séparé de l'action principale qu'on ne doit pas confondre.
+// Deux cases exclusives (cf. `basculer`), dessinées pour que la coche se lise à la couleur :
+// gris pour « Écarté », vert pour « Diffusé ».
+.dif-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-left: auto;
+
+  &.is-busy {
+    opacity: 0.6;
+  }
+
+  &__option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--adm-ink-500);
+    font-size: 0.8rem;
+    cursor: pointer;
+    user-select: none;
+
+    input {
+      appearance: none;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      border: 1.5px solid var(--adm-line-strong);
+      border-radius: 4px;
+      background: var(--adm-surface);
+      cursor: pointer;
+      transition:
+        background var(--adm-t),
+        border-color var(--adm-t);
+
+      // La coche, dessinée en bordures : aucune image à charger.
+      &::after {
+        content: '';
+        width: 4px;
+        height: 8px;
+        margin-top: -2px;
+        border: solid #fff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg) scale(0);
+        transition: transform var(--adm-t);
+      }
+
+      &:checked {
+        border-color: var(--adm-ink-500);
+        background: var(--adm-ink-500);
+
+        &::after {
+          transform: rotate(45deg) scale(1);
+        }
+      }
+
+      &:hover:not(:disabled) {
+        border-color: var(--adm-blue);
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: var(--adm-ring);
+      }
+
+      &:disabled {
+        cursor: progress;
+      }
+    }
+
+    input:checked + span {
+      color: var(--adm-ink-700);
+      font-family: 'SNPRO-SemiBold', sans-serif;
+    }
+
+    &--done input:checked {
+      border-color: var(--adm-green);
+      background: var(--adm-green);
+
+      + span {
+        color: var(--adm-green);
+      }
+    }
+  }
+}
+
+
+.dif-empty {
+  margin-top: 1.5rem;
+  padding: 1.6rem;
+  border: 1px dashed var(--adm-line-strong);
+  border-radius: var(--adm-radius);
+  color: var(--adm-ink-500);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-align: center;
+
+  p {
+    margin: 0 0 0.4rem;
+  }
+}
+
+// Accusé de copie : posé en bas, hors du flux, pour ne pas décaler la carte qu'on vient
+// de cliquer — le geste suivant est un collage, la page ne doit pas bouger sous le curseur.
+.dif-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  z-index: 40;
+  margin: 0;
+  padding: 0.55rem 1rem;
+  border-radius: var(--adm-pill);
+  background: var(--adm-ink-900);
+  color: #fff;
+  font-size: 0.85rem;
+  box-shadow: var(--adm-shadow-pop);
+  animation: adm-fade var(--adm-t) backwards;
+}
+
+// -------------------------------------------------------------
+// Petits écrans : les libellés passent au-dessus de leur valeur.
+// -------------------------------------------------------------
+@media (max-width: 640px) {
+  .adm-page {
+    padding-top: 1.5rem;
+  }
+
+  .dif-brief {
+    padding: 0.2rem 1rem;
+
+    &__row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.45rem;
+
+      &--top .dif-brief__label {
+        padding-top: 0;
+      }
+    }
+
+    &__label {
+      flex-basis: auto;
+    }
+  }
+
+  .dif-cover {
+    flex-direction: column;
+
+    &__img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1200 / 630;
+      max-width: 100%;
+    }
+  }
+
+  .dif-card__actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .dif-state {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,47 @@
+<a
+  class="card"
+  [class.card--featured]="featured()"
+  [routerLink]="['/evenements', event().slug]"
+>
+  <div class="card__media" [class.card__media--empty]="!event().coverImageUrl">
+    @if (event().coverImageUrl) {
+      <img [src]="event().coverImageUrl" [alt]="event().coverImageAlt ?? ''" loading="lazy" />
+    } @else {
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M8 3v4M16 3v4M3 10h18" />
+      </svg>
+    }
+  </div>
+
+  <div class="card__body">
+    <div class="card__tags">
+      <span class="card__type">{{ typeLabel() }}</span>
+      @if (statusLabel(); as label) {
+        <span class="card__status" [class.card__status--alert]="event().status === 'CANCELLED'">{{ label }}</span>
+      }
+    </div>
+
+    <!-- Titre de niveau 3 : la carte vit sous les intitulés « Prochain évènement » et « Ils ont
+         eu lieu », qui sont les h2 de la page. -->
+    <h3 class="card__title">{{ event().title }}</h3>
+
+    <div class="card__meta">
+      <span>{{ schedule() }}</span>
+      @if (place(); as where) { <span>{{ where }}</span> }
+    </div>
+
+    @if (blurb()) {
+      <div class="card__blurb">{{ blurb() }}</div>
+    }
+
+    @if (featured()) {
+      <div class="card__cta">
+        Voir l’évènement
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 5l7 7-7 7" />
+        </svg>
+      </div>
+    }
+  </div>
+</a>

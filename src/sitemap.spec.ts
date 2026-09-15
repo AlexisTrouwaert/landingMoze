@@ -1,6 +1,7 @@
 import {
   articleEntries,
   buildSitemap,
+  eventEntries,
   MAX_ARTICLES,
   staticEntries,
   STATIC_PATHS,
@@ -16,6 +17,24 @@ describe('sitemap', () => {
       expect(entries.length).toBe(STATIC_PATHS.length);
       expect(entries.map((e) => e.loc)).toContain(`${SITE}/blog`);
       expect(entries[0].loc).toBe(`${SITE}/`);
+    });
+  });
+
+  describe('eventEntries', () => {
+    it('la page des évènements, puis une entrée par évènement', () => {
+      expect(
+        eventEntries(
+          [{ slug: 'afterwork-travailler-a-plusieurs-2026-10-08', updatedAt: '2026-09-14T10:00:00.000Z' }],
+          SITE,
+        ),
+      ).toEqual([
+        { loc: `${SITE}/evenements` },
+        { loc: `${SITE}/evenements/afterwork-travailler-a-plusieurs-2026-10-08`, lastmod: '2026-09-14' },
+      ]);
+    });
+
+    it('aucun évènement : pas même la page `/evenements`, qui part alors en noindex', () => {
+      expect(eventEntries([], SITE)).toEqual([]);
     });
   });
 

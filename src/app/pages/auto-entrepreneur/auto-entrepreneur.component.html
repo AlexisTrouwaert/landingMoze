@@ -1,0 +1,220 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="ae-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Auto-entrepreneur</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="ae-hero">
+      <p class="eyebrow">Le statut</p>
+      <h1>Auto-entrepreneur&nbsp;: les seuils et obligations à connaître</h1>
+
+      <p class="lede">
+        Trois chiffres commandent votre régime, et ce ne sont pas les mêmes&nbsp;: le
+        <strong>plafond de chiffre d'affaires</strong> qui décide si vous restez en micro, le
+        <strong>seuil de TVA</strong> qui décide si vous la facturez, et le <strong>taux de
+        cotisations</strong> qui décide de ce qu'il vous reste. Les voici, à jour.
+      </p>
+
+      <!-- La date de mise à jour est en évidence, et non en note de bas de page : sur une page de
+           chiffres réglementaires, c'est la première chose que vérifie un lecteur averti. -->
+      <p class="updated">
+        <span class="live-dot" aria-hidden="true"></span>
+        Chiffres vérifiés au {{ miseAJour }}
+      </p>
+    </header>
+
+    <section class="ae-section">
+      <p class="surtitle">Le régime micro</p>
+      <h2 id="plafonds">Les <span class="highlight-green">plafonds</span> de chiffre d'affaires</h2>
+      <p>
+        Ils ont été <strong>revalorisés en 2026</strong>. C'est le seuil au-delà duquel le régime
+        micro cesse de s'appliquer — à ne pas confondre avec celui de la TVA, plus bas, que l'on
+        franchit donc bien avant.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ae-table">
+          <caption class="sr-only">Plafonds de chiffre d'affaires du régime micro-entreprise</caption>
+          <thead>
+            <tr>
+              <th scope="col">Activité</th>
+              <th scope="col">Plafond annuel</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (seuil of plafonds; track seuil.activite) {
+              <tr>
+                <th scope="row">{{ seuil.activite }}</th>
+                <td class="ae-num">{{ seuil.montant }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Dépasser une année ne vous fait pas sortir du régime. C'est le dépassement
+        <strong>deux années civiles consécutives</strong> qui entraîne le basculement au réel, au
+        1<sup>er</sup> janvier suivant.
+      </p>
+    </section>
+
+    <!-- Le sujet sur lequel la désinformation est la plus tenace : beaucoup d'indépendants
+         croient encore le seuil unique imminent. Le dire clairement vaut mieux qu'un tableau
+         muet. -->
+    <section class="ae-section">
+      <p class="surtitle">La franchise en base</p>
+      <h2 id="tva">La TVA&nbsp;: le seuil unique à 25 000 € <span class="highlight-green">est abandonné</span></h2>
+      <p>
+        Annoncé pour mars 2025, suspendu, puis <strong>définitivement abrogé par la loi du
+        3 novembre 2025</strong>. La loi de finances pour 2026 a été promulguée sans cette mesure.
+        Les seuils de franchise en base sont donc <strong>inchangés</strong>&nbsp;:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ae-table">
+          <caption class="sr-only">Seuils de franchise en base de TVA</caption>
+          <thead>
+            <tr>
+              <th scope="col">Activité</th>
+              <th scope="col">Seuil de base</th>
+              <th scope="col">Seuil majoré</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (seuil of seuilsTva; track seuil.activite) {
+              <tr>
+                <th scope="row">{{ seuil.activite }}</th>
+                <td class="ae-num">{{ seuil.montant }}</td>
+                <td class="ae-num ae-num--soft">{{ seuil.majore }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Au-delà du <strong>seuil majoré</strong>, la TVA s'applique dès le premier jour du mois de
+        dépassement. Entre les deux seuils, la franchise tient l'année en cours&nbsp;: c'est le
+        dépassement deux années de suite qui y met fin.
+      </p>
+    </section>
+
+    <section class="ae-section">
+      <p class="surtitle">Les taux</p>
+      <h2 id="cotisations">Les <span class="highlight-green">cotisations</span> sociales</h2>
+      <p>
+        Elles se calculent sur le <strong>chiffre d'affaires encaissé</strong>, sans déduction de
+        charges. C'est ce qui rend le régime simple à tenir — et coûteux dès que votre activité
+        suppose des achats.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ae-table">
+          <caption class="sr-only">Taux de cotisations sociales par activité</caption>
+          <thead>
+            <tr>
+              <th scope="col">Activité</th>
+              <th scope="col">Taux</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cot of cotisations; track cot.activite) {
+              <tr>
+                <th scope="row">
+                  {{ cot.activite }}
+                  @if (cot.precision) {
+                    <span class="ae-precision">{{ cot.precision }}</span>
+                  }
+                </th>
+                <td class="ae-num">{{ cot.taux }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ae-section">
+      <p class="surtitle">Au quotidien</p>
+      <h2 id="obligations">Vos obligations, <span class="highlight-green">en pratique</span></h2>
+      <div class="obl-grid">
+        @for (obl of obligations; track obl.titre) {
+          <div class="obl-card">
+            <h3>{{ obl.titre }}</h3>
+            <p [innerHTML]="obl.texte"></p>
+          </div>
+        }
+      </div>
+      <p class="fineprint">
+        Les montants et taux de cette page sont revalorisés périodiquement. En cas de doute, la
+        source qui fait foi est le
+        <a href="https://www.autoentrepreneur.urssaf.fr/portail/accueil.html" target="_blank" rel="noopener">portail
+        auto-entrepreneur de l'URSSAF</a>.
+      </p>
+    </section>
+
+    <section class="ae-section">
+      <p class="surtitle">Notre rôle</p>
+      <h2 id="moze">Ce que Moze <span class="highlight-green">change pour vous</span></h2>
+      <p>
+        Le régime est simple sur le papier&nbsp;; ce qui prend du temps, c'est de facturer
+        correctement, de suivre ce qui rentre et de rester en règle quand les obligations bougent.
+        Vos factures sont générées au format <strong>Factur-X</strong>, conforme à l'échéance de
+        septembre 2027, et la veille réglementaire est incluse jusque dans l'offre gratuite.
+      </p>
+      <p>
+        Le détail du calendrier est sur notre page
+        <a routerLink="/facturation-electronique">facturation électronique</a>, et tout ce qui
+        touche au quotidien du métier — se faire payer, trouver des clients, travailler à
+        plusieurs — est réuni sur la page <a routerLink="/freelance">freelance</a>.
+        <a routerLink="/tarifs">Voir les tarifs</a>.
+      </p>
+    </section>
+
+    <section class="ae-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="ae-cta">
+      <h2>Facturez sans y penser</h2>
+      <p>
+        Le réseau et la veille réglementaire sont gratuits. La facturation s'ajoute quand vous en
+        avez besoin, sans engagement.
+      </p>
+      <div class="ae-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('auto_entrepreneur_cta_final')">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/freelance">Gérer son activité</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

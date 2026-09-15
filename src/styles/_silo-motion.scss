@@ -1,0 +1,238 @@
+// =============================================================================
+// Animations et finitions partagées par les pages du silo
+// (/facturation-electronique, /tarifs, /facturation-collaborative,
+//  /services-a-la-personne, /freelance, /auto-entrepreneur)
+//
+// Usage : @use '../../../styles/silo-motion' as motion;
+//         .hero h1 { @include motion.enter(1); }
+//
+// ── Règle absolue : tout est en CSS pur. ──
+// Ces pages n'existent que pour être indexées. Une révélation pilotée par
+// JavaScript — c'est le cas de `appScrollReveal`, qui pose `opacity: 0` en
+// attendant l'hydratation — sortirait leur contenu du HTML servi tel que le
+// lisent les robots sans JS. Le prix serait bien supérieur au gain visuel.
+//
+// Rythme repris de l'accueil (`landing-section`) : même courbe, même durée,
+// même pas de décalage. Le silo doit respirer comme le reste du site.
+// =============================================================================
+
+$ease: cubic-bezier(0.16, 1, 0.3, 1);
+$duration: 0.75s;
+$stagger: 130ms;
+
+// -----------------------------------------------------------------------------
+// Entrée au chargement — pour le haut de page, visible d'emblée.
+// `$i` est le rang dans la cascade (0, 1, 2…).
+//
+// ── `backwards`, et surtout pas `opacity: 0` posé en dur. ──
+// L'état masqué ne vit que dans la keyframe : `backwards` l'applique pendant le
+// délai, puis l'élément retrouve son état normal — opaque. Si l'animation ne
+// démarrait pas, pour quelque raison que ce soit, le titre resterait donc
+// visible au lieu de disparaître. Sur des pages dont l'indexation est la raison
+// d'être, c'est le sens de repli qu'il faut choisir.
+// -----------------------------------------------------------------------------
+@mixin enter($i: 0, $shift: 20px) {
+  @media (prefers-reduced-motion: no-preference) {
+    --silo-enter-shift: #{$shift};
+    animation: siloEnter $duration $ease backwards;
+    animation-delay: calc(#{$i} * #{$stagger} + 120ms);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Révélation à l'entrée dans le viewport, pilotée par le défilement.
+//
+// `animation-timeline: view()` fait tout le travail sans observateur ni script.
+// Le `@supports` n'est pas une précaution de style : sans lui, un navigateur qui
+// ignore la propriété appliquerait quand même `opacity: 0` et masquerait le
+// contenu pour de bon. Ici, l'absence de prise en charge donne simplement une
+// page statique — jamais une page vide.
+//
+// ── La plage se borne à `entry`, et c'est essentiel. ──
+// Avec `cover`, l'animation s'achève après un défilement que la fin de page ne
+// peut pas fournir : mesuré sur `/tarifs`, page défilée à fond, le bloc d'appel
+// à l'action et la dernière question restaient à `opacity: 0` bien qu'entièrement
+// à l'écran. Ils l'auraient été définitivement. `entry 100%` est atteint dès que
+// l'élément est entré tout entier dans le viewport, quelle que soit la hauteur
+// de page restante.
+// -----------------------------------------------------------------------------
+@mixin reveal($shift: 24px, $range: entry 0% entry 70%) {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: siloReveal linear both;
+      animation-timeline: view();
+      animation-range: #{$range};
+      --silo-reveal-shift: #{$shift};
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dépliage animé des `<details>` de la FAQ.
+//
+// Un `<details>` s'ouvre d'un bloc par défaut : il n'y a rien à animer entre
+// « fermé » et « ouvert », la hauteur passe de 0 à `auto` sans état intermédiaire.
+// Deux ajouts récents de CSS lèvent l'obstacle :
+// - `::details-content` donne prise sur le contenu déplié ;
+// - `interpolate-size: allow-keywords` autorise l'interpolation vers `auto`.
+//
+// `content-visibility` doit être transitionné en `allow-discrete`, faute de quoi
+// le contenu disparaîtrait d'un coup à la fermeture au lieu de se replier.
+//
+// Le `@supports` teste les deux : sans prise en charge, on retrouve exactement le
+// comportement actuel — ouverture instantanée. Rien à perdre, donc, et toujours
+// aucun JavaScript sur des pages dont l'indexation est la raison d'être.
+// -----------------------------------------------------------------------------
+@mixin faq-transition($duree: 0.32s) {
+  @supports (interpolate-size: allow-keywords) and selector(::details-content) {
+    interpolate-size: allow-keywords;
+
+    &::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size $duree $ease,
+        content-visibility $duree $ease allow-discrete;
+    }
+
+    &[open]::details-content { block-size: auto; }
+
+    /* Les pages resserrent la marge basse du `summary` à l'ouverture : sans
+       transition, ce ressaut trahissait le repli en cours juste au-dessus de lui. */
+    > summary { transition: padding-bottom $duree $ease; }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::details-content,
+      > summary { transition: none; }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Élévation au survol — cartes et blocs cliquables.
+// -----------------------------------------------------------------------------
+@mixin lift($y: -4px, $tint: rgba(107, 212, 152, 0.28)) {
+  transition:
+    transform 0.28s $ease,
+    box-shadow 0.28s $ease,
+    border-color 0.28s $ease;
+
+  &:hover {
+    transform: translateY($y);
+    box-shadow: 0 14px 34px rgba(20, 73, 104, 0.13), 0 0 0 1px $tint;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover { transform: none; }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Barre verte des titres de section : elle se déploie de haut en bas à
+// l'arrivée du titre, au lieu d'être posée là.
+// -----------------------------------------------------------------------------
+@mixin title-bar($width: 4px) {
+  position: relative;
+  padding-left: 0.9rem;
+  border-left: none; // remplacée par le pseudo-élément, qu'on peut animer
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.12em;
+    bottom: 0.12em;
+    width: $width;
+    border-radius: $width;
+    background: linear-gradient(180deg, var(--moze-green), #35b978);
+    transform-origin: top;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      &::before {
+        animation: siloBar linear both;
+        animation-timeline: view();
+        /* `entry` et non `cover`, pour la même raison que `reveal()`. */
+        animation-range: entry 0% entry 55%;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Fond décoratif du haut de page : halo vert diffus, très discret.
+// Purement décoratif, donc `pointer-events: none` et hors du flux.
+// -----------------------------------------------------------------------------
+@mixin hero-glow() {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -11rem;
+    left: 50%;
+    width: min(1180px, 138%);
+    height: 580px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 55% at 28% 46%, rgba(107, 212, 152, 0.34), transparent 70%),
+      radial-gradient(ellipse 52% 50% at 80% 28%, rgba(0, 174, 239, 0.20), transparent 72%);
+    filter: blur(8px);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Reflet lent sur le bloc d'appel à l'action.
+// -----------------------------------------------------------------------------
+@mixin sheen() {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.11) 48%,
+      transparent 62%
+    );
+    transform: translateX(-100%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &::after { animation: siloSheen 7s ease-in-out 1.5s infinite; }
+  }
+}
+
+// =============================================================================
+// Keyframes — définies une fois par composant qui importe ce fichier. Angular
+// ne portant pas l'encapsulation aux `@keyframes`, des définitions identiques
+// se superposent sans conflit.
+// =============================================================================
+@keyframes siloEnter {
+  from { opacity: 0; transform: translateY(var(--silo-enter-shift, 20px)); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes siloReveal {
+  from { opacity: 0; transform: translateY(var(--silo-reveal-shift, 24px)); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes siloBar {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes siloSheen {
+  0%,  55%  { transform: translateX(-100%); }
+  85%, 100% { transform: translateX(100%); }
+}

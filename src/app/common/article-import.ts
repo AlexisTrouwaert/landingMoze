@@ -120,7 +120,7 @@ function fieldFor(label: string): ImportField | null {
  * Les titres sont ramenés dans la plage autorisée : le niveau 1 est celui de l'article, déjà
  * rendu par la page — un `h1` de plus dans le contenu casserait la hiérarchie du document.
  */
-function toHtml(paragraphs: readonly DocxParagraph[]): string {
+export function toHtml(paragraphs: readonly DocxParagraph[]): string {
   const out: string[] = [];
   let openList: 'ul' | 'ol' | null = null;
 

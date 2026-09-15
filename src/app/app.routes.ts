@@ -20,6 +20,34 @@ export const routes: Routes = [
     loadChildren: () => import('./routes/funnel.routes').then(m => m.FUNNEL_ROUTES)
   },
   {
+    path: 'tarifs',
+    loadChildren: () => import('./routes/tarifs.routes').then(m => m.TARIFS_ROUTES)
+  },
+  {
+    path: 'auto-entrepreneur',
+    loadChildren: () =>
+      import('./routes/auto-entrepreneur.routes').then(m => m.AUTO_ENTREPRENEUR_ROUTES)
+  },
+  {
+    path: 'freelance',
+    loadChildren: () => import('./routes/freelance.routes').then(m => m.FREELANCE_ROUTES)
+  },
+  {
+    path: 'services-a-la-personne',
+    loadChildren: () =>
+      import('./routes/services-a-la-personne.routes').then(m => m.SERVICES_A_LA_PERSONNE_ROUTES)
+  },
+  {
+    path: 'facturation-collaborative',
+    loadChildren: () =>
+      import('./routes/facturation-collaborative.routes').then(m => m.FACTURATION_COLLABORATIVE_ROUTES)
+  },
+  {
+    path: 'facturation-electronique',
+    loadChildren: () =>
+      import('./routes/facturation-electronique.routes').then(m => m.FACTURATION_ELECTRONIQUE_ROUTES)
+  },
+  {
     path: 'cgv-cgu',
     loadChildren: () => import('./routes/legal.routes').then(m => m.CGV_ROUTES)
   },
@@ -34,6 +62,10 @@ export const routes: Routes = [
   {
     path: 'blog',
     loadChildren: () => import('./routes/blog.routes').then(m => m.BLOG_ROUTES)
+  },
+  {
+    path: 'evenements',
+    loadChildren: () => import('./routes/events.routes').then(m => m.EVENTS_ROUTES)
   },
   {
     path: 'admin',

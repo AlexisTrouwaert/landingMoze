@@ -1,0 +1,366 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="fe-page">
+
+  <!-- Fil d'Ariane VISIBLE : le JSON-LD `BreadcrumbList` posé par le composant doit décrire
+       quelque chose que le lecteur voit — c'est la règle des données structurées. -->
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Facturation électronique</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="fe-hero">
+      <p class="eyebrow">Réforme de la facturation électronique</p>
+      <h1>
+        Facturation électronique&nbsp;: ce qui change pour les indépendants
+        <span class="h1-years">Calendrier 2026-2027</span>
+      </h1>
+
+      <!-- La réponse directe, dans les 100 premiers mots. C'est ce que Google extrait pour un
+           extrait enrichi, et à peu près tout ce que lisent les moteurs de réponse : la placer
+           après trois paragraphes d'introduction commerciale revient à ne pas la donner. -->
+      <p class="lede">
+        Depuis le <strong>1<sup>er</sup> septembre 2026</strong>, toutes les entreprises
+        assujetties à la TVA établies en France doivent être en mesure de
+        <strong>recevoir</strong> des factures électroniques&nbsp;— micro-entrepreneurs et
+        franchise en base compris, sans report lié à la taille. Si vous êtes indépendant, TPE ou
+        micro-entreprise, vous devrez à votre tour <strong>émettre</strong> vos factures au
+        format électronique à partir du <strong>1<sup>er</sup> septembre 2027</strong>.
+      </p>
+
+      <p class="updated">
+        <span class="live-dot" aria-hidden="true"></span>
+        Obligation de réception en vigueur · page à jour au 8 septembre 2026
+      </p>
+    </header>
+
+    <!-- Le chiffre est écrit en clair dans le gabarit : `appCountUp` se contente de l'animer,
+         le HTML servi porte donc bien la valeur finale. -->
+    <section class="key-facts" aria-label="L'essentiel">
+      <div class="fact">
+        <span class="fact__num" appCountUp>2</span>
+        <p class="fact__label">échéances vous concernent&nbsp;: recevoir, puis émettre</p>
+      </div>
+      <div class="fact">
+        <span class="fact__num" appCountUp>2027</span>
+        <p class="fact__label">l'année où l'émission devient obligatoire pour les indépendants</p>
+      </div>
+      <div class="fact">
+        <span class="fact__num" appCountUp>50&nbsp;€</span>
+        <p class="fact__label">l'amende par facture non conforme, plafonnée à 15&nbsp;000&nbsp;€ par an</p>
+      </div>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">Le calendrier</p>
+      <h2 id="calendrier">Ce qui s'applique, <span class="highlight-green">et quand</span></h2>
+      <p>
+        La réforme ne s'applique pas à tout le monde en même temps. Deux critères commandent
+        votre situation&nbsp;: ce que vous devez faire (recevoir ou émettre) et la taille de
+        votre entreprise.
+      </p>
+
+      <!-- Tableau et non liste de cartes : c'est une donnée à trois colonnes, et Google la
+           comprend comme telle. -->
+      <div class="table-wrap">
+        <table class="cal-table">
+          <caption class="sr-only">Calendrier d'entrée en vigueur de la facturation électronique</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Qui</th>
+              <th scope="col">Obligation</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of echeances; track e.date + e.qui) {
+              <tr [class.is-live]="e.enVigueur">
+                <td class="cal-date">
+                  {{ e.date }}
+                  @if (e.enVigueur) {
+                    <span class="pill pill--live">En vigueur</span>
+                  } @else {
+                    <span class="pill pill--soon">À venir</span>
+                  }
+                </td>
+                <td>{{ e.qui }}</td>
+                <td [innerHTML]="e.quoi"></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Autrement dit&nbsp;: même si vous avez jusqu'à septembre 2027 pour émettre, vous devez
+        <strong>déjà</strong> pouvoir recevoir les factures de vos clients grands comptes et ETI,
+        qui émettent en électronique depuis le 1<sup>er</sup> septembre 2026.
+      </p>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">Le périmètre</p>
+      <h2 id="concerne">Êtes-vous <span class="highlight-green">concerné</span>&nbsp;?</h2>
+      <p>
+        Oui, dès lors que vous êtes une entreprise assujettie à la TVA établie en France et que
+        vous facturez d'autres professionnels français. Ce périmètre est plus large qu'on ne le
+        croit, et deux cas méritent d'être levés&nbsp;:
+      </p>
+      <ul class="check-list">
+        <li>
+          <strong>Micro-entrepreneur en franchise en base&nbsp;?</strong> Vous êtes concerné. La
+          franchise en base vous dispense de <em>facturer</em> la TVA, pas d'y être
+          <em>assujetti</em>.
+        </li>
+        <li>
+          <strong>Vous ne facturez que des particuliers&nbsp;?</strong> Vos factures B2C
+          échappent à la facture électronique, mais pas à l'<strong>e-reporting</strong>&nbsp;:
+          les données de ces transactions devront être transmises périodiquement à
+          l'administration.
+        </li>
+      </ul>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">La définition</p>
+      <h2 id="definition">Une facture électronique, <span class="highlight-green">ce n'est pas un PDF</span></h2>
+      <p>
+        C'est le contresens le plus répandu, et il coûtera cher à ceux qui s'y accrochent&nbsp;:
+        <strong>un PDF envoyé par e-mail n'est pas une facture électronique</strong> au sens de la
+        réforme. C'est une facture papier dématérialisée.
+      </p>
+      <p>
+        Toute la différence tient à ce qu'une machine peut en faire. Dans un PDF, les
+        informations sont <em>dessinées</em>&nbsp;; dans une facture électronique, elles sont
+        <strong>étiquetées</strong>.
+      </p>
+
+      <!-- Montrer plutôt que définir. « Fichier structuré » ne dit rien tant qu'on n'a pas vu
+           à quoi ressemblent des champs nommés : la démonstration tient en quatre lignes et
+           fait comprendre d'un coup d'œil ce qu'un paragraphe peinait à expliquer. Les valeurs
+           sont fictives, mais de la forme exacte de celles qu'une facture transporte. -->
+      <div class="lecture">
+        <div class="lecture__cas">
+          <h3>Ce qu'une machine trouve dans un PDF</h3>
+          <p>
+            Un dessin de facture. Le total est bien là, quelque part, mais rien n'indique que
+            <em>ce</em> nombre est le montant à payer et que <em>celui-là</em> est un SIREN. Il
+            faut le deviner — et deviner, ça se trompe.
+          </p>
+        </div>
+        <div class="lecture__cas lecture__cas--structure">
+          <h3>Ce qu'elle trouve dans une facture électronique</h3>
+          <dl class="champs">
+            <div class="champs__ligne"><dt>SIREN du client</dt><dd>812 345 678</dd></div>
+            <div class="champs__ligne"><dt>Montant HT</dt><dd>1 200,00 €</dd></div>
+            <div class="champs__ligne"><dt>TVA 20 %</dt><dd>240,00 €</dd></div>
+            <div class="champs__ligne"><dt>Échéance</dt><dd>30/11/2027</dd></div>
+          </dl>
+          <p>
+            Les mêmes informations, chacune dans un champ qui porte son nom. Plus rien à
+            interpréter.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        Trois formats répondent à cette définition, et la réforme les admet tous les trois.
+        <strong>Vous n'aurez pas à choisir entre eux</strong>&nbsp;: votre outil en émet un, et
+        les plateformes qui transportent la facture font le pont vers celui qu'attend votre
+        client. Ce qui vous regarde, c'est que votre outil en émette un — et non un PDF.
+      </p>
+
+      <div class="format-grid">
+        <div class="format-card format-card--highlight">
+          <h3>Factur-X</h3>
+          <p>
+            Un PDF tout à fait normal, avec les données glissées <strong>à l'intérieur</strong>.
+            Vous et votre client ouvrez la facture habituelle&nbsp;; la machine, elle, lit les
+            champs cachés dedans.
+          </p>
+          <span class="format-tag">Le seul lisible à l'œil nu</span>
+        </div>
+        <div class="format-card">
+          <h3>UBL</h3>
+          <p>
+            Des données sans facture à regarder&nbsp;: un fichier qu'aucun humain n'ouvre.
+            Répandu à l'international et dans les logiciels d'achat des grandes entreprises.
+          </p>
+        </div>
+        <div class="format-card">
+          <h3>CII</h3>
+          <p>
+            Même principe qu'UBL, avec un autre vocabulaire — celui qu'une partie des grands
+            donneurs d'ordre emploie déjà. C'est d'ailleurs ce vocabulaire que Factur-X embarque
+            dans son PDF.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">Les plateformes</p>
+      <h2 id="plateformes">Par où <span class="highlight-green">transitent</span> les factures</h2>
+      <p>
+        Deuxième changement, aussi structurant que le format&nbsp;: vos factures ne partiront
+        plus directement de votre boîte mail vers celle de votre client. Elles transiteront par
+        une <strong>plateforme de dématérialisation partenaire (PDP)</strong>, immatriculée par
+        l'État.
+      </p>
+      <p>
+        Beaucoup d'indépendants attendent encore le portail public gratuit qui avait été annoncé
+        au lancement du projet. <strong>Il n'existera pas sous cette forme</strong>&nbsp;: le
+        <abbr title="Portail Public de Facturation">PPF</abbr> a été recentré en 2024 sur un rôle
+        d'annuaire et de concentrateur de données. Il ne proposera pas de service gratuit
+        d'émission de factures. Passer par une plateforme partenaire n'est donc pas une option
+        parmi d'autres&nbsp;: c'est le chemin prévu par la réforme.
+      </p>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">Les sanctions</p>
+      <h2 id="sanctions">Ce que vous <span class="highlight-green">risquez</span></h2>
+      <p>
+        Les montants ont été revus à la hausse par la loi de finances pour 2026. Ils se cumulent
+        sous un plafond annuel commun de 15&nbsp;000&nbsp;€ par entreprise.
+      </p>
+      <div class="table-wrap">
+        <table class="cal-table">
+          <caption class="sr-only">Sanctions applicables</caption>
+          <thead>
+            <tr>
+              <th scope="col">Manquement</th>
+              <th scope="col">Sanction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Facture non émise au format électronique</td>
+              <td><strong>50&nbsp;€</strong> par facture, plafond 15&nbsp;000&nbsp;€/an</td>
+            </tr>
+            <tr>
+              <td>Mention obligatoire absente ou erronée</td>
+              <td><strong>15&nbsp;€</strong> par mention</td>
+            </tr>
+            <tr>
+              <td>E-reporting non transmis</td>
+              <td><strong>500&nbsp;€</strong> par transmission, plafond 15&nbsp;000&nbsp;€/an</td>
+            </tr>
+            <tr>
+              <td>Aucune plateforme pour recevoir</td>
+              <td>
+                Mise en demeure, puis <strong>500&nbsp;€</strong> sans régularisation sous trois
+                mois, puis 1&nbsp;000&nbsp;€ par trimestre
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">La marche à suivre</p>
+      <h2 id="preparer">Comment vous y <span class="highlight-green">préparer</span></h2>
+      <ol class="steps">
+        @for (etape of etapes; track etape.titre; let i = $index) {
+          <li class="step">
+            <span class="step__num" aria-hidden="true">{{ i + 1 }}</span>
+            <div class="step__body">
+              <h3>{{ etape.titre }}</h3>
+              <p>{{ etape.texte }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+      <p class="note">
+        Pour aller plus loin sur le choix de l'outil, nous avons détaillé les critères — et les
+        pièges — dans
+        <a routerLink="/blog/facturation-electronique-pour-les-nuls-4-bien-choisir-son-outil-sans-se-faire">
+          notre guide « bien choisir son outil, sans se faire avoir »</a>.
+      </p>
+    </section>
+
+    <!-- Section produit tenue à ce qui est vrai aujourd'hui. Sur une page réglementaire,
+         une promesse approximative se retourne contre la marque bien plus vite qu'ailleurs :
+         le lecteur vient précisément vérifier s'il est en règle. -->
+    <section class="fe-section">
+      <p class="surtitle">Notre rôle</p>
+      <h2 id="moze">Moze et la <span class="highlight-green">facturation électronique</span></h2>
+      <div class="moze-block">
+        <div class="moze-block__col">
+          <h3>Ce que Moze couvre aujourd'hui</h3>
+          <ul class="check-list check-list--tight">
+            <li>
+              Vos factures et devis sont générés au format <strong>Factur-X</strong>, structuré
+              et conforme aux exigences de la réforme.
+            </li>
+            <li>
+              Moze est adossé à une <strong>Plateforme Agréée</strong> certifiée, immatriculée
+              par l'État, pour la transmission.
+            </li>
+            <li>
+              Vous êtes prêt pour l'échéance d'émission de septembre 2027 sans changer d'outil
+              d'ici là.
+            </li>
+          </ul>
+        </div>
+        <div class="moze-block__col">
+          <h3>Ce qu'il vous reste à vérifier</h3>
+          <p>
+            L'obligation de <strong>réception</strong>, en vigueur depuis le 1<sup>er</sup>
+            septembre 2026, suppose de disposer d'une plateforme capable de réceptionner les
+            factures de vos fournisseurs. C'est un point à traiter indépendamment du choix de
+            votre outil d'émission&nbsp;; notre équipe peut vous aider à faire le point sur votre
+            situation.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="fe-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <!-- `<details>` natif : le contenu est dans le HTML servi même replié, donc lu par
+               les robots, et l'accordéon fonctionne sans JavaScript. -->
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="fe-cta">
+      <h2>Prenez de l'avance sur septembre 2027</h2>
+      <p>
+        Facturez au format Factur-X dès aujourd'hui, collaborez avec d'autres indépendants et
+        développez votre réseau. L'offre Freemium est gratuite.
+      </p>
+      <div class="fe-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel()">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/" fragment="offres">Voir les offres</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- `flat` : pas de fond bleu foncé sous le footer, comme sur le blog. La page se termine déjà
+       sur le bloc CTA bleu ; le bandeau du footer ajoutait un second aplat juste en dessous. -->
+  <app-footer [flat]="true" />
+</div>

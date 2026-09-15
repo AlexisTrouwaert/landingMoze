@@ -39,16 +39,23 @@
 }
 
 /* =============================================
-   SCROLL — défilement fluide + offset des ancres sous le dock flottant
-   ============================================= */
-html { scroll-behavior: smooth; }
+   SCROLL — offset des ancres sous le dock flottant
+   =============================================
+
+   Pas de `html { scroll-behavior: smooth }`.
+
+   Cette règle globale rendait lisse *tout* défilement programmé, y compris celui
+   qu'Angular déclenche au changement de route : on quittait une page à mi-hauteur
+   et la suivante remontait en glissant depuis cette position, ce qui retardait
+   l'affichage du haut de page. Elle allongeait aussi les arrivées par lien profond
+   (`scrollIntoView({ block: 'start' })` sans `behavior`), où l'instantané est voulu.
+
+   Rien n'est perdu : chaque défilement qui doit être fluide le demande
+   explicitement — `scrollToId` du dock, le bouton « haut de page », les sommaires
+   des pages légales — et chacun teste déjà `prefers-reduced-motion`. */
 
 /* Décale la cible d'ancre pour qu'elle ne passe pas sous le dock fixe. */
 .scroll-anchor { scroll-margin-top: 96px; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
 
 .sr-only {
   position: absolute;
@@ -158,14 +165,8 @@ body{
   background-color: var(--background-color);
 }
 
-/* =============================================
-   ANCRES / SCROLL — navigation par sections (sidebar)
-   ============================================= */
-html { scroll-behavior: smooth; }
-
-/* Décale les sections ciblées sous le header fixe lors d'un scroll vers l'ancre. */
-.scroll-anchor { scroll-margin-top: 96px; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
+/* Ce bloc dupliquait mot pour mot la section SCROLL déclarée plus haut — même
+   `scroll-behavior`, même `.scroll-anchor`, même exception `prefers-reduced-motion`.
+   La duplication est ce qui a masqué le retrait de la première : le lissage restait
+   actif, et le retour en haut de page au changement de route continuait de glisser
+   au lieu de sauter. Les règles utiles vivent désormais en un seul endroit. */

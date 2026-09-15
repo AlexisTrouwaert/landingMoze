@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
     selector: 'app-tarif',
-    imports: [ScrollRevealDirective],
+    imports: [ScrollRevealDirective, RouterLink],
     templateUrl: './tarif.component.html',
     styleUrl: './tarif.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush

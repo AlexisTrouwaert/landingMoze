@@ -6,8 +6,10 @@
 // Sa largeur est dimensionnée pour la ligne la plus large — un article ARCHIVÉ :
 // deux créneaux vides (2×28) + « Restaurer » (~88) + menu (28) + trois gouttières (18).
 // Les lignes publiées (étoile + œil + crayon + menu, tous en icônes) tiennent largement.
+// Le statut est calé sur sa pastille la plus large, « à diffuser 0/4 » (~90) : à 78 px elle
+// débordait à droite et ne se centrait plus sous « Programmé ».
 // check / vignette / article / statut / vues / modifié / actions
-$row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 190px;
+$row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
 
 .adm-page {
   max-width: 1060px;
@@ -359,6 +361,25 @@ $row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 190px;
     text-overflow: ellipsis;
   }
 
+  // Ce qui reste à poster : une pastille qui est aussi un lien. Repère et action confondus,
+  // sinon on constate le travail restant sans savoir où aller le faire.
+  &__diffuser {
+    text-decoration: none;
+    transition:
+      background var(--adm-t),
+      color var(--adm-t);
+
+    &:hover {
+      background: var(--adm-blue-soft);
+      color: var(--adm-blue);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+  }
+
   // Étoile « à la une » : indicateur et commande à la fois, un seul clic.
   &__star {
     flex: 0 0 auto;
@@ -424,6 +445,17 @@ $row-grid: 18px 40px minmax(0, 1fr) 78px 52px 62px 190px;
 .col-status {
   min-width: 0;
   text-align: center;
+}
+
+// Statut et « à diffuser » : empilés et centrés quand la piste est étroite, côte à côte en
+// carte. Le `gap` les décolle ; `justify-content` centre même une pastille qui déborderait,
+// là où `text-align` la laissait partir vers la droite.
+.row__foot .col-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 .col-views {

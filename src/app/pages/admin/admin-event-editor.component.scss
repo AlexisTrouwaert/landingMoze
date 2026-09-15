@@ -1,0 +1,306 @@
+// Complète `admin-blog-editor.component.scss`, chargée avant celle-ci (cf. `styleUrls`).
+@use './admin-ui' as *;
+
+// La barre de l'éditeur d'articles ne prend son relief qu'une fois la page défilée ; celle-ci
+// n'observe pas le défilement, elle le porte donc d'emblée.
+.ed-bar {
+  border-bottom-color: var(--adm-line);
+
+  .is-open {
+    border-color: var(--adm-blue);
+    color: var(--adm-blue);
+  }
+}
+
+// Rail des réglages : épinglé sous la barre, il défile pour son compte. La molette au-dessus
+// du rail le fait défiler lui, pas la page — il est plus long qu'un écran (publication, type,
+// lieu, image), et l'épingler sans ça le tronquait.
+//
+// Propre aux évènements : dans l'éditeur d'articles, les suggestions de tags s'ouvrent vers le
+// bas et seraient rognées par le `overflow` du rail.
+@media (min-width: 1081px) {
+  .ed-side {
+    // 58px : `$bar-h`, la hauteur de la barre collante (feuille des articles).
+    position: sticky;
+    top: calc(58px + 1rem);
+    max-height: calc(100dvh - 58px - 2rem);
+    overflow-y: auto;
+    // `overflow-y` seul passerait l'axe horizontal en `auto` : pas de barre de défilement
+    // latérale pour un pixel de trop.
+    overflow-x: hidden;
+    // Arrivé en bas du rail, la molette ne passe pas la main à la page.
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    // Les ombres et le liseré de focus des cartes débordent de quelques pixels : sans cette
+    // marge intérieure, `overflow` les rognerait. La marge négative garde l'alignement.
+    margin: -0.5rem;
+    padding: 0.5rem;
+  }
+}
+
+.ev-import-issues {
+  margin: 0.25rem 0 0 1.1rem;
+  padding: 0;
+  font-size: 0.82rem;
+}
+
+.ed-loading {
+  margin-top: 2rem;
+  color: var(--adm-ink-400);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.hint__link {
+  margin-left: 0.25rem;
+  color: var(--adm-blue);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+}
+
+// Les `<select>` n'ont pas de style dans la feuille des articles, qui n'en a pas.
+.field select {
+  width: 100%;
+  height: 2.35rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink-900);
+  font-family: inherit;
+  font-size: 0.9rem;
+
+  &:focus {
+    border-color: var(--adm-blue);
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+}
+
+.field input:disabled {
+  background: var(--adm-surface-alt);
+  color: var(--adm-ink-400);
+  cursor: not-allowed;
+}
+
+// Code postal + ville, région + pays : deux champs sur une ligne.
+.ev-row {
+  display: flex;
+  gap: 0.6rem;
+
+  > .field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  > .ev-row__short {
+    flex: 0 0 6rem;
+  }
+}
+
+.ev-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--adm-ink-700);
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+// Ce qui manque pour publier : ambre, le registre « à traiter » de l'admin.
+.ev-check {
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-amber-soft);
+  color: var(--adm-amber);
+  font-size: 0.82rem;
+
+  &__title {
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  &__list {
+    margin: 0.3rem 0 0 1.1rem;
+    padding: 0;
+  }
+
+  &--ok {
+    background: var(--adm-green-soft);
+    color: var(--adm-green);
+  }
+
+  // Interdit : rouge, publier est refusé tant que ce n'est pas corrigé.
+  &--block {
+    background: var(--adm-red-soft);
+    color: var(--adm-red);
+  }
+
+  // Avertissement : bleu, pour ne pas le confondre avec ce qui bloque.
+  &--warn {
+    background: var(--adm-blue-soft);
+    color: var(--adm-ink-700);
+  }
+
+  &__tag {
+    margin-left: 0.3rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: var(--adm-surface);
+    color: var(--adm-ink-500);
+    font-family: 'SNPRO-Regular', sans-serif;
+    font-size: 0.7rem;
+    vertical-align: 0.05rem;
+  }
+}
+
+// Une ligne par avertissement : le sujet en colonne étroite, l'action à côté.
+.ev-warn {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: grid;
+    grid-template-columns: 3.6rem 1fr;
+    column-gap: 0.5rem;
+    padding: 0.15rem 0;
+
+    &[title] {
+      cursor: help;
+    }
+  }
+
+  &__topic {
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    color: var(--adm-ink-500);
+  }
+
+  &__fix {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.ev-row > .ev-row__role {
+  flex: 0 0 11rem;
+}
+
+.ev-logo__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.35rem;
+}
+
+.ev-logo__img {
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius-sm);
+  object-fit: contain;
+  background: #fff;
+
+  &--sm {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+}
+
+.ev-partners {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.ev-partner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface-alt);
+
+  &__tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .ev-row {
+    flex-wrap: wrap;
+
+    > .ev-row__role {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+.ev-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ev-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface-alt);
+  animation: adm-fade-up var(--adm-t-slow) backwards;
+
+  &--danger {
+    border-color: var(--adm-red-soft);
+  }
+
+  &__title {
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.88rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+}
+
+// Geste rare et à contre-courant : un lien discret, pas un bouton de plus.
+.ev-link {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--adm-ink-400);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--adm-red);
+  }
+}
+
+.ed-preview {
+  &__bar {
+    justify-content: flex-start;
+  }
+
+  // La largeur de la page publique : l'aperçu passe à la ligne là où le visiteur la verra passer.
+  &__page {
+    width: 100%;
+    max-width: 760px;
+  }
+}

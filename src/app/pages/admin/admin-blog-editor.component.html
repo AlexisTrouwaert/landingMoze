@@ -344,6 +344,15 @@
             ~{{ readingMinutes() }} min de lecture
           </p>
         </section>
+
+        <!-- Liens internes et blocs non reconnus : ce qu'on vérifie en relisant le texte,
+             donc juste sous lui. -->
+        @if (aNotesAutres()) {
+          <section class="card">
+            <h2 class="card__title">Notes de rédaction</h2>
+            <app-editorial-notes [annexes]="annexes()" groupe="autres" />
+          </section>
+        }
       </div>
 
       <!-- Colonne des réglages -->
@@ -434,6 +443,9 @@
         <section class="card">
           <h2 class="card__title" [class.is-missing-label]="isMissing('coverImageUrl')">Couverture</h2>
 
+          <!-- Le brief du visuel, lu au moment de le choisir : déplié d'emblée. -->
+          <app-editorial-notes [annexes]="annexes()" groupe="image" [ouvertes]="true" />
+
           @if (form.controls.coverImageUrl.value) {
             <div class="cover">
               <img
@@ -482,6 +494,20 @@
           </label>
 
           @if (form.controls.coverImageUrl.value) {
+            <label class="field">
+              <span class="field__label">
+                Texte alternatif <small>— décrivez l'image, pas l'article</small>
+              </span>
+              <input
+                type="text"
+                formControlName="coverImageAlt"
+                placeholder="Un indépendant relit un devis, carnet ouvert à côté"
+              />
+              <!-- Laissé vide, l'image est traitée comme décorative et sautée par les
+                   lecteurs d'écran. C'est le bon défaut : reprendre le titre le ferait
+                   annoncer deux fois sans rien dire de la photo. -->
+            </label>
+
             <div class="field">
               <span class="field__label">
                 Position <small>— le texte se place à l'opposé</small>
@@ -511,7 +537,13 @@
           <summary class="fold__summary">
             <span class="fold__text">
               <span class="card__title">Référencement</span>
-              <span class="hint">Reprend le titre et l'extrait par défaut</span>
+              <span class="hint">
+                @if (aNotesSeo()) {
+                  Notes SEO de la rédaction à l'intérieur
+                } @else {
+                  Reprend le titre et l'extrait par défaut
+                }
+              </span>
             </span>
             <svg class="fold__chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="m6 9 6 6 6-6" />
@@ -519,6 +551,9 @@
           </summary>
 
           <div class="fold__body">
+            <!-- Mot-clé, justification, cannibalisation : ce qu'on vérifie en réglant ces champs. -->
+            <app-editorial-notes [annexes]="annexes()" groupe="seo" />
+
             <label class="field">
               <span class="field__label">Titre pour les moteurs</span>
               <input
@@ -696,18 +731,23 @@
       <h2 id="swap-title" class="swap__title">
         La une est complète ({{ choices.length }}/{{ maxFeatured }})
       </h2>
-      <p class="swap__hint">Choisissez l'article à retirer pour faire de la place :</p>
-      <ol class="swap__list">
-        @for (c of choices; track c.id; let i = $index) {
-          <li>
-            <button type="button" class="swap__choice" (click)="swapFeature(c)">
-              <span class="swap__rank" aria-hidden="true">{{ i + 1 }}</span>
-              <span class="swap__name">{{ c.title }}</span>
-              <span class="swap__cta">Remplacer</span>
-            </button>
-          </li>
+      <p class="swap__hint">
+        @if (swapAhead() && swapAt(); as at) {
+          La une <strong>au {{ enClair(at) }}</strong>, échanges déjà programmés compris.
+          Choisissez l'article à retirer pour faire de la place :
+        } @else if (swapPending()) {
+          Cet article n'a pas encore de date : l'échange s'appliquera à sa mise en ligne.
+          <strong>Certaines places sont déjà promises</strong> — mieux vaut en choisir une
+          autre. Choisissez l'article à retirer :
+        } @else {
+          Choisissez l'article à retirer pour faire de la place :
         }
-      </ol>
+      </p>
+      <app-featured-slots
+        [slots]="swapSlots()"
+        cta="Remplacer"
+        (chosen)="swapFeature($event.slotId)"
+      />
       <div class="swap__actions">
         <button type="button" class="btn btn--sm" (click)="cancelSwap()">Annuler</button>
       </div>

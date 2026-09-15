@@ -8,7 +8,12 @@ import {
   AdminStats,
   Article,
   ArticleCard,
+  ArticleDetail,
+  ArticleFlag,
   ArticleInput,
+  ArticleOrigin,
+  DiffusionState,
+  FlagField,
   ArticleListItem,
   ArticlePage,
   BulkAction,
@@ -119,16 +124,101 @@ export class BlogService {
   // ---- Admin ----
 
   adminList(
-    opts: { search?: string; status?: string } = {},
+    opts: { search?: string; status?: string; origin?: ArticleOrigin } = {},
   ): Observable<Article[]> {
     const params: Record<string, string> = {};
     if (opts.search) params['search'] = opts.search;
     if (opts.status) params['status'] = opts.status;
+    if (opts.origin) params['origin'] = opts.origin;
     return this.http.get<Article[]>(`${this.base}/admin/blog`, { params });
   }
 
-  adminGet(id: string): Observable<Article> {
-    return this.http.get<Article>(`${this.base}/admin/blog/${id}`);
+  /**
+   * Enregistre ce qui est **proposé** pour un brouillon : date de parution, passage à la une.
+   *
+   * Ne publie ni n'épingle — c'est `publish` puis `feature` qui le font, au moment de la
+   * validation humaine. Un champ omis reste inchangé, `null` efface la proposition.
+   */
+  proposal(
+    id: string,
+    input: { publishAt?: string | null; featured?: boolean | null },
+  ): Observable<Article> {
+    return this.http.post<Article>(
+      `${this.base}/admin/blog/${id}/proposal`,
+      input,
+    );
+  }
+
+  /**
+   * Pose l'état d'un post : diffusé, écarté, ou de nouveau à faire. Renvoie l'article à jour,
+   * annexes comprises — l'écran n'a donc rien à recharger derrière.
+   *
+   * État explicite et non bascule : rejouer la requête donne le même résultat, ce qui évite
+   * qu'un second onglet ouvert sur le même article défasse ce qu'on vient de cocher.
+   */
+  markDiffusion(
+    id: string,
+    slot: string,
+    state: DiffusionState,
+  ): Observable<ArticleDetail> {
+    return this.http.put<ArticleDetail>(
+      `${this.base}/admin/blog/${id}/annexes/${encodeURIComponent(slot)}/diffusion`,
+      { state },
+    );
+  }
+
+  adminGet(id: string): Observable<ArticleDetail> {
+    return this.http.get<ArticleDetail>(`${this.base}/admin/blog/${id}`);
+  }
+
+  /** Signalements de relecture d'un article, chacun avec son état `orphaned` recalculé. */
+  flags(articleId: string): Observable<ArticleFlag[]> {
+    return this.http.get<ArticleFlag[]>(
+      `${this.base}/admin/blog/${articleId}/flags`,
+    );
+  }
+
+  /**
+   * Signale un endroit à retoucher. Le serveur refuse une citation absente du contenu :
+   * mieux vaut l'échec immédiat qu'un signalement qui ne désignerait rien.
+   */
+  createFlag(
+    articleId: string,
+    input: { field: FlagField; quote?: string; note?: string },
+  ): Observable<ArticleFlag> {
+    return this.http.post<ArticleFlag>(
+      `${this.base}/admin/blog/${articleId}/flags`,
+      input,
+    );
+  }
+
+  /**
+   * Change la note d'un signalement. La citation n'est pas modifiable : c'est l'ancrage.
+   * Le serveur rouvre le signalement au passage — préciser une demande, c'est la relancer.
+   */
+  updateFlag(flagId: string, note: string | null): Observable<ArticleFlag> {
+    return this.http.put<ArticleFlag>(
+      `${this.base}/admin/blog/flags/${flagId}`,
+      { note },
+    );
+  }
+
+  deleteFlag(flagId: string): Observable<{ deleted: boolean; id: string }> {
+    return this.http.delete<{ deleted: boolean; id: string }>(
+      `${this.base}/admin/blog/flags/${flagId}`,
+    );
+  }
+
+  /**
+   * Combien de brouillons de l'assistant attendent une relecture.
+   *
+   * Endpoint dédié : il est interrogé en boucle par l'admin ouvert (cf.
+   * `ReviewNotifierService`), et ne renvoie qu'un entier.
+   */
+  pendingReviewCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(
+      `${this.base}/admin/blog/pending-review`,
+    );
   }
 
   /** Compteurs du tableau de bord (statuts + épinglés), en un appel. */

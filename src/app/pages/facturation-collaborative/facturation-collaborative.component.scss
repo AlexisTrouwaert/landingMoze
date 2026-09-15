@@ -1,0 +1,474 @@
+@use '../../../styles/silo-motion' as motion;
+@use '../../../styles/silo-theme' as theme;
+
+/* =========================================
+   === HOST & VARIABLES ===
+   Direction « doux et arrondi », partagée par les six pages du silo.
+   ========================================= */
+:host {
+  --moze-green: #6BD498;
+  --fc-ink: #{theme.$encre-titre};
+  --fc-ink-soft: #{theme.$encre-corps};
+  --fc-ink-muted: #{theme.$encre-douce};
+
+  display: block;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+/* =========================================
+   === LAYOUT ===
+   ========================================= */
+.fc-page {
+  --fc-max: 900px;
+
+  padding: 6.5rem 1.5rem 0;
+  color: var(--fc-ink-soft);
+  line-height: 1.7;
+}
+
+main {
+  max-width: var(--fc-max);
+  margin: 0 auto;
+}
+
+.crumbs {
+  max-width: var(--fc-max);
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+  color: var(--fc-ink-muted);
+
+  &__link {
+    color: var(--fc-ink-muted);
+    text-decoration: none;
+
+    &:hover { color: var(--fc-ink); text-decoration: underline; }
+  }
+
+  &__sep { margin: 0 0.5rem; opacity: 0.5; }
+  &__here { color: var(--fc-ink-soft); font-weight: 600; }
+}
+
+/* =========================================
+   === HAUT DE PAGE ===
+   ========================================= */
+.fc-hero {
+  @include theme.tinted-block();
+  padding: 2.6rem 2.4rem 2.8rem;
+  margin-bottom: 3rem;
+}
+
+.eyebrow {
+  @include theme.pill();
+  margin-bottom: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+  line-height: 1.15;
+  font-weight: 800;
+  color: theme.$encre-titre;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.3rem;
+}
+
+.lede {
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  color: theme.$encre-corps;
+  margin-bottom: 1.5rem;
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+/* Lien vidéo plutôt qu'iframe : un embed YouTube pèse plusieurs centaines de Ko,
+   dépose des cookies tiers et tomberait donc sous le bandeau de consentement. */
+.video-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: theme.$encre-verte;
+  text-decoration: none;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.65rem 1.3rem;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+
+  &__icon {
+    color: #35a06a;
+    font-size: 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-link { transition: none; }
+  .video-link:hover { transform: none; }
+}
+
+/* =========================================
+   === SECTIONS ===
+   ========================================= */
+.fc-section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 96px;
+
+  .surtitle { @include theme.surtitle(); }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.1rem;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    margin-bottom: 0.4rem;
+  }
+
+  p { margin-bottom: 1.2rem; }
+
+  a {
+    color: var(--interaction-color);
+    font-weight: 600;
+
+    &:hover { text-decoration: none; }
+  }
+
+  strong { color: theme.$encre-titre; font-weight: 700; }
+}
+
+.highlight-green { color: #35a06a; }
+
+.fineprint {
+  font-size: 0.85rem;
+  color: theme.$encre-douce;
+  margin-bottom: 0 !important;
+}
+
+/* =========================================
+   === TABLEAU COMPARATIF ===
+   ========================================= */
+.table-wrap {
+  @include theme.soft-table();
+  overflow-x: auto;
+}
+
+.cmp-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  thead th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+    color: theme.$encre-verte;
+    padding: 0.95rem 1.1rem;
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: 700;
+    color: theme.$encre-titre;
+    padding: 1.05rem 1.1rem;
+    border-bottom: 1px solid #eef4f0;
+    vertical-align: top;
+  }
+
+  tbody td {
+    padding: 1.05rem 1.1rem;
+    border-bottom: 1px solid #eef4f0;
+    vertical-align: top;
+    color: theme.$encre-corps;
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* La ligne Moze est la réponse défendue : elle se distingue sans crier. */
+  tbody tr.is-moze {
+    background: rgba(107, 212, 152, 0.14);
+
+    td { color: theme.$encre-titre; }
+  }
+}
+
+/* =========================================
+   === ÉTAPES ===
+   ========================================= */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+
+  &__num {
+    flex: 0 0 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: theme.$tint-pastille;
+    color: theme.$encre-verte;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  &__body p {
+    font-size: 0.94rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === BLOC RESPONSABILITÉS ===
+   ========================================= */
+.resp-block {
+  @include theme.tinted-block(theme.$tint-vert, 20px);
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.2rem;
+
+  h3 { margin-bottom: 1rem; }
+
+  &__note {
+    font-size: 0.9rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0 !important;
+  }
+}
+
+.check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+
+  li {
+    position: relative;
+    padding-left: 1.8rem;
+    font-weight: 600;
+    color: theme.$encre-titre;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.42em;
+      width: 12px;
+      height: 7px;
+      border-left: 2.5px solid #35a06a;
+      border-bottom: 2.5px solid #35a06a;
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+/* =========================================
+   === BORDEREAU ===
+   ========================================= */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.doc-card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  padding: 1.4rem;
+
+  p {
+    font-size: 0.88rem;
+    color: theme.$encre-corps;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================
+   === FAQ ===
+   ========================================= */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.faq-item {
+  @include theme.soft-card(16px);
+  @include motion.faq-transition();
+  overflow: hidden;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+
+    h3 { margin-bottom: 0; font-size: 0.98rem; }
+
+    &:hover h3 { color: var(--interaction-color); }
+  }
+
+  &[open] summary { padding-bottom: 0.6rem; }
+  &[open] .faq-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
+}
+
+/* Fermé, le chevron pointe vers le BAS — le sens qui annonce « ceci se déplie ». */
+.faq-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid theme.$encre-douce;
+  border-bottom: 2px solid theme.$encre-douce;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
+
+.faq-answer {
+  padding: 0 1.4rem 1.3rem;
+  font-size: 0.94rem;
+  color: theme.$encre-corps;
+
+  strong { color: theme.$encre-titre; }
+}
+
+/* =========================================
+   === APPEL À L'ACTION ===
+   ========================================= */
+.fc-cta {
+  @include theme.tinted-block();
+  padding: 2.8rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 800;
+    color: theme.$encre-titre;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.8rem;
+  }
+
+  p {
+    color: theme.$encre-corps;
+    font-size: 0.98rem;
+    max-width: 520px;
+    margin: 0 auto 1.6rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:hover { transform: translateY(-2px); background: var(--interaction-color); }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: theme.$encre-verte;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-ghost { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* =========================================
+   === RESPONSIVE ===
+   ========================================= */
+@media (max-width: 780px) {
+  .doc-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .fc-page { padding-top: 5.5rem; }
+
+  .fc-hero { padding: 1.8rem 1.4rem 2rem; border-radius: 20px; }
+  .fc-section { margin-bottom: 3rem; }
+  .resp-block { padding: 1.4rem 1.5rem; }
+
+  .fc-cta { padding: 2rem 1.3rem; }
+  .fc-cta__actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   === MOUVEMENT ===
+   ========================================= */
+.fc-hero {
+  .eyebrow    { @include motion.enter(0); }
+  h1          { @include motion.enter(1); }
+  .lede       { @include motion.enter(2); }
+  .video-link { @include motion.enter(3); }
+}
+
+.table-wrap,
+.step,
+.resp-block,
+.doc-card,
+.faq-item,
+.fc-cta { @include motion.reveal(); }
+
+/* La ligne Moze garde son fond : le survol des autres ne doit pas la concurrencer. */
+.cmp-table tbody tr:not(.is-moze) {
+  transition: background-color 0.2s ease;
+
+  &:hover { background: rgba(107, 212, 152, 0.07); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-table tbody tr:not(.is-moze) { transition: none; }
+}

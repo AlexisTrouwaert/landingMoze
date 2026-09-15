@@ -1,0 +1,203 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="sap-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Services à la personne</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="sap-hero">
+      <p class="eyebrow">Offre coopérative</p>
+      <h1>Services à la personne&nbsp;: proposez le crédit d'impôt sans créer votre structure</h1>
+
+      <p class="lede">
+        Pour qu'un client particulier bénéficie du crédit d'impôt, la prestation doit être réalisée
+        par un <strong>organisme déclaré</strong>. C'est l'obstacle qui arrête la plupart des
+        indépendants. <strong>Moze Coop</strong> est cet organisme&nbsp;: en devenant sociétaire,
+        vous proposez des prestations éligibles <strong>sans obtenir votre propre
+        déclaration</strong> — et sans exclusivité sur votre activité.
+      </p>
+    </header>
+
+    <section class="key-facts" aria-label="Le crédit d'impôt en chiffres">
+      @for (chiffre of chiffres; track chiffre.valeur) {
+        <div class="fact">
+          <span class="fact__num">{{ chiffre.valeur }}</span>
+          <p class="fact__label">{{ chiffre.libelle }}</p>
+        </div>
+      }
+    </section>
+
+    <section class="sap-section">
+      <p class="surtitle">L'avantage</p>
+      <h2 id="argument">Pourquoi c'est un argument commercial <span class="highlight-green">décisif</span></h2>
+      <p>
+        À prestation identique et à prix affiché identique, votre devis coûte deux fois moins cher
+        au client que celui d'un concurrent non déclaré. Avec l'avance immédiate de l'URSSAF, il ne
+        constate pas l'économie un an plus tard sur sa déclaration&nbsp;: elle est déduite au
+        moment du paiement.
+      </p>
+
+      <div class="example">
+        <div class="example__row">
+          <span class="example__label">Prestation facturée</span>
+          <span class="example__value">100 €</span>
+        </div>
+        <div class="example__row">
+          <span class="example__label">Crédit d'impôt déduit immédiatement</span>
+          <span class="example__value example__value--green">− 50 €</span>
+        </div>
+        <div class="example__row example__row--total">
+          <span class="example__label">Ce que le client paie</span>
+          <span class="example__value">50 €</span>
+        </div>
+        <p class="example__note">
+          Vous, vous percevez bien l'intégralité de votre prestation.
+        </p>
+      </div>
+    </section>
+
+    <section class="sap-section">
+      <p class="surtitle">Le déroulé</p>
+      <h2 id="fonctionnement">Comment ça <span class="highlight-green">marche</span></h2>
+      <ol class="steps">
+        @for (etape of etapes; track etape.titre; let i = $index) {
+          <li class="step">
+            <span class="step__num" aria-hidden="true">{{ i + 1 }}</span>
+            <div class="step__body">
+              <h3>{{ etape.titre }}</h3>
+              <p>{{ etape.texte }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="sap-section">
+      <p class="surtitle">Le périmètre</p>
+      <h2 id="activites">Quelles activités sont <span class="highlight-green">concernées</span></h2>
+      <p>
+        Les services à la personne couvrent une liste d'activités définie par la réglementation.
+        Voici les plus courantes chez les indépendants&nbsp;:
+      </p>
+
+      <div class="act-grid">
+        @for (activite of activites; track activite.nom) {
+          <div class="act-card" [class.act-card--flag]="activite.regimeRenforce">
+            <h3>{{ activite.nom }}</h3>
+            <p class="act-card__desc">{{ activite.exemple }}</p>
+            @if (activite.regimeRenforce) {
+              <p class="act-card__flag">Régime d'agrément ou d'autorisation</p>
+            }
+          </div>
+        }
+      </div>
+
+      <p class="note">
+        Les activités signalées relèvent d'un <strong>régime d'agrément ou d'autorisation</strong>,
+        distinct de la simple déclaration. Vérifiez votre situation avec la coopérative avant de
+        vous engager auprès d'un client&nbsp;: c'est le genre de détail qui se découvre au mauvais
+        moment.
+      </p>
+    </section>
+
+    <!-- Ce que le sociétariat change réellement, y compris ce qui peut déranger. Une page qui
+         vend un engagement contractuel et tait ses contreparties se retourne contre la marque au
+         premier client déçu. -->
+    <section class="sap-section">
+      <p class="surtitle">Les contreparties</p>
+      <h2 id="conditions">Ce que le sociétariat <span class="highlight-green">implique</span></h2>
+      <div class="cond-grid">
+        <div class="cond-card">
+          <h3>La facturation passe par la coopérative</h3>
+          <p>
+            Pour les prestations éligibles, c'est Moze Coop qui établit les factures originales,
+            selon ses documents contractuels. C'est une différence avec la facturation habituelle
+            sur Moze, où la facture est émise à votre nom.
+          </p>
+        </div>
+        <div class="cond-card">
+          <h3>L'adhésion n'est pas automatique</h3>
+          <p>
+            Le sociétariat est soumis à l'acceptation de Moze Coop. Un refus ou un retrait met fin
+            à la possibilité de proposer des prestations éligibles, sans affecter votre compte Moze
+            ni vos autres activités.
+          </p>
+        </div>
+        <div class="cond-card">
+          <h3>Pas d'exclusivité, mais une non-sollicitation</h3>
+          <p>
+            Vous gardez vos clients et vos autres missions. En revanche, pour les clients
+            <strong>venant de Moze Coop</strong>, un engagement de non-sollicitation court pendant
+            le contrat et deux ans après sa fin.
+          </p>
+        </div>
+      </div>
+      <p class="fineprint">
+        Ces règles figurent aux articles 2, 5.2, 7.1 et 11.2 de nos
+        <a routerLink="/cgv-cgu">conditions générales</a>, qui font foi, et dans les documents
+        contractuels propres à Moze Coop.
+      </p>
+    </section>
+
+    <section class="sap-section">
+      <p class="surtitle">Le prix</p>
+      <h2 id="prix">Ce que ça <span class="highlight-green">coûte</span></h2>
+      <p>
+        L'option coopérative s'ajoute à l'offre <strong>Indép +</strong> pour
+        <strong>20 € HT par mois</strong>, soit <strong>29,90 € HT</strong> au total. Vous conservez
+        tout le reste&nbsp;: facturation illimitée, format Factur-X,
+        <a routerLink="/facturation-collaborative">facturation collaborative</a> et apport
+        d'affaires. <a routerLink="/tarifs">Voir le détail des tarifs</a>.
+      </p>
+      <p>
+        Pour comprendre le mécanisme fiscal côté client, nous l'avons détaillé dans
+        <a routerLink="/blog/credit-impot-services-a-la-personne-2026">notre guide du crédit
+        d'impôt de 50 %</a>.
+      </p>
+    </section>
+
+    <section class="sap-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="sap-cta">
+      <h2>Divisez par deux le prix affiché à vos clients</h2>
+      <p>
+        Créez votre compte gratuitement. L'option coopérative s'active ensuite, quand vous en avez
+        besoin.
+      </p>
+      <div class="sap-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('sap_cta_final')">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

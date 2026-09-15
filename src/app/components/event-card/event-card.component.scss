@@ -1,0 +1,124 @@
+@use '../../../styles/silo-theme' as theme;
+
+:host {
+  display: block;
+}
+
+.card {
+  @include theme.soft-card();
+  @include theme.soft-lift();
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 3px solid rgba(2, 151, 216, 0.35);
+    outline-offset: 3px;
+  }
+
+  &__media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    background: theme.$tint-vert;
+    color: #35a06a;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    // Sans image, le pictogramme n'a pas à réserver la hauteur d'une photo.
+    &--empty {
+      aspect-ratio: 4 / 1;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.1rem 1.25rem 1.35rem;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  &__type {
+    @include theme.pill();
+  }
+
+  &__status {
+    @include theme.pill();
+    background: #fdf3e1;
+    color: #8a5a12;
+
+    &--alert {
+      background: #fdecea;
+      color: #a3342a;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: theme.$encre-titre;
+    font-family: 'SNPRO-Bold', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    color: theme.$encre-verte;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.9rem;
+  }
+
+  &__blurb {
+    color: theme.$encre-corps;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+    color: var(--primary-color, #145775);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  // -------------------------------------------------------------
+  // Grande carte : image à côté du texte dès qu'il y a la place.
+  // -------------------------------------------------------------
+  &--featured {
+    @media (min-width: 760px) {
+      flex-direction: row;
+
+      .card__media {
+        flex: 0 0 48%;
+        aspect-ratio: auto;
+        min-height: 300px;
+      }
+
+      .card__body {
+        justify-content: center;
+        padding: 2rem 2.25rem;
+      }
+
+      .card__title {
+        font-size: 1.6rem;
+      }
+    }
+  }
+}

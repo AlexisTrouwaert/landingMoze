@@ -1,0 +1,272 @@
+<div class="adm-page">
+  <header class="adm-head">
+    <div class="adm-head__id">
+      <span class="adm-head__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="3" width="8" height="4" rx="1" />
+          <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2" />
+          <path d="M9 13h6M9 17h4" />
+        </svg>
+      </span>
+      <div>
+        <h1>Coller un évènement</h1>
+        <p class="adm-head__sub">
+          Le texte rédigé par l'IA, déposé ici. Il devient un brouillon : rien ne part en ligne.
+        </p>
+      </div>
+    </div>
+
+    <div class="adm-head__actions">
+      <a class="btn btn--ghost" routerLink="/admin/evenements">Tous les évènements</a>
+    </div>
+  </header>
+
+  @if (error(); as e) {
+    <p class="adm-alert adm-alert--error ev-paste-error" role="alert">{{ e }}</p>
+  }
+
+  <div class="pst">
+    <section class="pst__saisie">
+      <div class="pst__barre">
+        <label class="rev-field__label" for="pst-texte">Texte collé</label>
+        <button type="button" class="pst__aide" (click)="aide.set(!aide())">
+          {{ aide() ? 'Masquer le prompt' : 'Le prompt à donner à l’IA' }}
+        </button>
+      </div>
+
+      @if (aide()) {
+        <pre class="pst__format" #gabarit>Tu rédiges les pages évènement du site Moze. Quand je te donnerai un
+évènement — notes, invitation, programme, échange de mails —, réponds
+uniquement dans le format ci-dessous : pas d'introduction, pas de
+commentaire, pas de bloc de code autour.
+
+Un évènement, c'est un en-tête « clé: valeur », une clé par ligne, puis une
+ligne « --- », puis la description en HTML. Pour en livrer plusieurs, sépare
+chacun par une ligne ne contenant que « === ».
+
+N'invente rien. Une information que je ne t'ai pas donnée — adresse exacte,
+lien Google Maps, billetterie, jauge, horaire, nom d'intervenant — ne
+s'écrit pas : omets la ligne, je la compléterai. Aucun cas n'est présenté
+comme réalisé tant qu'il ne l'est pas.
+
+IDENTITÉ
+titre: seul champ obligatoire — le nom de l'évènement, pas celui du lieu,
+  90 caractères maximum
+slug: l'adresse de la page, pensée pour Google. Pars de ce qu'un
+  indépendant taperait pour trouver l'évènement : le type, le sujet en
+  deux ou trois mots-clés, la ville s'il a lieu quelque part, puis la date
+  AAAA-MM-JJ. Minuscules, sans accents, mots séparés par des tirets, sans
+  mots vides (le, la, les, de, des, du, à, au, pour, et, en). 80 caractères
+  maximum. Uniquement à partir de ce que je t'ai donné.
+  Ex. afterwork-independants-facturation-avignon-2026-10-08
+type: afterwork, atelier, petit-dejeuner, conference, table-ronde, salon,
+  webinaire, portes-ouvertes ou autre
+type precis: le nom du format quand le type est « autre » — 40 maximum
+accroche: une phrase, la promesse et non la description — 140 maximum
+resume: pour les vignettes du listing et les partages — 400 maximum
+texte alternatif: description de l'image, si je t'en fournis une
+
+TEMPS ET LIEU
+debut: ISO avec décalage horaire — 2026-10-08T18:30:00+02:00 en été,
+  +01:00 en hiver. Sans décalage, la date est refusée.
+fin: même format
+mode: presentiel, en-ligne ou hybride
+lieu: nom du lieu
+rue: numéro et voie — Google l'exige pour référencer l'évènement
+code postal: cinq chiffres
+ville: la commune
+region: département ou région
+pays: code à deux lettres, FR par défaut
+acces au lieu: parking, transports, repères
+pmr: oui ou non — accessible aux personnes à mobilité réduite
+google maps: seulement un lien que je t'ai fourni, recopié tel quel. Sans
+  lien dans ce que je te donne, n'écris pas cette ligne : jamais de lien
+  construit à partir de l'adresse, ni deviné.
+
+ORGANISATION
+role moze: organisateur, co-organisateur, partenaire ou relais
+  organisateur     — Moze conçoit, finance et reçoit
+  co-organisateur  — Moze porte l'évènement avec un tiers, à égalité
+  partenaire       — Moze contribue (intervention, lot, financement) sans
+                     organiser
+  relais           — Moze publie l'évènement d'un tiers, sans y contribuer
+organisateur: son nom — Moze n'est pas toujours la valeur ; omis, c'est Moze
+site organisateur: https://… — obligatoire pour un relais
+contact: adresse e-mail ou téléphone public
+partenaire: rôle | nom | précision | site — une ligne par partenaire ; le
+  rôle est lieu-accueil, soutien, media, communaute-invitee ou intervenant
+intervenant: nom | fonction ou sujet | site — raccourci, une ligne chacun
+
+INSCRIPTION
+acces: libre, sur-inscription, sur-invitation ou payant
+tarif: la mention affichée. Jamais le mot « gratuit » : écris « entrée
+  libre, sur inscription » ou « boissons offertes ».
+prix: en euros, pour un accès payant
+billetterie: https://… — celle de l'organisateur quand Moze n'organise pas :
+  Moze ne prend jamais les inscriptions d'un évènement qu'il n'organise pas
+jauge: la capacité réelle du lieu, pas l'ambition
+objectif inscrits: la jauge majorée de la défection attendue, 30 à 40 % sur
+  une entrée libre
+date limite: même format que debut
+apres inscription: ce qu'on reçoit une fois inscrit
+---
+La description, en HTML, limitée à ces balises :
+h2 h3 p strong em ul ol li a img blockquote br hr
+
+Pas de &lt;h1&gt; : la page en rend déjà un à partir du titre. Pas de &lt;div&gt;,
+&lt;table&gt;, &lt;span&gt;, ni d'attribut style — tout cela est retiré en silence.
+Facultative pour un évènement relayé, où le résumé suffit.
+
+TON
+Tutoie : on s'adresse à des indépendants.
+Pas de « communauté » sans preuve — « les indépendants d'Avignon qui… ».
+Pas de « réseau » en accroche — « travailler à plusieurs ».
+Ni « petits entrepreneurs » ni « auto-entrepreneur » — « indépendants »,
+« micro-entrepreneurs ».
+Pas de « plateforme », « solution » ou « outil » en accroche : entre par le
+client, le revenu ou le cadre.
+Ni « révolutionnaire » ni « game changer » — « concret », « simple », « testé ».
+
+===
+
+titre: Le deuxième évènement commence après la ligne de ===
+---
+&lt;p&gt;Sa description.&lt;/p&gt;
+
+Ne rédige rien pour l'instant. Si tout est clair, réponds seulement
+« J'ai compris », et attends que je te donne l'évènement.</pre>
+        <button
+          type="button"
+          class="btn btn--primary pst__copier"
+          [class.pst__copier--ok]="copie() === 'ok'"
+          [class.pst__copier--ko]="copie() === 'ko'"
+          (click)="copier(gabarit.textContent)"
+          aria-live="polite"
+        >
+          @if (copie() === 'ok') {
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          }
+          @switch (copie()) {
+            @case ('ok') { Copié }
+            @case ('ko') { Copie refusée — sélectionnez le texte }
+            @default { Copier le prompt }
+          }
+        </button>
+        <p class="pst__note">
+          Copiez ce texte dans votre conversation avec l'IA, donnez-lui l'évènement, puis
+          collez sa réponse ci-dessous. Il décrit le format en entier : c'est aussi la référence
+          pour un document Word importé depuis l'éditeur, qui lit les mêmes étiquettes.
+        </p>
+      }
+
+      <textarea
+        id="pst-texte"
+        class="pst__zone"
+        [value]="texte()"
+        (input)="onInput($event)"
+        placeholder="Collez ici ce que l'IA a rédigé…"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="pst__actions">
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="!peutCreer() || creating()"
+          (click)="creer()"
+        >
+          @if (creating()) {
+            Création…
+          } @else if (lu()?.events?.length; as n) {
+            Créer {{ n }} brouillon{{ n > 1 ? 's' : '' }}
+          } @else {
+            Créer le brouillon
+          }
+        </button>
+        @if (texte()) {
+          <button type="button" class="btn btn--ghost" (click)="vider()">Vider</button>
+        }
+      </div>
+    </section>
+
+    <!-- Ce qui a été compris, avant de créer quoi que ce soit. -->
+    <section class="pst__lu">
+      @if (lu(); as r) {
+        @if (r.errors.length) {
+          <div class="pst__erreurs">
+            <p class="pst__erreurs-titre">
+              {{ r.errors.length }} chose{{ r.errors.length > 1 ? 's' : '' }} à corriger
+            </p>
+            <ul>
+              @for (e of r.errors; track e) { <li>{{ e }}</li> }
+            </ul>
+          </div>
+        }
+
+        @for (ev of r.events; track $index) {
+          <article class="pst__carte">
+            <p class="ev-paste__type">{{ typeLabel(ev) }}</p>
+            <h2 class="pst__titre">{{ ev.input.title }}</h2>
+            @if (ev.input.tagline) {
+              <p class="pst__extrait">{{ ev.input.tagline }}</p>
+            }
+
+            <dl class="pst__meta">
+              @if (ev.input.slug) {
+                <div>
+                  <dt>Adresse</dt>
+                  <dd>/evenements/{{ ev.input.slug }}</dd>
+                </div>
+              }
+              <div>
+                <dt>Quand</dt>
+                <dd>{{ schedule(ev) }}</dd>
+              </div>
+              @if (place(ev); as where) {
+                <div>
+                  <dt>Où</dt>
+                  <dd>{{ where }}</dd>
+                </div>
+              }
+              @if (ev.input.organizerName) {
+                <div>
+                  <dt>Organisateur</dt>
+                  <dd>{{ ev.input.organizerName }} · Moze {{ roleLabel(ev) }}</dd>
+                </div>
+              }
+              @if (accessLabel(ev); as access) {
+                <div>
+                  <dt>Accès</dt>
+                  <dd>{{ access }}</dd>
+                </div>
+              }
+              @if (ev.input.partners.length) {
+                <div>
+                  <dt>Partenaires</dt>
+                  <dd>{{ ev.input.partners.length }}</dd>
+                </div>
+              }
+            </dl>
+
+            @if (ev.warnings.length) {
+              <ul class="pst__avertissements">
+                @for (w of ev.warnings; track w) { <li>{{ w }}</li> }
+              </ul>
+            }
+          </article>
+        }
+      } @else {
+        <p class="pst__vide">
+          Ce qui est compris s'affichera ici, avant toute création.
+        </p>
+      }
+    </section>
+  </div>
+</div>

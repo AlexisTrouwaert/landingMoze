@@ -1,0 +1,126 @@
+// Les jetons `--adm-*` sont posés sur l'hôte des pages d'administration (cf. `_admin-ui.scss`)
+// et descendent par héritage jusqu'ici : ce composant ne vit qu'à l'intérieur de l'admin.
+//
+// Teinte bleue et non ambre : une note est une aide, pas un avertissement. L'ambre reste
+// réservé à ce qui manque ou bloque.
+
+:host {
+  display: block;
+}
+
+// Sans note, l'hôte disparaît aussi : dans une carte en `flex` avec `gap`, un élément vide de
+// hauteur nulle prendrait quand même sa part d'espacement, et laisserait un trou.
+:host:not(:has(.notes)) {
+  display: none;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--adm-blue-soft);
+  border-radius: var(--adm-radius-sm, 8px);
+  background: color-mix(in srgb, var(--adm-blue-soft) 45%, var(--adm-surface));
+  overflow: hidden;
+}
+
+.note {
+  & + & {
+    border-top: 1px solid var(--adm-blue-soft);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.7rem;
+    list-style: none;
+    cursor: pointer;
+    color: var(--adm-ink-700);
+    font-size: 0.82rem;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      background: var(--adm-blue-soft);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset var(--adm-ring);
+    }
+  }
+
+  &__chevron {
+    flex: 0 0 auto;
+    color: var(--adm-ink-400);
+    transition: transform var(--adm-t, 0.15s ease);
+  }
+
+  &[open] &__chevron {
+    transform: rotate(90deg);
+  }
+
+  &__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: 'SNPRO-SemiBold', sans-serif;
+  }
+
+  &__tag {
+    flex: 0 0 auto;
+    color: var(--adm-ink-400);
+    font-size: 0.7rem;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    padding: 0 0.7rem 0.65rem 1.95rem;
+  }
+
+  &__body {
+    margin: 0;
+    color: var(--adm-ink-700);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 999px;
+    background: var(--adm-surface);
+    color: var(--adm-ink-700);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition:
+      border-color var(--adm-t, 0.15s ease),
+      color var(--adm-t, 0.15s ease);
+
+    &:hover {
+      border-color: var(--adm-blue);
+      color: var(--adm-blue);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+
+    &.is-done {
+      border-color: var(--adm-green);
+      color: var(--adm-green);
+    }
+  }
+}

@@ -1,0 +1,198 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'je commence gratuitement'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="tf-page">
+
+  <!-- Fil d'Ariane visible : le JSON-LD `BreadcrumbList` doit décrire ce que le lecteur voit. -->
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Tarifs</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="tf-hero">
+      <p class="eyebrow">Nos formules</p>
+      <h1>Des tarifs clairs, sans mauvaise surprise</h1>
+      <p class="lede">
+        Le réseau est <strong>gratuit</strong>. La facturation commence à
+        <strong>9,90 € HT par mois</strong>, et l'option coopérative — numéro SAP et crédit
+        d'impôt — porte le total à <strong>29,90 € HT</strong>. Sans engagement, sans carte
+        bancaire à l'inscription.
+      </p>
+    </header>
+
+    <!-- Les cartes reprennent la hiérarchie de l'accueil (Indép + mis en avant) mais détaillent
+         la composition de chaque formule, ce que quatre puces ne permettaient pas. -->
+    <section class="offers" aria-label="Nos formules">
+      @for (offre of offres; track offre.id) {
+        <article class="offer" [class.offer--featured]="offre.miseEnAvant">
+          @if (offre.miseEnAvant) {
+            <p class="offer__badge">Le plus choisi</p>
+          }
+          <h2 class="offer__name">{{ offre.nom }}</h2>
+          <p class="offer__pitch">{{ offre.accroche }}</p>
+
+          <p class="offer__price">
+            <span class="offer__amount">{{ offre.prix }}</span>
+            <span class="offer__suffix">{{ offre.suffixe }}</span>
+          </p>
+          <p class="offer__detail">{{ offre.detail }}</p>
+
+          <ul class="offer__list">
+            @for (point of offre.points; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
+
+          <button type="button" class="offer__cta"
+                  [class.offer__cta--solid]="offre.miseEnAvant"
+                  (click)="goToFunnel(offre.trackingLabel)">
+            Je commence <span aria-hidden="true">→</span>
+          </button>
+        </article>
+      }
+    </section>
+
+    <p class="reassurance">
+      Sans engagement · Résiliable à tout moment · Aucune carte bancaire à l'inscription
+    </p>
+
+    <section class="tf-section">
+      <p class="surtitle">Formule par formule</p>
+      <h2 id="comparatif">Le comparatif, <span class="highlight-green">ligne à ligne</span></h2>
+      <p>
+        Ce que chaque formule contient exactement — et ce qu'il faut monter d'un cran pour
+        obtenir.
+      </p>
+
+      <div class="table-wrap">
+        <table class="cmp-table">
+          <caption class="sr-only">Comparatif détaillé des formules Moze</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fonctionnalité</th>
+              @for (offre of offres; track offre.id) {
+                <th scope="col" class="cmp-head" [class.is-featured]="offre.miseEnAvant">
+                  {{ offre.nom }}
+                  <span class="cmp-head__price">{{ offre.prix }} {{ offre.suffixe }}</span>
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of comparatif; track ligne.libelle) {
+              <tr>
+                <th scope="row">{{ ligne.libelle }}</th>
+                @for (valeur of ligne.valeurs; track $index) {
+                  <td class="cmp-cell">
+                    @if (estBooleen(valeur)) {
+                      @if (valeur) {
+                        <span class="tick" role="img" aria-label="Inclus"></span>
+                      } @else {
+                        <span class="dash" role="img" aria-label="Non inclus">—</span>
+                      }
+                    } @else {
+                      <span class="cmp-text">{{ valeur }}</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Les frais variables sont annoncés dans leur propre section, et non en note de bas de
+         page : c'est la première chose qu'un indépendant vérifie, et la cacher se paie en
+         confiance perdue au moment de l'abonnement. -->
+    <section class="tf-section">
+      <p class="surtitle">Au-delà de l'abonnement</p>
+      <h2 id="frais">Les frais variables, <span class="highlight-green">en toutes lettres</span></h2>
+      <div class="fee-box">
+        <p class="fee-box__rate">3,9 % HT</p>
+        <div class="fee-box__body">
+          <p>
+            Des frais administratifs s'appliquent au montant total des factures qui passent par
+            l'<strong>apport d'affaires</strong> ou la <strong>facturation collaborative</strong>.
+            Ce sont les deux mécanismes où Moze intervient entre plusieurs indépendants&nbsp;:
+            répartition des montants, suivi de la commission, sécurisation du règlement.
+          </p>
+          <p class="fee-box__note">
+            Une facture que vous émettez seul, sans apporteur ni co-traitant, n'y est pas soumise.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="tf-section">
+      <p class="surtitle">Le bon choix</p>
+      <h2 id="profils">Quelle formule pour <span class="highlight-green">votre situation</span>&nbsp;?</h2>
+      <div class="profils">
+        @for (profil of profils; track profil.titre) {
+          <div class="profil">
+            <h3>{{ profil.titre }}</h3>
+            <p class="profil__text">{{ profil.texte }}</p>
+            <p class="profil__pick">{{ profil.offre }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="tf-section">
+      <p class="surtitle">La facturation électronique</p>
+      <h2 id="inclus"><span class="highlight-green">Inclus</span> dans les formules payantes</h2>
+      <p>
+        La <strong>facturation électronique</strong> n'est pas une option facturée à part&nbsp;:
+        vos factures sont générées au format Factur-X, structuré et conforme aux exigences de la
+        réforme, dès l'offre Indép +. L'obligation d'émission tombe le 1<sup>er</sup> septembre
+        2027 pour les indépendants —
+        <a routerLink="/facturation-electronique">nous détaillons le calendrier complet ici</a>.
+      </p>
+    </section>
+
+    <section class="tf-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span> sur les tarifs</h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <!-- `<details>` natif : contenu présent dans le HTML servi même replié, et l'accordéon
+               fonctionne sans JavaScript. -->
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="tf-cta">
+      <h2>Commencez par le gratuit</h2>
+      <p>
+        Créez votre compte, rejoignez le réseau, et passez à Indép + le jour où vous en avez
+        besoin. Aucune carte bancaire n'est demandée.
+      </p>
+      <div class="tf-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('tarifs_cta_final')">
+          Je commence gratuitement <span aria-hidden="true">→</span>
+        </button>
+        <a class="btn-ghost" routerLink="/facturation-electronique">Facturation électronique</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- `flat` : pas de fond bleu foncé sous le footer, comme sur le blog et la page facturation
+       électronique. La page se termine déjà sur le bloc CTA bleu. -->
+  <app-footer [flat]="true" />
+</div>

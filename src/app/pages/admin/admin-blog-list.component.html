@@ -13,12 +13,27 @@
           <p class="adm-head__sub">
             {{ s.total }} article{{ s.total > 1 ? 's' : '' }} ·
             {{ s.featured }}/{{ s.maxFeatured }} à la une
+            <!-- Porte sur les articles affichés, pas sur toute la base : le compte suit donc
+                 le filtre en cours, ce qui est le bon comportement quand on en a posé un. -->
+            @if (aDiffuserCount(); as n) {
+              · <strong>{{ n }} à diffuser</strong>
+            }
           </p>
         }
       </div>
     </div>
 
     <div class="adm-head__actions">
+      <!-- N'apparaît que s'il y a quelque chose à relire : un lien permanent vers un écran
+           vide n'apprendrait rien, et le compteur est ce qui donne envie d'y aller. -->
+      <a class="btn btn--ghost" routerLink="/admin/evenements">Évènements</a>
+      <a class="btn btn--ghost" routerLink="/admin/blog/coller">Coller</a>
+      @if (pendingReview(); as n) {
+        <a class="btn btn--ghost" routerLink="/admin/blog/relecture">
+          Relecture
+          <span class="badge badge--warn">{{ n }}</span>
+        </a>
+      }
       <a
         class="btn btn--icon btn--ghost"
         routerLink="/blog"
@@ -394,6 +409,31 @@
                       : 'Brouillon'
                 }}
               </span>
+
+              <!-- Ce qui reste à poster. Un lien et non une pastille inerte : le repère et
+                   l'action sont le même geste, sinon on voit qu'il reste du travail sans
+                   savoir où aller le faire. -->
+              @if (diffusion(a); as d) {
+                @if (aDiffuser(a)) {
+                  <a
+                    class="badge badge--warn row__diffuser"
+                    [routerLink]="['/admin/blog', a.id, 'diffusion']"
+                    [title]="
+                      d.total - d.faits + ' post(s) à diffuser sur ' + d.total
+                    "
+                  >
+                    à diffuser {{ d.faits }}/{{ d.total }}
+                  </a>
+                } @else if (a.status === 'PUBLISHED') {
+                  <a
+                    class="badge badge--published row__diffuser"
+                    [routerLink]="['/admin/blog', a.id, 'diffusion']"
+                    title="Tous les posts sont diffusés ou écartés"
+                  >
+                    diffusé
+                  </a>
+                }
+              }
             </span>
 
             <span class="col-views" [title]="(a.views ?? 0) + ' vues'">{{ a.views ?? 0 }}</span>
@@ -533,6 +573,22 @@
                           </svg>
                           Voir sur le blog
                         </a>
+                        <!-- Le geste d'après-publication : les textes réseaux, prêts à copier.
+                             Ouvert depuis la liste parce qu'on y revient parfois le lendemain,
+                             quand l'article a quitté la file de relecture. -->
+                        <a
+                          role="menuitem"
+                          class="adm-menu__item"
+                          [routerLink]="['/admin/blog', a.id, 'diffusion']"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="18" cy="5" r="3" />
+                            <circle cx="6" cy="12" r="3" />
+                            <circle cx="18" cy="19" r="3" />
+                            <path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5" />
+                          </svg>
+                          Diffuser…
+                        </a>
                         <button
                           type="button"
                           role="menuitem"
@@ -653,19 +709,23 @@
         La une est complète ({{ featured().length }}/{{ maxFeatured }})
       </h2>
       <p class="swap__hint">
-        Choisissez l'article à retirer pour y mettre « {{ target.title }} » :
-      </p>
-      <ol class="swap__list">
-        @for (c of featured(); track c.id; let i = $index) {
-          <li>
-            <button type="button" class="swap__choice" (click)="swapFeature(c)">
-              <span class="swap__rank" aria-hidden="true">{{ i + 1 }}</span>
-              <span class="swap__name">{{ c.title }}</span>
-              <span class="swap__cta">Remplacer</span>
-            </button>
-          </li>
+        @if (swapAhead()) {
+          La une <strong>au {{ enClair(target.publishedAt!) }}</strong>, échanges déjà
+          programmés compris. Choisissez l'article à retirer pour y mettre
+          « {{ target.title }} » :
+        } @else if (swapPending()) {
+          <strong>Certaines places sont déjà promises</strong> à un article programmé :
+          les reprendre annulerait l'échange prévu. Choisissez l'article à retirer pour y
+          mettre « {{ target.title }} » :
+        } @else {
+          Choisissez l'article à retirer pour y mettre « {{ target.title }} » :
         }
-      </ol>
+      </p>
+      <app-featured-slots
+        [slots]="swapSlots()"
+        cta="Remplacer"
+        (chosen)="swapFeature($event.slotId)"
+      />
       <div class="swap__actions">
         <button type="button" class="btn btn--sm" (click)="cancelSwap()">Annuler</button>
       </div>

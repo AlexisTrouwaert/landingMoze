@@ -23,7 +23,15 @@ import {
   ImportField,
   importArticleFromDocx,
 } from '../../common/article-import';
+import { toDatetimeLocal } from '../../common/datetime-local';
 import { DocxReadError } from '../../common/docx';
+import {
+  projectFeatured,
+  projectionAhead,
+  projectionPending,
+  projectionTarget,
+} from '../../common/featured-projection';
+import { FeaturedSlotsComponent } from '../../components/featured-slots/featured-slots.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ArticleCardComponent } from '../../components/article-card/article-card.component';
@@ -32,8 +40,12 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { PromptDialogComponent } from '../../components/prompt-dialog/prompt-dialog.component';
 import { TagInputComponent } from '../../components/tag-input/tag-input.component';
 import { WysiwygEditorComponent } from '../../components/wysiwyg/wysiwyg-editor.component';
+import { notesDuGroupe } from '../../common/editorial-notes';
+import { EditorialNotesComponent } from '../../components/editorial-notes/editorial-notes.component';
 import {
+  AdminFeaturedItem,
   Article,
+  ArticleAnnex,
   ArticleInput,
   ArticleListItem,
   ArticleStatus,
@@ -50,15 +62,6 @@ const DEFAULT_AUTHOR = 'Équipe Moze';
 /** Tag ajouté par défaut quand l'article n'en a aucun (après confirmation). */
 const DEFAULT_TAG = 'Moze';
 
-/**
- * Une `Date` au format d'un `<input type="datetime-local">` : heure LOCALE, sans fuseau.
- * `toISOString()` ne convient pas — il bascule en UTC, et « demain 8 h » deviendrait 6 h.
- */
-function toDatetimeLocal(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 @Component({
     selector: 'app-admin-blog-editor',
     imports: [
@@ -71,6 +74,8 @@ function toDatetimeLocal(d: Date): string {
         PromptDialogComponent,
         ArticleCardComponent,
         ArticleViewComponent,
+        FeaturedSlotsComponent,
+        EditorialNotesComponent,
     ],
     templateUrl: './admin-blog-editor.component.html',
     styleUrl: './admin-blog-editor.component.scss',
@@ -122,6 +127,7 @@ export class AdminBlogEditorComponent {
     author: ['', [Validators.maxLength(120)]],
     excerpt: ['', [Validators.maxLength(500)]],
     coverImageUrl: ['', [Validators.maxLength(500)]],
+    coverImageAlt: ['', [Validators.maxLength(300)]],
     coverPosition: new FormControl<CoverPosition>('top', { nonNullable: true }),
     content: [''],
     metaTitle: ['', [Validators.maxLength(200)]],
@@ -139,6 +145,24 @@ export class AdminBlogEditorComponent {
 
   /** Date de publication de l'article ouvert (ISO), future quand il est programmé. */
   readonly articlePublishedAt = signal<string | null>(null);
+
+  /**
+   * Les annexes de l'article ouvert, corps compris — pour ses notes de rédaction.
+   *
+   * Lecture seule ici : l'éditeur ne les modifie pas (elles se remplacent par réimport). Elles
+   * sont affichées près du champ qu'elles éclairent, cf. `EditorialNotesComponent`.
+   */
+  readonly annexes = signal<ArticleAnnex[]>([]);
+
+  /** Y a-t-il des notes SEO ? Le bloc « Référencement » est replié : il faut le dire dessus. */
+  readonly aNotesSeo = computed(
+    () => notesDuGroupe(this.annexes(), 'seo').length > 0,
+  );
+
+  /** Liens internes et blocs non reconnus : leur carte n'existe que s'il y en a. */
+  readonly aNotesAutres = computed(
+    () => notesDuGroupe(this.annexes(), 'autres').length > 0,
+  );
 
   /**
    * Publié avec une date encore à venir : masqué du public jusqu'à l'échéance. Évalué à
@@ -208,8 +232,76 @@ export class AdminBlogEditorComponent {
   /**
    * Les articles épinglés quand la limite est atteinte : plutôt qu'un refus sec du back, on
    * affiche la une telle qu'elle est et l'auteur choisit lequel cède sa place. `null` = fermé.
+   *
+   * Lu sur l'endpoint **admin** et non le public : lui seul transporte les successions, sans
+   * lesquelles on ne peut pas dire qui occupera la place à une date future.
    */
-  readonly featureSwapChoices = signal<ArticleListItem[] | null>(null);
+  readonly featureSwapChoices = signal<AdminFeaturedItem[] | null>(null);
+
+  /**
+   * La une **telle qu'elle sera** quand cet article prendra sa place.
+   *
+   * Un article programmé n'entre à la une qu'à sa parution : d'ici là, les échanges déjà
+   * décidés auront joué. Proposer de remplacer un occupant qui sera parti d'ici là ferait
+   * choisir sur un état périmé.
+   *
+   * Sans date — un article neuf, non programmé — il n'y a rien à projeter, et c'est la une
+   * d'aujourd'hui qui s'affiche : le seul état dont on soit sûr.
+   */
+  readonly swapSlots = computed(() =>
+    projectFeatured(
+      this.featureSwapChoices() ?? [],
+      projectionTarget(this.articlePublishedAt() ?? this.scheduleAtIso()),
+    ),
+  );
+
+  /** Vrai si cette projection diffère de la une d'aujourd'hui — donc s'il y a lieu de le dire. */
+  readonly swapAhead = computed(() => projectionAhead(this.swapSlots()));
+
+  /**
+   * Vrai si des échanges sont déjà décidés sur la une, quelle que soit la date.
+   *
+   * C'est le cas courant de cet écran : on épingle un article qu'on écrit encore, donc sans
+   * date de parution, donc sans rien à projeter. La une du jour est alors exacte mais
+   * trompeuse — deux de ses places sont déjà promises, et il faut le dire.
+   */
+  readonly swapPending = computed(() => projectionPending(this.swapSlots()));
+
+  /** La date à laquelle la une est projetée, pour l'annoncer dans la modale. */
+  readonly swapAt = computed(
+    () => this.articlePublishedAt() ?? this.scheduleAtIso(),
+  );
+
+
+  /**
+   * Date en toutes lettres — le jour de la semaine compris, qui n'est pas decoratif : c'est
+   * lui qui fait voir qu'un « lundi » a ete resolu sur la mauvaise semaine.
+   *
+   * `Intl` et non le pipe `date` : l'application n'enregistre aucune donnee de locale, et
+   * `| date: ... : 'fr'` leve NG0701 en interrompant le rendu de la vue.
+   */
+  private readonly longue = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  enClair(iso: string): string {
+    return this.longue.format(new Date(iso));
+  }
+
+  /** Date d'arrivée en version brève — « 8 sept. » — pour les étiquettes de la une. */
+  private readonly jour = new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+  });
+
+  enJour(iso: string): string {
+    return this.jour.format(new Date(iso));
+  }
 
   /**
    * Intention « à la une » d'un article pas encore en ligne : mémorisée pendant la rédaction,
@@ -217,8 +309,13 @@ export class AdminBlogEditorComponent {
    * une ne montre que des pages qui existent —, l'intention comble l'attente.
    */
   readonly pendingFeature = signal(false);
-  /** L'article choisi pour céder sa place à la publication (une pleine au moment du choix). */
-  readonly pendingSwap = signal<ArticleListItem | null>(null);
+  /**
+   * L'emplacement retenu pour céder sa place à la publication (une pleine au moment du choix).
+   *
+   * L'identifiant de l'article épinglé **aujourd'hui**, et non celui de l'occupant projeté :
+   * c'est celui-là que le back sait retirer.
+   */
+  readonly pendingSwap = signal<string | null>(null);
   /** Vrai quand la modale d'échange sert l'intention (pas l'action immédiate). */
   private swapForLater = false;
 
@@ -253,7 +350,7 @@ export class AdminBlogEditorComponent {
       }
 
       // La limite se vérifie AVANT de tenter : à 5/5, on propose l'échange plutôt qu'une erreur.
-      this.blog.featured().subscribe({
+      this.blog.adminFeatured().subscribe({
         next: (list) => {
           if (list.length >= MAX_FEATURED) {
             this.featureBusy.set(false);
@@ -277,7 +374,7 @@ export class AdminBlogEditorComponent {
     }
 
     this.featureBusy.set(true);
-    this.blog.featured().subscribe({
+    this.blog.adminFeatured().subscribe({
       next: (list) => {
         this.featureBusy.set(false);
         if (list.length >= MAX_FEATURED) {
@@ -434,7 +531,7 @@ export class AdminBlogEditorComponent {
   readonly scheduleOpen = signal(false);
   readonly scheduleValue = signal('');
   /** Échéance retenue (ISO), consommée par la prochaine publication. */
-  private scheduleAtIso: string | null = null;
+  private readonly scheduleAtIso = signal<string | null>(null);
 
   /** Par défaut : demain 8 h — l'heure du café, pas celle du clic. */
   openSchedule(): void {
@@ -466,7 +563,7 @@ export class AdminBlogEditorComponent {
 
     this.error.set(null);
     this.scheduleOpen.set(false);
-    this.scheduleAtIso = parsed.toISOString();
+    this.scheduleAtIso.set(parsed.toISOString());
 
     if (this.isEdit() && this.isPublished()) {
       this.reschedule();
@@ -482,8 +579,8 @@ export class AdminBlogEditorComponent {
   /** Reprogrammation d'un article déjà publié : la date seule change, sans ré-enregistrer. */
   private reschedule(): void {
     const id = this.id();
-    const at = this.scheduleAtIso;
-    this.scheduleAtIso = null;
+    const at = this.scheduleAtIso();
+    this.scheduleAtIso.set(null);
     if (!id || !at) return;
 
     this.saving.set(true);
@@ -538,11 +635,11 @@ export class AdminBlogEditorComponent {
    * immédiats. Sur un article en préparation : le choix est mémorisé, l'échange aura lieu à la
    * mise en ligne.
    */
-  swapFeature(replaced: ArticleListItem): void {
+  swapFeature(slotId: string): void {
     if (this.swapForLater) {
       this.swapForLater = false;
       this.featureSwapChoices.set(null);
-      this.pendingSwap.set(replaced);
+      this.pendingSwap.set(slotId);
       this.pendingFeature.set(true);
       return;
     }
@@ -551,7 +648,7 @@ export class AdminBlogEditorComponent {
     if (!id) return;
 
     this.featureSwapChoices.set(null);
-    this.featureNow(id, replaced.id);
+    this.featureNow(id, slotId);
   }
 
   cancelSwap(): void {
@@ -573,11 +670,13 @@ export class AdminBlogEditorComponent {
     const replaced = this.pendingSwap();
     this.pendingFeature.set(false);
     this.pendingSwap.set(null);
+    // `?? undefined` : `feature` distingue « pas d'échange » d'un identifiant, et `null`
+    // partirait dans le corps de la requête là où le champ doit simplement être absent.
 
     // Un seul appel : le back libère la place et épingle si l'article paraît déjà, ou
     // mémorise l'échange s'il est programmé — l'ancien reste alors à la une jusqu'à
     // l'échéance, plutôt que de laisser la vitrine à quatre articles.
-    this.blog.feature(id, replaced?.id).subscribe({
+    this.blog.feature(id, replaced ?? undefined).subscribe({
       next: () => this.done(),
       error: () =>
         this.stayWithError(
@@ -644,7 +743,10 @@ export class AdminBlogEditorComponent {
       content:
         v.content || '<p><em>Le contenu de l’article apparaîtra ici…</em></p>',
       coverImageUrl: v.coverImageUrl || null,
+      coverImageAlt: v.coverImageAlt || null,
       coverPosition: v.coverPosition,
+      // L'éditeur ne gère pas encore les séries : elles n'arrivent que par l'écran d'arrivée.
+      series: null,
       author: v.author || 'Équipe Moze',
       status: 'DRAFT',
       featuredAt: null, // l'aperçu n'est jamais épinglé
@@ -711,6 +813,7 @@ export class AdminBlogEditorComponent {
             author: a.author,
             excerpt: a.excerpt,
             coverImageUrl: a.coverImageUrl ?? '',
+            coverImageAlt: a.coverImageAlt ?? '',
             coverPosition: a.coverPosition ?? 'top',
             content: a.content,
             metaTitle: a.metaTitle ?? '',
@@ -728,6 +831,7 @@ export class AdminBlogEditorComponent {
           // alors qu'elle est bien enregistrée.
           this.pendingFeature.set(!!a.featureReplacesId);
           this.articlePublishedAt.set(a.publishedAt);
+          this.annexes.set(a.annexes ?? []);
           if (a.publishedAt) this.previewPublishedAt.set(a.publishedAt);
           this.loading.set(false);
         },
@@ -958,6 +1062,8 @@ export class AdminBlogEditorComponent {
       excerpt: v.excerpt,
       content: v.content,
       coverImageUrl: v.coverImageUrl || null,
+      // Vide ⇒ `null` : la couverture redevient décorative, et le lecteur d'écran la saute.
+      coverImageAlt: v.coverImageAlt.trim() || null,
       coverPosition: v.coverPosition,
       metaTitle: v.metaTitle || null,
       metaDescription: v.metaDescription || null,
@@ -971,8 +1077,8 @@ export class AdminBlogEditorComponent {
         if (publish) {
           // L'échéance de programmation, si l'admin en a choisi une, part avec la publication ;
           // puis l'intention « à la une » s'applique (cf. applyPendingFeature).
-          const at = this.scheduleAtIso;
-          this.scheduleAtIso = null;
+          const at = this.scheduleAtIso();
+          this.scheduleAtIso.set(null);
           this.blog.publish(article.id, at ?? undefined).subscribe({
             next: (published) => {
               this.status.set('PUBLISHED');
