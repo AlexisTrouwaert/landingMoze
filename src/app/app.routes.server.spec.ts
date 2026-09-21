@@ -27,6 +27,7 @@ describe('serverRoutes', () => {
   it('le blog est rendu à la demande (contenu frais depuis l’API)', () => {
     expect(find('blog')?.renderMode).toBe(RenderMode.Server);
     expect(find('blog/:slug')?.renderMode).toBe(RenderMode.Server);
+    expect(find('blog/series/:slug')?.renderMode).toBe(RenderMode.Server);
   });
 
   it('les pages évènements sont rendues à la demande (sinon le joker les servirait en 404)', () => {

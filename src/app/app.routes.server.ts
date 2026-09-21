@@ -56,6 +56,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'politique-confidentialite', renderMode: RenderMode.Prerender },
   { path: 'blog', renderMode: RenderMode.Server },
   { path: 'blog/:slug', renderMode: RenderMode.Server },
+  { path: 'blog/series/:slug', renderMode: RenderMode.Server },
   // Même raison que le blog : contenu tiré de l'API, qui doit figurer dans le HTML servi.
   { path: 'evenements', renderMode: RenderMode.Server },
   { path: 'evenements/:slug', renderMode: RenderMode.Server },

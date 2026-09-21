@@ -1,15 +1,11 @@
 @use './admin-ui' as *;
 
-// Une seule grille pour l'en-tête et les lignes : les colonnes ne peuvent pas
-// se désaligner. La colonne d'actions a une largeur fixe — c'est elle qui
-// garantit un bord droit net quel que soit le libellé du bouton.
-// Sa largeur est dimensionnée pour la ligne la plus large — un article ARCHIVÉ :
-// deux créneaux vides (2×28) + « Restaurer » (~88) + menu (28) + trois gouttières (18).
-// Les lignes publiées (étoile + œil + crayon + menu, tous en icônes) tiennent largement.
-// Le statut est calé sur sa pastille la plus large, « à diffuser 0/4 » (~90) : à 78 px elle
-// débordait à droite et ne se centrait plus sous « Programmé ».
-// check / vignette / article / statut / vues / modifié / actions
-$row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
+// Une seule grille pour l'en-tête et les lignes : les colonnes ne peuvent pas se désaligner.
+// Parution : calée sur « mar. 05/01/2027 », la date la plus longue (année hors de l'année en
+// cours). Diffusion : une pastille « n/4 ». Actions : un carré de quatre boutons de 28 px, plus
+// la gouttière qui les sépare.
+// check / vignette / article / parution / diffusion / actions
+$row-grid: 18px 40px minmax(0, 1fr) 112px 72px 60px;
 
 .adm-page {
   max-width: 1060px;
@@ -282,25 +278,126 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
       grid-column: 3 / 4;
     }
 
-    .col-status {
+    .col-when {
       grid-column: 4;
     }
 
-    .col-views {
+    .col-diffusion {
       grid-column: 5;
-    }
-
-    .col-date {
-      grid-column: 6;
-    }
-
-    .col-actions {
-      grid-column: 7;
     }
   }
 }
 
+// En-tête de section : le statut, dit une fois pour toutes les lignes qui suivent.
+.list-sec {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  // Toute la bande est le bouton : la cible est large, on ne vise pas le chevron.
+  width: 100%;
+  padding: 0.75rem 0.95rem 0.55rem;
+  border: 0;
+  border-bottom: 1px solid var(--adm-line);
+  background: var(--adm-surface-alt);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--adm-t);
+
+  &:hover {
+    background: var(--adm-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+
+  // Une section repliée en fin de liste devient le dernier élément de la carte : à elle d'en
+  // reprendre les coins, que `.row:last-child` portait jusque-là.
+  &:last-child {
+    border-bottom: none;
+    border-radius: 0 0 var(--adm-radius) var(--adm-radius);
+  }
+
+  // Pointe vers le bas quand la section est ouverte, vers la droite quand elle est repliée.
+  &__chevron {
+    flex: none;
+    align-self: center;
+    color: var(--adm-ink-400);
+    transition: transform var(--adm-t);
+  }
+
+  &--replie &__chevron {
+    transform: rotate(-90deg);
+  }
+
+  &__name {
+    color: var(--adm-ink-900);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.86rem;
+  }
+
+  &__count {
+    color: var(--adm-ink-500);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__hint {
+    color: var(--adm-ink-400);
+    font-size: 0.75rem;
+  }
+}
+
+// Le pied d'une section trop longue : il allonge la tranche de dix. Bâti comme une ligne de
+// plus, et non comme un bouton posé dessus — c'est la suite de la liste, pas une action.
+.list-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.7rem 0.95rem;
+  border: 0;
+  border-bottom: 1px solid var(--adm-line);
+  background: transparent;
+  color: var(--adm-ink-500);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    background var(--adm-t),
+    color var(--adm-t);
+
+  &:hover {
+    background: var(--adm-surface-alt);
+    color: var(--adm-ink-700);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--adm-ring);
+  }
+
+  // Dernier élément de la carte tant qu'aucune section ne suit : à lui d'en fermer les coins.
+  &:last-child {
+    border-bottom: none;
+    border-radius: 0 0 var(--adm-radius) var(--adm-radius);
+  }
+
+  // Ce qui resterait après la prochaine tranche : une précision, pas le libellé.
+  &__rest {
+    color: var(--adm-ink-400);
+    font-family: 'SNPRO-Regular', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
 .row {
+  // Positionnée pour que la ligne dont le menu est ouvert passe au-dessus des suivantes.
+  position: relative;
   display: grid;
   grid-template-columns: $row-grid;
   align-items: center;
@@ -323,6 +420,11 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
 
   &--picked {
     background: var(--adm-blue-soft);
+  }
+
+  // Le menu « ⋯ » déborde sur la ligne suivante : sans cela, il passerait dessous.
+  &--menu {
+    z-index: 5;
   }
 
   &__thumb {
@@ -359,6 +461,23 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  // Le titre mène à l'éditeur : il en a l'air au survol, pas au repos.
+  &__title--link {
+    display: block;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--adm-ink-700);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-radius: 4px;
+      box-shadow: var(--adm-ring);
+    }
   }
 
   // Ce qui reste à poster : une pastille qui est aussi un lien. Repère et action confondus,
@@ -413,19 +532,49 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
     width: var(--adm-h-sm);
   }
 
+  // Tag principal, série — et l'auteur, quand ce n'est pas « Équipe Moze ».
   &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
     color: var(--adm-ink-400);
     font-size: 0.78rem;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  &__cta {
-    // Largeur figée, pas seulement un minimum : « Éditer » et « Restaurer »
-    // occupent la même boîte, donc l'étoile à gauche et le « ⋯ » à droite
-    // restent alignés d'une ligne à l'autre.
-    width: 88px;
+  &__author,
+  &__tag {
+    flex: none;
+  }
+
+  &__author::after {
+    content: ' ·';
+  }
+
+  // La série de l'article : une puce, pour qu'elle se distingue du tag sans crier.
+  &__serie {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+    height: 20px;
+    padding: 0 0.5rem;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-pill);
+    background: var(--adm-surface-alt);
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.72rem;
+
+    svg {
+      flex: none;
+    }
+  }
+
+  &__serie-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__more {
@@ -440,46 +589,50 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
   display: contents;
 }
 
-// Statut, Vues et Modifié sont centrés sur leur piste : libellés d'en-tête et
-// cellules partagent ces classes, le centrage vaut donc pour les deux d'un coup.
-.col-status {
+// Parution : la date d'abord, la précision dessous (heure d'un programmé, vues d'un paru).
+.col-when {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
   min-width: 0;
-  text-align: center;
-}
-
-// Statut et « à diffuser » : empilés et centrés quand la piste est étroite, côte à côte en
-// carte. Le `gap` les décolle ; `justify-content` centre même une pastille qui déborderait,
-// là où `text-align` la laissait partir vers la droite.
-.row__foot .col-status {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-}
-
-.col-views {
-  color: var(--adm-ink-400);
-  font-size: 0.78rem;
-  white-space: nowrap;
+  line-height: 1.25;
   font-variant-numeric: tabular-nums;
-  // Centré (libellé et valeurs partagent la classe) : un « 0 » collé au bord
-  // gauche d'une piste plus large que lui semblait désaligné de son libellé.
-  text-align: center;
+
+  &__jour {
+    color: var(--adm-ink-700);
+    font-family: 'SNPRO-SemiBold', sans-serif;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  &__precision {
+    color: var(--adm-ink-400);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  // Programmé : en bleu, comme ce qui va se produire.
+  &--avenir &__jour {
+    color: var(--adm-blue);
+  }
+
+  // Pas de date, ou plus de sens à en avoir une : en retrait.
+  &--aucune &__jour {
+    color: var(--adm-ink-300);
+    font-family: inherit;
+  }
 }
 
-.col-date {
-  color: var(--adm-ink-400);
-  font-size: 0.78rem;
-  white-space: nowrap;
-  text-align: center;
+.col-diffusion {
+  min-width: 0;
 }
 
+// Quatre actions en carré : la ligne garde sa largeur, les boutons restent à portée.
 .col-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.35rem;
+  display: grid;
+  grid-template-columns: repeat(2, var(--adm-h-sm));
+  gap: 0.25rem;
+  justify-content: end;
 }
 
 // Tri d'affichage (récents / plus vus / moins vus), à droite des filtres.
@@ -549,14 +702,16 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
   }
 
   &--date {
-    width: 46px;
+    width: 64px;
     height: 10px;
   }
 
+  // Le carré d'actions.
   &--actions {
-    width: 156px;
-    height: var(--adm-h-sm);
-    border-radius: var(--adm-pill);
+    justify-self: end;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--adm-radius-sm);
   }
 }
 
@@ -697,10 +852,8 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
       grid-column: 2;
     }
 
-    .col-status,
-    .col-views,
-    .col-date,
-    .col-actions {
+    .col-when,
+    .col-diffusion {
       display: none;
     }
   }
@@ -731,26 +884,33 @@ $row-grid: 18px 40px minmax(0, 1fr) 96px 52px 62px 190px;
     }
   }
 
-  .col-date {
-    margin-right: auto;
+  .row__meta {
+    flex-wrap: wrap;
+    white-space: normal;
   }
 
-  // En pied de carte, le nombre seul ne se comprend plus sans l'en-tête de
-  // colonne : l'unité est ajoutée en CSS.
-  .row .col-views::after {
-    content: ' vues';
+  // En pied de carte, la date et sa précision sur une ligne.
+  .col-when {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
   }
 
-  // Reste à droite même si le pied passe sur deux lignes (petits écrans).
+  // Sans l'en-tête de colonne, « 1/4 » seul ne dit plus ce qu'il compte.
+  .row .row__diffuser::before {
+    content: 'Diffusion\00a0';
+  }
+
+  // Les quatre actions reprennent une ligne, à droite, même si le pied passe sur deux lignes.
   .col-actions {
     margin-left: auto;
+    grid-template-columns: repeat(4, var(--adm-h-sm));
   }
 
   .row--skeleton {
     grid-template-columns: 18px 40px minmax(0, 1fr);
 
     .sk--badge,
-    .sk--views,
     .sk--date,
     .sk--actions {
       display: none;

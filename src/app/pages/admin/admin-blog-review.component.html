@@ -10,8 +10,14 @@
       <div>
         <h1>Relecture</h1>
         <p class="adm-head__sub">
-          @if (queue().length) {
-            {{ queue().length }} brouillon{{ queue().length > 1 ? 's' : '' }} proposé{{ queue().length > 1 ? 's' : '' }} par l'assistant
+          @if (queue().length || seriesDrafts().length) {
+            @if (queue().length) {
+              {{ queue().length }} brouillon{{ queue().length > 1 ? 's' : '' }} proposé{{ queue().length > 1 ? 's' : '' }} par l'assistant
+            }
+            @if (queue().length && seriesDrafts().length) { · }
+            @if (seriesDrafts().length) {
+              {{ seriesDrafts().length }} série{{ seriesDrafts().length > 1 ? 's' : '' }} à valider
+            }
           } @else {
             Aucun brouillon en attente
           }
@@ -56,7 +62,7 @@
 
   @if (loading()) {
     <p class="rev-empty">Chargement…</p>
-  } @else if (!queue().length) {
+  } @else if (!queue().length && !seriesDrafts().length) {
     <div class="rev-empty">
       <p><strong>Rien à relire.</strong></p>
       <p>
@@ -68,51 +74,212 @@
     <div class="rev">
       <!-- Volet gauche : la file. La sélection remplace la modale. -->
       <ul class="rev-queue" role="list">
-        @for (a of queue(); track a.id) {
-          <li>
-            <button
-              type="button"
-              class="rev-queue__item"
-              [class.is-selected]="a.id === selectedId()"
-              (click)="select(a.id)"
-            >
-              <span class="rev-queue__title">{{ a.title }}</span>
-              <span class="rev-queue__meta">
-                @if (a.proposedPublishAt) {
-                  {{ enBref(a.proposedPublishAt) }}
-                } @else {
-                  <span class="rev-warn">date manquante</span>
-                }
-              </span>
-              <span class="rev-queue__flags">
-                @if (!a.coverImageUrl) { <span class="badge badge--warn">sans image</span> }
-                @if (a.proposedFeatured) {
-                  <!-- Repéré dès la liste : sans cela, le manque de place ne se découvre
-                       qu'en ouvrant l'article un par un. -->
-                  @if (besoinDeRemplacant(a.id)) {
-                    <span class="badge badge--warn">à la une · sans place</span>
+        @for (bloc of blocs(); track bloc.cle) {
+          <li [class.rev-queue__groupe]="!!bloc.serie">
+            <!-- Les épisodes d'une même série se relisent ensemble : leur ordre, leurs dates et
+                 ce qu'ils se promettent l'un à l'autre ne se vérifient pas article par article. -->
+            @if (bloc.brouillon; as brouillon) {
+              <!-- Une série en brouillon se relit comme un article : son en-tête ouvre le volet où
+                   poser l'image de tête, sans quoi elle ne paraîtra jamais. -->
+              <button
+                type="button"
+                class="rev-queue__serie rev-queue__serie--brouillon"
+                [class.is-selected]="brouillon.id === selectedSeriesId()"
+                (click)="selectSeries(brouillon.id)"
+              >
+                <span class="rev-queue__serie-nom">{{ brouillon.title }}</span>
+                <span class="rev-queue__serie-compte">
+                  @if (brouillon.coverImageUrl) {
+                    <span class="badge">prête à valider</span>
                   } @else {
-                    <span class="badge">à la une</span>
+                    <span class="badge badge--warn">série · image manquante</span>
                   }
-                }
-              </span>
-            </button>
+                </span>
+              </button>
+            } @else if (bloc.serie; as serie) {
+              <p class="rev-queue__serie">
+                <span class="rev-queue__serie-nom">{{ serie.title }}</span>
+                <span class="rev-queue__serie-compte">
+                  {{ bloc.articles.length }}
+                  @if (serie.plannedCount) {
+                    sur {{ serie.plannedCount }}
+                  } @else {
+                    épisode{{ bloc.articles.length > 1 ? 's' : '' }}
+                  }
+                </span>
+              </p>
+            }
+            <ul class="rev-queue__items" role="list">
+              @for (a of bloc.articles; track a.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="rev-queue__item"
+                    [class.is-selected]="a.id === selectedId()"
+                    (click)="select(a.id)"
+                  >
+                    <span class="rev-queue__title">{{ a.title }}</span>
+                    <span class="rev-queue__meta">
+                      @if (a.proposedPublishAt) {
+                        {{ enBref(a.proposedPublishAt) }}
+                      } @else {
+                        <span class="rev-warn">date manquante</span>
+                      }
+                    </span>
+                    <span class="rev-queue__flags">
+                      @if (!a.coverImageUrl) { <span class="badge badge--warn">sans image</span> }
+                      @if (a.proposedFeatured) {
+                        <!-- Repéré dès la liste : sans cela, le manque de place ne se découvre
+                             qu'en ouvrant l'article un par un. -->
+                        @if (besoinDeRemplacant(a.id)) {
+                          <span class="badge badge--warn">à la une · sans place</span>
+                        } @else {
+                          <span class="badge">à la une</span>
+                        }
+                      }
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
           </li>
         }
       </ul>
 
+      <!-- Volet droit, pour une série en brouillon : son teaser, et l'image qui la valide. -->
+      @if (selectedSeries(); as s) {
+        <section class="rev-panel" [class.is-busy]="serieBusy()">
+          <p class="rev-serie__type">Brouillon de série</p>
+          <h2 class="rev-panel__title">{{ s.title }}</h2>
+          <p class="rev-panel__slug">/blog/series/{{ s.slug }}</p>
+
+          <div class="rev-field">
+            <span class="rev-field__label">Image de tête</span>
+            <div class="rev-serie__visuel">
+              <!-- La pile telle que le blog la montrera : juger l'image à sa place. -->
+              <app-series-cover class="rev-serie__pile" [head]="s.coverImageUrl" [covers]="serieCovers()" />
+              <div class="rev-serie__visuel-texte">
+                @if (!s.coverImageUrl) {
+                  <p class="rev-cover__none">
+                    Pas encore d'image. C'est la seule chose que l'assistant ne peut pas fournir,
+                    et la série ne peut pas être validée sans elle.
+                  </p>
+                }
+                <label class="btn btn--sm">
+                  {{ s.coverImageUrl ? 'Remplacer' : 'Ajouter l’image de tête' }}
+                  <input type="file" accept="image/*" class="rev-cover__input" (change)="onSerieCover($event, s)" />
+                </label>
+              </div>
+            </div>
+            @if (s.imageIdea) {
+              <div class="rev-serie__brief">
+                <span class="rev-field__label">Idée d’image</span>
+                <p>{{ s.imageIdea }}</p>
+              </div>
+            }
+          </div>
+
+          <!-- Chaque champ se corrige ici à la main, ou se signale à l'assistant : le bouton est
+               posé à côté du libellé, hors du <label>, pour ne pas donner le focus au champ. -->
+          <div class="rev-serie__champs">
+            <div class="rev-serie__champ">
+              <div class="rev-serie__champ-tete">
+                <label class="rev-field__label" for="rev-serie-nom">Nom</label>
+                <button type="button" class="rev-flag" (click)="retouchesSerie.signalerChamp('title')">Signaler</button>
+              </div>
+              <input id="rev-serie-nom" type="text" maxlength="120" [value]="serieForm().title" (input)="onSerieChamp('title', $event)" />
+            </div>
+            <div class="rev-serie__champ rev-serie__champ--court">
+              <div class="rev-serie__champ-tete">
+                <label class="rev-field__label" for="rev-serie-total">Épisodes annoncés</label>
+              </div>
+              <input id="rev-serie-total" type="number" min="1" max="99" placeholder="—" [value]="serieForm().plannedCount" (input)="onSerieChamp('plannedCount', $event)" />
+            </div>
+            <div class="rev-serie__champ rev-serie__champ--large">
+              <div class="rev-serie__champ-tete">
+                <label class="rev-field__label" for="rev-serie-accroche">Accroche</label>
+                <button type="button" class="rev-flag" (click)="retouchesSerie.signalerChamp('pitch')">Signaler</button>
+              </div>
+              <input id="rev-serie-accroche" type="text" maxlength="240" [value]="serieForm().pitch" (input)="onSerieChamp('pitch', $event)" />
+            </div>
+            <div class="rev-serie__champ rev-serie__champ--large">
+              <div class="rev-serie__champ-tete">
+                <label class="rev-field__label" for="rev-serie-idee">Idée d’image</label>
+                <button type="button" class="rev-flag" (click)="retouchesSerie.signalerChamp('imageIdea')">Signaler</button>
+              </div>
+              <textarea id="rev-serie-idee" rows="3" maxlength="1000" [value]="serieForm().imageIdea" (input)="onSerieChamp('imageIdea', $event)"></textarea>
+            </div>
+          </div>
+
+          <!-- Les retouches demandées sur ce brouillon, que l'assistant reprend avec `modifier_serie`. -->
+          <app-article-flags
+            #retouchesSerie
+            class="rev-retouches"
+            cible="serie"
+            [cibleId]="s.id"
+            [actions]="false"
+          />
+
+          @if (s.articles.length) {
+            <div class="rev-field">
+              <span class="rev-field__label">Épisodes</span>
+              <ol class="rev-serie__eps">
+                @for (e of s.articles; track e.id) {
+                  <li>
+                    <span class="rev-serie__ep-num">{{ e.seriesPosition ?? '–' }}</span>
+                    <span>{{ e.title }}</span>
+                    @if (e.status === 'DRAFT') {
+                      <span class="badge">brouillon</span>
+                    }
+                  </li>
+                }
+              </ol>
+            </div>
+          }
+
+          <div class="rev-serie__actions">
+            <button
+              type="button"
+              class="btn btn--ghost"
+              [disabled]="!serieDirty() || !serieForm().title.trim() || serieBusy()"
+              (click)="enregistrerSerie(s)"
+            >
+              Enregistrer
+            </button>
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="!s.coverImageUrl || !serieForm().title.trim() || serieBusy()"
+              (click)="validerSerie(s)"
+            >
+              Valider la série
+            </button>
+          </div>
+          @if (!s.coverImageUrl) {
+            <p class="rev-serie__note">Ajoutez l'image de tête pour pouvoir valider.</p>
+          } @else {
+            <p class="rev-serie__note">
+              Une fois validée, la série apparaît sur le blog dès son premier épisode paru.
+            </p>
+          }
+        </section>
+      }
+
       <!-- Volet droit : tout ce qui aurait été une modale. -->
       @if (selected(); as a) {
-        <section class="rev-panel" [class.is-busy]="busyId() === a.id">
+        <!-- `#panneau` : le conteneur des zones signalables, confié à `app-article-flags`.
+             `#retouches` (plus bas) : le composant qui porte saisie et liste — les boutons
+             « Signaler » de ce panneau, posés au plus près de ce qu'ils visent, l'appellent. -->
+        <section class="rev-panel" #panneau [class.is-busy]="busyId() === a.id">
           <div class="rev-titled">
             <h2 class="rev-panel__title">{{ a.title }}</h2>
-            <button type="button" class="rev-flag" (click)="flagField('title')">
+            <button type="button" class="rev-flag" (click)="retouches.signalerChamp('title')">
               Signaler le titre
             </button>
           </div>
           <div class="rev-titled">
             <p class="rev-panel__slug">/blog/{{ a.slug }}</p>
-            <button type="button" class="rev-flag" (click)="flagField('slug')">
+            <button type="button" class="rev-flag" (click)="retouches.signalerChamp('slug')">
               Signaler l'adresse
             </button>
           </div>
@@ -121,7 +288,7 @@
             <div class="rev-field">
               <span class="rev-field__label">Extrait</span>
               <p class="rev-excerpt">{{ a.excerpt }}</p>
-              <button type="button" class="rev-flag" (click)="flagField('excerpt')">
+              <button type="button" class="rev-flag" (click)="retouches.signalerChamp('excerpt')">
                 Signaler l'extrait
               </button>
             </div>
@@ -240,9 +407,18 @@
             </p>
             <!-- Le corps de l'article, sobrement. C'est dans ce texte que se fait la
                  sélection d'un passage à signaler. -->
-            <div class="rev-preview" #previewBox [innerHTML]="a.content"></div>
+            <div
+              class="rev-preview"
+              data-flag-zone="content"
+              [innerHTML]="a.content"
+            ></div>
             <div class="rev-preview__actions">
-              <button type="button" class="rev-flag" (click)="flagSelection()">
+              <button
+                type="button"
+                class="rev-flag"
+                (mousedown)="$event.preventDefault()"
+                (click)="retouches.signalerSelection()"
+              >
                 Signaler le passage sélectionné
               </button>
               <a class="btn btn--sm btn--ghost" [routerLink]="['/admin/blog', a.id, 'edit']">
@@ -255,120 +431,67 @@
             }
           </div>
 
-          <!-- Saisie d'un signalement : en ligne, comme tout le reste de cet écran. -->
-          @if (draft(); as d) {
-            <div class="rev-draft" #draftBox>
-              <p class="rev-draft__target">
-                <strong>{{ label(d.field) }}</strong>
-                @if (d.quote) {
-                  <span class="rev-draft__quote">« {{ d.quote }} »</span>
-                }
+          <!-- Les posts réseaux : relus avant la mise en ligne, et signalables comme le corps.
+               Chaque texte est une zone `data-flag-zone="annex"` — c'est de là que
+               `signalerSelection` déduit le post visé. -->
+          @if (posts().length) {
+            <div class="rev-field">
+              <span class="rev-field__label">Posts réseaux ({{ posts().length }})</span>
+              <p class="rev-field__hint">
+                Le texte tel qu'il a été rédigé. L'adresse de l'article s'y ajoutera à la copie,
+                depuis l'écran Diffusion.
               </p>
-              <input
-                type="text"
-                class="rev-input rev-draft__note"
-                placeholder="Ce qui ne va pas, ou ce que vous attendez (facultatif)"
-                [value]="draftNote()"
-                (input)="draftNote.set($any($event.target).value)"
-                (keydown.enter)="submitDraft()"
-              />
-              <div class="rev-draft__actions">
-                <button type="button" class="btn btn--sm" (click)="submitDraft()">
-                  Signaler
-                </button>
-                <button type="button" class="btn btn--sm btn--ghost" (click)="cancelDraft()">
-                  Annuler
-                </button>
+
+              <div class="rev-posts">
+                @for (p of posts(); track p.annex.id) {
+                  <section class="rev-post" [attr.data-network]="p.network.slot">
+                    <header class="rev-post__head">
+                      <span class="rev-post__name">{{ p.network.label }}</span>
+                      @if (p.retouches) {
+                        <span class="badge badge--warn">
+                          {{ p.retouches }} retouche{{ p.retouches > 1 ? 's' : '' }}
+                        </span>
+                      }
+                      <span class="rev-post__count" [class.is-over]="p.trop">
+                        {{ p.annex.body.length }}@if (p.network.limit) { / {{ p.network.limit }} } car.
+                      </span>
+                    </header>
+                    <p
+                      class="rev-post__body"
+                      data-flag-zone="annex"
+                      [attr.data-annex-slot]="p.annex.slot"
+                    >{{ p.annex.body }}</p>
+                    <div class="rev-preview__actions">
+                      <button
+                        type="button"
+                        class="rev-flag"
+                        (mousedown)="$event.preventDefault()"
+                        (click)="retouches.signalerSelection()"
+                      >
+                        Signaler le passage sélectionné
+                      </button>
+                    </div>
+                  </section>
+                }
               </div>
             </div>
           }
 
+          <!-- Saisie et liste des retouches : le composant partagé avec l'éditeur. Ses propres
+               boutons sont masqués (ctions à faux) — ceux de ce panneau, posés à côté de ce
+               qu'ils visent, l'appellent par #retouches. -->
+          <app-article-flags
+            #retouches
+            class="rev-retouches"
+            [cibleId]="a.id"
+            [zone]="panneau"
+            [actions]="false"
+            (changed)="onRetouches($event)"
+          />
           @if (openFlags().length) {
-            <div class="rev-field">
-              <span class="rev-field__label">
-                Retouches demandées ({{ openFlags().length }})
-              </span>
-              <ul class="rev-flags" role="list">
-                @for (f of openFlags(); track f.id) {
-                  <li class="rev-flags__item" [class.is-orphan]="f.orphaned">
-                    <div>
-                      <p class="rev-flags__what">
-                        {{ label(f.field) }}
-                        @if (f.orphaned) {
-                          <span class="badge badge--warn">texte disparu</span>
-                        }
-                      </p>
-                      @if (f.quote) {
-                        <p class="rev-flags__quote">« {{ f.quote }} »</p>
-                      }
-                      @if (editingId() === f.id) {
-                        <div class="rev-flags__edit">
-                          <input
-                            type="text"
-                            class="rev-input"
-                            placeholder="Ce qui ne va pas, ou ce que vous attendez"
-                            [value]="editingNote()"
-                            (input)="editingNote.set($any($event.target).value)"
-                            (keydown.enter)="saveEdit(f)"
-                            (keydown.escape)="cancelEdit()"
-                          />
-                          <button type="button" class="btn btn--sm" (click)="saveEdit(f)">
-                            Enregistrer
-                          </button>
-                          <button
-                            type="button"
-                            class="btn btn--sm btn--ghost"
-                            (click)="cancelEdit()"
-                          >
-                            Annuler
-                          </button>
-                        </div>
-                      } @else if (f.note) {
-                        <p class="rev-flags__note">{{ f.note }}</p>
-                      }
-                    </div>
-                    <div class="rev-flags__tools">
-                      @if (editingId() !== f.id) {
-                        <button
-                          type="button"
-                          class="rev-flags__tool"
-                          (click)="startEdit(f)"
-                          aria-label="Modifier la demande"
-                          title="Modifier la demande"
-                        >
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="15"
-                            height="15"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            aria-hidden="true"
-                          >
-                            <path d="M12 20h9" />
-                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                          </svg>
-                        </button>
-                      }
-                      <button
-                        type="button"
-                        class="rev-flags__tool rev-flags__tool--del"
-                        (click)="removeFlag(f)"
-                        aria-label="Retirer ce signalement"
-                        title="Retirer ce signalement"
-                      >
-                        <span aria-hidden="true">×</span>
-                      </button>
-                    </div>
-                  </li>
-                }
-              </ul>
-              <p class="rev-field__hint">
-                Demandez ensuite à Claude de reprendre les retouches signalées.
-              </p>
-            </div>
+            <p class="rev-field__hint">
+              Demandez ensuite à Claude de reprendre les retouches signalées.
+            </p>
           }
         </section>
       }
@@ -399,10 +522,7 @@
 <app-confirm-dialog
   [open]="confirming()"
   title="Mettre en ligne"
-  [message]="
-    'Les ' + queue().length + ' articles seront publiés à leur date proposée. ' +
-    'C\'est la seule action irréversible de cet écran.'
-  "
+  [message]="confirmMessage()"
   confirmLabel="Programmer"
   (confirmed)="publishAll()"
   (cancelled)="confirming.set(false)"

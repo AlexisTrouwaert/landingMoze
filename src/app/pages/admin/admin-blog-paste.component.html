@@ -53,7 +53,10 @@ metaDescription: description pour les moteurs, 500 max
 date: ISO avec décalage horaire — 2026-09-14T08:00:00+02:00 en été, +01:00 en
   hiver. Sans décalage, l'heure serait lue comme de l'UTC. Une date déjà passée
   est refusée.
-serie: nom de la série éditoriale, si l'article appartient à une suite
+serie: si l'article est l'épisode d'une série, le nom de la série recopié à
+  l'identique de son bloc (voir plus bas) — le nom seul, sans numéro
+episode: son numéro dans la série (1, 2, 3…). Ne l'écris pas dans le titre : le
+  site affiche « Épisode 2 sur 6 » tout seul
 texte alternatif: description de l'image de couverture
 alaune: oui ou non
 ---
@@ -88,6 +91,27 @@ reçoit pas de lien : ses légendes ne les rendent pas cliquables.
 Facultatives, mais utiles quand le sujet s'y prête : mot-clé principal,
 justification du mot-clé, requêtes secondaires, vérification de
 cannibalisation, liens internes.
+
+===
+
+Une série — des articles qui se lisent dans l'ordre — est un brouillon à part.
+Elle se livre dans son propre bloc, avant ses épisodes, séparé d'eux par « === »
+comme un article :
+
+type: série
+titre: nom de la série, 120 caractères maximum
+episodes: nombre d'épisodes prévus
+accroche: une phrase qui donne envie de lire la suite, 240 max — elle s'affiche
+  sur la carte de la série
+--- image
+Ce que devrait montrer l'image de tête de la série : sujet, cadrage, ambiance,
+jamais de texte dans l'image. Elle passe devant les couvertures des épisodes.
+Tu ne la produis pas : un humain la choisit d'après cette idée, et c'est en la
+posant qu'il valide la série.
+
+Pas de corps ni de posts pour une série : ce sont ses épisodes qui les portent.
+Pour ajouter un épisode à une série déjà commencée, pas de nouveau bloc de
+série : l'épisode suffit.
 
 ===
 
@@ -151,10 +175,8 @@ Ne rédige rien pour l'instant. Si tout est clair, réponds seulement
         >
           @if (creating()) {
             Création…
-          } @else if (lu()?.articles?.length; as n) {
-            Créer {{ n }} brouillon{{ n > 1 ? 's' : '' }}
           } @else {
-            Créer le brouillon
+            {{ libelleCreation() }}
           }
         </button>
         @if (texte()) {
@@ -175,6 +197,101 @@ Ne rédige rien pour l'instant. Si tout est clair, réponds seulement
               @for (e of r.errors; track e) { <li>{{ e }}</li> }
             </ul>
           </div>
+        }
+
+        <!-- Les séries d'abord : elles cadrent les articles qui suivent. Chacune part en
+             brouillon — son image de tête se pose en relecture, et c'est ce qui la valide. -->
+        @for (s of series(); track s.cle) {
+          <section class="pst__serie" [class.pst__serie--off]="!s.actif">
+            <header class="pst__serie-tete">
+              <label class="pst__serie-bascule">
+                <input type="checkbox" [checked]="s.actif" (change)="retoucher(s.cle, { actif: !s.actif })" />
+                <span>
+                  @if (estEnLigne(s)) {
+                    Rejoint la série en ligne
+                  } @else if (s.existante) {
+                    Complète le brouillon de série
+                  } @else {
+                    Brouillon de série
+                  }
+                </span>
+              </label>
+              <span class="pst__serie-compte">
+                @if (s.episodes.length) {
+                  {{ s.episodes.length }} épisode{{ s.episodes.length > 1 ? 's' : '' }} dans ce lot
+                } @else {
+                  sans épisode dans ce lot
+                }
+              </span>
+            </header>
+
+            @if (s.actif) {
+              @if (estEnLigne(s)) {
+                <!-- Validée par un humain : on la montre, on ne la réécrit pas. -->
+                <h3 class="pst__serie-nom">{{ s.titre }}</h3>
+                @if (s.pitch) {
+                  <p class="pst__serie-accroche">{{ s.pitch }}</p>
+                }
+              } @else {
+                <div class="pst__serie-champs">
+                  <label class="pst__serie-champ pst__serie-champ--nom">
+                    <span class="rev-field__label">Nom de la série</span>
+                    <input type="text" maxlength="120" [value]="s.titre" (input)="onTexte(s.cle, 'titre', $event)" />
+                  </label>
+                  <label class="pst__serie-champ pst__serie-champ--total">
+                    <span class="rev-field__label">Épisodes annoncés</span>
+                    <input type="number" min="1" max="99" placeholder="—" [value]="s.plannedCount ?? ''" (input)="onTotal(s.cle, $event)" />
+                  </label>
+                  <label class="pst__serie-champ pst__serie-champ--large">
+                    <span class="rev-field__label">Accroche <small>— une phrase, sur la carte de la série</small></span>
+                    <input
+                      type="text"
+                      maxlength="240"
+                      [value]="s.pitch"
+                      (input)="onTexte(s.cle, 'pitch', $event)"
+                      placeholder="Ce qu’on trouve dans cette suite, en une phrase."
+                    />
+                  </label>
+                  <label class="pst__serie-champ pst__serie-champ--large">
+                    <span class="rev-field__label">Idée d’image de tête <small>— le brief suivi en relecture</small></span>
+                    <textarea
+                      rows="3"
+                      maxlength="1000"
+                      [value]="s.imageIdea"
+                      (input)="onTexte(s.cle, 'imageIdea', $event)"
+                      placeholder="Sujet, cadrage, ambiance. Pas de texte dans l’image."
+                    ></textarea>
+                  </label>
+                </div>
+                <p class="pst__serie-note">
+                  L’image de tête se pose en relecture : tant qu’elle manque, la série reste un
+                  brouillon, invisible sur le blog, et ses épisodes paraissent sans elle.
+                </p>
+              }
+
+              @if (s.episodes.length) {
+                <ol class="pst__serie-eps">
+                  @for (e of s.episodes; track e.titre) {
+                    <li><span>{{ e.position ?? '–' }}</span>{{ e.titre }}</li>
+                  }
+                </ol>
+              }
+
+              @if (s.warnings.length) {
+                <ul class="pst__avertissements">
+                  @for (w of s.warnings; track w) { <li>{{ w }}</li> }
+                </ul>
+              }
+            } @else {
+              <p class="pst__serie-note">
+                @if (s.episodes.length) {
+                  Pas de série : ces articles seront créés seuls. Leur titre reste débarrassé de sa numérotation.
+                } @else {
+                  Ce brouillon de série ne sera pas créé.
+                }
+              </p>
+            }
+          </section>
         }
 
         @for (a of r.articles; track a.input.title) {

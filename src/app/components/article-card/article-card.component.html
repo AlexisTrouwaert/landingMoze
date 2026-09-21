@@ -8,7 +8,17 @@
 @let firstTag = tags && tags.length ? tags[0] : null;
 
 <div class="card__body">
-  @if (firstTag) {
+  <!-- Un épisode de série porte son bandeau à la place du tag : c'est l'information la plus utile
+       sur la carte (« il y a une suite »). Le tag reste sur la page de l'article. -->
+  @if (article().series; as series) {
+    <span class="card__series" [title]="'Série « ' + series.title + ' »'">
+      <span class="card__series-mark" aria-hidden="true"></span>
+      Série
+      @if (seriesLabel(); as label) {
+        <span aria-hidden="true">·</span> {{ label }}
+      }
+    </span>
+  } @else if (firstTag) {
     @if (interactiveTag()) {
       <button
         type="button"

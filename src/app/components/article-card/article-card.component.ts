@@ -2,11 +2,13 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   output,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArticleListItem, Tag } from '../../model/article.model';
+import { episodeShortLabel } from '../../model/series.model';
 
 /**
  * Carte de présentation d'un article (liste publique + aperçu admin).
@@ -37,6 +39,12 @@ export class ArticleCardComponent {
 
   /** Émis au clic sur le tag quand il est interactif. */
   readonly tagSelect = output<Tag>();
+
+  /** « Ép. 2/3 » pour le bandeau de série, ou vide pour un article non numéroté. */
+  readonly seriesLabel = computed(() => {
+    const series = this.article().series;
+    return series ? episodeShortLabel(series.position ?? null, series.plannedCount) : '';
+  });
 
   onTagSelect(tag: Tag, event: Event): void {
     // Empêche le lien étiré de se déclencher en même temps que le filtre.

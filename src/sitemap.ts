@@ -95,6 +95,29 @@ export function articleEntries(
     }));
 }
 
+/** Ce que `GET /series` renvoie, réduit à ce dont le sitemap a besoin. */
+export interface SitemapSeries {
+  readonly slug: string;
+  /** Parution du dernier épisode : c'est ce qui change la page d'une série. */
+  readonly lastPublishedAt?: string | null;
+}
+
+/**
+ * Les pages des séries du rayon : celles qui ont au moins un épisode paru. Leur `lastmod` suit le
+ * dernier épisode sorti — la page gagne alors une ligne, c'est le changement qui compte.
+ */
+export function seriesEntries(
+  series: readonly SitemapSeries[],
+  siteUrl: string,
+): SitemapEntry[] {
+  return series
+    .filter((s) => !!s.slug)
+    .map((s) => ({
+      loc: `${siteUrl}/blog/series/${s.slug}`,
+      lastmod: s.lastPublishedAt?.slice(0, 10) || undefined,
+    }));
+}
+
 /** Ce que `GET /events` renvoie, réduit à ce dont le sitemap a besoin. */
 export interface SitemapEvent {
   readonly slug: string;

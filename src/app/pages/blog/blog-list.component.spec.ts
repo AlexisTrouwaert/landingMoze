@@ -40,7 +40,9 @@ describe('BlogListComponent', () => {
       'list',
       'publicTags',
       'featured',
+      'seriesShelf',
     ]);
+    blog.seriesShelf.and.returnValue(of([]));
     blog.publicTags.and.returnValue(of([]));
     blog.list.and.returnValue(of(pageOf([], 0)));
     blog.featured.and.returnValue(of([]));
@@ -181,7 +183,8 @@ describe('BlogListComponent (fermeture du clavier)', () => {
   let descripteurOrigine: PropertyDescriptor | undefined;
 
   beforeEach(() => {
-    blog = jasmine.createSpyObj<BlogService>('BlogService', ['list', 'publicTags', 'featured']);
+    blog = jasmine.createSpyObj<BlogService>('BlogService', ['list', 'publicTags', 'featured', 'seriesShelf']);
+    blog.seriesShelf.and.returnValue(of([]));
     blog.publicTags.and.returnValue(of([]));
     blog.featured.and.returnValue(of([]));
     blog.list.and.returnValue(of({ items: [], total: 0, page: 1, size: 9 }));

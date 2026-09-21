@@ -115,12 +115,11 @@
     }
   }
 
+  // Fixé à la fenêtre : les coordonnées viennent du composant (cf. `menuPosition`), qui les
+  // pose dès l'ouverture. Fixé et non `absolute` : il échappe au rognage du rail qui défile.
   &__menu {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 0.3rem);
-    z-index: 30;
+    position: fixed;
+    z-index: 60;
     background: #fff;
     border: 1px solid #e3ebe7;
     border-radius: 10px;

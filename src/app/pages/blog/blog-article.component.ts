@@ -14,10 +14,13 @@ import { catchError, map, of, switchMap } from 'rxjs';
 import { ArticleCardComponent } from '../../components/article-card/article-card.component';
 import { ArticleViewComponent } from '../../components/article-view/article-view.component';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
-import { Article, ArticleListItem } from '../../model/article.model';
+import { SeriesBarComponent } from '../../components/series-bar/series-bar.component';
+import { SeriesNextComponent } from '../../components/series-next/series-next.component';
+import { ArticleListItem, PublicArticle } from '../../model/article.model';
 import { BlogService } from '../../services/blog.service';
 import { GoogleAnalyticsService } from '../../services/google-analytics.service';
 import { SeoService } from '../../services/seo.service';
+import { SeriesProgressService } from '../../services/series-progress.service';
 import { environment } from '../../../environements/environment';
 
 /**
@@ -88,7 +91,14 @@ function unmarkViewed(slug: string): void {
 
 @Component({
     selector: 'app-blog-article',
-    imports: [RouterLink, FloatingDockComponent, ArticleViewComponent, ArticleCardComponent],
+    imports: [
+      RouterLink,
+      FloatingDockComponent,
+      ArticleViewComponent,
+      ArticleCardComponent,
+      SeriesBarComponent,
+      SeriesNextComponent,
+    ],
     templateUrl: './blog-article.component.html',
     styleUrl: './blog-article.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -101,6 +111,7 @@ export class BlogArticleComponent implements OnDestroy {
   private readonly meta = inject(Meta);
   private readonly seo = inject(SeoService);
   private readonly ga = inject(GoogleAnalyticsService);
+  private readonly seriesProgress = inject(SeriesProgressService);
 
   /**
    * En-tête de la réponse en cours de rendu — présent uniquement côté serveur, `null` dans le
@@ -113,7 +124,7 @@ export class BlogArticleComponent implements OnDestroy {
     this.ga.trackGenerateLead({ source: 'blog_article', article: this.article()?.slug });
   }
 
-  readonly article = signal<Article | null>(null);
+  readonly article = signal<PublicArticle | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
 
@@ -132,7 +143,7 @@ export class BlogArticleComponent implements OnDestroy {
           // plus, sa vue ne sera pas comptée.
           this.cancelPendingViewCount();
           return this.blog.getBySlug(requested).pipe(
-            map((article) => ({ requested, article: article as Article | null })),
+            map((article) => ({ requested, article: article as PublicArticle | null })),
             catchError(() => {
               this.notFound.set(true);
               this.markNotFound();
@@ -158,6 +169,10 @@ export class BlogArticleComponent implements OnDestroy {
         this.applySeo(a);
         this.loadRelated(a);
         this.scheduleViewCount(a.slug);
+        // Coche « Lu » sur la page de la série et « Reprendre » au bon endroit. Dans le navigateur
+        // seulement (le service ignore le rendu serveur), et sans condition de temps : ouvrir un
+        // épisode suffit à ne plus se le voir proposer comme le prochain à lire.
+        if (a.series) this.seriesProgress.markRead(a.series.slug, a.slug);
       });
   }
 
@@ -270,7 +285,7 @@ export class BlogArticleComponent implements OnDestroy {
    * Chargé côté serveur aussi (HttpClient y fonctionne) : ces liens internes sont dans le HTML
    * que crawle Google, c'est tout leur intérêt.
    */
-  private loadRelated(a: Article): void {
+  private loadRelated(a: PublicArticle): void {
     const tags = a.tags.map((t) => t.slug);
     const keepOthers = (items: ArticleListItem[]) => items.filter((i) => i.id !== a.id);
 
@@ -331,7 +346,7 @@ export class BlogArticleComponent implements OnDestroy {
    * `/blog/:slug` est rendu côté serveur. Toute balise posée depuis un
    * `afterNextRender` serait invisible pour eux.
    */
-  private applySeo(a: Article): void {
+  private applySeo(a: PublicArticle): void {
     const title = a.metaTitle || a.title;
     const description = a.metaDescription || a.excerpt;
     const url = `${environment.siteUrl}/blog/${a.slug}`;
@@ -403,7 +418,7 @@ export class BlogArticleComponent implements OnDestroy {
    * rien à résoudre.
    */
   private applyJsonLd(
-    a: Article,
+    a: PublicArticle,
     title: string,
     description: string,
     url: string,
@@ -435,6 +450,15 @@ export class BlogArticleComponent implements OnDestroy {
           ? { '@type': 'Organization', name: a.author }
           : { '@type': 'Person', name: a.author },
       publisher,
+      // Épisode d'une série : la page de la série est l'œuvre dont l'article fait partie.
+      isPartOf: a.series
+        ? {
+            '@type': 'CreativeWorkSeries',
+            name: a.series.title,
+            url: `${environment.siteUrl}/blog/series/${a.series.slug}`,
+          }
+        : undefined,
+      position: a.series?.position ?? undefined,
     });
 
     this.seo.setJsonLd('breadcrumb', {

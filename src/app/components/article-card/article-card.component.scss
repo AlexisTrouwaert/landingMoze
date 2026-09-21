@@ -40,6 +40,34 @@
   flex-grow: 1;
 }
 
+// Bandeau d'un épisode de série, à la place du tag : vert, la couleur des séries sur le blog.
+.card__series {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.2rem 0.65rem 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #e4f6ea;
+  color: #14603c;
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+// Deux cartes empilées en miniature : le motif de la couverture des séries.
+.card__series-mark {
+  position: relative;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 3px;
+  background: var(--primary-color);
+  box-shadow: 2px -2px 0 0 var(--accent-color);
+  margin-right: 0.15rem;
+}
+
 // Tag mis en avant, affiché comme catégorie au-dessus du titre.
 .card__tag {
   align-self: flex-start;

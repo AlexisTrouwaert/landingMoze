@@ -1,0 +1,121 @@
+<app-floating-dock [buttonLabel]="'Retour'" (buttonClick)="goBlog()" (logoClick)="goHome()"></app-floating-dock>
+
+<div class="series-page">
+  @if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else if (notFound()) {
+    <div class="state state--404">
+      <h1>Série introuvable</h1>
+      <p>Cette série n'existe pas, ou aucun de ses épisodes n'est encore paru.</p>
+      <a class="btn" [routerLink]="['/blog']">← Retour au blog</a>
+    </div>
+  } @else if (series(); as s) {
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+      <a class="crumbs__link" routerLink="/">Accueil</a>
+      <span class="crumbs__sep" aria-hidden="true">›</span>
+      <a class="crumbs__link" routerLink="/blog">Blog</a>
+      <span class="crumbs__sep" aria-hidden="true">›</span>
+      <span class="crumbs__here" aria-current="page">{{ s.title }}</span>
+    </nav>
+
+    <header class="hero">
+      <app-series-cover
+        class="hero__cover"
+        [head]="series()?.coverImageUrl ?? null"
+        [covers]="covers()"
+        [eager]="true"
+      />
+
+      <div class="hero__text">
+        <p class="hero__eyebrow">
+          @if (s.complete) {
+            <app-series-done-icon />
+            Série complète
+          } @else {
+            Série
+          }
+        </p>
+        <h1 class="hero__title">{{ s.title }}</h1>
+        @if (s.pitch) {
+          <p class="hero__pitch">{{ s.pitch }}</p>
+        }
+        <p class="hero__facts">{{ facts() }}</p>
+
+        @if (cta(); as c) {
+          <div class="hero__actions">
+            <a class="btn btn--primary" [routerLink]="['/blog', c.target.slug]">{{ c.label }}</a>
+            @if (c.secondary; as first) {
+              <a class="btn" [routerLink]="['/blog', first.slug]">Depuis le début</a>
+            }
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- La playlist : parus, puis programmés (une date, pas de titre), puis annoncés. -->
+    <ol class="eps" aria-label="Épisodes">
+      @for (row of rows(); track row.key) {
+        @if (row.kind === 'out') {
+          <li class="ep" [class.ep--read]="row.read">
+            <!-- Déjà lu : la coche remplace le numéro, une seule marque suffit. -->
+            <span class="ep__num" aria-hidden="true">
+              @if (row.read) {
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              } @else {
+                {{ row.episode.position ?? '·' }}
+              }
+            </span>
+            <div class="ep__body">
+              <h2 class="ep__title">
+                <a class="ep__link" [routerLink]="['/blog', row.episode.slug]">
+                  @if (row.episode.position) {
+                    <span class="sr-only">Épisode {{ row.episode.position }} : </span>
+                  }
+                  {{ row.episode.title }}
+                  @if (row.read) {
+                    <span class="sr-only"> (déjà lu)</span>
+                  }
+                </a>
+                @if (row.fresh) {
+                  <span class="ep__new">Nouveau</span>
+                }
+              </h2>
+              <p class="ep__excerpt">{{ row.episode.excerpt }}</p>
+              <p class="ep__meta">
+                {{ formatDate(row.episode.publishedAt) }} · {{ row.episode.readingMinutes }} min
+              </p>
+            </div>
+          </li>
+        } @else if (row.kind === 'upcoming') {
+          <li class="ep ep--later">
+            <span class="ep__num" aria-hidden="true">{{ row.position ?? '·' }}</span>
+            <div class="ep__body">
+              <h2 class="ep__title">{{ row.position ? 'Épisode ' + row.position : 'Prochain épisode' }}</h2>
+              <p class="ep__meta">Le {{ row.date }} · titre dévoilé à la sortie</p>
+            </div>
+            <button type="button" class="ep__alert" (click)="scrollToAlert()">Préviens-moi</button>
+          </li>
+        } @else {
+          <li class="ep ep--later">
+            <span class="ep__num" aria-hidden="true">{{ row.position }}</span>
+            <div class="ep__body">
+              <h2 class="ep__title">Épisode {{ row.position }}</h2>
+              <p class="ep__meta">En préparation</p>
+            </div>
+          </li>
+        }
+      }
+    </ol>
+
+    @if (awaitsMore()) {
+      <aside class="suite" id="serie-suite" aria-labelledby="serie-suite-title">
+        <h2 id="serie-suite-title" class="suite__title">Ne rate pas la suite</h2>
+        <p class="suite__text">
+          Les prochains épisodes arrivent dans la newsletter du blog, avec les autres conseils de la
+          semaine.
+        </p>
+        <app-newsletter-form source="newsletter_series" />
+      </aside>
+    }
+  }
+</div>

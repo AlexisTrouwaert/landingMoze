@@ -1,5 +1,5 @@
 <div class="tagi" [class.tagi--disabled]="disabled()">
-  <div class="tagi__field">
+  <div class="tagi__field" #field>
     @for (t of tags(); track t; let first = $first) {
       <span class="tagi__chip" [class.tagi__chip--primary]="first">
         <!-- Le premier tag est celui mis en avant sur le blog : l'étoile pleine
@@ -65,7 +65,14 @@
   </div>
 
   @if (open() && options().length) {
-    <div class="tagi__menu" role="listbox">
+    <div
+      class="tagi__menu"
+      role="listbox"
+      [style.left.px]="menuPosition()?.left"
+      [style.width.px]="menuPosition()?.width"
+      [style.top.px]="menuPosition()?.top"
+      [style.bottom.px]="menuPosition()?.bottom"
+    >
       @for (opt of options(); track opt.label + '|' + opt.create; let i = $index) {
         @if (opt.create) {
           <button

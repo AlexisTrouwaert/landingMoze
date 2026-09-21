@@ -1,0 +1,258 @@
+// Les jetons `--adm-*` descendent de l'hôte des pages d'administration (cf. `_admin-ui.scss`).
+// Mêmes codes que la relecture : ambre pour ce qui est à reprendre, gris pour l'orphelin.
+
+:host {
+  display: block;
+}
+
+.flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  // Discrètes : signaler est un geste occasionnel, pas l'action principale de l'écran.
+  &__pill {
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--adm-ink-500);
+    font: inherit;
+    font-size: 0.76rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      border-color var(--adm-t, 0.15s ease),
+      color var(--adm-t, 0.15s ease);
+
+    &:hover {
+      border-color: var(--adm-amber);
+      color: var(--adm-amber);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--adm-ring);
+    }
+
+    &--main {
+      border-color: var(--adm-amber);
+      color: var(--adm-amber);
+    }
+  }
+
+  &__blocked,
+  &__empty {
+    margin: 0;
+    color: var(--adm-ink-500);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.45rem 0.65rem;
+    border-radius: var(--adm-radius-sm, 8px);
+    background: var(--adm-red-soft);
+    color: var(--adm-red);
+    font-size: 0.8rem;
+  }
+
+  &__count {
+    margin: 0.2rem 0 0;
+    color: var(--adm-ink-500);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 8px;
+    background: var(--adm-surface);
+    color: inherit;
+    font: inherit;
+    font-size: 0.85rem;
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--adm-blue);
+      box-shadow: var(--adm-ring);
+    }
+  }
+
+  &__btn {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 999px;
+    background: var(--adm-surface);
+    color: var(--adm-ink-700);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--adm-blue);
+      color: var(--adm-blue);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: progress;
+    }
+
+    &--primary {
+      border-color: var(--adm-ink-700);
+      background: var(--adm-ink-700);
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        border-color: var(--adm-blue);
+        background: var(--adm-blue);
+        color: #fff;
+      }
+    }
+  }
+}
+
+.draft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--adm-amber);
+  border-radius: 10px;
+  background: var(--adm-amber-soft);
+
+  &__target {
+    margin: 0;
+    color: var(--adm-ink-700);
+    font-size: 0.84rem;
+  }
+
+  &__quote {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--adm-ink-500);
+    font-style: italic;
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.7rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--adm-line);
+    border-left: 3px solid var(--adm-amber);
+    border-radius: 8px;
+    background: var(--adm-surface-alt);
+
+    // Le texte visé n'existe plus : la demande reste visible, sans prétendre pointer quelque part.
+    &.is-orphan {
+      border-left-color: var(--adm-ink-300);
+      opacity: 0.75;
+    }
+  }
+
+  &__main {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  &__what {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  &__badge {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: var(--adm-amber-soft);
+    color: var(--adm-amber);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  &__quote {
+    margin: 0.2rem 0 0;
+    color: var(--adm-ink-500);
+    font-size: 0.8rem;
+    font-style: italic;
+    overflow-wrap: anywhere;
+  }
+
+  &__note {
+    margin: 0.2rem 0 0;
+    color: var(--adm-ink-700);
+    font-size: 0.82rem;
+  }
+
+  &__edit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+  }
+
+  &__tools {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.1rem;
+  }
+
+  &__tool {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--adm-ink-400);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: var(--adm-surface-hover);
+      color: var(--adm-ink-700);
+    }
+
+    &--del:hover:not(:disabled) {
+      background: var(--adm-red-soft);
+      color: var(--adm-red);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: progress;
+    }
+  }
+}

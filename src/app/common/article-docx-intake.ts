@@ -10,6 +10,7 @@ import {
   fieldFor,
   normalizeLabel,
   parseDateFr,
+  readSeriesFields,
   slugifyLabel,
 } from './article-intake';
 import { DocxParagraph, readDocx } from './docx';
@@ -203,16 +204,27 @@ export function intakeFromParagraphs(
     (jour !== null && jour < new Date().toISOString().slice(0, 10));
   if (passee) warnings.push('la date de parution proposée est déjà passée.');
 
-  if (errors.length) return { articles: [], errors };
+  if (errors.length) return { articles: [], series: [], errors };
 
   const tags = (champs.get('tags') ?? '')
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // Même lecture que le texte collé : l'en-tête d'abord, le « (2/6) » du titre à défaut.
+  const { title: titrePropre, ...serie } = readSeriesFields(
+    champs.get('series'),
+    champs.get('seriesPosition'),
+    titre,
+    champs.get('seriesPlannedCount'),
+  );
+  if (serie.series && titrePropre !== titre.trim()) {
+    warnings.push("la numérotation est retirée du titre : la série l'affiche.");
+  }
+
   const article: IntakeArticle = {
     input: {
-      title: titre,
+      title: titrePropre,
       ...(champs.get('slug') ? { slug: champs.get('slug') } : {}),
       ...(champs.get('excerpt') ? { excerpt: champs.get('excerpt') } : {}),
       content,
@@ -228,13 +240,13 @@ export function intakeFromParagraphs(
     // l'effacer obligerait à rouvrir le fichier pour le retrouver.
     proposedPublishDay: jour,
     proposedFeatured: estVrai(champs.get('featured') ?? ''),
-    series: champs.get('series') ?? null,
+    ...serie,
     coverImageAlt: champs.get('coverImageAlt') ?? null,
     annexes,
     warnings,
   };
 
-  return { articles: [article], errors: [] };
+  return { articles: [article], series: [], errors: [] };
 }
 
 /**

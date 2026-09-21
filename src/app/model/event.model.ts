@@ -171,6 +171,8 @@ export interface AdminEvent extends Omit<SiteEvent, 'status'> {
   effectiveStatus: EventDisplayStatus;
   createdAt: string;
   publishedAt: string | null;
+  /** Qui l'a rédigé : l'admin, ou l'assistant via le serveur MCP (Claude Desktop). */
+  origin?: 'HUMAN' | 'ASSISTANT';
   /** Slug saisi dans l'éditeur : il ne suit plus le titre, le type ni la date. */
   slugManual: boolean;
 }

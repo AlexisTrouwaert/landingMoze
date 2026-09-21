@@ -1,16 +1,27 @@
+import type {
+  ArticleSeriesContext,
+  CardSeriesRef,
+  SeriesFlagField,
+  SeriesRef,
+} from './series.model';
+
 export type ArticleStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 /** Auteur de la rédaction : l'admin dans l'éditeur, ou Claude via le serveur MCP. */
 export type ArticleOrigin = 'HUMAN' | 'ASSISTANT';
 
-/** Ce qu'un signalement de relecture peut viser. `content` désigne un passage du corps. */
+/**
+ * Ce qu'un signalement de relecture peut viser. `content` désigne un passage du corps, `annex`
+ * un passage d'un post réseau (cf. `ArticleFlag.annexSlot`).
+ */
 export type FlagField =
   | 'title'
   | 'slug'
   | 'excerpt'
   | 'metaTitle'
   | 'metaDescription'
-  | 'content';
+  | 'content'
+  | 'annex';
 
 /**
  * Un endroit de l'article que le relecteur veut voir retouché.
@@ -24,6 +35,24 @@ export interface ArticleFlag {
   articleId: string;
   field: FlagField;
   quote: string | null;
+  /** Pour `field: 'annex'` : l'emplacement du post visé (`linkedin`, `moze-connect`…). */
+  annexSlot: string | null;
+  note: string | null;
+  resolvedAt: string | null;
+  createdAt: string;
+  orphaned: boolean;
+}
+
+/**
+ * Un signalement tel que les écrans le manipulent, qu'il vise un article ou le brouillon d'une
+ * série. Ce qui n'a de sens que pour un article — citation, post, passage disparu — reste nul
+ * (ou faux) pour une série, qui ne se signale que champ par champ.
+ */
+export interface Signalement {
+  id: string;
+  field: FlagField | SeriesFlagField;
+  quote: string | null;
+  annexSlot: string | null;
   note: string | null;
   resolvedAt: string | null;
   createdAt: string;
@@ -58,8 +87,13 @@ export interface Article {
    */
   coverImageAlt: string | null;
   coverPosition: CoverPosition;
-  /** Série éditoriale — « Les cas qu'on croit compliqués », épisode 2. */
-  series: string | null;
+  /**
+   * Série éditoriale — « Les cas qu'on croit compliqués ». Sur la page publique d'un article, le
+   * back y met tout le contexte de la série (cf. `PublicArticle`).
+   */
+  series: SeriesRef | null;
+  /** Numéro d'épisode dans la série. Réponses admin seulement. */
+  seriesPosition?: number | null;
   author: string;
   status: ArticleStatus;
   metaTitle: string | null;
@@ -113,6 +147,11 @@ export interface Article {
 /** Nombre maximum d'articles épinglés (doit rester aligné avec le back). */
 export const MAX_FEATURED = 5;
 
+/** Un article paru, tel que `GET /blog/:slug` le renvoie : sa série y arrive avec son contexte. */
+export interface PublicArticle extends Article {
+  series: ArticleSeriesContext | null;
+}
+
 /** Carte d'article dans la liste publique (sans le `content`). */
 export type ArticleListItem = Pick<
   Article,
@@ -125,7 +164,10 @@ export type ArticleListItem = Pick<
   | 'publishedAt'
   | 'readingMinutes'
   | 'tags'
->;
+> & {
+  /** La série et le numéro de l'épisode, pour le bandeau de la carte. */
+  series?: CardSeriesRef | null;
+};
 
 /**
  * Ce qu'il faut pour illustrer un lien interne cité dans un article (`GET /blog/cards`).
@@ -210,7 +252,10 @@ export interface ArticleInput {
   coverImageUrl?: string | null;
   coverImageAlt?: string | null;
   coverPosition?: CoverPosition;
+  /** Nom de la série à rejoindre, créée si elle n'existe pas. `null` ou vide : hors série. */
   series?: string | null;
+  /** Numéro d'épisode. Absent à l'entrée dans une série : le back prend le suivant. */
+  seriesPosition?: number | null;
   author?: string;
   metaTitle?: string | null;
   metaDescription?: string | null;

@@ -3,6 +3,7 @@ import {
   buildSitemap,
   eventEntries,
   MAX_ARTICLES,
+  seriesEntries,
   staticEntries,
   STATIC_PATHS,
 } from './sitemap';
@@ -119,6 +120,23 @@ describe('sitemap', () => {
 
       expect(xml).toContain('a?x=1&amp;y=2');
       expect(xml).not.toContain('a?x=1&y=2');
+    });
+  });
+
+  describe('seriesEntries', () => {
+    it('une page par série, datée de son dernier épisode', () => {
+      expect(
+        seriesEntries(
+          [{ slug: 'les-silences-du-metier', lastPublishedAt: '2026-10-03T09:20:00.000Z' }],
+          SITE,
+        ),
+      ).toEqual([
+        { loc: `${SITE}/blog/series/les-silences-du-metier`, lastmod: '2026-10-03' },
+      ]);
+    });
+
+    it('aucune entrée sans série', () => {
+      expect(seriesEntries([], SITE)).toEqual([]);
     });
   });
 });

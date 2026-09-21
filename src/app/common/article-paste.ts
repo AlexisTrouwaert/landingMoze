@@ -4,11 +4,13 @@ import {
   IntakeAnnex,
   IntakeArticle,
   IntakeResult,
+  IntakeSeries,
   annexSlotFor,
   estVrai,
   fieldFor,
   normalizeLabel,
   parseDateFr,
+  readSeriesFields,
   slugifyLabel,
 } from './article-intake';
 
@@ -151,19 +153,97 @@ function separer(bloc: string): BlocLu {
   return { entete, corps: corps.join('\n\n'), annexes, inconnues };
 }
 
-/** Lit un ou plusieurs articles collés. */
+/** Longueurs d'une série que le back refuse (cf. `CreateSeriesDto`). */
+const MAX_SERIE = { titre: 120, accroche: 240, ideeImage: 1000 } as const;
+
+/** Ce que déclare la ligne `type:` d'un bloc. `null` : une valeur que le format ne connaît pas. */
+function typeDeBloc(valeur: string | undefined): 'article' | 'serie' | null {
+  const type = normalizeLabel(valeur ?? '');
+  if (!type || type === 'article') return 'article';
+  return type === 'serie' ? 'serie' : null;
+}
+
+/**
+ * Lit un bloc `type: série` — le brouillon d'une série.
+ *
+ * Même grammaire qu'un article, pour que l'IA n'ait qu'un format à tenir : `titre:` nomme la
+ * série, `accroche:` et `episodes:` la décrivent, `--- image` porte l'idée de l'image de tête.
+ * Il n'a ni corps ni posts : ce sont ses épisodes qui les portent. Ce qu'il contiendrait en
+ * plus est signalé et laissé de côté plutôt que refusé — une annexe en trop n'empêche pas de
+ * créer la série.
+ */
+function lireSerie(bloc: BlocLu, rang: string, errors: string[]): IntakeSeries | null {
+  const { entete, corps, annexes, inconnues } = bloc;
+
+  const titre = entete.get('title') ?? '';
+  if (!titre) {
+    errors.push(`${rang}il manque la ligne « titre: » — le nom de la série.`);
+    return null;
+  }
+
+  // `accroche:` est lue comme l'extrait d'un article : c'en est l'équivalent pour une série.
+  const accroche = entete.get('excerpt') ?? '';
+  const idee = annexes.find((a) => a.slot === 'image')?.body ?? '';
+
+  const trop = (quoi: string, valeur: string, max: number): boolean => {
+    if (valeur.length <= max) return false;
+    errors.push(`${rang}${quoi} trop long : ${valeur.length} caractères, maximum ${max}.`);
+    return true;
+  };
+  let invalide = trop('nom de la série', titre, MAX_SERIE.titre);
+  invalide = trop('accroche', accroche, MAX_SERIE.accroche) || invalide;
+  invalide = trop('idée d’image', idee, MAX_SERIE.ideeImage) || invalide;
+  if (invalide) return null;
+
+  const total = Number(/\d+/.exec(entete.get('seriesPlannedCount') ?? '')?.[0] ?? NaN);
+  const plannedCount = total >= 1 && total <= 99 ? total : null;
+
+  const warnings: string[] = [];
+  if (!accroche) warnings.push('pas d’accroche : la carte de la série n’aura que son nom.');
+  if (!idee) warnings.push('pas d’idée d’image : l’image de tête sera à trouver sans brief.');
+  if (plannedCount === null) {
+    warnings.push('pas de nombre d’épisodes : la série ne pourra jamais être dite complète.');
+  }
+  if (corps) warnings.push('corps ignoré : ce sont les épisodes qui portent le texte.');
+  const autres = annexes.filter((a) => a.slot !== 'image');
+  if (autres.length) {
+    warnings.push(`annexes ignorées pour une série : ${autres.map((a) => a.label).join(', ')}.`);
+  }
+  if (inconnues.length) warnings.push(`lignes d'en-tête ignorées : ${inconnues.join(', ')}.`);
+
+  return { title: titre, pitch: accroche, plannedCount, imageIdea: idee, warnings };
+}
+
+/** Lit un ou plusieurs articles collés, et les brouillons de série qui les accompagnent. */
 export function parsePastedArticles(texte: string): IntakeResult {
   const blocs = decouper(texte);
   if (!blocs.length) {
-    return { articles: [], errors: ['Rien à lire : le texte collé est vide.'] };
+    return { articles: [], series: [], errors: ['Rien à lire : le texte collé est vide.'] };
   }
 
   const articles: IntakeArticle[] = [];
+  const series: IntakeSeries[] = [];
   const errors: string[] = [];
 
   blocs.forEach((bloc, index) => {
     const rang = blocs.length > 1 ? `Article ${index + 1} : ` : '';
-    const { entete, corps, annexes, inconnues } = separer(bloc);
+    const lu = separer(bloc);
+
+    const type = typeDeBloc(lu.entete.get('type'));
+    if (type === null) {
+      errors.push(
+        `${blocs.length > 1 ? `Bloc ${index + 1} : ` : ''}type « ${lu.entete.get('type')} » ` +
+          'inconnu — « série » pour une série, rien pour un article.',
+      );
+      return;
+    }
+    if (type === 'serie') {
+      const serie = lireSerie(lu, blocs.length > 1 ? `Série (bloc ${index + 1}) : ` : 'Série : ', errors);
+      if (serie) series.push(serie);
+      return;
+    }
+
+    const { entete, corps, annexes, inconnues } = lu;
     const warnings: string[] = [];
 
     const titre = entete.get('title') ?? '';
@@ -227,13 +307,27 @@ export function parsePastedArticles(texte: string): IntakeResult {
     }
     if (!tags.length) warnings.push('aucun tag.');
     if (!extrait) warnings.push('aucun extrait.');
+    // La série se lit dans l'en-tête et, à défaut, dans le titre : une IA écrit volontiers
+    // « (2/6) » malgré la consigne. Le titre en ressort nettoyé.
+    const { title: titrePropre, ...serie } = readSeriesFields(
+      entete.get('series'),
+      entete.get('seriesPosition'),
+      titre,
+      entete.get('seriesPlannedCount'),
+    );
+    if (serie.series && titrePropre !== titre.trim()) {
+      warnings.push(
+        `« ${titre.trim()} » : la numérotation est retirée du titre, la série l'affiche.`,
+      );
+    }
+
     if (/<h1[\s>]/i.test(corps)) {
       warnings.push('le corps contient un <h1> — la page en rend déjà un, il sera retiré.');
     }
 
     articles.push({
       input: {
-        title: titre,
+        title: titrePropre,
         ...(slug ? { slug } : {}),
         ...(extrait ? { excerpt: extrait } : {}),
         content: corps,
@@ -245,12 +339,12 @@ export function parsePastedArticles(texte: string): IntakeResult {
       proposedPublishAt: iso,
       proposedPublishDay: jour,
       proposedFeatured: estVrai(entete.get('featured') ?? ''),
-      series: entete.get('series') ?? null,
+      ...serie,
       coverImageAlt: entete.get('coverImageAlt') ?? null,
       annexes,
       warnings,
     });
   });
 
-  return { articles, errors };
+  return { articles, series, errors };
 }

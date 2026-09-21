@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, map, of, tap } from 'rxjs';
 import { environment } from '../../environements/environment';
 import { PersistentCircuitBreaker } from '../common/circuit-breaker';
 import {
@@ -18,8 +18,18 @@ import {
   ArticlePage,
   BulkAction,
   BulkResult,
+  PublicArticle,
   Tag,
+  Signalement,
 } from '../model/article.model';
+import {
+  AdminSeries,
+  PublicSeries,
+  SeriesFlag,
+  SeriesFlagField,
+  SeriesInput,
+  ShelfSeries,
+} from '../model/series.model';
 
 /** Échecs consécutifs du ping de vue au-delà desquels on arrête d'appeler (cf. `countView`). */
 const MAX_VIEW_PING_FAILURES = 2;
@@ -54,8 +64,80 @@ export class BlogService {
     return this.http.post<Tag>(`${this.base}/admin/blog/tags`, { name });
   }
 
-  getBySlug(slug: string): Observable<Article> {
-    return this.http.get<Article>(`${this.base}/blog/${slug}`);
+  getBySlug(slug: string): Observable<PublicArticle> {
+    return this.http.get<PublicArticle>(`${this.base}/blog/${slug}`);
+  }
+
+  // ---- Séries ----
+
+  /** Le rayon « Séries » du blog : celles qui ont un épisode paru, la plus fraîche en tête. */
+  seriesShelf(): Observable<ShelfSeries[]> {
+    return this.http.get<ShelfSeries[]>(`${this.base}/series`);
+  }
+
+  /** La page d'une série. 404 tant qu'aucun épisode n'est paru. */
+  getSeries(slug: string): Observable<PublicSeries> {
+    return this.http.get<PublicSeries>(`${this.base}/series/${slug}`);
+  }
+
+  adminSeries(): Observable<AdminSeries[]> {
+    return this.http.get<AdminSeries[]>(`${this.base}/admin/series`);
+  }
+
+  createSeries(input: SeriesInput & { title: string }): Observable<AdminSeries> {
+    return this.http.post<AdminSeries>(`${this.base}/admin/series`, input);
+  }
+
+  updateSeries(id: string, input: SeriesInput): Observable<AdminSeries> {
+    return this.http.put<AdminSeries>(`${this.base}/admin/series/${id}`, input);
+  }
+
+  // --- Signalements sur un brouillon de série ---------------------------------
+  //
+  // Mêmes gestes que pour un article, sur d'autres routes. La liste revient sous la forme
+  // commune `Signalement` : le composant qui les affiche n'a pas à savoir ce qu'il signale.
+
+  seriesFlags(seriesId: string): Observable<Signalement[]> {
+    return this.http
+      .get<SeriesFlag[]>(`${this.base}/admin/series/${seriesId}/flags`)
+      .pipe(
+        map((flags) =>
+          flags.map(({ seriesId: _serie, ...f }) => ({
+            ...f,
+            quote: null,
+            annexSlot: null,
+            orphaned: false,
+          })),
+        ),
+      );
+  }
+
+  createSeriesFlag(
+    seriesId: string,
+    input: { field: SeriesFlagField; note?: string },
+  ): Observable<SeriesFlag> {
+    return this.http.post<SeriesFlag>(`${this.base}/admin/series/${seriesId}/flags`, input);
+  }
+
+  updateSeriesFlag(flagId: string, note: string | null): Observable<SeriesFlag> {
+    return this.http.put<SeriesFlag>(`${this.base}/admin/series/flags/${flagId}`, { note });
+  }
+
+  deleteSeriesFlag(flagId: string): Observable<{ deleted: boolean; id: string }> {
+    return this.http.delete<{ deleted: boolean; id: string }>(
+      `${this.base}/admin/series/flags/${flagId}`,
+    );
+  }
+
+  /** Valide le teaser d'une série en brouillon. Refusé par le serveur sans image de tête. */
+  publishSeries(id: string): Observable<AdminSeries> {
+    return this.http.post<AdminSeries>(`${this.base}/admin/series/${id}/publish`, {});
+  }
+
+  deleteSeries(id: string): Observable<{ deleted: boolean; id: string }> {
+    return this.http.delete<{ deleted: boolean; id: string }>(
+      `${this.base}/admin/series/${id}`,
+    );
   }
 
   /**
@@ -184,7 +266,7 @@ export class BlogService {
    */
   createFlag(
     articleId: string,
-    input: { field: FlagField; quote?: string; note?: string },
+    input: { field: FlagField; quote?: string; annexSlot?: string; note?: string },
   ): Observable<ArticleFlag> {
     return this.http.post<ArticleFlag>(
       `${this.base}/admin/blog/${articleId}/flags`,

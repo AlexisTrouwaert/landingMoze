@@ -1,0 +1,32 @@
+<app-series-cover
+  [head]="series().coverImageUrl"
+  [covers]="covers()"
+  [fresh]="series().fresh"
+/>
+
+<div class="serie__body">
+  <h3 class="serie__title">
+    <!-- Lien étiré : le titre porte le lien, son pseudo-élément couvre toute la carte. -->
+    <a class="serie__link" [routerLink]="['/blog/series', series().slug]">{{ series().title }}</a>
+    @if (series().complete) {
+      <app-series-done-icon />
+    }
+  </h3>
+
+  @if (series().pitch) {
+    <p class="serie__pitch">{{ series().pitch }}</p>
+  }
+
+  <ol class="serie__eps">
+    @for (episode of latest(); track episode.slug) {
+      <li>
+        @if (episode.label) {
+          <span class="serie__ep-num">{{ episode.label }}</span>
+        }
+        <span class="serie__ep-title">{{ episode.title }}</span>
+      </li>
+    }
+  </ol>
+
+  <p class="serie__foot">{{ foot() }}</p>
+</div>

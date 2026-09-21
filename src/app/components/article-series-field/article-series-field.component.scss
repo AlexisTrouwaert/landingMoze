@@ -1,0 +1,141 @@
+// Les jetons `--adm-*` descendent des pages d'administration par héritage (cf. `_admin-ui.scss`).
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.asf__row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.asf__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+
+  &--name {
+    flex: 1 1 auto;
+  }
+
+  &--pos {
+    flex: 0 0 5rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: var(--adm-radius-sm);
+    background: var(--adm-surface);
+    color: var(--adm-ink-900);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition:
+      border-color var(--adm-t),
+      box-shadow var(--adm-t);
+
+    &::placeholder {
+      color: var(--adm-ink-300);
+    }
+
+    &:focus {
+      border-color: var(--adm-blue);
+      box-shadow: var(--adm-ring);
+    }
+  }
+}
+
+.asf__label {
+  color: var(--adm-ink-500);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-size: 0.8rem;
+}
+
+.asf__hint {
+  margin: 0;
+  color: var(--adm-ink-400);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.asf__link {
+  margin-left: 0.25rem;
+  color: var(--adm-blue);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.asf__warn {
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-amber-soft);
+  color: var(--adm-amber);
+  font-size: 0.78rem;
+}
+
+// La frise : un épisode par ligne, numéro, titre, état. L'article ouvert ressort en bleu.
+.asf__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.asf__ep {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--adm-radius-sm);
+  font-size: 0.78rem;
+
+  &.is-current {
+    background: var(--adm-blue-soft);
+
+    .asf__title {
+      color: var(--adm-ink-900);
+      font-family: 'SNPRO-SemiBold', sans-serif;
+    }
+  }
+
+  &.is-clash {
+    background: var(--adm-amber-soft);
+  }
+}
+
+.asf__num {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  background: var(--adm-surface-alt);
+  color: var(--adm-ink-700);
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.asf__title {
+  overflow: hidden;
+  color: var(--adm-ink-700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asf__state {
+  color: var(--adm-ink-400);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

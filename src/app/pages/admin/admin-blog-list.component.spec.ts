@@ -66,13 +66,13 @@ describe('AdminBlogListComponent — compteur de vues et tri', () => {
     fixture.detectChanges();
   }
 
-  it('affiche le compteur de vues de chaque article', () => {
+  it('affiche le compteur de vues de chaque article paru, sous sa date', () => {
     init([adminArticle('a', 12), adminArticle('b', 0)]);
 
     const cells = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('.row .col-views'),
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.row .col-when__precision'),
     ).map((c) => c.textContent?.trim());
-    expect(cells).toEqual(['12', '0']);
+    expect(cells).toEqual(['12 vues', '0 vue']);
   });
 
   it('par défaut, l’ordre de l’API est conservé', () => {
@@ -216,15 +216,207 @@ describe('AdminBlogListComponent — compteur de vues et tri', () => {
       expect((fixture.nativeElement as HTMLElement).querySelector('.adm-featured')).toBeNull();
     });
 
-    it('un article publié à une date FUTURE est badgé « Programmé »', () => {
+    it('un article publié à une date FUTURE va dans « À venir », avec son jour et son heure', () => {
       const programme = adminArticle('p1', 0);
       programme.publishedAt = new Date(Date.now() + 3600_000).toISOString();
-      init([programme]);
+      init([adminArticle('u1', 0), programme]);
 
-      const badge = (fixture.nativeElement as HTMLElement).querySelector('.row .badge');
-      expect(badge?.textContent?.trim()).toBe('Programmé');
-      expect(badge?.classList.contains('badge--scheduled')).toBeTrue();
-      expect(badge?.getAttribute('title')).toContain('Publication le');
+      const host = fixture.nativeElement as HTMLElement;
+      const sections = Array.from(host.querySelectorAll('.list-sec__name')).map((s) =>
+        s.textContent?.trim(),
+      );
+      // À venir d'abord, quel que soit l'ordre de l'API.
+      expect(sections).toEqual(['À venir', 'En ligne']);
+
+      const quand = host.querySelector('.row .col-when');
+      expect(quand?.classList).toContain('col-when--avenir');
+      expect(quand?.querySelector('.col-when__jour')?.textContent).toMatch(/\d{2}\/\d{2}/);
+      expect(quand?.querySelector('.col-when__precision')?.textContent?.trim()).toMatch(
+        /^\d{2}:\d{2}$/,
+      );
+    });
+
+    it('À venir se lit dans l’ordre des dates, même trié par vues', () => {
+      const dans = (heures: number, id: string, vues: number) => {
+        const a = adminArticle(id, vues);
+        a.publishedAt = new Date(Date.now() + heures * 3600_000).toISOString();
+        return a;
+      };
+      init([dans(48, 'loin', 9), dans(2, 'proche', 0)]);
+
+      fixture.componentInstance.sortMode.set('views-desc');
+      const avenir = fixture.componentInstance.sections()[0];
+      expect(avenir.cle).toBe('avenir');
+      expect(avenir.articles.map((a) => a.id)).toEqual(['proche', 'loin']);
+    });
+
+    describe('sections repliables', () => {
+      const CLE = 'adm-blog-sections-repliees';
+
+      // Le composant lit le stockage à sa construction, donc avant qu'un `beforeEach` d'ici ne
+      // puisse s'exécuter : le nettoyage se fait après coup, pour les tests suivants.
+      afterEach(() => localStorage.removeItem(CLE));
+
+      /** Le bouton d'en-tête de la section portant ce titre. */
+      function entete(titre: string): HTMLButtonElement {
+        const host = fixture.nativeElement as HTMLElement;
+        return Array.from(host.querySelectorAll<HTMLButtonElement>('button.list-sec')).find(
+          (b) => b.querySelector('.list-sec__name')?.textContent?.trim() === titre,
+        )!;
+      }
+
+      it('replier une section masque ses lignes, son compte reste lisible', () => {
+        const programme = adminArticle('p1', 0);
+        programme.publishedAt = new Date(Date.now() + 3600_000).toISOString();
+        init([adminArticle('u1', 0), programme]);
+        const host = fixture.nativeElement as HTMLElement;
+        expect(host.querySelectorAll('.row').length).toBe(2);
+
+        entete('En ligne').click();
+        fixture.detectChanges();
+
+        // Seule la ligne de « À venir » reste ; l'en-tête replié dit encore combien il cache.
+        expect(host.querySelectorAll('.row').length).toBe(1);
+        expect(entete('En ligne').getAttribute('aria-expanded')).toBe('false');
+        expect(entete('En ligne').querySelector('.list-sec__count')?.textContent?.trim()).toBe(
+          '1',
+        );
+
+        entete('En ligne').click();
+        fixture.detectChanges();
+        expect(host.querySelectorAll('.row').length).toBe(2);
+      });
+
+      it('replier une section retire ses lignes de la sélection', () => {
+        init([adminArticle('u1', 0), adminArticle('u2', 0)]);
+        fixture.componentInstance.toggleOne('u1');
+        expect(fixture.componentInstance.selectedCount()).toBe(1);
+
+        entete('En ligne').click();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.selectedCount()).toBe(0);
+      });
+
+      it('le repli est retenu d’une visite à l’autre', () => {
+        init([adminArticle('u1', 0)]);
+
+        entete('En ligne').click();
+
+        expect(JSON.parse(localStorage.getItem(CLE) ?? '[]')).toEqual(['enligne']);
+      });
+    });
+
+    describe('tranches de dix', () => {
+      /** `n` articles en ligne — tous dans la même section. */
+      const plusieurs = (n: number) =>
+        Array.from({ length: n }, (_, i) => adminArticle(`a${i}`, 0));
+
+      /** Le libellé du bouton, espaces normalisés (il contient aussi un chevron). */
+      const libelle = (b: Element | null) => b?.textContent?.replace(/\s+/g, ' ').trim();
+
+      function bouton(): HTMLButtonElement | null {
+        return (fixture.nativeElement as HTMLElement).querySelector('.list-more');
+      }
+
+      it('une section s’ouvre sur dix articles et annonce le reste', () => {
+        init(plusieurs(24));
+        const host = fixture.nativeElement as HTMLElement;
+
+        expect(host.querySelectorAll('.row').length).toBe(10);
+        expect(libelle(bouton())).toBe('Afficher 10 de plus sur 14');
+        // Le compte de l'en-tête reste celui de la section entière.
+        expect(host.querySelector('.list-sec__count')?.textContent?.trim()).toBe('24');
+      });
+
+      it('chaque clic allonge de dix, puis le bouton s’efface', () => {
+        init(plusieurs(24));
+        const host = fixture.nativeElement as HTMLElement;
+
+        bouton()!.click();
+        fixture.detectChanges();
+        expect(host.querySelectorAll('.row').length).toBe(20);
+        // Dernière tranche : le bouton n'annonce plus que ce qu'il reste vraiment.
+        expect(libelle(bouton())).toBe('Afficher 4 de plus');
+
+        bouton()!.click();
+        fixture.detectChanges();
+        expect(host.querySelectorAll('.row').length).toBe(24);
+        expect(bouton()).toBeNull();
+      });
+
+      it('« tout sélectionner » ne prend que la tranche affichée', () => {
+        init(plusieurs(24));
+
+        fixture.componentInstance.toggleAll();
+
+        expect(fixture.componentInstance.selectedCount()).toBe(10);
+      });
+
+      it('une section plus courte que dix n’a pas de bouton', () => {
+        init(plusieurs(9));
+
+        expect(bouton()).toBeNull();
+      });
+    });
+
+    describe('colonne Diffusion', () => {
+      /** Quatre posts, dont `faits` déjà diffusés. */
+      const posts = (faits: number) =>
+        ['moze-connect', 'linkedin', 'instagram', 'facebook'].map((slot, i) => ({
+          slot,
+          diffusedAt: i < faits ? '2026-09-01T00:00:00.000Z' : null,
+          skippedAt: null,
+        }));
+
+      it('ambre pour un article en ligne dont il reste des posts', () => {
+        const a = adminArticle('a', 0);
+        a.annexes = posts(1);
+        init([a]);
+
+        const pastille = (fixture.nativeElement as HTMLElement).querySelector('.row .row__diffuser');
+        expect(pastille?.textContent?.trim()).toBe('1/4');
+        expect(pastille?.classList).toContain('badge--warn');
+      });
+
+      it('gris pour un programmé : rien ne presse avant la parution', () => {
+        const a = adminArticle('a', 0);
+        a.publishedAt = new Date(Date.now() + 3600_000).toISOString();
+        a.annexes = posts(0);
+        init([a]);
+
+        const pastille = (fixture.nativeElement as HTMLElement).querySelector('.row .row__diffuser');
+        expect(pastille?.textContent?.trim()).toBe('0/4');
+        expect(pastille?.classList).not.toContain('badge--warn');
+        expect(fixture.componentInstance.aDiffuserCount()).toBe(0);
+      });
+
+      it('vert quand tout est fait, et rien sans posts', () => {
+        const fait = adminArticle('fait', 0);
+        fait.annexes = posts(4);
+        init([fait, adminArticle('sans', 0)]);
+
+        const pastilles = (fixture.nativeElement as HTMLElement).querySelectorAll('.row .row__diffuser');
+        expect(pastilles.length).toBe(1);
+        expect(pastilles[0].classList).toContain('badge--published');
+      });
+    });
+
+    it('la série et le tag principal remplacent l’auteur et la liste des tags', () => {
+      const a = adminArticle('a', 0);
+      a.tags = [
+        { id: 't1', name: 'Facturation', slug: 'facturation' },
+        { id: 't2', name: 'trésorerie', slug: 'tresorerie' },
+      ];
+      a.series = { slug: 'etre-paye-a-temps', title: 'Être payé à temps', plannedCount: 3 };
+      a.seriesPosition = 2;
+      init([a]);
+
+      const meta = (fixture.nativeElement as HTMLElement).querySelector('.row .row__meta');
+      expect(meta?.textContent).toContain('Facturation');
+      expect(meta?.textContent).not.toContain('trésorerie');
+      expect(meta?.textContent).not.toContain('Équipe Moze');
+      expect(meta?.querySelector('.row__serie')?.textContent?.trim()).toBe('Être payé à temps · 2/3');
     });
 
     /**

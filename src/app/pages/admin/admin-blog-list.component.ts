@@ -36,6 +36,77 @@ type StatusFilter = 'active' | 'all' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 /** Ordre d'affichage : celui de l'API (récents), ou par compteur de vues. */
 type SortMode = 'recent' | 'views-desc' | 'views-asc';
 
+type SectionCle = 'avenir' | 'enligne' | 'brouillons' | 'archives';
+
+/** Réglage d'écran : quelles sections l'auteur a repliées la dernière fois. */
+const CLE_REPLIS = 'adm-blog-sections-repliees';
+
+/**
+ * Les sections repliées lors de la dernière visite.
+ *
+ * Tout échec est silencieux : `localStorage` n'existe pas au rendu serveur, peut être refusé
+ * par le navigateur, et sa valeur peut avoir été abîmée. Un réglage d'affichage ne doit
+ * jamais empêcher la liste de s'afficher — au pire, tout est déplié.
+ */
+function lireReplis(): ReadonlySet<SectionCle> {
+  try {
+    const brut = typeof localStorage === 'undefined' ? null : localStorage.getItem(CLE_REPLIS);
+    const lu: unknown = brut ? JSON.parse(brut) : null;
+    if (!Array.isArray(lu)) return new Set();
+    return new Set(lu.filter((c): c is SectionCle => typeof c === 'string'));
+  } catch {
+    return new Set();
+  }
+}
+
+function ecrireReplis(replis: ReadonlySet<SectionCle>): void {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.setItem(CLE_REPLIS, JSON.stringify([...replis]));
+  } catch {
+    // Stockage plein ou refusé : le repli ne vaut alors que pour la session en cours.
+  }
+}
+
+/**
+ * Par combien d'articles une section s'allonge.
+ *
+ * La liste arrive entière de l'API : la tranche est un confort de lecture, pas un chargement.
+ * Rien n'est donc à attendre quand on demande la suite.
+ */
+const PAR_TRANCHE = 10;
+
+/**
+ * Un groupe de la liste : tous les articles qui partagent un même état d'avancement.
+ * Le statut d'un article se lit à la section qui le contient : la ligne n'a plus à porter de
+ * pastille « Programmé » ou « Publié ».
+ */
+interface GroupeListe {
+  cle: SectionCle;
+  titre: string;
+  /** Comment la section est triée, dit en clair à côté de son titre. */
+  indice: string;
+  articles: Article[];
+}
+
+/** Une section telle qu'elle s'affiche : son groupe, et la tranche qu'on en montre. */
+interface SectionListe extends GroupeListe {
+  /** La tranche affichée — les premiers `PAR_TRANCHE` articles, puis de dix en dix. */
+  visibles: Article[];
+  /** Ce qui reste sous le bouton « afficher plus ». Zéro : tout est à l'écran. */
+  restants: number;
+  /** Ce que le prochain clic révélera : dix, ou moins pour la dernière tranche. */
+  suivants: number;
+}
+
+/** La cellule « Parution » : une date qui se lit d'abord, une précision dessous. */
+interface Parution {
+  jour: string;
+  precision: string;
+  /** `avenir` : programmé, en couleur. `aucune` : pas de date, en retrait. */
+  genre: 'avenir' | 'paru' | 'aucune';
+}
+
 /** Action destructrice en attente de confirmation. */
 interface PendingAction {
   action: BulkAction;
@@ -84,6 +155,128 @@ export class AdminBlogListComponent {
     const sign = mode === 'views-desc' ? -1 : 1;
     return [...list].sort((a, b) => sign * ((a.views ?? 0) - (b.views ?? 0)));
   });
+
+  /**
+   * Combien d'articles chaque section montre, quand ce n'est plus la première tranche.
+   * Remis à plat à chaque rechargement : une liste qu'on vient de refiltrer se relit depuis
+   * le début.
+   */
+  private readonly tranches = signal<ReadonlyMap<SectionCle, number>>(new Map());
+
+  /**
+   * La liste découpée par ce que l'article attend : paraître, être lu, être terminé, rien.
+   *
+   * **À venir est toujours dans l'ordre des dates**, quel que soit le tri choisi : c'est un
+   * agenda, et un programmé n'a pas encore de vues à comparer. **En ligne** suit le tri — « plus
+   * récents » y veut dire parus le plus récemment, puisque c'est la date affichée sur la ligne.
+   * Brouillons et archivés gardent l'ordre de l'API. Une section vide n'est pas affichée.
+   *
+   * Chaque section s'ouvre sur ses dix premiers articles et s'allonge de dix en dix : c'est ici
+   * que la tranche est découpée, pour que `visibles` soit exactement ce que la vue rend.
+   */
+  readonly sections = computed<SectionListe[]>(() => {
+    const list = this.displayedItems();
+    const temps = (iso: string | null) => (iso ? new Date(iso).getTime() : 0);
+    const mode = this.sortMode();
+
+    const avenir = list
+      .filter((a) => this.isScheduled(a))
+      .sort((a, b) => temps(a.publishedAt) - temps(b.publishedAt));
+    const enLigne = list.filter((a) => a.status === 'PUBLISHED' && !this.isScheduled(a));
+    if (mode === 'recent') {
+      enLigne.sort((a, b) => temps(b.publishedAt) - temps(a.publishedAt));
+    }
+
+    const groupes: GroupeListe[] = [
+      { cle: 'avenir', titre: 'À venir', indice: 'par date de parution', articles: avenir },
+      {
+        cle: 'enligne',
+        titre: 'En ligne',
+        indice:
+          mode === 'recent'
+            ? 'plus récents d’abord'
+            : mode === 'views-desc'
+              ? 'plus vus d’abord'
+              : 'moins vus d’abord',
+        articles: enLigne,
+      },
+      {
+        cle: 'brouillons',
+        titre: 'Brouillons',
+        indice: '',
+        articles: list.filter((a) => a.status === 'DRAFT'),
+      },
+      {
+        cle: 'archives',
+        titre: 'Archivés',
+        indice: '',
+        articles: list.filter((a) => a.status === 'ARCHIVED'),
+      },
+    ];
+
+    const tranches = this.tranches();
+    return groupes
+      .filter((g) => g.articles.length)
+      .map((g) => {
+        const montre = Math.min(tranches.get(g.cle) ?? PAR_TRANCHE, g.articles.length);
+        const restants = g.articles.length - montre;
+        return {
+          ...g,
+          visibles: g.articles.slice(0, montre),
+          restants,
+          suivants: Math.min(PAR_TRANCHE, restants),
+        };
+      });
+  });
+
+  /**
+   * Allonge une section de dix articles.
+   *
+   * Rien n'est demandé au serveur : la liste est déjà là, on lève seulement la limite
+   * d'affichage. C'est pourquoi le bouton n'a pas d'état « en cours ».
+   */
+  montrerPlus(cle: SectionCle): void {
+    this.tranches.update((t) => new Map(t).set(cle, (t.get(cle) ?? PAR_TRANCHE) + PAR_TRANCHE));
+  }
+
+  // --- Sections repliables ---------------------------------------------------
+
+  /** Sections actuellement repliées. Retenu d'une visite à l'autre (cf. `lireReplis`). */
+  private readonly replis = signal<ReadonlySet<SectionCle>>(lireReplis());
+
+  estRepliee(cle: SectionCle): boolean {
+    return this.replis().has(cle);
+  }
+
+  /**
+   * Replie ou déplie une section.
+   *
+   * Replier retire ses articles de la sélection : un lot ne doit jamais porter sur des lignes
+   * qu'on ne voit plus — même règle qu'au changement de recherche ou de filtre.
+   */
+  basculerSection(cle: SectionCle): void {
+    const suivant = new Set(this.replis());
+    if (!suivant.delete(cle)) {
+      suivant.add(cle);
+      const caches = new Set(
+        this.sections().find((s) => s.cle === cle)?.articles.map((a) => a.id) ?? [],
+      );
+      if (caches.size) {
+        this.selection.update(
+          (picked) => new Set([...picked].filter((id) => !caches.has(id))),
+        );
+      }
+    }
+    this.replis.set(suivant);
+    ecrireReplis(suivant);
+  }
+
+  /** Les articles réellement à l'écran : la tranche affichée des sections dépliées. */
+  readonly articlesVisibles = computed(() =>
+    this.sections()
+      .filter((s) => !this.estRepliee(s.cle))
+      .flatMap((s) => s.visibles),
+  );
 
   onSortChange(event: Event): void {
     this.sortMode.set((event.target as HTMLSelectElement).value as SortMode);
@@ -148,8 +341,9 @@ export class AdminBlogListComponent {
     return this.items().filter((a) => picked.has(a.id));
   });
 
+  /** « Tout » = tout ce qui est affiché : les lignes d'une section repliée n'en sont pas. */
   readonly allSelected = computed(() => {
-    const list = this.items();
+    const list = this.articlesVisibles();
     return list.length > 0 && list.every((a) => this.selection().has(a.id));
   });
 
@@ -236,13 +430,36 @@ export class AdminBlogListComponent {
   /**
    * Reste-t-il des posts à envoyer ?
    *
-   * Seulement sur un article **publié** : proposer de diffuser un brouillon inviterait à
-   * partager un lien qui renvoie sur une page absente.
+   * Seulement sur un article **en ligne** : proposer de diffuser un brouillon ou un programmé
+   * inviterait à partager un lien qui renvoie, pour l'instant, sur une page absente.
    */
   aDiffuser(a: Article): boolean {
-    if (a.status !== 'PUBLISHED') return false;
+    if (a.status !== 'PUBLISHED' || this.isScheduled(a)) return false;
     const d = this.diffusion(a);
     return !!d && d.faits < d.total;
+  }
+
+  /**
+   * La pastille de la colonne « Diffusion » : les posts traités sur le total, et ce que ce
+   * nombre demande. `afaire` : en ligne, il reste des posts. `plustard` : pas encore en ligne,
+   * rien ne presse. `fait` : tout est diffusé ou écarté. `null` : l'article n'a pas de posts.
+   */
+  etatDiffusion(a: Article): { texte: string; genre: 'afaire' | 'plustard' | 'fait' } | null {
+    const d = this.diffusion(a);
+    if (!d) return null;
+    const texte = `${d.faits}/${d.total}`;
+    if (d.faits >= d.total) return { texte, genre: 'fait' };
+    return { texte, genre: this.aDiffuser(a) ? 'afaire' : 'plustard' };
+  }
+
+  /** « Être payé à temps · 1/3 », ou « Les silences du métier · ép. 2 » sans total annoncé. */
+  serieLabel(a: Article): string | null {
+    if (!a.series) return null;
+    const n = a.seriesPosition;
+    if (!n) return a.series.title;
+    return a.series.plannedCount
+      ? `${a.series.title} · ${n}/${a.series.plannedCount}`
+      : `${a.series.title} · ép. ${n}`;
   }
 
   /** Combien d'articles publiés attendent encore d'être diffusés. */
@@ -263,7 +480,7 @@ export class AdminBlogListComponent {
   /** Coche / décoche tout ce qui est actuellement affiché. */
   toggleAll(): void {
     this.selection.set(
-      this.allSelected() ? new Set() : new Set(this.items().map((a) => a.id)),
+      this.allSelected() ? new Set() : new Set(this.articlesVisibles().map((a) => a.id)),
     );
   }
 
@@ -311,6 +528,8 @@ export class AdminBlogListComponent {
       .subscribe({
         next: (articles) => {
           this.items.set(articles);
+          // Nouvelle liste, nouvelle lecture : chaque section repart à sa première tranche.
+          this.tranches.set(new Map());
           this.loading.set(false);
         },
         error: () => {
@@ -472,6 +691,79 @@ export class AdminBlogListComponent {
 
   enJour(iso: string): string {
     return this.jour.format(new Date(iso));
+  }
+
+  /**
+   * La cellule « Parution » d'une ligne.
+   *
+   * - **Programmé** : « lun. 21/09 », l'heure dessous. Le jour de la semaine reste, pour la même
+   *   raison qu'en toutes lettres.
+   * - **En ligne** : « 16/09 », les vues dessous — une fois paru, c'est ce qu'on vient regarder.
+   * - **Brouillon** : la date proposée s'il en a une, sinon « — ».
+   * - **Archivé** : sa date de parution passée, s'il en a eu une.
+   *
+   * L'année n'est dite que si ce n'est pas celle en cours (« mar. 05/01/2027 ») : l'écrire
+   * partout élargirait la colonne pour une évidence.
+   */
+  parution(a: Article): Parution {
+    if (this.isScheduled(a)) {
+      const date = new Date(a.publishedAt!);
+      return { jour: this.jourAvecSemaine(date), precision: this.heure.format(date), genre: 'avenir' };
+    }
+    if (a.status === 'PUBLISHED' && a.publishedAt) {
+      const vues = a.views ?? 0;
+      return {
+        jour: this.jourCourt(new Date(a.publishedAt)),
+        precision: `${vues} vue${vues > 1 ? 's' : ''}`,
+        genre: 'paru',
+      };
+    }
+    if (a.status === 'DRAFT' && a.proposedPublishAt) {
+      return {
+        jour: this.jourAvecSemaine(new Date(a.proposedPublishAt)),
+        precision: 'proposée',
+        genre: 'aucune',
+      };
+    }
+    if (a.status === 'ARCHIVED' && a.publishedAt) {
+      return { jour: this.jourCourt(new Date(a.publishedAt)), precision: 'archivé', genre: 'aucune' };
+    }
+    return {
+      jour: '—',
+      precision: a.status === 'ARCHIVED' ? 'archivé' : 'pas de date',
+      genre: 'aucune',
+    };
+  }
+
+  private readonly jourSemaine = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+  });
+  private readonly jourSemaineAnnee = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  private readonly jourMois = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit' });
+  private readonly jourMoisAnnee = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  private readonly heure = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+  private cetteAnnee(date: Date): boolean {
+    return date.getFullYear() === new Date().getFullYear();
+  }
+
+  private jourAvecSemaine(date: Date): string {
+    return (this.cetteAnnee(date) ? this.jourSemaine : this.jourSemaineAnnee).format(date);
+  }
+
+  private jourCourt(date: Date): string {
+    return (this.cetteAnnee(date) ? this.jourMois : this.jourMoisAnnee).format(date);
   }
 
   /**

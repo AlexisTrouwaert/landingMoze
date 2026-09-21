@@ -11,8 +11,10 @@ import {
   articleEntries,
   buildSitemap,
   eventEntries,
+  seriesEntries,
   SitemapArticle,
   SitemapEvent,
+  SitemapSeries,
   staticEntries,
 } from './sitemap';
 
@@ -151,6 +153,15 @@ async function fetchEvents(): Promise<SitemapEvent[]> {
   return [...upcoming, ...past];
 }
 
+/** Les séries du rayon du blog. Lève si l'API ne répond pas — échec distinct, comme les évènements. */
+async function fetchSeries(): Promise<SitemapSeries[]> {
+  const response = await fetch(`${environment.blogApiUrl}/series`, {
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok) throw new Error(`API séries: ${response.status}`);
+  return (await response.json()) as SitemapSeries[];
+}
+
 app.get('/sitemap.xml', async (_req, res) => {
   const now = Date.now();
   if (sitemapCache && sitemapCache.expiresAt > now) {
@@ -166,6 +177,12 @@ app.get('/sitemap.xml', async (_req, res) => {
     entries.push(...eventEntries(await fetchEvents(), environment.siteUrl));
   } catch (error) {
     console.error('sitemap.xml : évènements indisponibles', error);
+  }
+
+  try {
+    entries.push(...seriesEntries(await fetchSeries(), environment.siteUrl));
+  } catch (error) {
+    console.error('sitemap.xml : séries indisponibles', error);
   }
 
   try {

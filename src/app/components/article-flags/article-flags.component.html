@@ -1,0 +1,129 @@
+<div class="flags">
+  <!-- Signaler : un passage surligné, ou un champ entier. -->
+  @if (bloque(); as raison) {
+    <p class="flags__blocked">{{ raison }}</p>
+  } @else if (actions()) {
+    <div class="flags__actions">
+      @if (zone()) {
+        <!-- `mousedown` sans défaut : le focus reste dans le texte, et la sélection avec lui. -->
+        <button
+          type="button"
+          class="flags__pill flags__pill--main"
+          (mousedown)="$event.preventDefault()"
+          (click)="signalerSelection()"
+        >
+          Signaler le passage sélectionné
+        </button>
+      }
+      @for (champ of champs(); track champ) {
+        <button type="button" class="flags__pill" (click)="signalerChamp(champ)">
+          {{ label({ field: champ }) }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (erreur(); as e) {
+    <p class="flags__error" role="alert">{{ e }}</p>
+  }
+
+  <!-- Saisie : en ligne, comme dans la relecture. -->
+  @if (brouillon(); as b) {
+    <div class="draft">
+      <p class="draft__target">
+        <strong>{{ label(b) }}</strong>
+        @if (b.quote) {
+          <span class="draft__quote">« {{ b.quote }} »</span>
+        }
+      </p>
+      <input
+        type="text"
+        class="flags__input"
+        placeholder="Ce qui ne va pas, ou ce que vous attendez (facultatif)"
+        [value]="note()"
+        (input)="note.set($any($event.target).value)"
+        (keydown.enter)="envoyer()"
+        (keydown.escape)="annuler()"
+      />
+      <div class="draft__actions">
+        <button type="button" class="flags__btn flags__btn--primary" [disabled]="occupe()" (click)="envoyer()">
+          Signaler
+        </button>
+        <button type="button" class="flags__btn" (click)="annuler()">Annuler</button>
+      </div>
+    </div>
+  }
+
+  <!-- Ce qui attend l'assistant. -->
+  @if (ouverts().length) {
+    <p class="flags__count">Retouches demandées ({{ ouverts().length }})</p>
+    <ul class="list" role="list">
+      @for (f of ouverts(); track f.id) {
+        <li class="list__item" [class.is-orphan]="f.orphaned">
+          <div class="list__main">
+            <p class="list__what">
+              {{ label(f) }}
+              @if (f.orphaned) {
+                <span class="list__badge">texte disparu</span>
+              }
+            </p>
+            @if (f.quote) {
+              <p class="list__quote">« {{ f.quote }} »</p>
+            }
+            @if (editionId() === f.id) {
+              <div class="list__edit">
+                <input
+                  type="text"
+                  class="flags__input"
+                  placeholder="Ce qui ne va pas, ou ce que vous attendez"
+                  [value]="editionNote()"
+                  (input)="editionNote.set($any($event.target).value)"
+                  (keydown.enter)="enregistrerEdition(f)"
+                  (keydown.escape)="annulerEdition()"
+                />
+                <button type="button" class="flags__btn flags__btn--primary" [disabled]="occupe()" (click)="enregistrerEdition(f)">
+                  Enregistrer
+                </button>
+                <button type="button" class="flags__btn" (click)="annulerEdition()">Annuler</button>
+              </div>
+            } @else if (f.note) {
+              <p class="list__note">{{ f.note }}</p>
+            }
+          </div>
+          @if (editionId() !== f.id) {
+            <div class="list__tools">
+              <button
+                type="button"
+                class="list__tool"
+                aria-label="Modifier la demande"
+                title="Modifier la demande"
+                (click)="modifier(f)"
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="list__tool list__tool--del"
+                aria-label="Retirer le signalement"
+                title="Retirer le signalement"
+                [disabled]="occupe()"
+                (click)="supprimer(f)"
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  } @else if (!brouillon() && actions()) {
+    <!-- Seulement quand le composant porte ses propres boutons : dans la relecture, un « rien à
+         signaler » sous chaque article serait du bruit. -->
+    <p class="flags__empty">Aucune retouche demandée pour l'instant.</p>
+  }
+</div>

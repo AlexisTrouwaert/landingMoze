@@ -131,6 +131,7 @@
               {{ typeLabel(event) }} · {{ schedule(event) }}
               @if (event.mode === 'en-ligne') { · en ligne }
               @else if (event.city) { · {{ event.city }} }
+              @if (event.origin === 'ASSISTANT') { · rédigé par l’assistant }
             </span>
           </span>
 

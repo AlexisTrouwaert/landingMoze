@@ -24,6 +24,10 @@ import { EventService } from '../../services/event.service';
  * Moze, charte) et une consigne que les articles n'ont pas besoin d'énoncer — **ne rien
  * inventer**. Une adresse ou une billetterie plausible mais fausse part en ligne avec l'aplomb
  * d'une vraie.
+ *
+ * **Les mêmes règles vivent dans `landingMoze-back/mcp/CLAUDE.md`, section « Évènements »**, pour
+ * les évènements rédigés depuis Claude Desktop (outils `creer_evenement`, `modifier_evenement`).
+ * Toute règle changée ici se change là-bas, et inversement.
  */
 @Component({
   selector: 'app-admin-event-paste',

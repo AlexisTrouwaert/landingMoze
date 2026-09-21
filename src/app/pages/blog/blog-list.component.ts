@@ -18,8 +18,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ArticleCardComponent } from '../../components/article-card/article-card.component';
 import { FloatingDockComponent } from '../../components/floating-dock/floating-dock.component';
 import { NewsletterFormComponent } from '../../components/newsletter-form/newsletter-form.component';
+import { SeriesCardComponent } from '../../components/series-card/series-card.component';
 import { FooterComponent } from '../home/footer/footer.component';
 import { ArticleListItem, Tag } from '../../model/article.model';
+import { ShelfSeries } from '../../model/series.model';
 import { BlogService } from '../../services/blog.service';
 import { NAV_GROUPS } from '../../config/nav-groups';
 import { MetaPixelService } from '../../services/meta-pixel.service';
@@ -34,6 +36,7 @@ import { SeoService, SOCIAL_IMAGE_ALT } from '../../services/seo.service';
       DatePipe,
       FloatingDockComponent,
       ArticleCardComponent,
+      SeriesCardComponent,
       NewsletterFormComponent,
       FooterComponent,
     ],
@@ -148,6 +151,14 @@ export class BlogListComponent {
     return list[this.featuredIndex() % list.length] ?? null;
   });
 
+  // ---- Séries ----
+
+  /**
+   * Le rayon « Séries », sous la une. Masqué comme elle pendant une recherche ou un filtre :
+   * il invite à la navigation libre, il ne répond pas à une question précise.
+   */
+  readonly shelf = signal<ShelfSeries[]>([]);
+
   /**
    * Cartes de la grille : **toute** la liste, y compris les articles à la une.
    * Les extraire donnait l'impression qu'ils ne faisaient pas partie du blog ;
@@ -188,6 +199,11 @@ export class BlogListComponent {
 
     this.loadTags();
     this.loadFeatured();
+    // Un rayon absent n'empêche pas de lire le blog : une erreur le laisse simplement vide.
+    this.blog.seriesShelf().subscribe({
+      next: (shelf) => this.shelf.set(shelf),
+      error: () => this.shelf.set([]),
+    });
     // Valeur live (affichage du bouton ✕).
     this.searchControl.valueChanges
       .pipe(takeUntilDestroyed())

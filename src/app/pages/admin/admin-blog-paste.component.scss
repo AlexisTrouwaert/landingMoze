@@ -261,4 +261,147 @@
     line-height: 1.5;
     color: var(--adm-amber);
   }
+
+  // --- Séries -----------------------------------------------------------------
+  //
+  // Bord bleu, là où les articles ont un bord vert : la carte d'une série n'est pas un
+  // article de plus dans le lot, c'est ce qui les relie.
+  &__serie {
+    padding: 0.9rem 1.1rem 1rem;
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-line);
+    border-left: 3px solid var(--adm-blue);
+    border-radius: 10px;
+  }
+
+  &__serie--off {
+    border-left-color: var(--adm-line-strong);
+    background: transparent;
+  }
+
+  &__serie-tete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  &__serie-bascule {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    input {
+      accent-color: var(--adm-blue);
+      cursor: pointer;
+    }
+
+    small {
+      font-weight: 400;
+      color: var(--adm-ink-400);
+    }
+  }
+
+  &__serie-compte {
+    font-size: 0.78rem;
+    color: var(--adm-ink-400);
+  }
+
+  &__serie-champs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  &__serie-champ {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      font: inherit;
+      font-size: 0.86rem;
+      color: var(--adm-ink-900);
+      background: #fff;
+      border: 1px solid var(--adm-line-strong);
+      border-radius: 8px;
+
+      &:focus-visible {
+        outline: 2px solid var(--adm-blue);
+        outline-offset: 1px;
+      }
+    }
+  }
+
+  &__serie-champ--large {
+    grid-column: 1 / -1;
+
+    textarea {
+      resize: vertical;
+      line-height: 1.45;
+    }
+  }
+
+  // Une série en ligne se montre sans champs : elle a été validée, le collage ne la réécrit pas.
+  &__serie-nom {
+    margin: 0.7rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  &__serie-accroche {
+    margin: 0.25rem 0 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--adm-ink-700);
+  }
+
+  &__serie-eps {
+    margin: 0.8rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--adm-ink-700);
+
+    li {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    span {
+      display: grid;
+      place-items: center;
+      min-width: 1.15rem;
+      height: 1.15rem;
+      padding: 0 0.2rem;
+      border-radius: 5px;
+      background: var(--adm-blue-soft);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--adm-ink-700);
+    }
+  }
+
+  &__serie-note {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: var(--adm-ink-400);
+  }
+
+  @media (max-width: 720px) {
+    &__serie-champs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }

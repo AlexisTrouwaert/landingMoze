@@ -116,6 +116,69 @@
     gap: 0.3rem;
     flex-wrap: wrap;
   }
+
+  // Un bloc de série : un liseré et un retrait, assez pour lire « ces trois-là vont
+  // ensemble » sans encadrer chaque épisode d'une seconde boîte.
+  &__groupe {
+    padding-left: 0.55rem;
+    border-left: 2px solid var(--adm-blue-soft);
+  }
+
+  &__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__serie {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 0.3rem;
+  }
+
+  &__serie-nom {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--adm-ink-700);
+  }
+
+  &__serie-compte {
+    flex: none;
+    font-size: 0.74rem;
+    color: var(--adm-ink-500);
+  }
+
+  // L'en-tête d'une série en brouillon est un bouton : il ouvre le volet où poser son image.
+  &__serie--brouillon {
+    width: 100%;
+    align-items: center;
+    padding: 0.45rem 0.6rem;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    background: var(--adm-surface);
+    border: 1px dashed var(--adm-line-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: var(--adm-surface-hover);
+    }
+
+    &.is-selected {
+      border-style: solid;
+      border-color: var(--adm-blue);
+      background: var(--adm-blue-soft);
+    }
+  }
 }
 
 .rev-warn {
@@ -180,6 +243,78 @@
   font: inherit;
   color: inherit;
   background: var(--adm-surface);
+}
+
+// -------------------------------------------------------------
+// Posts réseaux — relus et signalables comme le corps.
+// -------------------------------------------------------------
+.rev-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rev-post {
+  // Couleur du réseau, pour son nom : on retrouve son post d'un coup d'œil, sans que la
+  // relecture prenne les couleurs des plateformes.
+  --net: var(--adm-ink-700);
+
+  padding: 0.75rem 0.9rem 0.7rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 10px;
+  background: var(--adm-surface-alt);
+
+  &[data-network='linkedin'] {
+    --net: #0a66c2;
+  }
+
+  &[data-network='instagram'] {
+    --net: #c13584;
+  }
+
+  &[data-network='facebook'] {
+    --net: #1877f2;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+
+  &__name {
+    color: var(--net);
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  &__count {
+    margin-left: auto;
+    color: var(--adm-ink-400);
+    font-size: 0.74rem;
+    font-variant-numeric: tabular-nums;
+
+    &.is-over {
+      color: var(--adm-red);
+      font-weight: 600;
+    }
+  }
+
+  // Le texte tel qu'il sera collé : sauts de ligne conservés, sélectionnable à la souris.
+  &__body {
+    margin: 0 0 0.5rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--adm-line);
+    border-radius: 8px;
+    background: var(--adm-surface);
+    color: var(--adm-ink-900);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    user-select: text;
+  }
 }
 
 // Notes de rédaction posées sous un champ (idée d'image, liens internes) : décollées de ce
@@ -283,128 +418,11 @@
   flex-wrap: wrap;
 }
 
-// Saisie du signalement — en ligne, jamais en modale (cf. le commentaire du composant).
-.rev-draft {
-  margin-top: 0.9rem;
-  padding: 0.9rem 1rem;
-  background: var(--adm-amber-soft);
-  border: 1px solid var(--adm-amber);
-  border-radius: 10px;
-
-  &__target {
-    margin: 0 0 0.5rem;
-    font-size: 0.85rem;
-    color: var(--adm-ink-700);
-  }
-
-  &__quote {
-    display: block;
-    margin-top: 0.2rem;
-    font-style: italic;
-    color: var(--adm-ink-500);
-  }
-
-  &__note {
-    width: 100%;
-    margin-bottom: 0.6rem;
-  }
-
-  &__actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-}
-
-.rev-flags {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  &__item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.8rem;
-    padding: 0.6rem 0.8rem;
-    background: var(--adm-surface-alt);
-    border: 1px solid var(--adm-line);
-    border-left: 3px solid var(--adm-amber);
-    border-radius: 8px;
-
-    // Le texte visé n'existe plus : le signalement reste affiché, mais il ne prétend plus
-    // pointer quelque part. Le faire disparaître effacerait une demande jamais traitée.
-    &.is-orphan {
-      border-left-color: var(--adm-ink-300);
-      opacity: 0.75;
-    }
-  }
-
-  &__what {
-    margin: 0;
-    font-size: 0.82rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  &__quote {
-    margin: 0.25rem 0 0;
-    font-size: 0.82rem;
-    font-style: italic;
-    color: var(--adm-ink-500);
-  }
-
-  &__note {
-    margin: 0.25rem 0 0;
-    font-size: 0.84rem;
-    color: var(--adm-ink-700);
-  }
-
-  &__tools {
-    display: flex;
-    align-items: center;
-    gap: 0.15rem;
-    flex-shrink: 0;
-  }
-
-  &__tool {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--adm-ink-400);
-    font-size: 1.1rem;
-    line-height: 1;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--adm-surface-hover);
-      color: var(--adm-ink-700);
-    }
-
-    &--del:hover {
-      color: var(--adm-red);
-    }
-  }
-
-  &__edit {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    margin-top: 0.4rem;
-
-    .rev-input {
-      flex: 1 1 220px;
-    }
-  }
+// Retouches : saisie et liste portées par `app-article-flags` (partagé avec l'éditeur).
+// L'hôte seul est posé ici — vide quand il n'y a rien, il ne prend qu'une marge.
+.rev-retouches {
+  display: block;
+  margin-top: 1rem;
 }
 
 .rev-preview {
@@ -502,4 +520,166 @@
   margin: 0.4rem 0 0.8rem;
   padding-left: 1.1rem;
   font-size: 0.85rem;
+}
+
+// -------------------------------------------------------------
+// Brouillon de série
+// -------------------------------------------------------------
+.rev-serie {
+  &__type {
+    margin: 0 0 0.2rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--adm-blue);
+  }
+
+  // La pile à sa taille de carte : l'image se juge là où elle sera vue.
+  &__visuel {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  &__pile {
+    flex: none;
+    width: 220px;
+  }
+
+  &__visuel-texte {
+    flex: 1;
+    min-width: 12rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+
+    label {
+      cursor: pointer;
+    }
+  }
+
+  &__brief {
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--adm-blue-soft);
+    border-radius: 8px;
+
+    p {
+      margin: 0.2rem 0 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+  }
+
+  &__champs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 9rem;
+    gap: 0.7rem;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--adm-line);
+  }
+
+  &__champ {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      font: inherit;
+      font-size: 0.86rem;
+      color: var(--adm-ink-900);
+      background: #fff;
+      border: 1px solid var(--adm-line-strong);
+      border-radius: 8px;
+
+      &:focus-visible {
+        outline: 2px solid var(--adm-blue);
+        outline-offset: 1px;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.45;
+    }
+  }
+
+  &__champ--large {
+    grid-column: 1 / -1;
+  }
+
+  // Libellé et bouton « Signaler » sur une ligne ; `min-height` aligne les champs qui n'en ont pas.
+  &__champ-tete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 1.6rem;
+
+    .rev-field__label {
+      margin: 0;
+    }
+  }
+
+  &__eps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  &__ep-num {
+    display: grid;
+    place-items: center;
+    min-width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 6px;
+    background: var(--adm-blue-soft);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--adm-ink-700);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    margin-top: 1.2rem;
+    border-top: 1px solid var(--adm-line);
+  }
+
+  &__note {
+    margin: 0.5rem 0 0;
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--adm-ink-400);
+  }
+
+  @media (max-width: 720px) {
+    &__champs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__pile {
+      width: 100%;
+    }
+  }
 }

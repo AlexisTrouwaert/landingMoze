@@ -39,6 +39,13 @@ export interface IntakeArticle {
   proposedFeatured: boolean;
   /** Série éditoriale — « Rendez-vous » dans un gabarit, « Catégorie » dans l'autre. */
   series: string | null;
+  /** Numéro d'épisode dans la série. `null` : le back prend la suite du dernier. */
+  seriesPosition: number | null;
+  /**
+   * Nombre d'épisodes annoncé pour la série. Le serveur ne le pose que sur une série qui n'en
+   * annonce pas encore : un article ne défait pas le total choisi sur l'écran des séries.
+   */
+  seriesPlannedCount: number | null;
   /** Texte alternatif de la couverture. Donnée **publique**, pas une annexe. */
   coverImageAlt: string | null;
   annexes: IntakeAnnex[];
@@ -46,8 +53,26 @@ export interface IntakeArticle {
   warnings: string[];
 }
 
+/**
+ * Le brouillon d'une série, tel qu'un bloc `type: série` le décrit.
+ *
+ * Un teaser moins son image : l'IA sait écrire un nom, une accroche, un total et ce que
+ * devrait montrer l'image de tête, mais elle ne produit pas l'image. La série reste donc un
+ * brouillon jusqu'à ce qu'un humain la pose en relecture — c'est ce geste qui la valide.
+ */
+export interface IntakeSeries {
+  title: string;
+  pitch: string;
+  plannedCount: number | null;
+  /** L'idée d'image de tête, lue dans le bloc `--- image`. */
+  imageIdea: string;
+  warnings: string[];
+}
+
 export interface IntakeResult {
   articles: IntakeArticle[];
+  /** Les brouillons de série déclarés par leur propre bloc. Toujours vide pour un document Word. */
+  series: IntakeSeries[];
   /** Ce qui empêche de créer. */
   errors: string[];
 }
@@ -63,6 +88,8 @@ export interface IntakeResult {
  * connus est ce qui empêche ces phrases de passer pour des métadonnées.
  */
 export const FIELD_LABELS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  // `type: série` : le bloc décrit une série, pas un article (cf. `IntakeSeries`).
+  ['type', ['type', 'type de brouillon']],
   ['title', ['titre', 'titre de l article', 'titre article']],
   ['slug', ['slug', 'url', 'identifiant']],
   ['excerpt', ['extrait', 'chapo', 'resume', 'accroche']],
@@ -71,6 +98,8 @@ export const FIELD_LABELS: ReadonlyArray<readonly [string, readonly string[]]> =
   ['metaDescription', ['meta description', 'metadescription', 'description seo']],
   ['publishAt', ['date de publication', 'date', 'parution']],
   ['series', ['rendez vous', 'categorie', 'rubrique', 'serie']],
+  ['seriesPosition', ['episode', 'numero d episode']],
+  ['seriesPlannedCount', ['episodes', 'nombre d episodes', 'total d episodes']],
   ['coverImageAlt', ['texte alternatif', 'alt', 'texte alt']],
   // « alaune » en un mot : c'est la forme du format collé, « à la une » celle des documents.
   ['featured', ['a la une', 'alaune', 'une', 'mise en avant']],
@@ -130,6 +159,106 @@ export const ANNEX_TITLES: Readonly<Record<string, string>> = {
   'seo-cannibalisation': 'Vérification de cannibalisation',
 };
 
+/** « — épisode 2 » en fin de nom de série : l'ancienne façon d'écrire le numéro. */
+const EPISODE_SUFFIX = /\s*[—–-]\s*[ée]pisode\s*(\d+)\s*$/i;
+
+/** « (4/6) » — ou « [4/6] » — dans un titre, espaces tolérés. */
+const TITLE_FRACTION = /\s*[([]\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*[)\]]/;
+
+/** Ponctuation laissée en suspens par le retrait de la numérotation : « … pour les nuls — ». */
+const TRAILING_PUNCT = /[\s:–—-]+$/;
+
+/** Ce qu'un titre numéroté « (4/6) » dit de sa série. */
+export interface TitreNumerote {
+  /** Le titre débarrassé de sa numérotation, la ponctuation recollée. */
+  title: string;
+  /** Ce qui précède le « (4/6) » : le nom de série que le titre propose. */
+  series: string;
+  position: number;
+  /** Le total annoncé — le « 6 ». */
+  plannedCount: number;
+}
+
+/**
+ * La série qu'un titre trahit : « La facturation pour les nuls (4/6) : choisir son outil ».
+ *
+ * C'est la façon dont une IA numérote spontanément une suite, malgré la consigne inverse du
+ * prompt — autant la lire que la laisser partir en ligne. Même règle que la reprise des
+ * anciens articles côté serveur (`series/legacy-series.ts`), pour qu'un même titre donne la
+ * même série des deux côtés.
+ *
+ * Rien n'est conclu d'une numérotation seule : sans nom devant elle, le titre ne nomme aucune
+ * série, et on préfère ne rien proposer à proposer n'importe quoi.
+ */
+export function readTitleNumbering(raw: string): TitreNumerote | null {
+  const titre = raw.trim();
+  const fraction = TITLE_FRACTION.exec(titre);
+  if (!fraction || fraction.index === 0) return null;
+
+  const position = Number(fraction[1]);
+  const plannedCount = Number(fraction[2]);
+  // « (7/6) » ne décrit rien de cohérent : on laisse le titre tranquille.
+  if (position < 1 || plannedCount < position) return null;
+
+  const series = titre.slice(0, fraction.index).replace(TRAILING_PUNCT, '').trim();
+  if (!series) return null;
+
+  return {
+    // « …pour les nuls (4/6) : choisir » → « …pour les nuls : choisir ».
+    title: titre.replace(TITLE_FRACTION, '').replace(/\s+:/, ' :').trim(),
+    series,
+    position,
+    plannedCount,
+  };
+}
+
+/** La série d'un article, telle que sa source la donne. */
+export interface SeriesFields {
+  /** Le titre de l'article, sans la numérotation qu'il portait peut-être. */
+  title: string;
+  series: string | null;
+  seriesPosition: number | null;
+  /** Nombre d'épisodes annoncé — le « 6 » de « (2/6) ». */
+  seriesPlannedCount: number | null;
+}
+
+/**
+ * La série et le numéro d'épisode lus dans une source, en croisant **l'en-tête et le titre**.
+ *
+ * L'en-tête prime : c'est ce qui a été écrit exprès. Le titre ne sert que de secours, mais son
+ * « (4/6) » en est retiré dans tous les cas dès qu'une série est établie — le site écrit
+ * « Épisode 4 sur 6 » de lui-même, et le laisser l'afficherait deux fois.
+ *
+ * Le numéro vient de la ligne `episode:`, à défaut du « (4/6) » du titre, à défaut de la fin du
+ * nom de série (« Les silences du métier — épisode 2 », l'ancienne convention), qui en est alors
+ * retirée : la série s'appelle « Les silences du métier ».
+ */
+export function readSeriesFields(
+  series: string | undefined,
+  episode: string | undefined,
+  titre = '',
+  total?: string,
+): SeriesFields {
+  const text = series?.trim() ?? '';
+  const suffix = EPISODE_SUFFIX.exec(text);
+  const name = (suffix ? text.slice(0, suffix.index) : text).trim();
+  const dansLeTitre = readTitleNumbering(titre);
+
+  const nom = name || dansLeTitre?.series || null;
+  const fromLine = /\d+/.exec(episode ?? '');
+  const position = Number(
+    fromLine?.[0] ?? dansLeTitre?.position ?? suffix?.[1] ?? NaN,
+  );
+  const annonce = Number(/\d+/.exec(total ?? '')?.[0] ?? dansLeTitre?.plannedCount ?? NaN);
+
+  return {
+    title: nom && dansLeTitre ? dansLeTitre.title : titre.trim(),
+    series: nom,
+    seriesPosition: nom && position >= 1 && position <= 99 ? position : null,
+    seriesPlannedCount: nom && annonce >= 1 && annonce <= 99 ? annonce : null,
+  };
+}
+
 /**
  * Ce qui part au back à la création, depuis ce qui a été lu.
  *
@@ -148,6 +277,10 @@ export function toCreatePayload(
     ...article.input,
     ...(article.coverImageAlt ? { coverImageAlt: article.coverImageAlt } : {}),
     ...(article.series ? { series: article.series } : {}),
+    ...(article.series && article.seriesPosition ? { seriesPosition: article.seriesPosition } : {}),
+    ...(article.series && article.seriesPlannedCount
+      ? { seriesPlannedCount: article.seriesPlannedCount }
+      : {}),
     ...(article.annexes.length
       ? {
           annexes: article.annexes.map(({ slot, label, body }) => ({

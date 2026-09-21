@@ -1,0 +1,103 @@
+:host {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  padding: 0.6rem 0.7rem 0.6rem 1rem;
+  border-radius: 16px;
+  background: #e4f6ea;
+  color: #14603c;
+  font-size: 0.9rem;
+}
+
+.bar__series {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--primary-color);
+  font-family: 'SNPRO-Bold', sans-serif;
+  text-decoration: none;
+
+  &:hover .bar__name {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--interaction-color);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+// Deux cartes empilées en miniature, comme le bandeau des cartes d'article.
+.bar__mark {
+  flex: 0 0 auto;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  background: var(--primary-color);
+  box-shadow: 3px -3px 0 0 var(--accent-color);
+  margin-right: 0.2rem;
+}
+
+.bar__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar__pos {
+  font-family: 'SNPRO-SemiBold', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar__nav {
+  display: inline-flex;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.bar__arrow {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary-color);
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    color: var(--interaction-color);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--interaction-color);
+    outline-offset: 2px;
+  }
+
+  &.is-off {
+    background: transparent;
+    color: #9ec9ad;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar__arrow {
+    transition: none;
+  }
+
+  .bar__arrow:hover {
+    transform: none;
+  }
+}

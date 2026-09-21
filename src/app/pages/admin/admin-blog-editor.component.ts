@@ -42,6 +42,8 @@ import { TagInputComponent } from '../../components/tag-input/tag-input.componen
 import { WysiwygEditorComponent } from '../../components/wysiwyg/wysiwyg-editor.component';
 import { notesDuGroupe } from '../../common/editorial-notes';
 import { EditorialNotesComponent } from '../../components/editorial-notes/editorial-notes.component';
+import { ArticleFlagsComponent } from '../../components/article-flags/article-flags.component';
+import { ArticleSeriesFieldComponent } from '../../components/article-series-field/article-series-field.component';
 import {
   AdminFeaturedItem,
   Article,
@@ -49,6 +51,7 @@ import {
   ArticleInput,
   ArticleListItem,
   ArticleStatus,
+  FlagField,
   CoverPosition,
   MAX_FEATURED,
   Tag,
@@ -76,6 +79,8 @@ const DEFAULT_TAG = 'Moze';
         ArticleViewComponent,
         FeaturedSlotsComponent,
         EditorialNotesComponent,
+        ArticleFlagsComponent,
+        ArticleSeriesFieldComponent,
     ],
     templateUrl: './admin-blog-editor.component.html',
     styleUrl: './admin-blog-editor.component.scss',
@@ -133,6 +138,10 @@ export class AdminBlogEditorComponent {
     metaTitle: ['', [Validators.maxLength(200)]],
     metaDescription: ['', [Validators.maxLength(500)]],
     tags: new FormControl<string[]>([], { nonNullable: true }),
+    /** Nom de la série (créée à l'enregistrement si elle n'existe pas), vide = hors série. */
+    series: ['', [Validators.maxLength(120)]],
+    /** Numéro d'épisode ; `null` = le suivant du dernier, choisi par le back. */
+    seriesPosition: new FormControl<number | null>(null),
   });
 
   /**
@@ -163,6 +172,36 @@ export class AdminBlogEditorComponent {
   readonly aNotesAutres = computed(
     () => notesDuGroupe(this.annexes(), 'autres').length > 0,
   );
+
+  // --- Retouches pour l'assistant --------------------------------------------
+
+  /** Champs entiers qu'on peut signaler depuis l'éditeur, dans l'ordre de la page. */
+  readonly champsSignalables: readonly FlagField[] = [
+    'title',
+    'excerpt',
+    'slug',
+    'metaTitle',
+    'metaDescription',
+  ];
+
+  /**
+   * Pourquoi on ne peut pas signaler maintenant, ou `null` si on peut.
+   *
+   * - **Hors brouillon** : l'assistant ne retouche que les brouillons (le back le refuse), une
+   *   demande sur un article en ligne resterait donc sans suite.
+   * - **Modifications non enregistrées** : le serveur cherche la citation dans la version
+   *   **enregistrée**. Un passage tout juste tapé n'y figure pas encore, et le signalement
+   *   serait refusé — autant le dire avant.
+   */
+  readonly raisonSansSignalement = computed<string | null>(() => {
+    if (this.status() !== 'DRAFT') {
+      return "Article en ligne : l'assistant ne retouche que les brouillons. Repassez-le en brouillon pour lui demander une retouche.";
+    }
+    if (this.dirty()) {
+      return "Enregistrez d'abord vos modifications : un signalement porte sur la version enregistrée.";
+    }
+    return null;
+  });
 
   /**
    * Publié avec une date encore à venir : masqué du public jusqu'à l'échéance. Évalué à
@@ -745,8 +784,10 @@ export class AdminBlogEditorComponent {
       coverImageUrl: v.coverImageUrl || null,
       coverImageAlt: v.coverImageAlt || null,
       coverPosition: v.coverPosition,
-      // L'éditeur ne gère pas encore les séries : elles n'arrivent que par l'écran d'arrivée.
-      series: null,
+      // Le bandeau « Série · Ép. 2 » de la carte d'aperçu, tel que le verra le blog.
+      series: v.series.trim()
+        ? { slug: 'apercu', title: v.series.trim(), plannedCount: null, position: v.seriesPosition }
+        : null,
       author: v.author || 'Équipe Moze',
       status: 'DRAFT',
       featuredAt: null, // l'aperçu n'est jamais épinglé
@@ -819,6 +860,8 @@ export class AdminBlogEditorComponent {
             metaTitle: a.metaTitle ?? '',
             metaDescription: a.metaDescription ?? '',
             tags: a.tags.map((t) => t.name),
+            series: a.series?.title ?? '',
+            seriesPosition: a.seriesPosition ?? null,
           });
           // `patchValue` a émis sur `valueChanges` : on repart d'un formulaire
           // propre, sinon l'écran annonce des modifications dès l'ouverture.
@@ -1068,6 +1111,10 @@ export class AdminBlogEditorComponent {
       metaTitle: v.metaTitle || null,
       metaDescription: v.metaDescription || null,
       tags: v.tags,
+      // Vide : l'article sort de sa série. Numéro vide : le back garde le numéro actuel, ou prend
+      // la suite du dernier épisode si l'article entre dans la série.
+      series: v.series.trim() || null,
+      ...(v.series.trim() && v.seriesPosition ? { seriesPosition: v.seriesPosition } : {}),
     };
 
     const id = this.id();

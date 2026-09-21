@@ -143,6 +143,22 @@
     </section>
   }
 
+  <!-- SÉRIES : des lectures qui se suivent, sous la une et avec les mêmes conditions d'affichage. -->
+  @if (showFeatured() && shelf().length) {
+    <section class="blog-series" aria-labelledby="blog-series-title">
+      <div class="section-head">
+        <h2 id="blog-series-title">Séries</h2>
+        <span class="rule" aria-hidden="true"></span>
+        <span class="section-head__count">Des lectures qui se suivent</span>
+      </div>
+      <div class="blog-series__row">
+        @for (series of shelf(); track series.slug) {
+          <app-series-card [series]="series" />
+        }
+      </div>
+    </section>
+  }
+
   <!-- RECHERCHE -->
   <div class="blog-search">
     <span class="blog-search__icon" aria-hidden="true">

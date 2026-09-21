@@ -21,7 +21,17 @@
         <span class="crumbs__here" aria-current="page">{{ a.title }}</span>
       </nav>
 
+      @if (a.series; as series) {
+        <app-series-bar [series]="series" [articleSlug]="a.slug" />
+      }
+
       <app-article-view [article]="a" />
+
+      <!-- La suite de la série passe avant l'appel à l'action : le lecteur d'un épisode est
+           venu pour lire, on lui propose d'abord de continuer. -->
+      @if (a.series; as series) {
+        <app-series-next [series]="series" />
+      }
 
       <aside class="article-cta">
         <p class="article-cta__title">

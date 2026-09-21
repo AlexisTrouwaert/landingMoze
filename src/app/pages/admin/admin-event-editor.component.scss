@@ -12,33 +12,6 @@
   }
 }
 
-// Rail des réglages : épinglé sous la barre, il défile pour son compte. La molette au-dessus
-// du rail le fait défiler lui, pas la page — il est plus long qu'un écran (publication, type,
-// lieu, image), et l'épingler sans ça le tronquait.
-//
-// Propre aux évènements : dans l'éditeur d'articles, les suggestions de tags s'ouvrent vers le
-// bas et seraient rognées par le `overflow` du rail.
-@media (min-width: 1081px) {
-  .ed-side {
-    // 58px : `$bar-h`, la hauteur de la barre collante (feuille des articles).
-    position: sticky;
-    top: calc(58px + 1rem);
-    max-height: calc(100dvh - 58px - 2rem);
-    overflow-y: auto;
-    // `overflow-y` seul passerait l'axe horizontal en `auto` : pas de barre de défilement
-    // latérale pour un pixel de trop.
-    overflow-x: hidden;
-    // Arrivé en bas du rail, la molette ne passe pas la main à la page.
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-gutter: stable;
-    // Les ombres et le liseré de focus des cartes débordent de quelques pixels : sans cette
-    // marge intérieure, `overflow` les rognerait. La marge négative garde l'alignement.
-    margin: -0.5rem;
-    padding: 0.5rem;
-  }
-}
-
 .ev-import-issues {
   margin: 0.25rem 0 0 1.1rem;
   padding: 0;

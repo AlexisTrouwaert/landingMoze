@@ -1,14 +1,33 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  PLATFORM_ID,
   computed,
+  effect,
   forwardRef,
+  inject,
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Tag } from '../../model/article.model';
+
+/** Hauteur maximale du menu (cf. `.tagi__menu`), pour décider s'il s'ouvre vers le haut. */
+const MENU_MAX_HEIGHT = 240;
+const MENU_GAP = 5;
+
+/** Position du menu dans la fenêtre : sous le champ (`top`) ou au-dessus (`bottom`). */
+interface MenuPosition {
+  left: number;
+  width: number;
+  top: number | null;
+  bottom: number | null;
+}
 
 interface TagOption {
   label: string;
@@ -52,6 +71,45 @@ export class TagInputComponent implements ControlValueAccessor {
   readonly activeIndex = signal(-1);
 
   readonly tagCreate = output<string>();
+
+  // --- Position du menu ---------------------------------------------------------
+  //
+  // Le menu est posé **par rapport à la fenêtre** (`position: fixed`), pas sous le champ dans le
+  // flux. Dans l'éditeur, le champ vit dans un rail qui défile pour son compte (`overflow`) : un
+  // menu en `absolute` y serait rogné au bord du rail. Fixé, il passe par-dessus tout, suit le
+  // champ quand on fait défiler, et s'ouvre vers le haut quand la place manque en bas.
+
+  private readonly field = viewChild<ElementRef<HTMLElement>>('field');
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  readonly menuPosition = signal<MenuPosition | null>(null);
+
+  private readonly reposition = () => {
+    const rect = this.field()?.nativeElement.getBoundingClientRect();
+    if (!rect) return;
+    const below = window.innerHeight - rect.bottom;
+    const upward = below < MENU_MAX_HEIGHT + MENU_GAP && rect.top > below;
+    this.menuPosition.set({
+      left: rect.left,
+      width: rect.width,
+      top: upward ? null : rect.bottom + MENU_GAP,
+      bottom: upward ? window.innerHeight - rect.top + MENU_GAP : null,
+    });
+  };
+
+  constructor() {
+    // Écoute le défilement de n'importe quel conteneur (capture) tant que le menu est ouvert.
+    effect((onCleanup) => {
+      if (!this.browser || !this.open() || !this.options().length) return;
+      this.reposition();
+      window.addEventListener('scroll', this.reposition, { capture: true, passive: true });
+      window.addEventListener('resize', this.reposition, { passive: true });
+      onCleanup(() => {
+        window.removeEventListener('scroll', this.reposition, { capture: true });
+        window.removeEventListener('resize', this.reposition);
+      });
+    });
+    inject(DestroyRef).onDestroy(() => this.menuPosition.set(null));
+  }
 
   /**
    * Clé de comparaison d'un nom de tag : sans casse ni accents, pour que

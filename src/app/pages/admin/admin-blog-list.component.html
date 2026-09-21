@@ -27,6 +27,7 @@
       <!-- N'apparaît que s'il y a quelque chose à relire : un lien permanent vers un écran
            vide n'apprendrait rien, et le compteur est ce qui donne envie d'y aller. -->
       <a class="btn btn--ghost" routerLink="/admin/evenements">Évènements</a>
+      <a class="btn btn--ghost" routerLink="/admin/blog/series">Séries</a>
       <a class="btn btn--ghost" routerLink="/admin/blog/coller">Coller</a>
       @if (pendingReview(); as n) {
         <a class="btn btn--ghost" routerLink="/admin/blog/relecture">
@@ -300,15 +301,13 @@
         class="adm-check"
         [checked]="allSelected()"
         [indeterminate]="someSelected()"
-        [disabled]="loading() || items().length === 0"
+        [disabled]="loading() || articlesVisibles().length === 0"
         (change)="toggleAll()"
         aria-label="Tout sélectionner"
       />
       <span>Article</span>
-      <span class="col-status">Statut</span>
-      <span class="col-views">Vues</span>
-      <span class="col-date">Modifié</span>
-      <span class="col-actions">Actions</span>
+      <span class="col-when">Parution</span>
+      <span class="col-diffusion">Diffusion</span>
     </div>
 
     @if (loading()) {
@@ -320,9 +319,8 @@
             <span class="sk sk--line"></span>
             <span class="sk sk--line sk--short"></span>
           </span>
-          <span class="sk sk--badge"></span>
-          <span class="sk sk--views"></span>
           <span class="sk sk--date"></span>
+          <span class="sk sk--badge"></span>
           <span class="sk sk--actions"></span>
         </div>
       }
@@ -352,310 +350,367 @@
         }
       </div>
     } @else {
-      @for (a of displayedItems(); track a.id) {
-        <div class="row" [class.row--picked]="isSelected(a.id)">
-          <input
-            type="checkbox"
-            class="adm-check"
-            [checked]="isSelected(a.id)"
-            (change)="toggleOne(a.id)"
-            [attr.aria-label]="'Sélectionner ' + a.title"
-          />
+      <!-- Le statut se lit à la section : À venir, En ligne, Brouillons, Archivés. La ligne n'a
+           plus à porter de pastille « Programmé » ou « Publié ». -->
+      @for (section of sections(); track section.cle) {
+        @let repliee = estRepliee(section.cle);
+        <!-- L'en-tête est le bouton : c'est lui qu'on vise pour replier une section dont on
+             n'a rien à faire aujourd'hui. Le choix est retenu d'une visite à l'autre. -->
+        <button
+          type="button"
+          class="list-sec"
+          [class.list-sec--replie]="repliee"
+          [attr.aria-expanded]="!repliee"
+          (click)="basculerSection(section.cle)"
+        >
+          <svg class="list-sec__chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+          <span class="list-sec__name">{{ section.titre }}</span>
+          <span class="list-sec__count">{{ section.articles.length }}</span>
+          <!-- Le tri n'a plus rien à dire sur des lignes qu'on ne voit pas. -->
+          @if (section.indice && !repliee) {
+            <span class="list-sec__hint">{{ section.indice }}</span>
+          }
+        </button>
 
-          <span class="row__thumb">
-            @if (a.coverImageUrl) {
-              <img [src]="a.coverImageUrl" alt="" loading="lazy" />
-            } @else {
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="16" rx="2" />
-                <circle cx="8.5" cy="9.5" r="1.5" />
-                <path d="m4 17 5-5 4 4 2-2 5 5" />
-              </svg>
-            }
-          </span>
+        @if (!repliee) {
+          @for (a of section.visibles; track a.id) {
+            <div
+              class="row"
+              [class.row--picked]="isSelected(a.id)"
+              [class.row--menu]="openMenu() === a.id"
+            >
+              <input
+                type="checkbox"
+                class="adm-check"
+                [checked]="isSelected(a.id)"
+                (change)="toggleOne(a.id)"
+                [attr.aria-label]="'Sélectionner ' + a.title"
+              />
 
-          <span class="row__main">
-            <!-- Pas d'étoile ici : l'état « à la une » est porté par le bouton
-                 de la colonne d'actions, qui l'affiche et le pilote. -->
-            <span class="row__title">{{ a.title }}</span>
-            <span class="row__meta">
-              {{ a.author || 'Équipe Moze' }}@for (t of a.tags; track t.id) {<span> · {{ t.name }}</span>}
-            </span>
-          </span>
-
-          <!-- `display: contents` en bureau : les trois cellules restent dans la
-               grille de la ligne. En dessous de 760 px, ce conteneur redevient
-               une vraie boîte et forme le pied de la carte. -->
-          <span class="row__foot">
-            <span class="col-status">
-              <span
-                class="badge"
-                [class.badge--published]="a.status === 'PUBLISHED' && !isScheduled(a)"
-                [class.badge--scheduled]="isScheduled(a)"
-                [class.badge--archived]="a.status === 'ARCHIVED'"
-                [attr.title]="
-                  isScheduled(a)
-                    ? 'Publication le ' + (a.publishedAt | date: 'dd/MM/yyyy à HH:mm')
-                    : null
-                "
-              >
-                {{
-                  a.status === 'PUBLISHED'
-                    ? isScheduled(a)
-                      ? 'Programmé'
-                      : 'Publié'
-                    : a.status === 'ARCHIVED'
-                      ? 'Archivé'
-                      : 'Brouillon'
-                }}
+              <span class="row__thumb">
+                @if (a.coverImageUrl) {
+                  <img [src]="a.coverImageUrl" alt="" loading="lazy" />
+                } @else {
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <circle cx="8.5" cy="9.5" r="1.5" />
+                    <path d="m4 17 5-5 4 4 2-2 5 5" />
+                  </svg>
+                }
               </span>
 
-              <!-- Ce qui reste à poster. Un lien et non une pastille inerte : le repère et
-                   l'action sont le même geste, sinon on voit qu'il reste du travail sans
-                   savoir où aller le faire. -->
-              @if (diffusion(a); as d) {
-                @if (aDiffuser(a)) {
-                  <a
-                    class="badge badge--warn row__diffuser"
-                    [routerLink]="['/admin/blog', a.id, 'diffusion']"
-                    [title]="
-                      d.total - d.faits + ' post(s) à diffuser sur ' + d.total
-                    "
-                  >
-                    à diffuser {{ d.faits }}/{{ d.total }}
-                  </a>
-                } @else if (a.status === 'PUBLISHED') {
-                  <a
-                    class="badge badge--published row__diffuser"
-                    [routerLink]="['/admin/blog', a.id, 'diffusion']"
-                    title="Tous les posts sont diffusés ou écartés"
-                  >
-                    diffusé
+              <span class="row__main">
+                <!-- Le titre mène à l'éditeur, comme le crayon : c'est le geste qu'on attend d'un
+                     titre. Un article archivé ne s'édite pas, il se restaure. -->
+                @if (a.status === 'ARCHIVED') {
+                  <span class="row__title">{{ a.title }}</span>
+                } @else {
+                  <a class="row__title row__title--link" [routerLink]="['/admin/blog', a.id, 'edit']">
+                    {{ a.title }}
                   </a>
                 }
-              }
-            </span>
-
-            <span class="col-views" [title]="(a.views ?? 0) + ' vues'">{{ a.views ?? 0 }}</span>
-
-            <span class="col-date">{{ a.updatedAt | date: 'dd/MM/yy' }}</span>
-
-            <span class="col-actions">
-              <!-- Accès direct à l'épinglage : un clic, sans passer par le menu.
-                   Seul un article publié est épinglable — pour les autres, le
-                   créneau reste occupé par un vide de même largeur, sinon la
-                   colonne se désaligne d'une ligne à l'autre. -->
-              @if (a.status === 'PUBLISHED') {
-                <button
-                  type="button"
-                  class="btn btn--sm btn--icon row__star"
-                  [class.is-on]="a.featuredAt"
-                  [class.is-pending]="isFeaturePending(a)"
-                  [disabled]="busy()"
-                  [attr.aria-pressed]="isStarOn(a)"
-                  [attr.aria-label]="
-                    (isStarOn(a) ? 'Retirer de la une : ' : 'Mettre à la une : ') + a.title
-                  "
-                  [title]="
-                    isFeaturePending(a)
-                      ? 'À la une à la parution — cliquer pour annuler'
-                      : a.featuredAt
-                        ? 'Retirer de la une'
-                        : featuredFull()
-                          ? 'La une est complète — choisir l’article à remplacer'
-                          : 'Mettre à la une'
-                  "
-                  (click)="toggleFeature(a)"
-                >
-                  @if (isStarOn(a)) {
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
-                      <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
-                    </svg>
+                <!-- Le tag principal (le back le place en tête) et la série. « Équipe Moze » signe
+                     presque tout : l'auteur ne s'affiche que lorsqu'il en diffère. -->
+                <span class="row__meta">
+                  @if (a.author && a.author !== 'Équipe Moze') {
+                    <span class="row__author">{{ a.author }}</span>
                   }
-                </button>
-              } @else {
-                <span class="row__star-slot" aria-hidden="true"></span>
-              }
+                  @if (a.tags[0]; as tag) {
+                    <span class="row__tag">{{ tag.name }}</span>
+                  }
+                  @if (serieLabel(a); as serie) {
+                    <span class="row__serie">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="7" y="7" width="13" height="13" rx="2" />
+                        <path d="M4 16V6a2 2 0 0 1 2-2h10" />
+                      </svg>
+                      <span class="row__serie-name">{{ serie }}</span>
+                    </span>
+                  }
+                </span>
+              </span>
 
-              <!-- Accès direct à la page publique, sans passer par le menu. Même logique de
-                   créneau vide que l'étoile : un brouillon n'a pas de page à voir. -->
-              @if (a.status === 'PUBLISHED') {
-                <a
-                  class="btn btn--sm btn--icon"
-                  [routerLink]="['/blog', a.slug]"
-                  target="_blank"
-                  rel="noopener"
-                  title="Voir sur le blog"
-                  [attr.aria-label]="'Voir sur le blog : ' + a.title"
+              <!-- `display: contents` en bureau : les trois cellules restent dans la grille de la
+                   ligne. En dessous de 760 px, ce conteneur redevient une boîte, le pied de la carte. -->
+              <span class="row__foot">
+                @let p = parution(a);
+                <span
+                  class="col-when"
+                  [class.col-when--avenir]="p.genre === 'avenir'"
+                  [class.col-when--aucune]="p.genre === 'aucune'"
+                  [attr.title]="'Modifié le ' + (a.updatedAt | date: 'dd/MM/yyyy à HH:mm')"
                 >
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <path d="M15 3h6v6M10 14 21 3" />
-                  </svg>
-                </a>
-              } @else {
-                <span class="row__star-slot" aria-hidden="true"></span>
-              }
+                  <span class="col-when__jour">{{ p.jour }}</span>
+                  <span class="col-when__precision">{{ p.precision }}</span>
+                </span>
 
-              @if (a.status === 'ARCHIVED') {
-                <button
-                  type="button"
-                  class="btn btn--sm row__cta"
-                  [disabled]="busy()"
-                  (click)="unarchive(a)"
-                >
-                  Restaurer
-                </button>
-              } @else {
-                <a
-                  class="btn btn--sm btn--icon"
-                  [routerLink]="['/admin/blog', a.id, 'edit']"
-                  title="Éditer"
-                  [attr.aria-label]="'Éditer : ' + a.title"
-                >
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                  </svg>
-                </a>
-              }
+                <!-- Les posts traités sur le total. Un lien et non une pastille inerte : le repère et
+                     l'action sont le même geste. Gris tant que l'article n'est pas en ligne — rien ne
+                     presse —, ambre s'il reste des posts, vert quand tout est fait. -->
+                <span class="col-diffusion">
+                  @if (etatDiffusion(a); as d) {
+                    <a
+                      class="badge row__diffuser"
+                      [class.badge--warn]="d.genre === 'afaire'"
+                      [class.badge--published]="d.genre === 'fait'"
+                      [routerLink]="['/admin/blog', a.id, 'diffusion']"
+                      [title]="
+                        d.genre === 'fait'
+                          ? 'Tous les posts sont diffusés ou écartés'
+                          : d.genre === 'afaire'
+                            ? 'Posts à diffuser'
+                            : 'Posts à diffuser à la parution'
+                      "
+                    >
+                      {{ d.texte }}
+                    </a>
+                  }
+                </span>
 
-              <span class="row__more">
-                <button
-                  type="button"
-                  class="btn btn--sm btn--icon"
-                  [class.is-open]="openMenu() === a.id"
-                  (click)="toggleMenu(a.id)"
-                  aria-haspopup="menu"
-                  [attr.aria-expanded]="openMenu() === a.id"
-                  [attr.aria-label]="'Autres actions pour ' + a.title"
-                >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-hidden="true">
-                    <circle cx="5" cy="12" r="1.6" />
-                    <circle cx="12" cy="12" r="1.6" />
-                    <circle cx="19" cy="12" r="1.6" />
-                  </svg>
-                </button>
-
-                @if (openMenu() === a.id) {
-                  <span class="adm-menu__backdrop" (click)="closeMenus()"></span>
-                  <span class="adm-menu" role="menu">
-                    @if (a.status === 'ARCHIVED') {
-                      <button
-                        type="button"
-                        role="menuitem"
-                        class="adm-menu__item adm-menu__item--danger"
-                        [disabled]="busy()"
-                        (click)="askDelete(a)"
-                      >
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <path d="M4 7h16M10 11v6M14 11v6" />
-                          <path d="M6 7h12l-1 13H7L6 7ZM9 7V4h6v3" />
+                <!-- Quatre actions en carré : étoile et page publique en haut, crayon et menu en bas.
+                     Un créneau vide garde la place d'une action absente, pour que chaque bouton
+                     reste au même endroit d'une ligne à l'autre. -->
+                <span class="col-actions">
+                  @if (a.status === 'PUBLISHED') {
+                    <button
+                      type="button"
+                      class="btn btn--sm btn--icon row__star"
+                      [class.is-on]="a.featuredAt"
+                      [class.is-pending]="isFeaturePending(a)"
+                      [disabled]="busy()"
+                      [attr.aria-pressed]="isStarOn(a)"
+                      [attr.aria-label]="
+                        (isStarOn(a) ? 'Retirer de la une : ' : 'Mettre à la une : ') + a.title
+                      "
+                      [title]="
+                        isFeaturePending(a)
+                          ? 'À la une à la parution — cliquer pour annuler'
+                          : a.featuredAt
+                            ? 'Retirer de la une'
+                            : featuredFull()
+                              ? 'La une est complète — choisir l’article à remplacer'
+                              : 'Mettre à la une'
+                      "
+                      (click)="toggleFeature(a)"
+                    >
+                      @if (isStarOn(a)) {
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="none" aria-hidden="true">
+                          <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
                         </svg>
-                        Supprimer définitivement
-                      </button>
-                    } @else {
-                      @if (a.status === 'PUBLISHED') {
-                        <a
-                          role="menuitem"
-                          class="adm-menu__item"
-                          [routerLink]="['/blog', a.slug]"
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                            <path d="M15 3h6v6M10 14 21 3" />
-                          </svg>
-                          Voir sur le blog
-                        </a>
-                        <!-- Le geste d'après-publication : les textes réseaux, prêts à copier.
-                             Ouvert depuis la liste parce qu'on y revient parfois le lendemain,
-                             quand l'article a quitté la file de relecture. -->
-                        <a
-                          role="menuitem"
-                          class="adm-menu__item"
-                          [routerLink]="['/admin/blog', a.id, 'diffusion']"
-                        >
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="18" cy="5" r="3" />
-                            <circle cx="6" cy="12" r="3" />
-                            <circle cx="18" cy="19" r="3" />
-                            <path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5" />
-                          </svg>
-                          Diffuser…
-                        </a>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          class="adm-menu__item"
-                          [disabled]="busy() || (!a.featuredAt && featuredFull())"
-                          [title]="
-                            a.featuredAt
-                              ? 'Retirer de la une'
-                              : featuredFull()
-                                ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
-                                : 'Mettre à la une'
-                          "
-                          (click)="toggleFeature(a)"
-                        >
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
-                          </svg>
-                          {{ a.featuredAt ? 'Retirer de la une' : 'Mettre à la une' }}
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          class="adm-menu__item"
-                          [disabled]="busy()"
-                          (click)="unpublish(a)"
-                        >
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8" />
-                            <path d="M9.4 5.2A9.5 9.5 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.2 3.3M6.3 6.8C3.9 8.3 3 10.5 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 3.7-.7" />
-                          </svg>
-                          Dépublier
-                        </button>
                       } @else {
-                        <button
-                          type="button"
-                          role="menuitem"
-                          class="adm-menu__item"
-                          [disabled]="busy()"
-                          (click)="publish(a)"
-                        >
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12 19V5M5 12l7-7 7 7" />
-                          </svg>
-                          Publier
-                        </button>
-                      }
-                      <span class="adm-menu__sep"></span>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        class="adm-menu__item adm-menu__item--danger"
-                        [disabled]="busy()"
-                        (click)="askArchive(a)"
-                      >
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <path d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
-                          <path d="M2 4h20v4H2zM10 12h4" />
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
                         </svg>
-                        Archiver
-                      </button>
+                      }
+                    </button>
+                  } @else {
+                    <span class="row__star-slot" aria-hidden="true"></span>
+                  }
+  
+  
+                  @if (a.status === 'PUBLISHED') {
+                    <a
+                      class="btn btn--sm btn--icon"
+                      [routerLink]="['/blog', a.slug]"
+                      target="_blank"
+                      rel="noopener"
+                      title="Voir sur le blog"
+                      [attr.aria-label]="'Voir sur le blog : ' + a.title"
+                    >
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <path d="M15 3h6v6M10 14 21 3" />
+                      </svg>
+                    </a>
+                  } @else {
+                    <span class="row__star-slot" aria-hidden="true"></span>
+                  }
+
+                  @if (a.status === 'ARCHIVED') {
+                    <button
+                      type="button"
+                      class="btn btn--sm btn--icon"
+                      [disabled]="busy()"
+                      title="Restaurer"
+                      [attr.aria-label]="'Restaurer : ' + a.title"
+                      (click)="unarchive(a)"
+                    >
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                        <path d="M3 3v5h5" />
+                      </svg>
+                    </button>
+                  } @else {
+                    <a
+                      class="btn btn--sm btn--icon"
+                      [routerLink]="['/admin/blog', a.id, 'edit']"
+                      title="Éditer"
+                      [attr.aria-label]="'Éditer : ' + a.title"
+                    >
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </a>
+                  }
+
+                  <span class="row__more">
+                    <button
+                      type="button"
+                      class="btn btn--sm btn--icon"
+                      [class.is-open]="openMenu() === a.id"
+                      (click)="toggleMenu(a.id)"
+                      aria-haspopup="menu"
+                      [attr.aria-expanded]="openMenu() === a.id"
+                      [attr.aria-label]="'Autres actions pour ' + a.title"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none" aria-hidden="true">
+                        <circle cx="5" cy="12" r="1.6" />
+                        <circle cx="12" cy="12" r="1.6" />
+                        <circle cx="19" cy="12" r="1.6" />
+                      </svg>
+                    </button>
+  
+                    @if (openMenu() === a.id) {
+                      <span class="adm-menu__backdrop" (click)="closeMenus()"></span>
+                      <span class="adm-menu" role="menu">
+                        @if (a.status === 'ARCHIVED') {
+                          <button
+                            type="button"
+                            role="menuitem"
+                            class="adm-menu__item adm-menu__item--danger"
+                            [disabled]="busy()"
+                            (click)="askDelete(a)"
+                          >
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M4 7h16M10 11v6M14 11v6" />
+                              <path d="M6 7h12l-1 13H7L6 7ZM9 7V4h6v3" />
+                            </svg>
+                            Supprimer définitivement
+                          </button>
+                        } @else {
+                          @if (a.status === 'PUBLISHED') {
+                            <a
+                              role="menuitem"
+                              class="adm-menu__item"
+                              [routerLink]="['/blog', a.slug]"
+                              target="_blank"
+                              rel="noopener"
+                            >
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <path d="M15 3h6v6M10 14 21 3" />
+                              </svg>
+                              Voir sur le blog
+                            </a>
+                            <!-- Le geste d'après-publication : les textes réseaux, prêts à copier.
+                                 Ouvert depuis la liste parce qu'on y revient parfois le lendemain,
+                                 quand l'article a quitté la file de relecture. -->
+                            <a
+                              role="menuitem"
+                              class="adm-menu__item"
+                              [routerLink]="['/admin/blog', a.id, 'diffusion']"
+                            >
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="18" cy="5" r="3" />
+                                <circle cx="6" cy="12" r="3" />
+                                <circle cx="18" cy="19" r="3" />
+                                <path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5" />
+                              </svg>
+                              Diffuser…
+                            </a>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              class="adm-menu__item"
+                              [disabled]="busy() || (!a.featuredAt && featuredFull())"
+                              [title]="
+                                a.featuredAt
+                                  ? 'Retirer de la une'
+                                  : featuredFull()
+                                    ? 'Limite de ' + maxFeatured + ' articles à la une atteinte'
+                                    : 'Mettre à la une'
+                              "
+                              (click)="toggleFeature(a)"
+                            >
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m12 3 2.6 5.5 5.9.8-4.3 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.5 9.3l5.9-.8Z" />
+                              </svg>
+                              {{ a.featuredAt ? 'Retirer de la une' : 'Mettre à la une' }}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              class="adm-menu__item"
+                              [disabled]="busy()"
+                              (click)="unpublish(a)"
+                            >
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                                <path d="M9.4 5.2A9.5 9.5 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.2 3.3M6.3 6.8C3.9 8.3 3 10.5 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 3.7-.7" />
+                              </svg>
+                              Dépublier
+                            </button>
+                          } @else {
+                            <button
+                              type="button"
+                              role="menuitem"
+                              class="adm-menu__item"
+                              [disabled]="busy()"
+                              (click)="publish(a)"
+                            >
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 19V5M5 12l7-7 7 7" />
+                              </svg>
+                              Publier
+                            </button>
+                          }
+                          <span class="adm-menu__sep"></span>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            class="adm-menu__item adm-menu__item--danger"
+                            [disabled]="busy()"
+                            (click)="askArchive(a)"
+                          >
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                              <path d="M2 4h20v4H2zM10 12h4" />
+                            </svg>
+                            Archiver
+                          </button>
+                        }
+                      </span>
                     }
                   </span>
-                }
+                </span>
               </span>
-            </span>
-          </span>
-        </div>
+            </div>
+          }
+
+          <!-- La liste arrive entière : ce bouton ne charge rien, il allonge la section de dix.
+               Il tient la place d'une ligne, en bas de la tranche, là où le regard s'arrête. -->
+          @if (section.restants) {
+            <button
+              type="button"
+              class="list-more"
+              [attr.aria-label]="
+                'Afficher ' + section.suivants + ' articles de plus dans « ' + section.titre + ' »'
+              "
+              (click)="montrerPlus(section.cle)"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+              Afficher {{ section.suivants }} de plus
+              @if (section.restants > section.suivants) {
+                <span class="list-more__rest">sur {{ section.restants }}</span>
+              }
+            </button>
+          }
+        }
       }
     }
   </section>

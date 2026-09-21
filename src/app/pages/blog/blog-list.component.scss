@@ -88,6 +88,38 @@ $ease: cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 2.8rem;
 }
 
+// ---------- SÉRIES ----------
+// Trois cartes de front au plus : au-delà, une série de plus passe à la ligne. Sur mobile, le
+// rayon défile de côté — une carte et le bord de la suivante, pour montrer qu'il y en a d'autres.
+.blog-series {
+  margin-bottom: 2.8rem;
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.4rem;
+    // Place pour la pile de couvertures qui déborde en pivotant, et pour l'ombre au survol.
+    padding-top: 0.4rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .blog-series__row {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: 82%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: -1.25rem;
+    padding: 0.4rem 1.25rem 1rem;
+    scroll-padding-inline: 1.25rem;
+
+    > * {
+      scroll-snap-align: start;
+    }
+  }
+}
+
 // Flèches de navigation du carrousel (souris/clavier ; le tactile a le swipe).
 .feat-nav {
   position: absolute;

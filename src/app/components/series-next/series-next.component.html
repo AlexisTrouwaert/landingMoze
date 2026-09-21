@@ -1,0 +1,39 @@
+@let s = series();
+
+@if (s.nextEpisode; as next) {
+  <article class="next next--out">
+    @if (next.coverImageUrl) {
+      <img class="next__cover" [src]="next.coverImageUrl" [alt]="next.coverImageAlt || ''" loading="lazy" />
+    }
+    <div class="next__body">
+      <p class="next__eyebrow">Épisode suivant{{ next.position ? ' · ' + next.position : '' }}</p>
+      <h2 class="next__title">
+        <a class="next__link" [routerLink]="['/blog', next.slug]">{{ next.title }}</a>
+      </h2>
+      <p class="next__text">{{ next.excerpt }}</p>
+      <p class="next__meta">{{ next.readingMinutes }} min de lecture</p>
+    </div>
+  </article>
+} @else if (s.nextUpcoming; as upcoming) {
+  <aside class="next next--wait" aria-labelledby="series-next-title">
+    <p class="next__eyebrow">Épisode suivant · le {{ upcomingDate() }}</p>
+    <h2 id="series-next-title" class="next__title">
+      {{ upcoming.position ? "L'épisode " + upcoming.position + ' arrive bientôt' : 'La suite arrive bientôt' }}
+    </h2>
+    <p class="next__text">Il n'est pas encore sorti. Reçois-le par e-mail avec la newsletter du blog.</p>
+    <app-newsletter-form source="newsletter_series" />
+  </aside>
+} @else if (s.complete) {
+  <aside class="next next--done">
+    <p class="next__eyebrow">Fin de la série</p>
+    <h2 class="next__title">Tu as lu le dernier épisode de « {{ s.title }} »</h2>
+    <a class="next__back" [routerLink]="['/blog/series', s.slug]">Revoir tous les épisodes →</a>
+  </aside>
+} @else {
+  <aside class="next next--wait" aria-labelledby="series-next-title">
+    <p class="next__eyebrow">Suite de la série</p>
+    <h2 id="series-next-title" class="next__title">La suite est en préparation</h2>
+    <p class="next__text">Reçois le prochain épisode par e-mail avec la newsletter du blog.</p>
+    <app-newsletter-form source="newsletter_series" />
+  </aside>
+}

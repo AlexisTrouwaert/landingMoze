@@ -210,13 +210,30 @@ $bar-gap: 8px;
   gap: 0.75rem;
 }
 
-// Les réglages suivent la rédaction sur les articles longs — mais seulement si
-// la colonne tient dans la hauteur disponible. Épinglée sur un écran trop court,
-// elle serait tronquée sans possibilité de faire défiler jusqu'à son bas.
-@media (min-height: 900px) and (min-width: 1081px) {
+// Rail des réglages : épinglé sous la barre, il défile pour son compte. La molette au-dessus du
+// rail le fait défiler lui, pas la page — il est souvent plus long qu'un écran, et l'épingler sans
+// ça le tronquait (d'où l'ancienne condition `min-height: 900px`, qui ne l'épinglait qu'en grand).
+//
+// Partagé par les éditeurs d'articles et d'évènements (ce dernier charge cette feuille). Ce qui
+// s'ouvre dans le rail doit donc passer par-dessus son `overflow` : la liste de suggestions des
+// tags est en `position: fixed` pour cette raison (cf. `tag-input.component.ts`).
+@media (min-width: 1081px) {
   .ed-side {
     position: sticky;
     top: calc(#{$bar-h} + 1rem);
+    max-height: calc(100dvh - #{$bar-h} - 2rem);
+    overflow-y: auto;
+    // `overflow-y` seul passerait l'axe horizontal en `auto` : pas de barre de défilement
+    // latérale pour un pixel de trop.
+    overflow-x: hidden;
+    // Arrivé en bas du rail, la molette ne passe pas la main à la page.
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    // Les ombres et le liseré de focus des cartes débordent de quelques pixels : sans cette
+    // marge intérieure, `overflow` les rognerait. La marge négative garde l'alignement.
+    margin: -0.5rem;
+    padding: 0.5rem;
   }
 }
 

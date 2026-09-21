@@ -53,6 +53,16 @@ export const ADMIN_ROUTES: Routes = [
       ),
   },
   {
+    path: 'blog/series',
+    title: 'Admin · Séries – Moze',
+    data: { noindex: true },
+    canActivate: [adminGuard, passwordChangedGuard],
+    loadComponent: () =>
+      import('../pages/admin/admin-blog-series.component').then(
+        (m) => m.AdminBlogSeriesComponent,
+      ),
+  },
+  {
     path: 'blog/new',
     title: 'Admin · Nouvel article – Moze',
     data: { noindex: true },

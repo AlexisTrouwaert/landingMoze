@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   computed,
   inject,
   signal,
@@ -19,11 +18,12 @@ import {
   AdminFeaturedItem,
   Article,
   ArticleAnnex,
-  ArticleFlag,
-  FlagField,
+  Signalement,
   MAX_FEATURED,
 } from '../../model/article.model';
 import { notesDuGroupe } from '../../common/editorial-notes';
+import { POST_SLOTS, networkFor } from '../../common/social-networks';
+import { ArticleFlagsComponent } from '../../components/article-flags/article-flags.component';
 import { EditorialNotesComponent } from '../../components/editorial-notes/editorial-notes.component';
 import {
   articlesSansPlace,
@@ -31,8 +31,25 @@ import {
   projectionAhead,
 } from '../../common/featured-projection';
 import { FeaturedSlotsComponent } from '../../components/featured-slots/featured-slots.component';
+import { AdminSeries, SeriesRef } from '../../model/series.model';
+import { SeriesCoverComponent } from '../../components/series-cover/series-cover.component';
 import { BlogService } from '../../services/blog.service';
 import { ReviewNotifierService } from '../../services/review-notifier.service';
+
+/**
+ * Un bloc de la file de relecture : une série et ses épisodes, ou un article seul.
+ *
+ * Un article hors série forme un bloc d'un seul élément plutôt qu'un cas à part : la file
+ * n'a alors qu'une forme à rendre, et l'entête de série est ce qui s'ajoute, pas ce qui
+ * change tout.
+ */
+interface BlocDeFile {
+  cle: string;
+  serie: SeriesRef | null;
+  /** La série est en brouillon : son en-tête s'ouvre dans le volet, pour y poser l'image. */
+  brouillon: AdminSeries | null;
+  articles: Article[];
+}
 
 /**
  * Pupitre de relecture des brouillons rédigés par l'assistant.
@@ -56,6 +73,8 @@ import { ReviewNotifierService } from '../../services/review-notifier.service';
     ConfirmDialogComponent,
     FeaturedSlotsComponent,
     EditorialNotesComponent,
+    ArticleFlagsComponent,
+    SeriesCoverComponent,
   ],
   templateUrl: './admin-blog-review.component.html',
   styleUrl: './admin-blog-review.component.scss',
@@ -65,12 +84,8 @@ export class AdminBlogReviewComponent {
   private readonly blog = inject(BlogService);
   private readonly notifier = inject(ReviewNotifierService);
 
-  /** Conteneur de l'aperçu : borne la sélection au texte de l'article. */
-  private readonly previewBox =
-    viewChild<ElementRef<HTMLElement>>('previewBox');
-
-  /** Formulaire de signalement, ramené à l'écran à son ouverture. */
-  private readonly draftBox = viewChild<ElementRef<HTMLElement>>('draftBox');
+  /** Les retouches de l'article sélectionné — relues sur « Actualiser ». */
+  private readonly retouches = viewChild(ArticleFlagsComponent);
 
   readonly maxFeatured = MAX_FEATURED;
 
@@ -109,6 +124,229 @@ export class AdminBlogReviewComponent {
   }
 
   readonly queue = signal<Article[]>([]);
+
+  /**
+   * La file, séries regroupées.
+   *
+   * Une série se relit d'un bloc : l'ordre des épisodes, l'échelonnement des dates et ce que
+   * chacun promet au suivant ne se vérifient pas article par article. Le bloc prend la place
+   * de son **premier** épisode dans la file, pour que la série n'avance ni ne recule par
+   * rapport aux articles isolés déjà relus.
+   *
+   * À l'intérieur, l'ordre est celui de la lecture, pas celui de la file : c'est dans cet
+   * ordre-là qu'on repère un épisode 3 programmé avant le 2.
+   */
+  readonly blocs = computed<BlocDeFile[]>(() => {
+    const blocs: BlocDeFile[] = [];
+    const parSerie = new Map<string, BlocDeFile>();
+    const brouillon = (slug: string) =>
+      this.seriesDrafts().find((s) => s.slug === slug) ?? null;
+
+    for (const article of this.queue()) {
+      const serie = article.series;
+      if (!serie) {
+        blocs.push({ cle: article.id, serie: null, brouillon: null, articles: [article] });
+        continue;
+      }
+      const ouvert = parSerie.get(serie.slug);
+      if (ouvert) {
+        ouvert.articles.push(article);
+        continue;
+      }
+      const bloc: BlocDeFile = {
+        cle: `serie-${serie.slug}`,
+        serie,
+        brouillon: brouillon(serie.slug),
+        articles: [article],
+      };
+      parSerie.set(serie.slug, bloc);
+      blocs.push(bloc);
+    }
+
+    for (const bloc of parSerie.values()) {
+      bloc.articles.sort(
+        (a, b) => (a.seriesPosition ?? 99) - (b.seriesPosition ?? 99),
+      );
+    }
+
+    // Les brouillons de série sans épisode dans la file — préparés avant leurs articles, ou
+    // dont les épisodes sont déjà partis — passent en tête : ils n'attendent plus qu'une image.
+    const seuls: BlocDeFile[] = this.seriesDrafts()
+      .filter((s) => !parSerie.has(s.slug))
+      .map((s) => ({
+        cle: `serie-${s.slug}`,
+        serie: { id: s.id, slug: s.slug, title: s.title, plannedCount: s.plannedCount },
+        brouillon: s,
+        articles: [],
+      }));
+    return [...seuls, ...blocs];
+  });
+
+  // --- Brouillons de série ----------------------------------------------------
+  //
+  // L'assistant rédige le teaser d'une série — nom, accroche, total, idée d'image — mais ne
+  // produit pas l'image de tête. C'est ici qu'un humain la pose, et c'est ce geste qui valide
+  // la série : jusque-là, elle n'existe pas pour le public.
+
+  /** Les séries en brouillon, épisodes compris. */
+  readonly seriesDrafts = signal<AdminSeries[]>([]);
+  readonly selectedSeriesId = signal<string | null>(null);
+  readonly selectedSeries = computed(
+    () => this.seriesDrafts().find((s) => s.id === this.selectedSeriesId()) ?? null,
+  );
+  readonly serieBusy = signal(false);
+
+  /** Le formulaire du brouillon ouvert, recopié à la sélection. */
+  readonly serieForm = signal({ title: '', pitch: '', imageIdea: '', plannedCount: '' });
+
+  readonly serieDirty = computed(() => {
+    const s = this.selectedSeries();
+    const f = this.serieForm();
+    return (
+      !!s &&
+      (f.title.trim() !== s.title ||
+        f.pitch.trim() !== s.pitch ||
+        f.imageIdea.trim() !== s.imageIdea ||
+        this.total(f.plannedCount) !== s.plannedCount)
+    );
+  });
+
+  /**
+   * La pile telle qu'elle se verra sur le blog : l'image de tête devant, les couvertures des
+   * épisodes de la file derrière. Montrée avant de valider, pour qu'on juge l'image à sa place.
+   */
+  readonly serieCovers = computed(() => {
+    const s = this.selectedSeries();
+    if (!s) return [];
+    return this.queue()
+      .filter((a) => a.series?.slug === s.slug)
+      .sort((a, b) => (b.seriesPosition ?? 0) - (a.seriesPosition ?? 0))
+      .map((a) => a.coverImageUrl);
+  });
+
+  /** Les épisodes de la file dont la série attend encore sa validation. */
+  readonly episodesSansSerie = computed(() =>
+    this.queue().filter(
+      (a) => !!a.series && this.seriesDrafts().some((s) => s.slug === a.series!.slug),
+    ),
+  );
+
+  /** Le message de la confirmation, avec ce qu'une série en brouillon change à la parution. */
+  readonly confirmMessage = computed(() => {
+    const base =
+      `Les ${this.queue().length} articles seront publiés à leur date proposée. ` +
+      "C'est la seule action irréversible de cet écran.";
+    const n = this.episodesSansSerie().length;
+    if (!n) return base;
+    return (
+      `${base}\n\n${n} épisode${n > 1 ? 's' : ''} appartien${n > 1 ? 'nent' : 't'} à une série ` +
+      'encore en brouillon : ils paraîtront comme des articles seuls tant que sa série ' +
+      "n'est pas validée, puis s'y rattacheront d'eux-mêmes."
+    );
+  });
+
+  selectSeries(id: string): void {
+    const s = this.seriesDrafts().find((x) => x.id === id);
+    if (!s) return;
+    this.selectedId.set(null);
+    this.selectedSeriesId.set(id);
+    this.remplirSerieForm(s);
+  }
+
+  private remplirSerieForm(s: AdminSeries): void {
+    this.serieForm.set({
+      title: s.title,
+      pitch: s.pitch,
+      imageIdea: s.imageIdea,
+      plannedCount: s.plannedCount === null ? '' : String(s.plannedCount),
+    });
+  }
+
+  onSerieChamp(champ: 'title' | 'pitch' | 'imageIdea' | 'plannedCount', event: Event): void {
+    const valeur = (event.target as HTMLInputElement).value;
+    this.serieForm.update((f) => ({ ...f, [champ]: valeur }));
+  }
+
+  /** Un total saisi, ou `null` : vide ou hors bornes, la série n'annonce pas de nombre. */
+  private total(brut: string): number | null {
+    const n = Number(brut.trim());
+    return brut.trim() && Number.isInteger(n) && n >= 1 && n <= 99 ? n : null;
+  }
+
+  /** Remplace un brouillon de série par sa version fraîche. */
+  private patchSerie(maj: AdminSeries): void {
+    this.seriesDrafts.update((all) => all.map((s) => (s.id === maj.id ? maj : s)));
+    if (maj.id === this.selectedSeriesId()) this.remplirSerieForm(maj);
+    this.serieBusy.set(false);
+  }
+
+  private failSerie(err: unknown, repli = 'Enregistrement impossible.'): void {
+    this.serieBusy.set(false);
+    this.error.set(this.messageOf(err) ?? repli);
+  }
+
+  /** L'image de tête : envoyée, puis enregistrée aussitôt sur le brouillon, comme une couverture. */
+  onSerieCover(event: Event, s: AdminSeries): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    this.serieBusy.set(true);
+    this.error.set(null);
+    this.blog.upload(file).subscribe({
+      next: ({ url }) =>
+        this.blog.updateSeries(s.id, { coverImageUrl: url }).subscribe({
+          next: (maj) => this.patchSerie(maj),
+          error: (err) => this.failSerie(err),
+        }),
+      error: (err) => this.failSerie(err, "L'envoi de l'image a échoué."),
+    });
+  }
+
+  private ecrireSerie(s: AdminSeries) {
+    const f = this.serieForm();
+    return this.blog.updateSeries(s.id, {
+      title: f.title.trim(),
+      pitch: f.pitch.trim(),
+      imageIdea: f.imageIdea.trim(),
+      plannedCount: this.total(f.plannedCount),
+    });
+  }
+
+  enregistrerSerie(s: AdminSeries): void {
+    if (!this.serieDirty() || !this.serieForm().title.trim()) return;
+    this.serieBusy.set(true);
+    this.error.set(null);
+    this.ecrireSerie(s).subscribe({
+      next: (maj) => this.patchSerie(maj),
+      error: (err) => this.failSerie(err),
+    });
+  }
+
+  /**
+   * Valide la série : ce qui a été retouché est enregistré d'abord, puis la série sort du
+   * brouillon. Elle quitte alors la relecture — elle n'attend plus personne.
+   */
+  validerSerie(s: AdminSeries): void {
+    if (!s.coverImageUrl || !this.serieForm().title.trim()) return;
+    this.serieBusy.set(true);
+    this.error.set(null);
+
+    const avant = this.serieDirty() ? this.ecrireSerie(s) : of(s);
+    avant.pipe(concatMap(() => this.blog.publishSeries(s.id))).subscribe({
+      next: () => {
+        this.serieBusy.set(false);
+        this.seriesDrafts.update((all) => all.filter((x) => x.id !== s.id));
+        this.selectedSeriesId.set(null);
+        const premier = this.queue()[0];
+        if (premier) this.select(premier.id);
+        this.notifier.refresh();
+      },
+      error: (err) => this.failSerie(err, 'La validation de la série a échoué.'),
+    });
+  }
+
   readonly featuredList = signal<AdminFeaturedItem[]>([]);
   readonly selectedId = signal<string | null>(null);
 
@@ -152,34 +390,43 @@ export class AdminBlogReviewComponent {
   private readonly replacements = signal<Record<string, string>>({});
 
   // --- Signalements de relecture --------------------------------------------
+  //
+  // La saisie, la liste et la reprise des retouches vivent dans `app-article-flags`, le même
+  // composant que l'éditeur. Cet écran n'en garde que ce qui lui est propre : des boutons posés
+  // au plus près de ce qu'ils visent (à côté du titre, sous chaque post), et le compte des
+  // retouches par post.
 
-  readonly flags = signal<ArticleFlag[]>([]);
-
-  /**
-   * Signalement en cours de saisie, avant envoi.
-   *
-   * Une étape intermédiaire plutôt qu'un envoi direct : un signalement sans un mot dit
-   * seulement « à revoir », alors que la phrase qui explique *pourquoi* est ce qui rend la
-   * retouche utile. On laisse donc l'occasion de l'écrire — sans l'imposer.
-   */
-  readonly draft = signal<{ field: FlagField; quote?: string } | null>(null);
-  readonly draftNote = signal('');
-
-  /** Libellés des cibles, pour l'affichage. */
-  private readonly labels: Record<FlagField, string> = {
-    title: 'Titre',
-    slug: 'Adresse',
-    excerpt: 'Extrait',
-    metaTitle: 'Titre moteurs',
-    metaDescription: 'Description moteurs',
-    content: 'Passage',
-  };
-
-  label(field: FlagField): string {
-    return this.labels[field] ?? field;
-  }
+  /** Retouches encore ouvertes de l'article sélectionné, telles que le composant les relit. */
+  readonly flags = signal<Signalement[]>([]);
 
   readonly openFlags = computed(() => this.flags().filter((f) => !f.resolvedAt));
+
+  /**
+   * Les posts réseaux de l'article sélectionné, dans l'ordre de diffusion.
+   *
+   * Leur texte **rédigé**, tel qu'en base — et non celui que la Diffusion copie, augmenté de
+   * l'adresse de l'article (`composerPost`). C'est dans ce texte-ci que le serveur cherchera
+   * la citation d'un signalement : un passage pris dans la version avec lien ne s'y
+   * retrouverait pas.
+   */
+  readonly posts = computed(() => {
+    const annexes = this.notes();
+    const ouvertes = this.openFlags();
+    return POST_SLOTS.flatMap((slot) => {
+      const annex = annexes.find((a) => a.slot === slot);
+      const network = networkFor(slot);
+      if (!annex || !network) return [];
+      return [
+        {
+          annex,
+          network,
+          trop: network.limit !== null && annex.body.length > network.limit,
+          retouches: ouvertes.filter((f) => f.field === 'annex' && f.annexSlot === slot)
+            .length,
+        },
+      ];
+    });
+  });
 
   readonly selected = computed(
     () => this.queue().find((a) => a.id === this.selectedId()) ?? null,
@@ -409,42 +656,42 @@ export class AdminBlogReviewComponent {
 
   }
 
-  /**
-   * Ramène le formulaire de signalement à l'écran.
-   *
-   * Il s'ouvre sous l'aperçu, souvent deux écrans plus bas : sans ce rappel, on clique
-   * « Signaler le titre » depuis le haut du panneau et rien ne semble se produire.
-   *
-   * Appelé depuis l'action, et non par un `effect` : celui-ci s'exécute avant que la requête
-   * de vue soit résolue, et ne trouvait donc rien à faire défiler. Le report d'un tour laisse
-   * le gabarit se rendre.
-   */
-  private revealDraft(): void {
-    if (typeof window === 'undefined') return;
-    setTimeout(() =>
-      this.draftBox()?.nativeElement.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-      }),
-    );
-  }
-
   // --- Chargement -----------------------------------------------------------
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
 
+    // Les brouillons de série, avec la file : l'en-tête de chaque série dit s'il attend sa
+    // validation. Leur échec n'empêche pas de relire les articles.
+    this.blog.adminSeries().subscribe({
+      next: (series) => {
+        const brouillons = series.filter((s) => s.status === 'DRAFT');
+        this.seriesDrafts.set(brouillons);
+        const ouverte = brouillons.find((s) => s.id === this.selectedSeriesId());
+        if (ouverte) this.remplirSerieForm(ouverte);
+        else this.selectedSeriesId.set(null);
+        // Rien d'autre à relire : on ouvre le premier brouillon de série.
+        if (!this.selectedId() && !ouverte && brouillons.length && !this.queue().length) {
+          this.selectSeries(brouillons[0].id);
+        }
+      },
+      error: () => this.seriesDrafts.set([]),
+    });
+
     this.blog.adminList({ origin: 'ASSISTANT', status: 'DRAFT' }).subscribe({
       next: (articles) => {
         this.queue.set(articles);
         // Sélection par défaut : le premier, pour que l'écran ne s'ouvre pas vide.
-        if (!this.selected() && articles.length) {
+        if (!this.selected() && !this.selectedSeriesId() && articles.length) {
           this.selectedId.set(articles[0].id);
         }
         const courant = this.selectedId();
         if (courant) {
-          this.loadFlags(courant);
+          // Même article qu'avant « Actualiser » : le composant ne recharge pas de lui-même
+          // (son identifiant n'a pas changé), on le lui demande. Premier chargement : il n'est
+          // pas encore rendu, et chargera à sa création.
+          this.retouches()?.recharger();
           this.loadNotes(courant);
         }
         this.loading.set(false);
@@ -464,9 +711,11 @@ export class AdminBlogReviewComponent {
   }
 
   select(id: string): void {
+    this.selectedSeriesId.set(null);
     this.selectedId.set(id);
-    this.draft.set(null);
-    this.loadFlags(id);
+    // Vidées tout de suite : le compte de retouches par post ne doit pas afficher celles de
+    // l'article précédent, le temps que le composant relise celles du nouveau.
+    this.flags.set([]);
     this.loadNotes(id);
   }
 
@@ -493,124 +742,9 @@ export class AdminBlogReviewComponent {
 
   // --- Marquage --------------------------------------------------------------
 
-  private loadFlags(articleId: string): void {
-    this.blog.flags(articleId).subscribe({
-      next: (list) => this.flags.set(list),
-      error: () => this.flags.set([]),
-    });
-  }
-
-  /** Marque un champ entier — titre, adresse, extrait. */
-  flagField(field: FlagField): void {
-    this.draftNote.set('');
-    this.draft.set({ field });
-    this.revealDraft();
-  }
-
-  /**
-   * Marque le passage actuellement sélectionné dans l'aperçu.
-   *
-   * On prend le texte **rendu** et non du HTML : c'est lui que le serveur retrouvera, et
-   * c'est ce qui permet à l'ancrage de survivre à une réécriture partielle.
-   */
-  flagSelection(): void {
-    const selection = typeof window !== 'undefined' ? window.getSelection() : null;
-
-    // La sélection doit venir de l'aperçu. Sans cette borne, un texte surligné dans la file
-    // ou dans un signalement partirait comme s'il appartenait à l'article.
-    const box = this.previewBox()?.nativeElement;
-    const node = selection?.anchorNode;
-    if (!box || !node || !box.contains(node)) {
-      this.error.set("Sélectionnez le passage dans l'aperçu de l'article.");
-      return;
-    }
-
-    const quote = selection?.toString().replace(/\s+/g, ' ').trim() ?? '';
-
-    // En deçà, la citation se retrouverait à dix endroits et ne désignerait plus rien —
-    // c'est aussi la limite qu'applique le serveur.
-    if (quote.length < 8) {
-      this.error.set('Sélectionnez un passage un peu plus long (8 caractères au moins).');
-      return;
-    }
-    this.error.set(null);
-    this.draftNote.set('');
-    this.draft.set({ field: 'content', quote });
-    this.revealDraft();
-  }
-
-  cancelDraft(): void {
-    this.draft.set(null);
-    this.draftNote.set('');
-  }
-
-  submitDraft(): void {
-    const article = this.selected();
-    const draft = this.draft();
-    if (!article || !draft) return;
-
-    const note = this.draftNote().trim();
-    this.busyId.set(article.id);
-    this.blog
-      .createFlag(article.id, {
-        field: draft.field,
-        ...(draft.quote ? { quote: draft.quote } : {}),
-        ...(note ? { note } : {}),
-      })
-      .subscribe({
-        next: () => {
-          this.busyId.set(null);
-          this.cancelDraft();
-          this.loadFlags(article.id);
-        },
-        error: (err) => this.fail(err, "Le signalement n'a pas pu être enregistré."),
-      });
-  }
-
-  // --- Modification d'un signalement ----------------------------------------
-
-  /** Signalement dont la note est en cours de réécriture. */
-  readonly editingId = signal<string | null>(null);
-  readonly editingNote = signal('');
-
-  startEdit(flag: ArticleFlag): void {
-    this.draft.set(null);
-    this.editingNote.set(flag.note ?? '');
-    this.editingId.set(flag.id);
-  }
-
-  cancelEdit(): void {
-    this.editingId.set(null);
-    this.editingNote.set('');
-  }
-
-  saveEdit(flag: ArticleFlag): void {
-    const article = this.selected();
-    if (!article) return;
-
-    const note = this.editingNote().trim();
-    this.busyId.set(article.id);
-    this.blog.updateFlag(flag.id, note || null).subscribe({
-      next: () => {
-        this.busyId.set(null);
-        this.cancelEdit();
-        this.loadFlags(article.id);
-      },
-      error: (err) => this.fail(err, "La note n'a pas pu être modifiée."),
-    });
-  }
-
-  removeFlag(flag: ArticleFlag): void {
-    const article = this.selected();
-    if (!article) return;
-    this.busyId.set(article.id);
-    this.blog.deleteFlag(flag.id).subscribe({
-      next: () => {
-        this.busyId.set(null);
-        this.loadFlags(article.id);
-      },
-      error: (err) => this.fail(err),
-    });
+  /** Le composant a relu les retouches : c'est d'elles que dépend le compte par post. */
+  onRetouches(ouvertes: Signalement[]): void {
+    this.flags.set(ouvertes);
   }
 
   // --- Couverture -----------------------------------------------------------

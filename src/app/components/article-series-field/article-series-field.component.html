@@ -1,0 +1,67 @@
+<div class="asf__row">
+  <label class="asf__field asf__field--name">
+    <span class="asf__label">Nom de la série</span>
+    <input
+      type="text"
+      [formControl]="seriesControl()"
+      [attr.list]="listId"
+      maxlength="120"
+      placeholder="Aucune — article isolé"
+      autocomplete="off"
+    />
+    <datalist [id]="listId">
+      @for (series of all(); track series.id) {
+        <option [value]="series.title"></option>
+      }
+    </datalist>
+  </label>
+
+  @if (name().trim()) {
+    <label class="asf__field asf__field--pos">
+      <span class="asf__label">Épisode</span>
+      <input
+        type="number"
+        min="1"
+        max="99"
+        inputmode="numeric"
+        [formControl]="positionControl()"
+        [placeholder]="suggested()"
+      />
+    </label>
+  }
+</div>
+
+@if (isNew()) {
+  <p class="asf__hint">Nouvelle série : elle sera créée à l'enregistrement.</p>
+}
+
+@if (match(); as series) {
+  <ol class="asf__timeline" [attr.aria-label]="'Épisodes de « ' + series.title + ' »'">
+    @for (row of timeline(); track row.id) {
+      <li class="asf__ep" [class.is-current]="row.current" [class.is-clash]="taken()?.id === row.id">
+        <span class="asf__num">{{ row.position ?? '–' }}</span>
+        <span class="asf__title">{{ row.title }}</span>
+        <span class="asf__state">
+          {{ statusLabel(row) }}
+          @if (row.publishedAt && !row.current) {
+            · {{ row.publishedAt | date: 'dd/MM/yy' }}
+          }
+        </span>
+      </li>
+    }
+  </ol>
+
+  @if (taken(); as clash) {
+    <p class="asf__warn">L'épisode {{ clash.position }} est déjà « {{ clash.title }} ».</p>
+  }
+  @if (inverted(); as inv) {
+    <p class="asf__warn">
+      L'épisode {{ inv.later.position }} paraît avant l'épisode {{ inv.earlier.position }}.
+    </p>
+  }
+
+  <p class="asf__hint">
+    {{ series.plannedCount ? series.plannedCount + ' épisodes annoncés.' : 'Pas de total annoncé.' }}
+    <a class="asf__link" routerLink="/admin/blog/series">Gérer les séries</a>
+  </p>
+}

@@ -337,13 +337,33 @@
           </div>
         </section>
 
-        <section class="card card--flush">
+        <!-- `data-flag-zone` : c'est dans ce texte que se sélectionne un passage à signaler
+             (cf. la carte « Retouches pour l'assistant » juste en dessous). -->
+        <section class="card card--flush" #zoneTexte data-flag-zone="content">
           <app-wysiwyg-editor formControlName="content" [class.is-missing]="isMissing('content')"></app-wysiwyg-editor>
           <p class="ed-count">
             {{ wordCount() }} mot{{ wordCount() > 1 ? 's' : '' }} ·
             ~{{ readingMinutes() }} min de lecture
           </p>
         </section>
+
+        <!-- Retouches pour l'assistant : les mêmes signalements que la relecture, pour un article
+             déjà enregistré. Un article neuf n'a pas encore de version sur laquelle les ancrer. -->
+        @if (id(); as articleId) {
+          <section class="card">
+            <h2 class="card__title">Retouches pour l'assistant</h2>
+            <p class="hint">
+              Sélectionnez un passage dans le texte, ou choisissez un champ : l'assistant ne
+              reprendra que ce qui est signalé.
+            </p>
+            <app-article-flags
+              [cibleId]="articleId"
+              [zone]="zoneTexte"
+              [champs]="champsSignalables"
+              [bloque]="raisonSansSignalement()"
+            />
+          </section>
+        }
 
         <!-- Liens internes et blocs non reconnus : ce qu'on vérifie en relisant le texte,
              donc juste sous lui. -->
@@ -438,6 +458,17 @@
             Le tag étoilé sert de catégorie sur le blog. Cliquez une autre étoile
             pour changer.
           </p>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title">Série</h2>
+          <app-article-series-field
+            [seriesControl]="form.controls.series"
+            [positionControl]="form.controls.seriesPosition"
+            [articleId]="id()"
+            [articleTitle]="form.controls.title.value"
+            [articlePublishedAt]="articlePublishedAt()"
+          />
         </section>
 
         <section class="card">
