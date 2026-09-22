@@ -144,7 +144,8 @@ export class ServicesALaPersonneComponent implements OnInit, OnDestroy {
       question: 'Combien coûte l\'option coopérative ?',
       answer:
         '20 € HT par mois, qui s\'ajoutent à l\'offre Indép + à 9,90 € HT, soit <strong>29,90 € HT par ' +
-        'mois</strong>. Les frais administratifs de 3,9 % HT sur l\'apport d\'affaires et la facturation ' +
+        'mois</strong>, plus <strong>10 € d\'adhésion</strong> à la coopérative, réglés une seule fois. ' +
+        'Les frais administratifs de 3,9 % HT sur l\'apport d\'affaires et la facturation ' +
         'collaborative s\'appliquent dans les mêmes conditions qu\'ailleurs.',
     },
     {

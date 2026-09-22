@@ -23,7 +23,21 @@ interface Offre {
 }
 
 /**
- * Une ligne du comparatif. `valeurs` suit l'ordre des colonnes : Freemium, Indép +, Coopérative.
+ * Une option : elle s'ajoute à une formule payante, jamais seule. Pas de `miseEnAvant` ni de
+ * bouton — on n'achète pas une option depuis cette page, on découvre ce qu'elle coûte.
+ */
+interface OptionTarif {
+  readonly id: string;
+  readonly nom: string;
+  readonly accroche: string;
+  readonly prix: string;
+  readonly suffixe: string;
+  readonly detail: string;
+  readonly points: readonly string[];
+}
+
+/**
+ * Une ligne du comparatif. `valeurs` suit l'ordre des colonnes : Freemium, Indép +, À la demande.
  * `true` = inclus, `false` = absent, une chaîne = mention particulière.
  */
 interface LigneComparatif {
@@ -45,9 +59,13 @@ interface FaqItem {
  * contenu identique, dont Google n'aurait gardé qu'une — probablement pas celle qu'on veut.
  *
  * Deux informations n'apparaissent nulle part sur l'accueil et sont pourtant décisives à l'achat :
- * ce que cache le « à partir de 9,90 € » (l'option coopérative, +20 € HT, soit 29,90 €) et les
- * 3,9 % HT prélevés sur l'apport d'affaires et la facturation collaborative. Une page tarifs qui
- * les tait envoie le visiteur chercher la réponse ailleurs.
+ * ce que cache le « à partir de 9,90 € » (les options, en dessous des formules) et les 3,9 % HT
+ * prélevés sur l'apport d'affaires et la facturation collaborative. Une page tarifs qui les tait
+ * envoie le visiteur chercher la réponse ailleurs.
+ *
+ * **Trois formules, puis deux options**, dans cet ordre et pas mélangées : une option ne se
+ * souscrit pas seule, et la poser sur la même ligne que les formules laisserait croire le
+ * contraire — c'est la disposition de l'application, qui fait foi.
  *
  * Aucun `@defer` : le contenu doit partir dans le HTML servi.
  */
@@ -106,20 +124,54 @@ export class TarifsComponent implements OnInit, OnDestroy {
       trackingLabel: 'tarifs_indep_plus',
     },
     {
-      id: 'cooperative',
-      nom: 'Indép + Coopérative',
-      accroche: 'Pour les prestations éligibles au crédit d\'impôt services à la personne.',
-      prix: '29,90 €',
-      suffixe: 'HT/mois',
-      detail: 'Indép + à 9,90 € et option coopérative à 20 € HT',
+      id: 'a-la-demande',
+      nom: 'À la demande',
+      accroche: 'Pour un besoin ponctuel : une mission, un remplacement, une reprise d\'activité.',
+      prix: '14,90 €',
+      suffixe: 'HT / 30 jours',
+      detail: 'Soit 17,88 € TTC. S\'arrête tout seul au bout de 30 jours.',
       points: [
-        'Tout Indép +',
+        'Tout Indép +, pendant 30 jours',
+        'Devis et factures illimités',
+        'Apport d\'affaires intégré',
+        'Facturation collaborative',
+        'Aucune reconduction automatique',
+      ],
+      miseEnAvant: false,
+      trackingLabel: 'tarifs_a_la_demande',
+    },
+  ];
+
+  /**
+   * Les options, en dessous des formules.
+   *
+   * L'adhésion à la coopérative se paie **une fois** (10 €), l'abonnement **tous les mois**
+   * (20 € HT) : deux natures différentes, que la carte doit distinguer — sans quoi le visiteur
+   * découvre le second au moment de payer.
+   */
+  readonly options: readonly OptionTarif[] = [
+    {
+      id: 'cooperative',
+      nom: 'Coopérative SAP',
+      accroche: 'Pour les prestations éligibles au crédit d\'impôt services à la personne.',
+      prix: '20 €',
+      suffixe: 'HT/mois',
+      detail: '+ 10 € d\'adhésion à la coopérative, une seule fois. Avec Indép +, 29,90 € HT par mois.',
+      points: [
         'Accès au numéro SAP, sans exclusivité',
         'Avance immédiate du crédit d\'impôt pour vos clients',
         'Prestations éligibles au crédit d\'impôt de 50 %',
+        'Adhésion à la coopérative obligatoire pour en bénéficier',
       ],
-      miseEnAvant: false,
-      trackingLabel: 'tarifs_cooperative',
+    },
+    {
+      id: 'expert-comptable',
+      nom: 'Expert-comptable',
+      accroche: 'Pour déléguer vos déclarations de TVA.',
+      prix: '30 €',
+      suffixe: 'HT/mois',
+      detail: 'Soit 36 € TTC au taux normal de 20 %.',
+      points: ['Déclarations de TVA prises en charge'],
     },
   ];
 
@@ -137,9 +189,13 @@ export class TarifsComponent implements OnInit, OnDestroy {
     { libelle: 'Suivi des factures jusqu\'à l\'encaissement', valeurs: [false, true, true] },
     { libelle: 'Apport d\'affaires intégré', valeurs: [false, true, true] },
     { libelle: 'Facturation collaborative', valeurs: [false, true, true] },
-    { libelle: 'Numéro SAP, sans exclusivité', valeurs: [false, false, true] },
-    { libelle: 'Avance immédiate du crédit d\'impôt', valeurs: [false, false, true] },
-    { libelle: 'Engagement', valeurs: ['Aucun', 'Aucun', 'Aucun'] },
+    { libelle: 'Numéro SAP, sans exclusivité', valeurs: [false, 'En option', 'En option'] },
+    {
+      libelle: 'Avance immédiate du crédit d\'impôt',
+      valeurs: [false, 'En option', 'En option'],
+    },
+    { libelle: 'Déclarations de TVA déléguées', valeurs: [false, 'En option', 'En option'] },
+    { libelle: 'Engagement', valeurs: ['Aucun', 'Aucun', '30 jours, sans reconduction'] },
   ];
 
   /** Profils types — répond à « laquelle je prends ? », la vraie question du visiteur. */
@@ -162,8 +218,9 @@ export class TarifsComponent implements OnInit, OnDestroy {
       titre: 'Vous intervenez chez des particuliers',
       texte:
         'Ménage, jardinage, garde d\'enfants, cours à domicile : la coopérative vous ouvre le numéro SAP ' +
-        'sans exclusivité et l\'avance immédiate du crédit d\'impôt, un argument commercial décisif face au particulier.',
-      offre: 'Indép + Coopérative',
+        'sans exclusivité et l\'avance immédiate du crédit d\'impôt, un argument commercial décisif face au particulier. ' +
+        'Elle s\'ajoute en option à Indép +.',
+      offre: 'Indép + et option coopérative',
     },
   ];
 
@@ -197,9 +254,16 @@ export class TarifsComponent implements OnInit, OnDestroy {
     {
       question: 'Comment fonctionne l\'option coopérative ?',
       answer:
-        'Elle s\'ajoute à Indép + pour 20 € HT par mois, soit 29,90 € HT au total. Elle vous donne accès ' +
-        'au numéro SAP sans exclusivité et à la gestion de l\'avance immédiate du crédit d\'impôt pour ' +
-        'vos clients particuliers.',
+        'Elle s\'ajoute à Indép + pour 20 € HT par mois, soit 29,90 € HT au total, plus 10 € d\'adhésion ' +
+        'à la coopérative, réglés une seule fois. Elle vous donne accès au numéro SAP sans exclusivité ' +
+        'et à la gestion de l\'avance immédiate du crédit d\'impôt pour vos clients particuliers.',
+    },
+    {
+      question: 'À quoi sert la formule « À la demande » ?',
+      answer:
+        'À couvrir un besoin ponctuel : 14,90 € HT pour 30 jours, soit 17,88 € TTC. Elle contient la ' +
+        'même chose qu\'Indép + et s\'arrête d\'elle-même au bout des 30 jours, sans reconduction ni ' +
+        'résiliation à demander.',
     },
     {
       question: 'Puis-je changer de formule en cours de route ?',
@@ -211,8 +275,8 @@ export class TarifsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const description =
-      'Freemium gratuit, Indép + à 9,90 € HT/mois, option coopérative à 29,90 € HT. ' +
-      'Comparatif détaillé, frais réels et sans engagement.';
+      'Freemium gratuit, Indép + à 9,90 € HT/mois, formule à la demande à 14,90 € HT les 30 jours. ' +
+      'Options coopérative et expert-comptable, comparatif détaillé, frais réels et sans engagement.';
     const title = 'Tarifs Moze : nos formules pour indépendants';
 
     this.meta.updateTag({ name: 'description', content: description });

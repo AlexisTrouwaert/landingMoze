@@ -22,9 +22,9 @@
       <h1>Des tarifs clairs, sans mauvaise surprise</h1>
       <p class="lede">
         Le réseau est <strong>gratuit</strong>. La facturation commence à
-        <strong>9,90 € HT par mois</strong>, et l'option coopérative — numéro SAP et crédit
-        d'impôt — porte le total à <strong>29,90 € HT</strong>. Sans engagement, sans carte
-        bancaire à l'inscription.
+        <strong>9,90 € HT par mois</strong>, ou <strong>14,90 € HT les 30 jours</strong> pour un
+        besoin ponctuel. Deux options s'y ajoutent si vous en avez l'usage. Sans engagement, sans
+        carte bancaire à l'inscription.
       </p>
     </header>
 
@@ -63,6 +63,43 @@
     <p class="reassurance">
       Sans engagement · Résiliable à tout moment · Aucune carte bancaire à l'inscription
     </p>
+
+    <!-- Les options viennent APRÈS les formules, et dans leur propre section : aucune ne se
+         souscrit seule, et les aligner avec les cartes laisserait croire le contraire. -->
+    <section class="tf-section">
+      <p class="surtitle">En plus, si besoin</p>
+      <h2 id="options">Les options, <span class="highlight-green">à la carte</span></h2>
+      <p>
+        Elles s'ajoutent à une formule payante. Vous ne les prenez que si votre activité les
+        demande, et vous les arrêtez de la même façon.
+      </p>
+
+      <div class="options">
+        @for (option of options; track option.id) {
+          <article class="option">
+            <header class="option__head">
+              <!-- Décoratif : le « + » dit d'un coup d'œil qu'on ajoute, sans reprendre la
+                   pastille des formules, qui signale l'inverse — celle qu'il faut choisir. -->
+              <span class="option__mark" aria-hidden="true">+</span>
+              <h3 class="option__name">{{ option.nom }}</h3>
+            </header>
+            <p class="option__pitch">{{ option.accroche }}</p>
+
+            <p class="option__price">
+              <span class="option__amount">{{ option.prix }}</span>
+              <span class="option__suffix">{{ option.suffixe }}</span>
+            </p>
+            <p class="option__detail">{{ option.detail }}</p>
+
+            <ul class="option__list">
+              @for (point of option.points; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    </section>
 
     <section class="tf-section">
       <p class="surtitle">Formule par formule</p>

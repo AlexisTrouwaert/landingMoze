@@ -214,6 +214,140 @@ h1 {
   }
 }
 
+/* -----------------------------------------------------------------------------
+   Les options — même famille visuelle que les formules, un cran en dessous.
+
+   Trois leviers de hiérarchie, tous délibérés, parce qu'une option ne doit
+   jamais accrocher l'œil avant Indép + :
+     · un bloc teinté au lieu d'une carte blanche posée dessus — donc aucune
+       ombre, aucun relief (le bleu est la teinte déjà employée par la boîte des
+       frais variables : rien de nouveau n'entre dans la page) ;
+     · un prix nettement plus petit que celui des formules, et vert plutôt que
+       bleu profond, pour qu'il se lise comme un supplément ;
+     · aucun bouton : on ne souscrit pas une option depuis cette page.
+
+   Ce qui est ajouté, à l'inverse, c'est de la structure : une pastille « + »,
+   un prix détaché, et la mention du versement unique sur son propre filet.
+   ----------------------------------------------------------------------------- */
+.options {
+  display: grid;
+  /* Deux options, deux moitiés : aucune n'est prioritaire sur l'autre. */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  align-items: stretch;
+}
+
+.option {
+  @include theme.tinted-block(theme.$tint-bleu, theme.$rayon-carte);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem 1.4rem;
+  transition: transform 0.15s ease;
+
+  /* Moitié moins que les formules (-5px) : présent, mais discret. */
+  &:hover { transform: translateY(-2px); }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.45rem;
+  }
+
+  &__mark {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: theme.$encre-verte;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__name {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: theme.$encre-titre;
+  }
+
+  &__pitch {
+    font-size: 0.88rem;
+    color: theme.$encre-corps;
+    margin-bottom: 1.1rem;
+  }
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-bottom: 0.45rem;
+  }
+
+  /* 1,6rem contre 1,9 à 2,6rem pour une formule : l'écart est ce qui place
+     l'option en second. */
+  &__amount {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: theme.$encre-verte;
+
+    &::before {
+      content: '+ ';
+      font-size: 0.75em;
+      font-weight: 700;
+    }
+  }
+
+  &__suffix {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: theme.$encre-corps;
+  }
+
+  /* Le versement unique ne se lit pas comme le mensuel : il a son propre filet,
+     sans quoi les 10 € d'adhésion se confondent avec l'abonnement. */
+  &__detail {
+    font-size: 0.79rem;
+    line-height: 1.5;
+    color: theme.$encre-corps;
+    border-left: 2px solid rgba(20, 96, 60, 0.18);
+    padding-left: 0.65rem;
+    margin-bottom: 1.2rem;
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    font-size: 0.88rem;
+    color: theme.$encre-corps;
+    flex: 1 1 auto;
+
+    li {
+      position: relative;
+      padding-left: 1.5rem;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.42em;
+        width: 10px;
+        height: 5px;
+        border-left: 2.2px solid #35a06a;
+        border-bottom: 2.2px solid #35a06a;
+        transform: rotate(-45deg);
+      }
+    }
+  }
+}
+
 .reassurance {
   text-align: center;
   font-size: 0.85rem;
@@ -519,8 +653,8 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn-primary, .btn-ghost, .offer__cta { transition: none; }
-  .btn-primary:hover, .btn-ghost:hover, .offer__cta:hover { transform: none; }
+  .btn-primary, .btn-ghost, .offer__cta, .option { transition: none; }
+  .btn-primary:hover, .btn-ghost:hover, .offer__cta:hover, .option:hover { transform: none; }
 }
 
 /* =========================================
@@ -528,6 +662,7 @@ h1 {
    ========================================= */
 @media (max-width: 900px) {
   .offers { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
   .profils { grid-template-columns: 1fr; }
 
   .offer__pitch,
@@ -565,6 +700,7 @@ h1 {
 
 .table-wrap,
 .fee-box,
+.option,
 .profil,
 .faq-item,
 .tf-cta { @include motion.reveal(); }
