@@ -1,7 +1,7 @@
 <app-floating-dock
   [groups]="navGroups"
   [hideLinkIds]="['blog']"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   (ctaClick)="goToFunnel()"
   (linkAction)="onDockAction($event)"></app-floating-dock>
 
@@ -317,10 +317,10 @@
   <!-- NEWSLETTER : bloc encadré (contenu, ne prend pas toute la largeur) -->
   <section class="blog-newsletter" id="newsletter" aria-label="Newsletter">
     <div class="blog-newsletter__box">
-      <h2>Ne rate aucun conseil pour ton activité</h2>
+      <h2>Ne manquez aucun conseil pour votre activité</h2>
       <p>Un email par semaine, zéro spam. Guides, échéances et retours d'expérience de la communauté des indépendants.</p>
       <app-newsletter-form source="newsletter_blog" />
-      <p class="blog-newsletter__note">Désinscription en un clic. Tes données restent chez Moze.</p>
+      <p class="blog-newsletter__note">Désinscription en un clic. Vos données restent chez Moze.</p>
     </div>
   </section>
 </div>

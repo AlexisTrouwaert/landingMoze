@@ -1,6 +1,6 @@
 <app-floating-dock
   [groups]="navGroups"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   [loginLabel]="'Déjà inscrit ?'"
   [loginHref]="appLoginUrl"
   (ctaClick)="goToFunnel()"
@@ -18,9 +18,10 @@
 
     <header class="sap-hero">
       <p class="eyebrow">Offre coopérative</p>
-      <h1>Services à la personne&nbsp;: proposez le crédit d'impôt sans créer votre structure</h1>
+      <h1>Vos clients ne paient que la moitié, même si vous n'avez pas d'agrément</h1>
 
       <p class="lede">
+        Votre client paie 50&nbsp;€, vous percevez vos 100&nbsp;€.
         Pour qu'un client particulier bénéficie du crédit d'impôt, la prestation doit être réalisée
         par un <strong>organisme déclaré</strong>. C'est l'obstacle qui arrête la plupart des
         indépendants. <strong>Moze Coop</strong> est cet organisme&nbsp;: en devenant sociétaire,
@@ -158,12 +159,12 @@
         <strong>20 € HT par mois</strong>, soit <strong>29,90 € HT</strong> au total, auxquels
         s'ajoutent <strong>10 € d'adhésion</strong> à la coopérative, réglés une seule fois. Vous conservez
         tout le reste&nbsp;: facturation illimitée, format Factur-X,
-        <a routerLink="/facturation-collaborative">facturation collaborative</a> et apport
+        <a routerLink="/facturation-collaborative">factures à plusieurs</a> et apport
         d'affaires. <a routerLink="/tarifs">Voir le détail des tarifs</a>.
       </p>
       <p>
         Pour comprendre le mécanisme fiscal côté client, nous l'avons détaillé dans
-        <a routerLink="/blog/credit-impot-services-a-la-personne-2026">notre guide du crédit
+        <a routerLink="/blog/credit-impot-service-a-la-personne-auto-entrepreneur-avance-immediate">notre guide du crédit
         d'impôt de 50 %</a>.
       </p>
     </section>
@@ -192,7 +193,7 @@
       </p>
       <div class="sap-cta__actions">
         <button type="button" class="btn-primary" (click)="goToFunnel('sap_cta_final')">
-          Je commence gratuitement <span aria-hidden="true">→</span>
+          Créer mon compte gratuit
         </button>
         <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
       </div>

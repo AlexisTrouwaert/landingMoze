@@ -1,6 +1,6 @@
 <app-floating-dock
   [groups]="navGroups"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   [loginLabel]="'Déjà inscrit ?'"
   [loginHref]="appLoginUrl"
   (ctaClick)="goToFunnel()"
@@ -221,7 +221,7 @@
       </p>
       <div class="tf-cta__actions">
         <button type="button" class="btn-primary" (click)="goToFunnel('tarifs_cta_final')">
-          Je commence gratuitement <span aria-hidden="true">→</span>
+          Créer mon compte gratuit
         </button>
         <a class="btn-ghost" routerLink="/facturation-electronique">Facturation électronique</a>
       </div>

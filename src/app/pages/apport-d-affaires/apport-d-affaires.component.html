@@ -1,0 +1,195 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'Créer mon compte gratuit'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="fc-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Apport d'affaires</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="fc-hero">
+      <h1>Apport d'affaires entre indépendants&nbsp;: recommandez, soyez payé</h1>
+      <p class="lede">
+        Un client vous demande un service que vous ne faites pas&nbsp;? Transmettez-le à un indépendant
+        de confiance. <strong>Votre commission est facturée et payée automatiquement</strong> quand le
+        client règle.
+      </p>
+      <div class="hero-actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('apport_d_affaires_hero')">
+          Créer mon compte gratuit
+        </button>
+        <a class="btn-ghost" routerLink="." fragment="etapes">Voir comment ça marche</a>
+      </div>
+    </header>
+
+    <section class="fc-section">
+      <p class="surtitle">Le problème</p>
+      <h2 id="probleme">Vous recommandez des clients. <span class="highlight-green">Mais qui vous paie, et comment&nbsp;?</span></h2>
+      <p>
+        Vous êtes jardinier. Une cliente vous parle d'une fuite sous son évier. Vous connaissez un bon
+        plombier, vous lui transmettez le contact. Le chantier se fait, la cliente est ravie.
+      </p>
+      <p>
+        Et votre commission&nbsp;? Souvent, rien n'a été écrit. On en parle au téléphone, on oublie, on
+        n'ose pas relancer. Ou bien elle est payée «&nbsp;de la main à la main&nbsp;», sans facture, ce
+        qui expose les deux professionnels à une amende en cas de contrôle.
+      </p>
+      <p>
+        Recommander un collègue est un vrai service, qui mérite une vraie rémunération. Encore faut-il
+        que ce soit simple, écrit et facturé.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le déroulé</p>
+      <h2 id="etapes">Comment ça marche, <span class="highlight-green">en 4 étapes</span></h2>
+      <ol class="steps">
+        @for (etape of etapes; track etape.titre; let i = $index) {
+          <li class="step">
+            <span class="step__num" aria-hidden="true">{{ i + 1 }}</span>
+            <div class="step__body">
+              <h3>{{ etape.titre }}</h3>
+              <p>{{ etape.texte }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+      <p class="fineprint">
+        Vous travaillez ensemble sur la mission&nbsp;? Voyez comment
+        <a routerLink="/facturation-collaborative">facturer à plusieurs</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Un exemple</p>
+      <h2 id="exemple">Exemple&nbsp;: une jardinière transmet un client <span class="highlight-green">à un plombier</span></h2>
+      <p class="fineprint"><em>Exemple fictif, montants donnés à titre d'illustration.</em></p>
+      <p>
+        Sophie est jardinière à Avignon. En taillant la haie de Monsieur Roux, elle apprend qu'il cherche
+        un plombier pour remplacer son chauffe-eau. Elle le recommande à Karim, plombier avec qui elle a
+        l'habitude de travailler.
+      </p>
+      <ul class="check-list">
+        <li><strong>Avant le chantier,</strong> Sophie et Karim conviennent d'une commission fixe de 50&nbsp;€ si le chantier est payé.</li>
+        <li><strong>Karim remplace le chauffe-eau</strong> et facture Monsieur Roux 650&nbsp;€ (micro-entrepreneur en franchise de TVA).</li>
+        <li><strong>Monsieur Roux paie Karim.</strong> Au même moment, la facture de commission de Sophie (50&nbsp;€, «&nbsp;TVA non applicable, art.&nbsp;293&nbsp;B du CGI&nbsp;») est générée et payée.</li>
+      </ul>
+
+      <div class="table-wrap">
+        <table class="cmp-table">
+          <caption class="sr-only">Ce que facturent, encaissent et paient l'apporteur et le bénéficiaire</caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="sr-only">Poste</span></th>
+              <th scope="col">Sophie (apporteur)</th>
+              <th scope="col">Karim (bénéficiaire)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Ce qu'elle / il facture</th>
+              <td>50&nbsp;€ à Karim</td>
+              <td>650&nbsp;€ à Monsieur Roux</td>
+            </tr>
+            <tr>
+              <th scope="row">Recette</th>
+              <td>50&nbsp;€</td>
+              <td>650&nbsp;€</td>
+            </tr>
+            <tr>
+              <th scope="row">Charge</th>
+              <td>—</td>
+              <td>50&nbsp;€ de commission</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Monsieur Roux ne voit qu'une facture&nbsp;: celle de Karim. Il ne paie pas plus cher parce qu'il a
+        été recommandé.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le cadre</p>
+      <h2 id="loi">Ce que dit la loi, <span class="highlight-green">en clair</span></h2>
+      <ul class="law-list">
+        @for (point of pointsLoi; track point.titre) {
+          <li><strong>{{ point.titre }}</strong> <span [innerHTML]="point.texte"></span></li>
+        }
+      </ul>
+      <p class="fineprint">
+        Pour aller plus loin&nbsp;:
+        <a routerLink="/blog/facturer-a-plusieurs-4-l-apport-d-affaires">l'apport d'affaires dans le détail</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Pour qui</p>
+      <h2 id="pour-qui">Pour <span class="highlight-green">qui&nbsp;?</span></h2>
+      <ul class="check-list">
+        <li>
+          Les <a routerLink="/services-a-la-personne">prestataires de services à la personne</a> et
+          multiservices&nbsp;: jardinage, ménage, petit bricolage, aide à domicile, qui reçoivent chaque
+          semaine des demandes hors de leur métier.
+        </li>
+        <li>
+          Les artisans du bâtiment, qui connaissent le bon électricien, le bon peintre, le bon couvreur.
+          Vous travaillez ensemble sur le chantier&nbsp;? Voyez la
+          <a routerLink="/co-traitance-artisans">co-traitance entre artisans</a>.
+        </li>
+        <li>Les indépendants et freelances qui veulent se recommander entre eux, dans les règles.</li>
+        <li>
+          Les réseaux locaux d'indépendants qui se transmettent déjà des clients, et veulent que chacun
+          soit payé sans y penser.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Masqués tant que MOZE ne les a pas fournis :
+         - « Modèle de contrat d'apporteur d'affaires à télécharger » (renvoie vers /modeles, qui n'existe pas) ;
+         - « Ils se recommandent des clients » (témoignage : pas de faux témoignage). -->
+
+    <section class="fc-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="fc-cta">
+      <h2>Votre prochaine recommandation mérite d'être payée</h2>
+      <p>
+        Transmettez le client, fixez votre commission, et laissez MozeConnect s'occuper de la facture et
+        du paiement.
+      </p>
+      <div class="fc-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('apport_d_affaires_cta_final')">
+          Créer mon compte gratuit
+        </button>
+        <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

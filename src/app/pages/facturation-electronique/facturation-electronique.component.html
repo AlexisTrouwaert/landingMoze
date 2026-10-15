@@ -1,6 +1,6 @@
 <app-floating-dock
   [groups]="navGroups"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   [loginLabel]="'Déjà inscrit ?'"
   [loginHref]="appLoginUrl"
   (ctaClick)="goToFunnel()"
@@ -21,8 +21,8 @@
     <header class="fe-hero">
       <p class="eyebrow">Réforme de la facturation électronique</p>
       <h1>
-        Facturation électronique&nbsp;: ce qui change pour les indépendants
-        <span class="h1-years">Calendrier 2026-2027</span>
+        Facture électronique&nbsp;: ce qui change pour les indépendants et les micro-entrepreneurs
+        en 2026 et 2027
       </h1>
 
       <!-- La réponse directe, dans les 100 premiers mots. C'est ce que Google extrait pour un
@@ -173,55 +173,25 @@
       </div>
 
       <p>
-        Trois formats répondent à cette définition, et la réforme les admet tous les trois.
-        <strong>Vous n'aurez pas à choisir entre eux</strong>&nbsp;: votre outil en émet un, et
-        les plateformes qui transportent la facture font le pont vers celui qu'attend votre
-        client. Ce qui vous regarde, c'est que votre outil en émette un — et non un PDF.
+        Avec Moze, vos factures sont au format <strong>Factur-X</strong>&nbsp;: un PDF normal pour votre
+        client, avec des données que l'administration sait lire. Vous n'avez rien de plus à faire.
       </p>
-
-      <div class="format-grid">
-        <div class="format-card format-card--highlight">
-          <h3>Factur-X</h3>
-          <p>
-            Un PDF tout à fait normal, avec les données glissées <strong>à l'intérieur</strong>.
-            Vous et votre client ouvrez la facture habituelle&nbsp;; la machine, elle, lit les
-            champs cachés dedans.
-          </p>
-          <span class="format-tag">Le seul lisible à l'œil nu</span>
-        </div>
-        <div class="format-card">
-          <h3>UBL</h3>
-          <p>
-            Des données sans facture à regarder&nbsp;: un fichier qu'aucun humain n'ouvre.
-            Répandu à l'international et dans les logiciels d'achat des grandes entreprises.
-          </p>
-        </div>
-        <div class="format-card">
-          <h3>CII</h3>
-          <p>
-            Même principe qu'UBL, avec un autre vocabulaire — celui qu'une partie des grands
-            donneurs d'ordre emploie déjà. C'est d'ailleurs ce vocabulaire que Factur-X embarque
-            dans son PDF.
-          </p>
-        </div>
-      </div>
     </section>
 
     <section class="fe-section">
       <p class="surtitle">Les plateformes</p>
-      <h2 id="plateformes">Par où <span class="highlight-green">transitent</span> les factures</h2>
+      <h2 id="plateformes">Par où <span class="highlight-green">passeront</span> vos factures</h2>
       <p>
-        Deuxième changement, aussi structurant que le format&nbsp;: vos factures ne partiront
-        plus directement de votre boîte mail vers celle de votre client. Elles transiteront par
-        une <strong>plateforme de dématérialisation partenaire (PDP)</strong>, immatriculée par
-        l'État.
+        Deuxième changement, aussi structurant que le format&nbsp;: vos factures passeront par une
+        plateforme agréée par l'État&nbsp;: un simple e-mail ne suffira plus. MozeConnect est raccordé
+        à Super PDP, <strong>Plateforme Agréée</strong> immatriculée par la DGFiP.
       </p>
       <p>
         Beaucoup d'indépendants attendent encore le portail public gratuit qui avait été annoncé
         au lancement du projet. <strong>Il n'existera pas sous cette forme</strong>&nbsp;: le
         <abbr title="Portail Public de Facturation">PPF</abbr> a été recentré en 2024 sur un rôle
         d'annuaire et de concentrateur de données. Il ne proposera pas de service gratuit
-        d'émission de factures. Passer par une plateforme partenaire n'est donc pas une option
+        d'émission de factures. Passer par une Plateforme Agréée n'est donc pas une option
         parmi d'autres&nbsp;: c'est le chemin prévu par la réforme.
       </p>
     </section>
@@ -284,7 +254,7 @@
       <p class="note">
         Pour aller plus loin sur le choix de l'outil, nous avons détaillé les critères — et les
         pièges — dans
-        <a routerLink="/blog/facturation-electronique-pour-les-nuls-4-bien-choisir-son-outil-sans-se-faire">
+        <a routerLink="/blog/facturation-electronique-pour-les-nuls-4-bien-choisir-son-outil-sans-se-faire-2">
           notre guide « bien choisir son outil, sans se faire avoir »</a>.
       </p>
     </section>
@@ -304,8 +274,8 @@
               et conforme aux exigences de la réforme.
             </li>
             <li>
-              Moze est adossé à une <strong>Plateforme Agréée</strong> certifiée, immatriculée
-              par l'État, pour la transmission.
+              MozeConnect est raccordé à Super PDP, <strong>Plateforme Agréée</strong> immatriculée
+              par la DGFiP.
             </li>
             <li>
               Vous êtes prêt pour l'échéance d'émission de septembre 2027 sans changer d'outil
@@ -352,7 +322,7 @@
       </p>
       <div class="fe-cta__actions">
         <button type="button" class="btn-primary" (click)="goToFunnel()">
-          Je commence gratuitement <span aria-hidden="true">→</span>
+          Créer mon compte gratuit
         </button>
         <a class="btn-ghost" routerLink="/" fragment="offres">Voir les offres</a>
       </div>

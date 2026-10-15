@@ -10,7 +10,7 @@ import { Routes } from '@angular/router';
 export const FACTURATION_COLLABORATIVE_ROUTES: Routes = [
   {
     path: '',
-    title: 'Facturation collaborative : facturer à plusieurs – Moze',
+    title: 'Facturer à plusieurs : un devis commun, une facture pour chacun – Moze',
     loadComponent: () =>
       import('../pages/facturation-collaborative/facturation-collaborative.component').then(
         (m) => m.FacturationCollaborativeComponent,

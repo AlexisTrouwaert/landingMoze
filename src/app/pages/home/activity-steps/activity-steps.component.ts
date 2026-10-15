@@ -17,30 +17,30 @@ export class ActivityStepsComponent {
   public steps = signal([
     {
       num: '01',
-      pill: 'Réseau',
-      title: 'Connecte\nton réseau',
-      desc: "Rejoins notre réseau social d'indépendants. Échange, recommande, et crée des opportunités business.",
+      pill: 'Devis',
+      title: 'Le devis\ncommun',
+      desc: 'Vous faites le devis commun : chaque coéquipier y figure avec sa part.',
       theme: 'green'
     },
     {
       num: '02',
-      pill: 'Collaboration',
-      title: 'Collabore\nlégalement',
-      desc: "Partage un projet avec d'autres Mozeurs, co-facture simplement, en toute conformité légale.",
+      pill: 'Client',
+      title: 'Un seul\npaiement',
+      desc: 'Le client accepte et paie une seule fois.',
       theme: 'dark'
     },
     {
       num: '03',
       pill: 'Facturation',
-      title: 'Facture\ntes clients',
-      desc: "Crée et envoie une facture conforme en moins de 20 secondes. Seul ou à plusieurs sur un même projet.",
+      title: 'Une facture\npour chacun',
+      desc: 'Chacun reçoit sa facture, générée automatiquement.',
       theme: 'green'
     },
     {
       num: '04',
-      pill: 'Business',
-      title: 'Augmente\ntes revenus',
-      desc: "Utilise le système d'apport d'affaires directement dans l'outil. Recommande et encaisse des commissions.",
+      pill: 'Paiement',
+      title: 'Le paiement\nréparti',
+      desc: "Le paiement est réparti : personne n'avance l'argent des autres.",
       theme: 'dark'
     }
   ]);

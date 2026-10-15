@@ -1,9 +1,19 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { afterNextRender, ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 
-export interface DockLink { id: string; label: string; icon?: string; desc?: string; action?: string; route?: string; }
-export interface DockGroup { title?: string; links: DockLink[]; }
+export interface DockLink {
+  id: string; label: string; icon?: string; desc?: string; action?: string; route?: string;
+  /** Rang de la colonne (0, 1…) quand le groupe déclare des `columns`. */
+  column?: number;
+}
+export interface DockGroup {
+  title?: string;
+  links: DockLink[];
+  /** Intitulés des colonnes du déroulant. Absent : une seule liste, sans intitulé. */
+  columns?: string[];
+}
 
 /** Chemin seul : ni fragment, ni paramètres — `/blog?p=2#haut` → `/blog`. */
 function pathOnly(url: string): string {
@@ -23,7 +33,7 @@ function pathOnly(url: string): string {
  */
 @Component({
     selector: 'app-floating-dock',
-    imports: [],
+    imports: [NgTemplateOutlet],
     templateUrl: './floating-dock.component.html',
     styleUrl: './floating-dock.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -198,11 +208,19 @@ export class FloatingDockComponent implements OnDestroy {
    * leur place, par simple homonymie d'ancre.
    */
   isActive(link: DockLink): boolean {
+    // L'accueil n'allume aucune entrée : « Indépendants » (vers /) ne doit pas surligner
+    // « Solutions » sur la page d'accueil.
+    if (link.route === '/') return false;
     if (link.route) {
       const chemin = this.currentPath();
       return chemin === link.route || chemin.startsWith(link.route + '/');
     }
     return this.activeId() === link.id;
+  }
+
+  /** Les liens d'une colonne du groupe. */
+  columnLinks(group: DockGroup, column: number): DockLink[] {
+    return group.links.filter(l => (l.column ?? 0) === column);
   }
 
   /** Un lien du groupe est-il actif ? (surligne le déroulant) */

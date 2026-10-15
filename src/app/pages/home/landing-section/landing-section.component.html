@@ -3,15 +3,17 @@
   <div class="hero-wrapper">
 
     <div class="left-column">
+      <p class="hero-eyebrow hero-fade" style="--i:0">MozeConnect</p>
       <h1 class="main-title">
         <span class="title-anim" style="--i:0"><span class="title-line-1">La plateforme</span></span>
-        <span class="title-anim" style="--i:1"><span class="title-line-2">collaborative</span></span>
-        <span class="title-anim" style="--i:2"><span class="title-line-3">des indépendants</span></span>
+        <span class="title-anim" style="--i:1"><span class="title-line-2">pensée pour</span></span>
+        <span class="title-anim" style="--i:2"><span class="title-line-3">travailler à plusieurs</span></span>
       </h1>
 
       <p class="subtitle hero-fade" style="--i:3">
-        Facture, <span class="text-green">collabore</span> et <span class="text-green">développe</span> ton réseau.<br>
-        Moze centralise tout ce dont les freelances et auto-entrepreneurs ont besoin, en moins de <span class="bg-green-text">20 secondes.</span>
+        Une mission à plusieurs&nbsp;? Un seul devis pour le client, une facture pour chacun, un paiement réparti automatiquement.
+        Vous recommandez un confrère&nbsp;? Vous touchez votre commission d'apport d'affaires.
+        Devis, factures et facture électronique, au même endroit.
       </p>
 
       <div class="carousel-wrapper hero-fade" style="--i:4"
@@ -24,10 +26,10 @@
              le composant (voir `bindCarouselScroll`), pour ne pas déclencher une
              détection de changements à chaque frame de défilement. -->
         <ul class="feature-list" #carousel>
-          <li>Facture seul ou à plusieurs sur un même projet</li>
-          <li>Facturation électronique conforme (réforme 2026)</li>
-          <li>Accès au numéro SAP sans exclusivité (offre Coop)</li>
-          <li>Réseau social d'apport d'affaires intégré</li>
+          <li>Facturez une mission à plusieurs&nbsp;: un devis, une facture par personne, un paiement réparti.</li>
+          <li>Recommandez un confrère et touchez votre commission d'apport d'affaires.</li>
+          <li>Services à la personne&nbsp;: vos clients ne paient que la moitié grâce au crédit d'impôt, même sans agrément.</li>
+          <li>Prêt pour la facture électronique de 2027&nbsp;: MozeConnect est raccordé à Super PDP, Plateforme Agréée immatriculée par la DGFiP.</li>
         </ul>
 
         <!-- `role="group"` et non `tablist` : le rôle `tablist` exige des enfants
@@ -51,8 +53,8 @@
       </div>
 
       <div class="cta-group hero-fade" style="--i:5">
-        <button class="btn-primary" (click)="goToFunnel()">Je rejoins l'aventure <span class="btn-arrow" aria-hidden="true">&rarr;</span></button>
-        <button class="btn-secondary" (click)="goToOffres()">Les offres <span class="btn-arrow" aria-hidden="true">&rarr;</span></button>
+        <button class="btn-primary" (click)="goToFunnel()">Créer mon compte gratuit</button>
+        <button class="btn-secondary" (click)="goToOffres()">Voir les tarifs</button>
       </div>
 
       <div class="community-proof hero-fade" style="--i:6">
@@ -62,7 +64,7 @@
           <div class="avatar bg-dark">JL</div>
           <div class="avatar bg-light">AT</div>
         </div>
-        <p>Rejoins notre communauté de Mozeurs qui gèrent leur activité au quotidien !</p>
+        <p>Vu sur BFM Business, Europe&nbsp;1 et Radio Classique · Une équipe à Avignon</p>
       </div>
     </div>
 
@@ -72,8 +74,8 @@
         @if (videoPlaying()) {
           <iframe
             [src]="videoUrl()"
-            title="Lecteur vidéo : Découvre la plateforme Moze"
-            aria-label="Lecteur vidéo : Découvre la plateforme Moze"
+            title="Lecteur vidéo : découvrez la plateforme Moze"
+            aria-label="Lecteur vidéo : découvrez la plateforme Moze"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen>
@@ -107,7 +109,7 @@
     <div class="track">
       @for (i of [1,2]; track i) {
         <span class="banner-item">
-          AUGMENTE TON CHIFFRE D'AFFAIRES ✦ COLLABORE EN TOUTE CONFIANCE ✦ SÉCURISE TES ACTIVITÉS AVEC LA FACTURATION ÉLECTRONIQUE ✦ DÉVELOPPE TON RÉSEAU ✦
+          Un devis commun ✦ Une facture pour chacun ✦ Un paiement réparti ✦ Personne ne refacture le travail des autres ✦
         </span>
       }
     </div>

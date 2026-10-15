@@ -49,8 +49,8 @@ export class FunnelComponent implements OnInit {
     // l'accueil figée dans `index.html` — même titre, même description, deux URL : le signal de
     // duplication que Google pénalise, sur la page qui porte l'inscription.
     const description =
-      "Créez votre compte Moze en quelques minutes : facturation collaborative, " +
-      "facturation électronique (Factur-X) et mise en réseau entre indépendants. Inscription gratuite.";
+      "Créez votre compte Moze en quelques minutes : facturer seul ou à plusieurs, " +
+      "facture électronique (Factur-X) et réseau d'indépendants. Inscription gratuite.";
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: 'Commencer gratuitement – Moze' });

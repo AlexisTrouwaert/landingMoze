@@ -219,9 +219,11 @@
     gap: 1rem;
   }
 
+  // `100%` et non `100vw` : `vw` compte la barre de défilement verticale, ce qui rendait le bloc
+  // plus large que la page (scroll horizontal) et le décentrait.
   .contact-container{
-    width: calc(100vw - 2rem);
-    margin-inline: auto;
+    width: 100%;
+    align-self: stretch;
   }
 
   .follow-us{

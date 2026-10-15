@@ -10,7 +10,7 @@ import { Routes } from '@angular/router';
 export const SERVICES_A_LA_PERSONNE_ROUTES: Routes = [
   {
     path: '',
-    title: 'Services à la personne : crédit d\'impôt de 50 % – Moze',
+    title: 'Services à la personne sans agrément : le crédit d\'impôt pour vos clients – Moze',
     loadComponent: () =>
       import('../pages/services-a-la-personne/services-a-la-personne.component').then(
         (m) => m.ServicesALaPersonneComponent,

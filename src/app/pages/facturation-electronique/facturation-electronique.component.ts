@@ -151,13 +151,13 @@ export class FacturationElectroniqueComponent implements OnInit, OnDestroy {
         "données de ces transactions, à la même échéance que l'obligation d'émettre.",
     },
     {
-      question: 'Quelle est la différence entre le PPF et une PDP ?',
+      question: 'Quelle est la différence entre le PPF et une Plateforme Agréée ?',
       answer:
-        'La <strong>PDP</strong> (Plateforme de Dématérialisation Partenaire) est immatriculée ' +
-        'par l\'État et transmet réellement vos factures. Le <strong>PPF</strong> (Portail ' +
+        'La <strong>Plateforme Agréée</strong> (anciennement appelée PDP) est immatriculée ' +
+        'par la DGFiP et transmet réellement vos factures. Le <strong>PPF</strong> (Portail ' +
         "Public de Facturation) a été recentré en 2024 sur un rôle d'annuaire et de " +
         'concentrateur des données : il ne propose pas de service gratuit d\'émission de ' +
-        'factures. Passer par une plateforme partenaire n\'est donc pas une option parmi ' +
+        'factures. Passer par une Plateforme Agréée n\'est donc pas une option parmi ' +
         "d'autres, c'est le chemin prévu.",
     },
     {

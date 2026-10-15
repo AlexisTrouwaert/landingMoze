@@ -100,8 +100,6 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'l\'encaissement. Et surtout, une règle pour décider combien vous vous versez : le chiffre ' +
         'd\'affaires ne dit pas si l\'activité va bien.',
       ressources: [
-        { libelle: 'Combien vous verser ? La méthode des enveloppes', route: '/blog/combien-vous-verser-methode-enveloppes', estPage: false },
-        { libelle: 'Le chiffre d\'affaires ne dit pas si votre activité va bien', route: '/blog/chiffre-affaires-ne-dit-pas-si-activite-va-bien', estPage: false },
       ],
     },
     {
@@ -117,8 +115,6 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'proposées à votre réseau, apport d\'affaires avec commission gérée automatiquement. Vous ' +
         'ne vendez pas, vous êtes recommandé.',
       ressources: [
-        { libelle: 'Trouver des clients quand on déteste prospecter', route: '/blog/trouver-clients-sans-prospecter-independant', estPage: false },
-        { libelle: 'Pourquoi refuser une mission est parfois la bonne décision', route: '/blog/pourquoi-refuser-mission-freelance-meilleure-decision-2', estPage: false },
       ],
     },
     {
@@ -130,11 +126,11 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'La mission intéressante dépasse votre périmètre. Vous la refusez, ou vous sous-traitez et ' +
         'vous portez alors la responsabilité — et la trésorerie — du travail des autres.',
       reponse:
-        'La facturation collaborative permet de mener le projet à plusieurs sans créer de structure ' +
+        'Facturer à plusieurs permet de mener la mission ensemble sans créer de structure ' +
         'et sans solidarité : une facture globale pour le client, un bordereau qui détaille la part ' +
         'de chacun, et un paiement réparti automatiquement.',
       ressources: [
-        { libelle: 'Comment fonctionne la facturation collaborative', route: '/facturation-collaborative', estPage: true },
+        { libelle: 'Comment facturer à plusieurs', route: '/facturation-collaborative', estPage: true },
       ],
     },
     {
@@ -155,8 +151,8 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         // n'est délibérément pas traité ici, pour que les deux pages ne se recouvrent pas.
         { libelle: 'Auto-entrepreneur : plafonds, TVA et cotisations', route: '/auto-entrepreneur', estPage: true },
         { libelle: 'Facturation électronique : le calendrier 2026-2027', route: '/facturation-electronique', estPage: true },
-        { libelle: 'Bien choisir son outil, sans se faire avoir', route: '/blog/facturation-electronique-pour-les-nuls-4-bien-choisir-son-outil-sans-se-faire', estPage: false },
-        { libelle: 'Les assurances de l\'indépendant : lesquelles sont obligatoires', route: '/blog/assurances-independant-rc-pro-obligatoire-ou-non', estPage: false },
+        { libelle: 'Bien choisir son outil, sans se faire avoir', route: '/blog/facturation-electronique-pour-les-nuls-4-bien-choisir-son-outil-sans-se-faire-2', estPage: false },
+        { libelle: 'Les assurances de l\'indépendant : lesquelles sont obligatoires', route: '/blog/assurance-obligatoire-auto-entrepreneur-quelles-activites', estPage: false },
       ],
     },
     {
@@ -172,9 +168,9 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'Anticiper ce qui peut l\'être, et accepter que le reste ne se planifie pas. Une communauté ' +
         'd\'indépendants qui traversent les mêmes choses y aide plus qu\'un outil.',
       ressources: [
-        { libelle: 'Tomber malade quand on est à son compte', route: '/blog/tomber-malade-independant-arret-travail-anticiper', estPage: false },
-        { libelle: 'La journée type du freelance n\'existe pas', route: '/blog/journee-type-freelance-existe-pas', estPage: false },
-        { libelle: 'Décrocher en vacances sans perdre ses clients', route: '/blog/vacances-ete-independant-deconnecter-sans-perdre-clients', estPage: false },
+        { libelle: 'Tomber malade quand on est à son compte', route: '/blog/arret-maladie-micro-entrepreneur-indemnisation-reduite-15-octobre-2026', estPage: false },
+        { libelle: 'La journée type du freelance n\'existe pas', route: '/blog/la-journee-type-du-freelance-n-existe-pas-et-c-est-une-bonne-nouvelle', estPage: false },
+        { libelle: 'Décrocher en vacances sans perdre ses clients', route: '/blog/vacances-d-e-te-et-micro-entreprise-comment-de-crocher-sans-perdre-ses-clients', estPage: false },
       ],
     },
     {
@@ -190,7 +186,7 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'ouvre l\'accès sans obtenir votre propre déclaration.',
       ressources: [
         { libelle: 'Services à la personne : proposer le crédit d\'impôt', route: '/services-a-la-personne', estPage: true },
-        { libelle: 'Le guide 2026 du crédit d\'impôt de 50 %', route: '/blog/credit-impot-services-a-la-personne-2026', estPage: false },
+        { libelle: 'Le guide 2026 du crédit d\'impôt de 50 %', route: '/blog/credit-impot-service-a-la-personne-auto-entrepreneur-avance-immediate', estPage: false },
       ],
     },
   ];
@@ -233,10 +229,10 @@ export class FreelanceComponent implements OnInit, OnDestroy {
         'devis rédigé sous Word ou un PDF envoyé par e-mail ne répondront plus à l\'obligation.',
     },
     {
-      question: 'Peut-on vraiment facturer à plusieurs sur un même projet ?',
+      question: 'Peut-on vraiment facturer à plusieurs sur une même mission ?',
       answer:
-        'Oui. C\'est la facturation collaborative&nbsp;: le client reçoit une facture globale, un ' +
-        'bordereau détaille la part de chaque intervenant, et chacun reste seul responsable de sa ' +
+        'Oui. Avec Moze, le client reçoit une facture globale, un ' +
+        'bordereau détaille la part de chaque coéquipier, et chacun reste seul responsable de sa ' +
         'prestation, <strong>sans solidarité</strong> avec les autres.',
     },
     {
@@ -252,7 +248,7 @@ export class FreelanceComponent implements OnInit, OnDestroy {
     const description =
       'Se faire payer, trouver des clients, travailler à plusieurs, rester en règle : ce qui ' +
       'occupe vraiment un freelance au quotidien, et comment s\'en sortir.';
-    const title = 'Freelance : gérer son activité au quotidien';
+    const title = 'Freelance : facturer, trouver des clients et travailler à plusieurs';
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: title });

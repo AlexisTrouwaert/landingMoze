@@ -1,0 +1,207 @@
+<app-floating-dock
+  [groups]="navGroups"
+  [ctaLabel]="'Créer mon compte gratuit'"
+  [loginLabel]="'Déjà inscrit ?'"
+  [loginHref]="appLoginUrl"
+  (ctaClick)="goToFunnel()"
+  (linkAction)="onDockAction($event)"></app-floating-dock>
+
+<div class="fc-page">
+
+  <nav class="crumbs" aria-label="Fil d'Ariane">
+    <a class="crumbs__link" routerLink="/">Accueil</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <a class="crumbs__link" routerLink="/facturation-collaborative">Facturer à plusieurs</a>
+    <span class="crumbs__sep" aria-hidden="true">›</span>
+    <span class="crumbs__here" aria-current="page">Co-traitance entre artisans</span>
+  </nav>
+
+  <main id="main-content">
+
+    <header class="fc-hero">
+      <h1>Co-traitance entre artisans&nbsp;: un devis commun, chacun sa facture</h1>
+      <p class="lede">
+        Plombier, carreleur, électricien sur le même chantier&nbsp;? Le client signe
+        <strong>un seul devis</strong>, chaque artisan reçoit <strong>sa propre facture et son
+        paiement</strong>. Personne ne refacture le travail d'un autre.
+      </p>
+      <div class="hero-actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('co_traitance_hero')">
+          Créer mon compte gratuit
+        </button>
+        <a class="btn-ghost" routerLink="." fragment="etapes">Voir comment ça marche</a>
+      </div>
+    </header>
+
+    <section class="fc-section">
+      <p class="surtitle">Le problème</p>
+      <h2 id="probleme">Un chantier à plusieurs, et toujours la même question&nbsp;: <span class="highlight-green">qui facture&nbsp;?</span></h2>
+      <p>
+        Votre client veut refaire sa salle de bain. Il vous veut, vous, le plombier, mais aussi le
+        carreleur et l'électricien avec qui vous travaillez depuis des années. Et il veut un seul
+        interlocuteur et un seul devis.
+      </p>
+      <p>
+        Le plus souvent, l'un de vous facture tout et reverse aux autres. Résultat&nbsp;: son chiffre
+        d'affaires est gonflé du travail des autres, il peut franchir sans le vouloir les seuils de la
+        micro-entreprise ou de la franchise de TVA, et la TVA s'empile d'une facture à l'autre. Les
+        autres attendent leur virement et le relancent. Sans compter qu'en cas de contrôle, il faudra
+        expliquer ces reversements.
+      </p>
+      <p>
+        La co-traitance règle ce problème&nbsp;: chacun facture sa part, directement au client. Il
+        restait à la rendre aussi simple qu'un devis unique.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le déroulé</p>
+      <h2 id="etapes">Comment ça marche, <span class="highlight-green">en 4 étapes</span></h2>
+      <ol class="steps">
+        @for (etape of etapes; track etape.titre; let i = $index) {
+          <li class="step">
+            <span class="step__num" aria-hidden="true">{{ i + 1 }}</span>
+            <div class="step__body">
+              <h3>{{ etape.titre }}</h3>
+              <p [innerHTML]="etape.texte"></p>
+            </div>
+          </li>
+        }
+      </ol>
+      <p class="fineprint">
+        Le même mécanisme, hors bâtiment&nbsp;: le
+        <a routerLink="/facturation-collaborative">devis commun et facture à plusieurs</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Un exemple</p>
+      <h2 id="exemple">Exemple&nbsp;: une salle de bain refaite <span class="highlight-green">par 3 artisans</span></h2>
+      <p class="fineprint"><em>Exemple fictif, montants donnés à titre d'illustration.</em></p>
+      <p>
+        Madame Martin rénove la salle de bain de sa maison, construite il y a plus de 20&nbsp;ans.
+        Trois artisans interviennent&nbsp;:
+      </p>
+
+      <div class="table-wrap">
+        <table class="cmp-table">
+          <caption class="sr-only">Répartition du devis commun de 9&nbsp;000&nbsp;€ HT entre trois artisans</caption>
+          <thead>
+            <tr>
+              <th scope="col">Coéquipier</th>
+              <th scope="col">Prestation</th>
+              <th scope="col">Montant HT</th>
+              <th scope="col">TVA</th>
+              <th scope="col">Montant TTC</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of devis; track ligne.coequipier) {
+              <tr>
+                <th scope="row">{{ ligne.coequipier }}</th>
+                <td>{{ ligne.prestation }}</td>
+                <td>{{ ligne.ht }}</td>
+                <td>{{ ligne.tva }}</td>
+                <td>{{ ligne.ttc }}</td>
+              </tr>
+            }
+            <tr class="is-moze">
+              <th scope="row">Total du devis commun</th>
+              <td></td>
+              <td><strong>9&nbsp;000&nbsp;€</strong></td>
+              <td></td>
+              <td><strong>9&nbsp;730&nbsp;€</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint">
+        <em>Le taux de 10&nbsp;% suppose que les conditions des travaux de rénovation dans un logement
+        de plus de 2&nbsp;ans sont réunies. Chaque artisan applique la TVA de sa propre situation.</em>
+      </p>
+      <p>
+        Madame Martin signe un seul devis de 9&nbsp;730&nbsp;€ et paie une seule fois. Julien voit
+        4&nbsp;620&nbsp;€ arriver, Nadia 3&nbsp;410&nbsp;€, Hugo 1&nbsp;700&nbsp;€.
+      </p>
+      <p>
+        <strong>Ce que ça change par rapport à «&nbsp;un seul facture tout&nbsp;»&nbsp;:</strong> Julien
+        déclare 4&nbsp;200&nbsp;€ de chiffre d'affaires, et non 9&nbsp;000&nbsp;€. La part d'Hugo n'est
+        pas soumise à une TVA qu'il n'a pas à facturer. Et personne n'attend un virement de la part d'un
+        collègue.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Le cadre</p>
+      <h2 id="loi">Ce que dit la loi, <span class="highlight-green">en clair</span></h2>
+      <ul class="law-list">
+        @for (point of pointsLoi; track point.titre) {
+          <li><strong>{{ point.titre }}</strong> {{ point.texte }}</li>
+        }
+      </ul>
+      <p class="fineprint">
+        Pour aller plus loin&nbsp;:
+        <a routerLink="/blog/facturer-a-plusieurs-3-la-co-traitance-et-le-groupement">la co-traitance et le groupement</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Pour qui</p>
+      <h2 id="pour-qui">Pour <span class="highlight-green">qui&nbsp;?</span></h2>
+      <ul class="check-list">
+        <li>
+          Les artisans du bâtiment qui travaillent en équipe sur un même chantier&nbsp;: rénovation de
+          salle de bain ou de cuisine, extension, aménagement de combles.
+        </li>
+        <li>Les micro-entrepreneurs qui veulent garder leur chiffre d'affaires réel et rester sous leurs seuils.</li>
+        <li>
+          Les <a routerLink="/services-a-la-personne">prestataires multiservices</a> qui interviennent à
+          plusieurs chez un même client&nbsp;: jardinage et petit bricolage, ménage et repassage.
+        </li>
+        <li>Tous les indépendants qui répondent ensemble à une même demande, sans créer de société.</li>
+      </ul>
+      <p class="fineprint">
+        Quel cadre choisir&nbsp;? Voyez
+        <a routerLink="/blog/facturer-a-plusieurs-6-quel-montage-pour-quelle-situation">quel montage pour quelle situation</a>.
+        Vous transmettez un client sans travailler sur le chantier&nbsp;? Voyez
+        <a routerLink="/apport-d-affaires">l'apport d'affaires</a>.
+      </p>
+    </section>
+
+    <!-- Masqués tant que MOZE ne les a pas fournis :
+         - « Modèle de facture de co-traitance à télécharger » (renvoie vers /modeles, qui n'existe pas) ;
+         - « Ils facturent leurs chantiers à plusieurs » (témoignage : pas de faux témoignage). -->
+
+    <section class="fc-section">
+      <p class="surtitle">Vos questions</p>
+      <h2 id="faq">Questions <span class="highlight-green">fréquentes</span></h2>
+      <div class="faq-list">
+        @for (item of faq; track item.question) {
+          <details class="faq-item">
+            <summary>
+              <h3>{{ item.question }}</h3>
+              <span class="faq-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer" [innerHTML]="item.answer"></div>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="fc-cta">
+      <h2>Votre prochain chantier à plusieurs commence par un devis commun</h2>
+      <p>
+        Un devis pour le client, une facture pour chacun, un paiement réparti sans relance.
+      </p>
+      <div class="fc-cta__actions">
+        <button type="button" class="btn-primary" (click)="goToFunnel('co_traitance_cta_final')">
+          Créer mon compte gratuit
+        </button>
+        <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <app-footer [flat]="true" />
+</div>

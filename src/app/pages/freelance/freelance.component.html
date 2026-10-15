@@ -1,6 +1,6 @@
 <app-floating-dock
   [groups]="navGroups"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   [loginLabel]="'Déjà inscrit ?'"
   [loginHref]="appLoginUrl"
   (ctaClick)="goToFunnel()"
@@ -43,6 +43,7 @@
         <p class="fl-theme__probleme">{{ theme.probleme }}</p>
         <p class="fl-theme__reponse">{{ theme.reponse }}</p>
 
+        @if (theme.ressources.length) {
         <ul class="res-list">
           @for (res of theme.ressources; track res.route) {
             <li class="res">
@@ -56,6 +57,7 @@
             </li>
           }
         </ul>
+        }
       </section>
     }
 
@@ -83,7 +85,7 @@
       </p>
       <div class="fl-cta__actions">
         <button type="button" class="btn-primary" (click)="goToFunnel('freelance_cta_final')">
-          Je commence gratuitement <span aria-hidden="true">→</span>
+          Créer mon compte gratuit
         </button>
         <a class="btn-ghost" routerLink="/blog">Lire le blog</a>
       </div>

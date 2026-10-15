@@ -49,6 +49,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'tarifs', renderMode: RenderMode.Prerender },
   { path: 'facturation-collaborative', renderMode: RenderMode.Prerender },
   { path: 'services-a-la-personne', renderMode: RenderMode.Prerender },
+  { path: 'apport-d-affaires', renderMode: RenderMode.Prerender },
+  { path: 'co-traitance-artisans', renderMode: RenderMode.Prerender },
   { path: 'freelance', renderMode: RenderMode.Prerender },
   { path: 'auto-entrepreneur', renderMode: RenderMode.Prerender },
   { path: 'cgv-cgu', renderMode: RenderMode.Prerender },

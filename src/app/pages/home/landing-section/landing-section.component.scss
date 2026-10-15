@@ -60,6 +60,16 @@
 /* =========================================
    === TYPOGRAPHY ===
    ========================================= */
+/* Surtitre « MozeConnect » : sans marge négative, le gap du flex (2rem) l'éloignerait trop du H1. */
+.hero-eyebrow {
+  margin: 0 0 -1.25rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--moze-dark-blue);
+}
+
 .main-title {
   line-height: 1.1;
   margin-left: 1.5rem;

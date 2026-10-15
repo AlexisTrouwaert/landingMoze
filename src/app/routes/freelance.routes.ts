@@ -10,7 +10,7 @@ import { Routes } from '@angular/router';
 export const FREELANCE_ROUTES: Routes = [
   {
     path: '',
-    title: 'Freelance : gérer son activité au quotidien – Moze',
+    title: 'Freelance : facturer, trouver des clients et travailler à plusieurs – Moze',
     loadComponent: () =>
       import('../pages/freelance/freelance.component').then((m) => m.FreelanceComponent),
   },

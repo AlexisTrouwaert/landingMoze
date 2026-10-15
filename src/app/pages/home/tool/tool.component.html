@@ -2,10 +2,10 @@
   <div class="header-section" appScrollReveal>
     <p class="surtitle">FONCTIONNALITÉS</p>
     <h2 class="main-title">
-      Bien plus qu'un outil de <span class="highlight-green">facturation</span>
+      Ce que vous faites avec <span class="highlight-green">Moze</span>
     </h2>
     <p class="subtitle">
-      Moze a été pensé pour les indépendants qui veulent grandir, pas seulement facturer.
+      Moze a été pensé pour les indépendants qui travaillent avec d'autres, pas seulement pour facturer.
     </p>
   </div>
 
@@ -20,12 +20,15 @@
           <span class="title-white">{{ feature.t2 }}</span>
         </div>
         <p class="card-desc">{{ feature.desc }}</p>
+        @if (feature.route) {
+          <a class="card-link" [routerLink]="feature.route">En savoir plus <span aria-hidden="true">→</span></a>
+        }
         <div class="card-badge">{{ feature.badge }}</div>
       </div>
     }
   </div>
 
   <div class="cta-wrapper" appScrollReveal>
-    <button class="btn-primary" (click)="goToFunnel()">Je découvre mon nouvel outil <span class="btn-arrow" aria-hidden="true">&rarr;</span></button>
+    <button class="btn-primary" (click)="goToFunnel()">Créer mon compte gratuit</button>
   </div>
 </section>

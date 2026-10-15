@@ -194,6 +194,15 @@
     flex-grow: 1; /* Permet de pousser le badge tout en bas si les textes n'ont pas la même taille */
   }
 
+  .card-link {
+    color: var(--moze-green);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-bottom: 0.8rem;
+  }
+
   .card-badge {
     background-color: var(--moze-light-blue);
     color: var(--moze-white);

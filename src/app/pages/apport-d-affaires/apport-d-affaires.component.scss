@@ -1,0 +1,41 @@
+@use '../../../styles/silo-theme' as theme;
+
+/* Le gros des styles vient de /facturation-collaborative (cf. `styleUrls`). Ici, seulement ce que
+   cette page ajoute : les boutons du haut de page et la liste « Ce que dit la loi ». */
+
+.hero-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.law-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+
+  li {
+    position: relative;
+    padding-left: 1.2rem;
+    color: theme.$encre-corps;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--moze-green);
+    }
+  }
+
+  strong { color: theme.$encre-titre; }
+}
+
+@media (max-width: 600px) {
+  .hero-actions { flex-direction: column; }
+}

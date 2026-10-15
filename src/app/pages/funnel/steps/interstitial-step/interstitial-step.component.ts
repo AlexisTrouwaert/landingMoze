@@ -260,13 +260,13 @@ export class InterstitialStepComponent {
   private inscriptionErrorMessage(err: unknown): string {
     const status = (err as { status?: number } | null)?.status;
     if (status === 409) {
-      return "Cet email est déjà utilisé. Essaie de te connecter ou de réinitialiser ton mot de passe.";
+      return "Cet e-mail est déjà utilisé. Essayez de vous connecter ou de réinitialiser votre mot de passe.";
     }
     if (status === 400) {
       return "Certaines informations sont invalides, vérifie le formulaire.";
     }
     if (status === 0) {
-      return "Connexion impossible pour le moment. Vérifie ta connexion et réessaie.";
+      return "Connexion impossible pour le moment. Vérifiez votre connexion et réessayez.";
     }
     return "Une erreur est survenue, réessaie dans un instant.";
   }
@@ -362,13 +362,13 @@ export class InterstitialStepComponent {
 
   readonly sectorSubtitle = computed(() => {
     switch (this.fs.selectedSector()) {
-      case 'SANTE':  return "Tes patients sont déjà entre de bonnes mains. Confie-nous la partie administrative.";
-      case 'SAP':    return "Tu simplifies la vie des autres. On va simplifier ta gestion.";
-      case 'BTP':    return "Tu gères le terrain. On gère le cadre.";
-      case 'CREATIF': return "Promis, aucun tableau Excel ne te jugera ici.";
-      case 'CONSEIL': return "Tu transmets ton savoir aux autres. On s'assure que ta gestion soit à la hauteur.";
-      case 'IMMO':   return "Du mandat à l'encaissement, ta gestion reste carrée.";
-      default:       return "Ton métier est unique. Ta gestion peut l'être aussi. Et simplement.";
+      case 'SANTE':  return "Vos patients sont déjà entre de bonnes mains. Confiez-nous la partie administrative.";
+      case 'SAP':    return "Vous simplifiez la vie des autres. Nous allons simplifier votre gestion.";
+      case 'BTP':    return "Vous gérez le terrain. Nous gérons le cadre.";
+      case 'CREATIF': return "Promis, aucun tableau Excel ne vous jugera ici.";
+      case 'CONSEIL': return "Vous transmettez votre savoir. Nous veillons à ce que votre gestion soit à la hauteur.";
+      case 'IMMO':   return "Du mandat à l'encaissement, votre gestion reste carrée.";
+      default:       return "Votre métier est unique. Votre gestion peut l'être aussi. Et simplement.";
     }
   });
 }

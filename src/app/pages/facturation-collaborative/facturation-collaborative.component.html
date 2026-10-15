@@ -1,6 +1,6 @@
 <app-floating-dock
   [groups]="navGroups"
-  [ctaLabel]="'je commence gratuitement'"
+  [ctaLabel]="'Créer mon compte gratuit'"
   [loginLabel]="'Déjà inscrit ?'"
   [loginHref]="appLoginUrl"
   (ctaClick)="goToFunnel()"
@@ -11,22 +11,20 @@
   <nav class="crumbs" aria-label="Fil d'Ariane">
     <a class="crumbs__link" routerLink="/">Accueil</a>
     <span class="crumbs__sep" aria-hidden="true">›</span>
-    <span class="crumbs__here" aria-current="page">Facturation collaborative</span>
+    <span class="crumbs__here" aria-current="page">Facturer à plusieurs</span>
   </nav>
 
   <main id="main-content">
 
     <header class="fc-hero">
-      <p class="eyebrow">Unique en France</p>
-      <h1>Facturation collaborative&nbsp;: facturer à plusieurs sur un même projet</h1>
+      <h1>Facturer à plusieurs sur une même mission</h1>
 
       <!-- La réponse directe en tête : c'est ce qu'extraient les moteurs, et à peu près tout ce
            que lisent les assistants de réponse. -->
       <p class="lede">
-        Plusieurs indépendants travaillent sur un même projet. Le client veut
-        <strong>un seul devis et une seule facture</strong>. Aucun d'entre vous ne veut porter la
-        responsabilité du travail des autres, ni avancer leur rémunération. La facturation
-        collaborative résout exactement ce problème&nbsp;: une facture globale, un bordereau qui
+        Vous travaillez ensemble pour un même client. Il veut un seul interlocuteur et
+        <strong>une seule facture</strong>. Aucun de vous ne veut facturer le travail des autres, ni
+        avancer leur paiement. Facturer à plusieurs avec Moze règle exactement ce problème&nbsp;: une facture globale, un bordereau qui
         détaille la part de chacun, et des responsabilités qui restent séparées.
       </p>
 
@@ -41,13 +39,13 @@
       <p class="surtitle">Le comparatif</p>
       <h2 id="comparaison">Les trois façons de facturer <span class="highlight-green">à plusieurs</span></h2>
       <p>
-        Avant Moze, un projet mené à plusieurs se facturait de deux manières, et chacune faisait
+        Avant Moze, une mission menée à plusieurs se facturait de deux manières, et chacune faisait
         payer quelqu'un&nbsp;: le donneur d'ordre en risque, ou le client en complexité.
       </p>
 
       <div class="table-wrap">
         <table class="cmp-table">
-          <caption class="sr-only">Comparaison des façons de facturer un projet à plusieurs</caption>
+          <caption class="sr-only">Comparaison des façons de facturer une mission à plusieurs</caption>
           <thead>
             <tr>
               <th scope="col">Approche</th>
@@ -84,29 +82,101 @@
           </li>
         }
       </ol>
+      <p class="fineprint">
+        Vous êtes artisan du bâtiment&nbsp;? Voyez la
+        <a routerLink="/co-traitance-artisans">co-traitance entre artisans</a>.
+      </p>
+    </section>
+
+    <section class="fc-section">
+      <p class="surtitle">Un exemple</p>
+      <h2 id="exemple">Exemple&nbsp;: une salle de bain refaite <span class="highlight-green">par 3 artisans</span></h2>
+      <p class="fineprint"><em>Exemple fictif, montants donnés à titre d'illustration.</em></p>
+      <p>
+        Madame Martin rénove la salle de bain de sa maison, construite il y a plus de 20&nbsp;ans.
+        Trois artisans interviennent&nbsp;:
+      </p>
+
+      <div class="table-wrap">
+        <table class="cmp-table">
+          <caption class="sr-only">Répartition du devis commun de 9&nbsp;000&nbsp;€ HT entre trois artisans</caption>
+          <thead>
+            <tr>
+              <th scope="col">Coéquipier</th>
+              <th scope="col">Prestation</th>
+              <th scope="col">Montant HT</th>
+              <th scope="col">TVA</th>
+              <th scope="col">Montant TTC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Julien, plombier (chef de file)</th>
+              <td>Dépose, douche à l'italienne, raccordements</td>
+              <td>4&nbsp;200&nbsp;€</td>
+              <td>10&nbsp;%&nbsp;: 420&nbsp;€</td>
+              <td>4&nbsp;620&nbsp;€</td>
+            </tr>
+            <tr>
+              <th scope="row">Nadia, carreleuse</th>
+              <td>Faïence murale et sol</td>
+              <td>3&nbsp;100&nbsp;€</td>
+              <td>10&nbsp;%&nbsp;: 310&nbsp;€</td>
+              <td>3&nbsp;410&nbsp;€</td>
+            </tr>
+            <tr>
+              <th scope="row">Hugo, électricien en franchise de TVA</th>
+              <td>Mise aux normes, éclairage, sèche-serviettes</td>
+              <td>1&nbsp;700&nbsp;€</td>
+              <td>Non applicable (art.&nbsp;293&nbsp;B du CGI)</td>
+              <td>1&nbsp;700&nbsp;€</td>
+            </tr>
+            <tr class="is-moze">
+              <th scope="row">Total du devis commun</th>
+              <td></td>
+              <td><strong>9&nbsp;000&nbsp;€</strong></td>
+              <td></td>
+              <td><strong>9&nbsp;730&nbsp;€</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint">
+        <em>Le taux de 10&nbsp;% suppose que les conditions des travaux de rénovation dans un logement
+        de plus de 2&nbsp;ans sont réunies. Chaque artisan applique la TVA de sa propre situation.</em>
+      </p>
+      <p>
+        Madame Martin signe un seul devis de 9&nbsp;730&nbsp;€ et paie une seule fois. Julien voit
+        4&nbsp;620&nbsp;€ arriver, Nadia 3&nbsp;410&nbsp;€, Hugo 1&nbsp;700&nbsp;€.
+      </p>
+      <p>
+        <strong>Ce que ça change par rapport à «&nbsp;un seul facture tout&nbsp;»&nbsp;:</strong> Julien
+        déclare 4&nbsp;200&nbsp;€ de chiffre d'affaires, et non 9&nbsp;000&nbsp;€. La part d'Hugo n'est
+        pas soumise à une TVA qu'il n'a pas à facturer. Et personne n'attend un virement de la part d'un
+        collègue.
+      </p>
     </section>
 
     <!-- Le cadre juridique est ce qui distingue la page d'une plaquette : c'est la première
          objection de tout indépendant à qui l'on propose de facturer avec d'autres. -->
     <section class="fc-section">
       <p class="surtitle">Le montage</p>
-      <h2 id="cadre">Le cadre juridique&nbsp;: un groupement, <span class="highlight-green">sans solidarité</span></h2>
+      <h2 id="cadre">Pas de société à créer, <span class="highlight-green">pas de risque pour le travail des autres</span></h2>
       <p>
-        Collaborer sur une facture ne vous engage pas dans une structure. Le montage est un
-        <strong>groupement momentané d'entreprises (GME) de fait</strong>&nbsp;: sans création de
-        société, sans personnalité morale, et — le point décisif —
-        <strong>sans solidarité entre les parties</strong>.
+        Chacun reste seul responsable de sa prestation, de sa facture et de ses obligations.
+        Juridiquement, c'est un <strong>groupement momentané d'entreprises «&nbsp;de fait&nbsp;»</strong>,
+        <strong>sans solidarité entre vous</strong>.
       </p>
 
       <div class="resp-block">
-        <h3>Chaque intervenant demeure seul responsable de&nbsp;:</h3>
+        <h3>Chaque coéquipier demeure seul responsable de&nbsp;:</h3>
         <ul class="check-list">
           @for (item of responsabilites; track item) {
             <li>{{ item }}</li>
           }
         </ul>
         <p class="resp-block__note">
-          Aucun intervenant ne peut être tenu responsable des manquements d'un autre membre du
+          Aucun coéquipier ne peut être tenu responsable des manquements d'un autre membre du
           groupement. Un contrat de partenariat distinct reste possible, sans être nécessaire pour
           utiliser la fonctionnalité.
         </p>
@@ -123,7 +193,7 @@
       <h2 id="bordereau">Le <span class="highlight-green">bordereau</span> récapitulatif</h2>
       <p>
         C'est la pièce centrale du dispositif, et le document contractuel de référence. Il reprend,
-        pour chaque intervenant&nbsp;:
+        pour chaque coéquipier&nbsp;:
       </p>
       <div class="doc-grid">
         <div class="doc-card">
@@ -132,7 +202,7 @@
         </div>
         <div class="doc-card">
           <h3>La nature de sa prestation</h3>
-          <p>Ce qu'il a effectivement réalisé sur le projet.</p>
+          <p>Ce qu'il a effectivement réalisé sur la mission.</p>
         </div>
         <div class="doc-card">
           <h3>Le montant correspondant</h3>
@@ -140,7 +210,7 @@
         </div>
       </div>
       <p>
-        Sa <strong>validation électronique par chaque intervenant vaut consentement
+        Sa <strong>validation électronique par chaque coéquipier vaut consentement
         contractuel</strong>&nbsp;: personne n'est engagé sur des lignes qu'il n'a pas acceptées.
         Chacun retrouve ensuite, sur son compte, les devis et factures de la transaction à laquelle
         il a participé.
@@ -151,14 +221,13 @@
       <p class="surtitle">Les paiements</p>
       <h2 id="paiement">Qui encaisse, <span class="highlight-green">et qui répartit</span></h2>
       <p>
-        Ni le mandataire, ni Moze. Les sommes sont encaissées et ventilées par
-        <strong>Stripe Connect</strong>, prestataire de services de paiement agréé, conformément
-        aux montants inscrits au bordereau. Moze n'intervient qu'en <strong>tiers technique</strong>
+        Ni le chef de file, ni Moze. Les sommes sont encaissées et réparties par notre prestataire
+        de paiement agréé, conformément aux montants inscrits au bordereau. Moze n'intervient qu'en <strong>tiers technique</strong>
         et ne conserve à aucun moment les fonds pour compte de tiers.
       </p>
       <p>
         Conséquence pratique&nbsp;: personne n'avance la rémunération d'un autre, et personne n'a
-        besoin d'une trésorerie pour mener un projet collectif.
+        besoin d'une trésorerie pour mener une mission à plusieurs.
       </p>
     </section>
 
@@ -166,14 +235,14 @@
       <p class="surtitle">Le prix</p>
       <h2 id="prix">Ce que ça <span class="highlight-green">coûte</span></h2>
       <p>
-        La facturation collaborative fait partie de l'offre <strong>Indép +</strong>, à 9,90 € HT
+        Facturer à plusieurs fait partie de l'offre <strong>Indép +</strong>, à 9,90 € HT
         par mois. Les factures qui y ont recours — comme celles qui passent par l'apport d'affaires
         — supportent <strong>3,9 % HT</strong> de frais administratifs sur leur montant total.
         <a routerLink="/tarifs">Voir le détail des tarifs</a>.
       </p>
       <p>
-        Vos factures collaboratives sont générées au format Factur-X, conforme à la réforme de la
-        <a routerLink="/facturation-electronique">facturation électronique</a>.
+        Vos factures à plusieurs sont générées au format Factur-X, prêtes pour la
+        <a routerLink="/facturation-electronique">facture électronique</a> obligatoire en septembre 2027.
       </p>
     </section>
 
@@ -194,14 +263,13 @@
     </section>
 
     <aside class="fc-cta">
-      <h2>Votre prochain projet à plusieurs</h2>
+      <h2>Votre prochaine mission à plusieurs</h2>
       <p>
-        Rejoignez le réseau gratuitement, trouvez vos co-traitants et facturez ensemble sans
-        prendre le risque des autres.
+        Créez votre compte, faites le devis commun et invitez vos coéquipiers.
       </p>
       <div class="fc-cta__actions">
         <button type="button" class="btn-primary" (click)="goToFunnel('collaborative_cta_final')">
-          Je commence gratuitement <span aria-hidden="true">→</span>
+          Créer mon compte gratuit
         </button>
         <a class="btn-ghost" routerLink="/tarifs">Voir les tarifs</a>
       </div>

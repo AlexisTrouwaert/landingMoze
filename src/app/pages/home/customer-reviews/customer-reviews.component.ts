@@ -14,7 +14,7 @@ export class CustomerReviewsComponent {
   public reviews = signal([
     {
       name: 'Anthony',
-      avis: "Mon chiffre d'affaire a augmenté de 50% en 3 mois",
+      avis: "Mon chiffre d'affaires a augmenté de 50% en 3 mois",
       rating: 5,
       image: '/assets/images/anthony.webp'
     },

@@ -110,6 +110,13 @@ export class ServicesALaPersonneComponent implements OnInit, OnDestroy {
 
   readonly faq: readonly FaqItem[] = [
     {
+      question: 'Je suis auto-entrepreneur sans agrément : mes clients peuvent-ils avoir le crédit d\'impôt ?',
+      answer:
+        'Oui. En devenant sociétaire de Moze Coop, organisme déclaré, vous proposez des prestations qui ' +
+        'ouvrent droit au crédit d\'impôt, sans obtenir votre propre déclaration. L\'adhésion est soumise ' +
+        'à l\'acceptation de la coopérative.',
+    },
+    {
       question: 'Faut-il avoir son propre numéro SAP ?',
       answer:
         'Non. C\'est tout l\'intérêt du dispositif : vous proposez des prestations éligibles en devenant ' +
@@ -169,7 +176,7 @@ export class ServicesALaPersonneComponent implements OnInit, OnDestroy {
     const description =
       'Proposez des prestations éligibles au crédit d\'impôt de 50 % sans obtenir votre propre ' +
       'déclaration : sociétariat Moze Coop, avance immédiate URSSAF et facturation prise en charge.';
-    const title = 'Services à la personne : proposer le crédit d\'impôt de 50 %';
+    const title = 'Services à la personne sans agrément : le crédit d\'impôt pour vos clients';
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: title });

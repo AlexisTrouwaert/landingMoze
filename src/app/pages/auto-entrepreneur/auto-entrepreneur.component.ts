@@ -86,7 +86,7 @@ export class AutoEntrepreneurComponent implements OnInit, OnDestroy {
     {
       activite: 'Activités libérales au régime général (BNC)',
       taux: '25,6 %',
-      precision: 'Relevé de 24,6 % au 1ᵉʳ janvier 2026',
+      precision: '24,6 % avant le 1er janvier 2026',
     },
     { activite: 'Professions libérales réglementées (CIPAV)', taux: '23,2 %' },
   ];

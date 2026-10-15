@@ -39,7 +39,7 @@ export const NAV_GROUPS: DockGroup[] = [
       { id: 'presse', label: 'Presse', icon: 'news', desc: 'On parle de nous' },
       { id: 'avis', label: 'Avis', icon: 'star', desc: 'La parole aux membres' },
       { id: 'app', label: "L'app", icon: 'app', desc: 'iOS & Android' },
-      { id: 'support', label: 'Support', icon: 'support', desc: "Une question ? On t'aide", action: 'support' },
+      { id: 'support', label: 'Support', icon: 'support', desc: 'Une question ? On vous aide', action: 'support' },
     ],
   },
   {
@@ -49,14 +49,21 @@ export const NAV_GROUPS: DockGroup[] = [
      * depuis toutes les pages du site : c'est ce maillage qui fait remonter une page neuve.
      */
     title: 'Solutions',
+    // Deux colonnes : ce que fait Moze, puis à qui il s'adresse. « Services à la personne » figure
+    // dans les deux, c'est à la fois un service (le crédit d'impôt) et un public.
+    columns: ['Ce que fait Moze', 'Pour qui'],
     links: [
-      // Une icône par thème, et non le pictogramme générique repris cinq fois : dans un
-      // déroulant, c'est l'icône qu'on balaie avant de lire les libellés.
-      { id: 'facturation-collaborative', label: 'Facturation collaborative', icon: 'collaboratif', desc: 'Facturer à plusieurs', route: '/facturation-collaborative' },
-      { id: 'facture-electronique', label: 'Facture électronique', icon: 'facture', desc: 'Réforme 2026-2027', route: '/facturation-electronique' },
-      { id: 'services-a-la-personne', label: 'Services à la personne', icon: 'domicile', desc: 'Crédit d\'impôt de 50 %', route: '/services-a-la-personne' },
-      { id: 'freelance', label: 'Freelance', icon: 'freelance', desc: 'Gérer son activité', route: '/freelance' },
-      { id: 'auto-entrepreneur', label: 'Auto-entrepreneur', icon: 'taux', desc: 'Plafonds, TVA, cotisations', route: '/auto-entrepreneur' },
+      // Une icône par thème, et non le pictogramme générique répété : dans un déroulant, c'est
+      // l'icône qu'on balaie avant de lire les libellés.
+      { id: 'facturation-collaborative', label: 'Facturer à plusieurs', icon: 'collaboratif', desc: 'Un devis commun, une facture pour chacun', route: '/facturation-collaborative', column: 0 },
+      { id: 'facture-electronique', label: 'Facture électronique', icon: 'facture', desc: 'Obligatoire en septembre 2027', route: '/facturation-electronique', column: 0 },
+      { id: 'apport-d-affaires', label: 'Apport d\'affaires', icon: 'apport', desc: 'Touchez une commission', route: '/apport-d-affaires', column: 0 },
+      { id: 'services-a-la-personne', label: 'Services à la personne', icon: 'domicile', desc: 'Crédit d\'impôt de 50 %', route: '/services-a-la-personne', column: 0 },
+      { id: 'independants', label: 'Indépendants', icon: 'independant', route: '/', column: 1 },
+      { id: 'freelance', label: 'Freelances', icon: 'freelance', route: '/freelance', column: 1 },
+      { id: 'auto-entrepreneur', label: 'Auto-entrepreneurs', icon: 'taux', route: '/auto-entrepreneur', column: 1 },
+      { id: 'co-traitance-artisans', label: 'Artisans du bâtiment', icon: 'chantier', route: '/co-traitance-artisans', column: 1 },
+      { id: 'services-a-la-personne', label: 'Services à la personne', icon: 'domicile', route: '/services-a-la-personne', column: 1 },
     ],
   },
   {

@@ -120,6 +120,29 @@
 
 /* Cascade : les entrées se révèlent en douceur, légèrement décalées */
 .dd-panel.is-open .dd-link { opacity: 1; transform: translateY(0); }
+
+/* Déroulant à colonnes (« Solutions » : ce que fait Moze / pour qui). */
+.dd-panel--cols {
+  width: 580px;
+  flex-direction: row;
+  gap: 0.3rem;
+}
+
+.dd-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dd-col-title {
+  padding: 0.55rem 0.7rem 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6b8595;
+}
 .dd-panel.is-open .dd-link:nth-child(1) { transition-delay: 0.05s; }
 .dd-panel.is-open .dd-link:nth-child(2) { transition-delay: 0.09s; }
 .dd-panel.is-open .dd-link:nth-child(3) { transition-delay: 0.13s; }
@@ -358,6 +381,13 @@
   margin-top: 0.35rem;
   padding-top: 0.35rem;
   border-top: 1px solid #eef2f6;
+}
+
+.dock-m-subtitle {
+  padding: 0.5rem 0.7rem 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary-color);
 }
 
 .dock-m-title {

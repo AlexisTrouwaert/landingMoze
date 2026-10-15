@@ -43,6 +43,16 @@ export const routes: Routes = [
       import('./routes/facturation-collaborative.routes').then(m => m.FACTURATION_COLLABORATIVE_ROUTES)
   },
   {
+    path: 'apport-d-affaires',
+    loadChildren: () =>
+      import('./routes/apport-d-affaires.routes').then(m => m.APPORT_D_AFFAIRES_ROUTES)
+  },
+  {
+    path: 'co-traitance-artisans',
+    loadChildren: () =>
+      import('./routes/co-traitance-artisans.routes').then(m => m.CO_TRAITANCE_ARTISANS_ROUTES)
+  },
+  {
     path: 'facturation-electronique',
     loadChildren: () =>
       import('./routes/facturation-electronique.routes').then(m => m.FACTURATION_ELECTRONIQUE_ROUTES)

@@ -38,7 +38,7 @@ interface FaqItem {
  *
  * **La matière vient des CGV, section 11.5**, et non du discours commercial : groupement
  * momentané d'entreprises de fait, non solidaire, mandataire administratif, bordereau
- * récapitulatif valant document contractuel, répartition par Stripe Connect. C'est ce niveau de
+ * récapitulatif valant document contractuel, répartition par le prestataire de paiement (jamais nommé hors CGU). C'est ce niveau de
  * précision qui distingue la page d'une plaquette — et c'est aussi ce qui la rend vérifiable.
  * Toute reformulation doit être repassée au texte des CGV, qui fait foi.
  *
@@ -81,45 +81,46 @@ export class FacturationCollaborativeComponent implements OnInit, OnDestroy {
     },
     {
       nom: 'Factures séparées',
-      recu: 'Autant de factures, de devis et d\'interlocuteurs que d\'intervenants',
+      recu: 'Autant de factures, de devis et d\'interlocuteurs que d\'indépendants',
       responsabilite: 'Chacun pour soi',
       tresorerie: 'Aucune avance, mais aucune coordination non plus',
       estMoze: false,
     },
     {
-      nom: 'Facturation collaborative Moze',
-      recu: 'Une facture globale, accompagnée d\'un bordereau détaillant chaque intervenant',
-      responsabilite: 'Chacun pour soi, sans solidarité entre les intervenants',
-      tresorerie: 'Aucune avance : Stripe Connect répartit automatiquement',
+      nom: 'Facturer à plusieurs avec Moze',
+      recu: 'Une facture globale, accompagnée d\'un bordereau détaillant chaque coéquipier',
+      responsabilite: 'Chacun pour soi, sans solidarité entre les coéquipiers',
+      tresorerie: 'Aucune avance : le paiement est réparti automatiquement',
       estMoze: true,
     },
   ];
 
   readonly etapes: readonly Etape[] = [
     {
-      titre: 'Vous désignez un mandataire administratif',
+      titre: 'Vous choisissez un chef de file',
       texte:
-        'C\'est l\'un de vous, choisi par les autres. Son rôle est strictement administratif : établir ' +
-        'les devis et factures globaux, centraliser les informations et les reporter sur le bordereau. ' +
-        'Cette désignation n\'emporte aucun mandat de représentation juridique ni aucune solidarité financière.',
+        'C\'est l\'un de vous. Il fait le devis commun et la facture globale, c\'est tout : il ne répond ' +
+        'pas du travail des autres et n\'avance aucun paiement. (Dans nos CGU, on l\'appelle ' +
+        '« mandataire administratif ».)',
     },
     {
       titre: 'Chacun déclare sa ligne',
       texte:
-        'Chaque intervenant renseigne son identité, la nature de sa prestation et le montant correspondant. ' +
+        'Chaque coéquipier renseigne son identité, la nature de sa prestation et le montant correspondant. ' +
         'Il est seul responsable de sa ligne, de son contenu comme de ses montants, et en garantit l\'exactitude.',
     },
     {
       titre: 'Chacun valide le bordereau récapitulatif',
       texte:
-        'Le bordereau reprend les lignes de tous les intervenants. Sa validation électronique sur la ' +
+        'Le bordereau reprend les lignes de tous les coéquipiers. Sa validation électronique sur la ' +
         'plateforme vaut consentement contractuel : c\'est le document de référence de la collaboration, ' +
         'et il est accepté par chacun avant émission.',
     },
     {
       titre: 'Le paiement se répartit tout seul',
       texte:
-        'Les sommes encaissées sont ventilées automatiquement par Stripe Connect, conformément au ' +
+        'Les sommes encaissées sont réparties automatiquement par notre prestataire de paiement agréé, ' +
+        'conformément au ' +
         'bordereau. Personne n\'avance l\'argent d\'un autre, et Moze ne conserve à aucun moment les fonds : ' +
         'la plateforme n\'intervient qu\'en tiers technique.',
     },
@@ -137,9 +138,9 @@ export class FacturationCollaborativeComponent implements OnInit, OnDestroy {
       question: 'Est-ce que je deviens responsable du travail des autres ?',
       answer:
         'Non. La collaboration constitue un groupement momentané d\'entreprises <strong>de fait, non ' +
-        'solidaire</strong> : sans création de société et sans personnalité morale. Chaque intervenant ' +
+        'solidaire</strong> : sans création de société et sans personnalité morale. Chaque coéquipier ' +
         'demeure seul responsable de sa prestation, de sa ligne de facturation et de ses obligations ' +
-        'fiscales, sociales et assurantielles. Aucun intervenant ne peut être tenu responsable des ' +
+        'fiscales, sociales et assurantielles. Aucun coéquipier ne peut être tenu responsable des ' +
         'manquements d\'un autre.',
     },
     {
@@ -150,7 +151,7 @@ export class FacturationCollaborativeComponent implements OnInit, OnDestroy {
         'pas nécessaire pour utiliser la fonctionnalité.',
     },
     {
-      question: 'Le mandataire administratif a-t-il un pouvoir sur les autres ?',
+      question: 'Le chef de file a-t-il un pouvoir sur les autres ?',
       answer:
         'Non, et c\'est explicite : sa désignation n\'emporte <strong>aucun mandat de représentation ' +
         'juridique ni aucune solidarité financière</strong>. Son rôle se limite à établir les documents ' +
@@ -160,39 +161,39 @@ export class FacturationCollaborativeComponent implements OnInit, OnDestroy {
       question: 'Qui apparaît sur les documents ?',
       answer:
         'La facture est émise au nom de l\'entreprise qui réalise la prestation. Sur une facture ' +
-        'collaborative, les informations du mandataire administratif figurent sur le bordereau, et les ' +
-        'co-traitants apparaissent dans le corps du document, chacun avec son identité, la nature de sa ' +
+        'à plusieurs, les informations du chef de file figurent sur le bordereau, et les ' +
+        'coéquipiers apparaissent dans le corps du document, chacun avec son identité, la nature de sa ' +
         'prestation et son montant.',
     },
     {
       question: 'Qui encaisse l\'argent du client ?',
       answer:
-        'Ni le mandataire, ni Moze. Les flux sont encaissés et ventilés par <strong>Stripe Connect</strong>, ' +
-        'prestataire de services de paiement agréé, selon la répartition inscrite au bordereau. Moze ne ' +
+        'Ni le chef de file, ni Moze. Les sommes sont encaissées et réparties par notre prestataire de ' +
+        'paiement agréé selon le bordereau. Moze ne ' +
         'conserve à aucun moment les fonds pour compte de tiers.',
     },
     {
-      question: 'Les autres intervenants doivent-ils avoir un compte Moze ?',
+      question: 'Vos coéquipiers doivent-ils avoir un compte Moze ?',
       answer:
-        'Oui. Chaque intervenant doit disposer d\'un compte : c\'est ce qui permet de sécuriser et ' +
+        'Oui. Chaque coéquipier doit disposer d\'un compte : c\'est ce qui permet de sécuriser et ' +
         'd\'automatiser les échanges, les documents, la validation du bordereau et la répartition des ' +
         'paiements. Chacun retrouve ensuite sur son compte les devis et factures de la transaction à ' +
         'laquelle il a participé.',
     },
     {
-      question: 'Combien coûte la facturation collaborative ?',
+      question: 'Combien coûte une facture à plusieurs ?',
       answer:
-        'Elle fait partie de l\'offre Indép +, à 9,90 € HT par mois. S\'y ajoutent <strong>3,9 % HT</strong> ' +
-        'de frais administratifs sur le montant total des factures qui passent par la facturation ' +
-        'collaborative ou l\'apport d\'affaires.',
+        'Facturer à plusieurs fait partie de l\'offre Indép +, à 9,90 € HT par mois. S\'y ajoutent ' +
+        '<strong>3,9 % HT</strong> de frais administratifs sur le montant total des factures à plusieurs ' +
+        'et de celles qui passent par l\'apport d\'affaires.',
     },
   ];
 
   ngOnInit(): void {
     const description =
-      'Facturez à plusieurs sur un même projet sans sous-traitance ni solidarité : ' +
-      'bordereau récapitulatif, responsabilités séparées et répartition automatique des paiements.';
-    const title = 'Facturation collaborative : facturer à plusieurs sur un même projet';
+      'Facturez à plusieurs sur une même mission : un devis commun pour le client, une facture ' +
+      'pour chacun, un paiement réparti automatiquement, sans solidarité entre vous.';
+    const title = 'Facturer à plusieurs : un devis commun, une facture pour chacun';
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: title });
@@ -217,7 +218,7 @@ export class FacturationCollaborativeComponent implements OnInit, OnDestroy {
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Facturation collaborative',
+          name: 'Facturer à plusieurs',
           item: 'https://www.moze.fr/facturation-collaborative',
         },
       ],

@@ -43,6 +43,8 @@ export const STATIC_PATHS: readonly { path: string }[] = [
   { path: '/tarifs' },
   { path: '/facturation-collaborative' },
   { path: '/services-a-la-personne' },
+  { path: '/apport-d-affaires' },
+  { path: '/co-traitance-artisans' },
   { path: '/freelance' },
   { path: '/auto-entrepreneur' },
   { path: '/blog' },

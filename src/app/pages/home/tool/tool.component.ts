@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
 import { MetaPixelService } from '../../../services/meta-pixel.service';
 
 @Component({
     selector: 'app-tool',
-    imports: [ScrollRevealDirective],
+    imports: [ScrollRevealDirective, RouterLink],
     templateUrl: './tool.component.html',
     styleUrl: './tool.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -16,40 +16,41 @@ export class ToolComponent {
 
   public features = signal([
     {
-      t1: 'RÉSEAU SOCIAL',
-      t2: 'D\'INDÉPENDANTS',
-      desc: 'Échange avec les autres Mozeurs, développe ton réseau professionnel en ligne et génère des opportunités business directement sur Moze.',
-      badge: 'COMMUNAUTÉ ACTIVE'
+      t1: 'FACTURER',
+      t2: 'À PLUSIEURS',
+      desc: 'Une mission, plusieurs indépendants : un seul devis pour le client, une facture pour chacun, un paiement réparti automatiquement.',
+      badge: 'UN DEVIS COMMUN'
     },
     {
       t1: 'APPORT',
-      t2: 'D\'AFFAIRES INTÉGRÉ',
-      desc: 'Augmente ton chiffre d\'affaires grâce à l\'apport d\'affaires directement dans Moze, réponds à des offres ou propose à ton réseau des missions en échange d\'une commission.',
-      badge: 'AUGMENTE TES REVENUS'
+      t2: 'D\'AFFAIRES',
+      desc: 'Un client vous demande un travail que vous ne faites pas ? Transmettez-le à un confrère de confiance. Votre commission est facturée et payée automatiquement quand le client règle.',
+      badge: 'TOUCHEZ UNE COMMISSION',
+      route: '/apport-d-affaires'
     },
     {
-      t1: 'FACTURATION',
-      t2: 'COLLABORATIVE',
-      desc: 'Unique en France : collabore sur un même projet avec d\'autres indépendants et co-facture directement depuis Moze, simplement et en toute légalité.',
-      badge: 'EXCLUSIF MOZE'
+      t1: 'SERVICES À LA PERSONNE :',
+      t2: 'VOS CLIENTS NE PAIENT QUE LA MOITIÉ',
+      desc: 'Ménage, jardinage, petit bricolage : grâce à notre coopérative, vos clients profitent du crédit d\'impôt et de l\'avance immédiate, même si vous n\'avez pas d\'agrément.',
+      badge: 'OPTION COOPÉRATIVE'
     },
     {
-      t1: 'SUIVI EN',
-      t2: 'TEMPS RÉEL',
-      desc: 'Consulte le statut de tes factures en temps réel jusqu\'à l\'encaissement. Tableau de bord clair, synthèse de tes revenus, aucune saisie manuelle.',
-      badge: 'SIMPLE ET INTUITIF'
+      t1: 'DEVIS ET FACTURES',
+      t2: 'ILLIMITÉS',
+      desc: 'Créez vos devis et factures en quelques minutes, au format de la facture électronique obligatoire en 2027.',
+      badge: 'INCLUS DANS INDÉP +'
     },
     {
-      t1: 'FACTURATION ILLIMITÉE',
-      t2: 'ET CONFORME',
-      desc: 'Crée et envoie tes factures et devis professionnels en quelques secondes. Conformité totale avec la réforme facturation électronique 2026.',
-      badge: 'INCLUS DANS TOUTES LES OFFRES'
+      t1: 'UN RÉSEAU',
+      t2: 'D\'INDÉPENDANTS',
+      desc: 'Échangez avec d\'autres indépendants, trouvez des partenaires de confiance et recommandez-vous les uns les autres.',
+      badge: 'GRATUIT'
     },
     {
-      t1: 'AVANCE',
-      t2: 'IMMÉDIATE SAP',
-      desc: 'Tu es dans le service à la personne ? Moze Coop te donne accès au numéro SAP sans exclusivité, avec gestion du crédit d\'impôt immédiat intégré.',
-      badge: 'OFFRE COOP'
+      t1: 'SUIVI JUSQU\'AU',
+      t2: 'PAIEMENT',
+      desc: 'Suivez chaque facture jusqu\'à l\'encaissement. Un tableau de bord clair, aucune saisie manuelle.',
+      badge: 'SIMPLE'
     }
   ]);
 
